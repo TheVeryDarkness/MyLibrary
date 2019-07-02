@@ -1,0 +1,224 @@
+#pragma once
+
+#include "LinkedList.h"
+
+#define Z_MAX 10000
+
+namespace LL {
+
+	typedef DLL<unsigned short, Z_MAX> Z;
+
+	//有理数
+	//Rational Number
+	//negative sign on denominator will be ignored
+	class Q
+	{
+	protected:
+		Z Numerator;//分子
+		Z Denominator;//分母
+	public:
+		//__stdcall Q();
+		explicit __stdcall Q(long n, unsigned short d = 1)noexcept :
+			Numerator(sign(n), static_cast<unsigned long>(abs(n))),
+			Denominator(true, static_cast<unsigned long>(d)) {}
+		__stdcall Q(const Q& that, bool DeepCopy) noexcept :
+			Denominator(that.Denominator, DeepCopy),
+			Numerator(that.Numerator, DeepCopy) {}
+		__stdcall ~Q();
+		inline void __stdcall destruct() {
+			this->Denominator.destruct();
+			this->Numerator.destruct();
+		}
+		//约分
+		void __stdcall Simplify() {
+			while (true)
+			{
+				if (this->Denominator.next == nullptr && this->Numerator.next == nullptr)
+				{
+					return;
+				}
+				if (this->Denominator.next == nullptr || this->Numerator.next == nullptr)
+				{
+					break;
+				}
+				if (
+					(this->Denominator.next->data == 0)
+					&&
+					(this->Numerator.next->data == 0))
+				{
+					this->Denominator >> 1;
+					this->Numerator >> 1;
+				}
+				else break;
+			}
+			long long difference = 0;
+
+			if (Numerator == Denominator)
+			{
+				Numerator = 1;
+				Denominator = 1;
+			}
+			else if (Numerator == 0)
+			{
+				Denominator = 1;
+			}
+			else if (Denominator == 0)
+			{
+#ifdef _DEBUG
+				throw std::runtime_error("Denominator can't be 0.(from LL::Q::Simplify())");
+#else
+				Numerator = 1;
+#endif // _DEBUG
+			}
+			else
+			{
+				Z a(Numerator, true), b(Denominator, true);
+				a.data = 1;
+				b.data = 1;
+				while (true)
+				{
+					if (a == b)
+					{
+						this->Numerator /= a;
+						this->Denominator /= b;
+						a.destruct();
+						b.destruct();
+						return;
+					}
+					{
+						bool _a = (a == 0), _b = (b == 0);
+						if (_a && _b)
+						{
+							throw std::runtime_error("Computation error");
+						}
+						if (_a)
+						{
+							this->Numerator /= b;
+							this->Denominator /= b;
+							~a; ~b;
+							return;
+						}
+						if (_b)
+						{
+							this->Numerator /= a;
+							this->Denominator /= a;
+							~a, ~b;
+							return;
+						}
+					}
+					{
+						difference = static_cast<long long>(a.RawLength()) - b.RawLength();
+						if (difference == 0)
+						{
+							if (a < b)
+							{
+								b -= a;
+							}
+							else a -= b;
+						}
+						else {
+							if (a < b)
+							{
+								b %= a;
+							}
+							else a %= b;
+						}
+					}
+				}
+			}
+		}
+		void __stdcall operator=(long that) {
+			this->Denominator = 1;
+			this->Numerator = that;
+		}
+
+		void __stdcall operator+=(long that) {
+			Z Product(this->Denominator * that,false);
+			this->Numerator += Product;
+			Product.destruct();
+			this->Simplify();
+		}
+		void __stdcall operator-=(long that) {
+			Z Product = this->Denominator * that;
+			this->Numerator -= Product;
+			Product.destruct();
+			this->Simplify();
+		}
+		Q __stdcall operator-(const Q& that)const {
+			Q Res(*this, true);
+			Res -= that;
+			return Res;
+		}
+
+		void __stdcall operator+=(const Z& that) {
+			this->Numerator += that * this->Denominator;
+			this->Simplify();
+		}
+		void __stdcall operator-=(const Z& that) {
+			this->Numerator -= that * this->Denominator;
+			this->Simplify();
+		}
+
+		void __stdcall operator+=(const Q& that) {
+			this->Numerator *= that.Denominator;
+			this->Numerator += (that.Numerator * this->Denominator);
+			this->Simplify();
+		}
+		void __stdcall operator-=(const Q& that) {
+			this->Numerator *= that.Denominator;
+			this->Numerator -= (that.Numerator * this->Denominator);
+			this->Simplify();
+		}
+		Q __stdcall operator+(const Q& that)const {
+			Q Res(*this, true);
+			Res += that;
+			return Res;
+		}
+		void __stdcall operator*=(const Q& that) {
+			this->Denominator *= that.Denominator;
+			this->Numerator *= that.Numerator;
+			this->Simplify();
+		}
+		void __stdcall operator/=(const Q& that) {
+			this->Denominator *= that.Numerator;
+			this->Numerator *= that.Denominator;
+			this->Simplify();
+			if (this->Numerator.IsPositive() && (!this->Denominator.IsPositive()))
+			{
+				this->Numerator.SetToContradict();
+				this->Denominator.SetToContradict();
+			}
+		}
+		Q __stdcall operator*(const Q& that)const {
+			Q Res(*this, true);
+			Res *= that;
+			return Res;
+		}
+		Q __stdcall operator/(const Q& that)const {
+			Q Res(*this, true);
+			Res /= that;
+			return Res;
+		}
+		bool __stdcall operator==(long that)const {
+			Z temp = this->Denominator * that;
+			bool ret = (temp == this->Numerator);
+			temp.destruct();
+			return ret;
+		}
+		bool __stdcall operator==(const Q& that)const {
+			return ((this->Numerator == that.Numerator) && (this->Denominator == that.Denominator));
+		}
+		std::ostream& Print(std::ostream& o)const {
+			if (this->Denominator == 1)
+				return Numerator.Print();
+			return Denominator.Print((Numerator.Print(o) << '/'));
+		}
+		friend std::ostream& operator<<(std::ostream& o, const Q& q) {
+			return q.Print(o);
+		}
+	};
+	inline __stdcall Q::~Q() {}
+}
+#ifdef Z_MAX
+#undef Z_MAX
+#endif // Z_MAX
