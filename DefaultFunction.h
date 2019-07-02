@@ -15,7 +15,13 @@ namespace LL {
 			unsigned short Index1, unsigned short Index2
 		) : c(Coefficient1, Coefficient2), i(Index1, Index2) {
 			if (Index2 == 0 || Coefficient2 == 0)
+			{
+#ifdef _DEBUG
+				DEBUG_OUT;
+#endif // _DEBUG
+
 				throw std::invalid_argument("Denominator can't be 0.");
+			}
 			this->simplify();
 		}
 		__stdcall ~power() {}
@@ -34,15 +40,15 @@ namespace LL {
 			return *this;
 		}
 		power& __stdcall integral() {
-			Q temp(i, true);
-			temp += 1;
-			if (temp == 0)
+			i += 1;
+			if (i == 0)
 			{
+#ifdef _DEBUG
+				DEBUG_OUT;
+#endif // _DEBUG
 				throw std::runtime_error("Not supported");
 			}
-			c /= temp;
-			temp.destruct();
-			i += 1;
+			c /= i;
 			return *this;
 		}
 		void __stdcall simplify() {

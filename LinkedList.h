@@ -1,11 +1,16 @@
 #pragma once
 
+#ifdef _DEBUG
+#include <string>
+#endif // _DEBUG
+
 #include <iostream>
 #include <iomanip>
 #include <string>
 #include <charconv>
 #include "Exception.h"
 #include "Statistics.h"
+#include "Shared.h"
 
 
 //根据规范（当然是我自己胡诌的规范），
@@ -91,7 +96,6 @@ namespace LL {
 		//重载
 		/*inline*/void __stdcall operator*=(int times) noexcept {
 			LL::multiply<OLL, Data, Radix>(*this, times);
-			this->Simplify();
 		}
 		//重载
 		/*inline*/OLL __stdcall operator*(int times)const noexcept {
@@ -102,7 +106,6 @@ namespace LL {
 		//重载
 		/*inline*/void __stdcall operator*=(const OLL& b) noexcept {
 			LL::multiply<OLL, Data, Radix>(*this, b);
-			this->Simplify();
 		}
 		//重载
 		/*inline*/OLL __stdcall operator*(const OLL& b)const noexcept {
@@ -205,7 +208,8 @@ namespace LL {
 		) noexcept {
 			if constexpr (Radix == 0)
 			{
-				throw;
+				this->data = HeadData;
+				this->next = NextPtr;
 			}
 			else if constexpr (Radix == 1)
 			{
@@ -459,7 +463,8 @@ namespace LL {
 			if (this->next == nullptr)
 			{
 #ifdef _DEBUG
-				throw;
+				DEBUG_OUT;
+				throw std::domain_error("No next node");
 #else
 				return;
 #endif // _DEBUG
@@ -539,7 +544,7 @@ namespace LL {
 				if (OprtPtr->next != nullptr)
 				{
 					OprtPtr = OprtPtr->next;
-					value += ((unsigned long)(OprtPtr->data)) * (unsigned long)pow(Radix, n);
+					value += ((unsigned long long)(OprtPtr->data)) * (unsigned long long)pow(Radix, n);
 					n++;
 				}
 				else
@@ -637,7 +642,6 @@ namespace LL {
 		//重载
 		inline void __stdcall operator*=(int times) {
 			LL::multiply<DLL, Data, Radix>(*this, times);
-			this->Simplify();
 		}
 		//重载
 		inline DLL __stdcall operator*(int times)const {
@@ -648,7 +652,6 @@ namespace LL {
 		//重载
 		/*inline*/void __stdcall operator*=(const DLL& b) {
 			LL::multiply<DLL, Data, Radix>(*this, b);
-			this->Simplify();
 		}
 		//重载
 		inline DLL __stdcall operator*(const DLL& b)const {
@@ -657,7 +660,7 @@ namespace LL {
 			return Res;
 		}
 		//重载绝对值
-		inline DLL __stdcall abs()const noexcept {
+		inline const DLL __stdcall abs()const noexcept {
 			return ((this->data > 0) ? *this : (-*this));
 		}
 		//重载正
@@ -679,7 +682,7 @@ namespace LL {
 		//重载DLL链表+=
 		inline void __stdcall operator+=(const DLL& that)noexcept {
 			LL::add<DLL, Data, Radix>(*this, that);
-			//this->Fresh();
+			this->Fresh();
 			this->Simplify();
 		}
 		//重载DLL链表减号
@@ -690,12 +693,21 @@ namespace LL {
 		}
 		//重载
 		inline void __stdcall operator-=(const DLL& b)noexcept {
-			return(*this += (-b));
+			DLL _b = -b;
+			*this += _b;
+			_b.destruct();
+		}
+		//重载
+		inline void __stdcall operator-=(DLL& b)noexcept {
+			Data Orig = b.data;
+			b.data = !b.data;
+			*this += b;
+			b.data = Orig;
 		}
 		//重载DLL链表负号
 		inline DLL __stdcall operator-(
 			)const noexcept {
-			DLL res(*this);
+			DLL res(*this, true);
 			res.data = !res.data;
 			return res;
 		}
@@ -749,8 +761,7 @@ namespace LL {
 		//浅拷贝
 		inline __stdcall DLL(
 			const DLL& that
-		) noexcept {
-			this->data = that.data;
+		) noexcept :data(that.data) {
 			this->destruct();
 			this->next = that.next;
 			this->last = that.last;
@@ -759,22 +770,33 @@ namespace LL {
 				//此步骤非常重要
 				this->next->last = this;
 			}
+#ifdef _DEBUG
+			if (reinterpret_cast<void*>(this->last) == reinterpret_cast<void*>(0xcccccccccccccccc))
+			{
+				DEBUG_OUT;
+				throw std::out_of_range("Unexpected Error");
+			}
+#endif // _DEBUG
 		}
 		//覆盖赋值
 		//浅拷贝
 		//将清除被赋值对象原有内容
-		inline DLL& __stdcall operator=(
+		inline void __stdcall operator=(
 			const DLL& that
 			) noexcept {
 			if (&that == this)
 			{
-				return *this;
+				return;
 			}
 			this->destruct();
 			this->data = that.data;
 			this->next = that.next;
 			this->last = that.last;
-			return *this;
+			if (this->next != nullptr)
+			{
+				this->next->last = this;
+			}
+			return;
 		}
 		inline bool __stdcall operator==(
 			int that
@@ -782,6 +804,10 @@ namespace LL {
 			if (this->next == nullptr && that == 0)
 			{
 				return true;
+			}
+			else if (that == 0)
+			{
+				return false;
 			}
 			if (
 				(this->data > 0 && that >= 0)
@@ -967,7 +993,8 @@ namespace LL {
 			if (this->next == nullptr)
 			{
 #ifdef _DEBUG
-				throw;
+				DEBUG_OUT;
+				throw std::domain_error("No next node.");
 #else
 				return;
 #endif // _DEBUG
@@ -994,13 +1021,13 @@ namespace LL {
 		//保证指向正确
 		//返回末尾指针
 		inline DLL* __stdcall Fresh() noexcept {
-			return;
 			DLL* OprtPtr = this;
 			while (OprtPtr->next != nullptr) {
 #ifdef _DEBUG
 				if (OprtPtr->next->last != OprtPtr)
 				{
-					throw;
+					DEBUG_OUT;
+					throw std::out_of_range("Unexpected");
 				}
 #endif // _DEBUG
 				OprtPtr->next->last = OprtPtr;
@@ -1035,8 +1062,8 @@ namespace LL {
 			}
 			else
 			{
-				this->destruct();
 				this->data = static_cast<Data>(positive);
+				this->destruct();
 				DLL* OprtPtr = this;//操作当前对象
 				while (true)
 				{
@@ -1052,9 +1079,6 @@ namespace LL {
 						OprtPtr = OprtPtr->next;
 						value /= Radix;
 					}
-#ifdef _DEBUG
-					else throw;
-#endif // _DEBUG
 				}
 			}
 		}
@@ -1100,7 +1124,8 @@ namespace LL {
 			if (that == 0)
 			{
 #ifdef _DEBUG
-				throw std::runtime_error("Denominator can't be 0.(from operator%=(const DLL&))");
+				DEBUG_OUT;
+				throw std::out_of_range("Denominator can't be 0.(from operator%=(const DLL&))");
 #else
 				return;
 #endif // _DEBUG
@@ -1113,9 +1138,8 @@ namespace LL {
 			{
 				return *this;
 			}
-			if constexpr (Radix == 0)throw;
+			if constexpr (Radix == 0)throw std::invalid_argument();
 			if (that % Radix == 0) {
-				this->Simplify();
 				return ((*this >> 1) /= (that / Radix));
 			}
 			else
@@ -1146,7 +1170,6 @@ namespace LL {
 					}
 					else break;
 				}
-				this->Simplify();
 				return *this;
 			}
 		}
@@ -1154,7 +1177,8 @@ namespace LL {
 			if (that == 0)
 			{
 #ifdef _DEBUG
-				throw std::runtime_error("Denominator can't be 0.(from operator%=(const DLL&))");
+				DEBUG_OUT;
+				throw std::out_of_range("Denominator can't be 0.(from operator%=(const DLL&))");
 #else
 				return;
 #endif // _DEBUG
@@ -1170,7 +1194,6 @@ namespace LL {
 			if (Radix % that == 0) {
 				this->next->destruct();
 				this->next->data %= that;
-				this->Simplify();
 				return *this;
 			}
 			DLL* OprtPtr = this;
@@ -1199,53 +1222,59 @@ namespace LL {
 				Upper = OprtPtr->data;
 			}
 			OprtPtr->destruct();
-			this->Simplify();
 			return *this;
 		}
 		inline void __stdcall operator%=(const DLL& that) noexcept {
 			if (that == 0)
 			{
 #ifdef _DEBUG
-				throw std::runtime_error("Denominator can't be 0.(from operator%=(const DLL&))");
+				DEBUG_OUT;
+				throw std::out_of_range("Denominator can't be 0.(from operator%=(const DLL&))");
 #else
 				return;
 #endif // _DEBUG
 			}
-			bool IsPositive = (this->data > 0 && that.data > 0) || (this->data == 0 && that.data == 0);
-			long long d = static_cast<long long>(this->RawLength() - that.RawLength());
+			bool ThisSign = (this->data);
+			this->data = 1;
+			size_t ThatLength = that.RawLength();
+			long long d = (static_cast<long long>(this->RawLength()) - ThatLength);
 			if (d < 0LL)
 			{
 				return;
 			}
-			size_t bit = static_cast<int>(d);
+			size_t bit = static_cast<size_t>(d);
 			DLL That(that, true);
+			That.data = 1;
 			That << bit;
 			while (true)
 			{
-				DLL* OprtPtr = this->GetEnd(), * PreOprtPtr = that.GetEnd();
-				if (OprtPtr->data > PreOprtPtr->data)
+				//size_t ThisLength = this->RawLength();
+				if (this->RawLength() < ThatLength)
 				{
-					if ((OprtPtr->data / PreOprtPtr->data) > 2)
+					That.destruct();
+					break;
+				}
+				DLL* OprtPtr = this->GetEnd(), * PreOprtPtr = That.GetEnd();
+				if (*this >= That)
+				{
+					if (((OprtPtr->data) / (PreOprtPtr->data + 1)) >= 2)
 					{
 						DLL temp(That, true);
-						temp *= (OprtPtr->data / PreOprtPtr->data - 1);
-						*this += (IsPositive ? (-temp) : (temp));
+						temp *= ((OprtPtr->data) / (PreOprtPtr->data + 1));
+						*this -= temp;
 						temp.destruct();
 					}
 					else
 					{
-						*this += (IsPositive ? (-That) : (That));
+						*this -= That;
 					}
 				}
-				else if (this->abs() >= That.abs())
-				{
-					*this += (IsPositive ? (-That) : (That));
-				}
 				else {
+					bit = static_cast<size_t>(static_cast<long long>(this->RawLength()) - that.RawLength());
 					if (bit == 0)
 					{
 						That.destruct();
-						this->Simplify();
+						this->data = ThisSign;
 						return;
 					}
 					else
@@ -1260,7 +1289,8 @@ namespace LL {
 			if (that == 0)
 			{
 #ifdef _DEBUG
-				throw std::runtime_error("Denominator can't be 0.(from operator%=(const DLL&))");
+				DEBUG_OUT;
+				throw std::out_of_range("Denominator can't be 0.(from operator%=(const DLL&))");
 #else
 				return;
 #endif // _DEBUG
@@ -1282,10 +1312,25 @@ namespace LL {
 			{
 				if (*this > That)
 				{
-					*this -= That;
-					DLL one(true, 1);//此处可优化
-					Res += one;
-					one.destruct();
+					DLL* _a = this->GetEnd(), * _b = that.GetEnd();
+					if ((_a->data) / (_b->data + 1) >= 2)
+					{
+						Data Ratio = (_a->data) / (_b->data + 1) - 1;
+						DLL temp(That * Ratio, false);
+						*this -= temp;
+						temp = Ratio;
+						Res += temp;
+						temp.destruct();
+					}
+					else
+					{
+						That.data = 0;
+						*this += That;
+						That.data = 1;
+						DLL one(true, 1);//此处可优化
+						Res += one;
+						one.destruct();
+					}
 				}
 				else if (*this == That)
 				{
@@ -1298,7 +1343,6 @@ namespace LL {
 					one.destruct();
 					Res << bit;
 					*this = Res;
-					this->Simplify();
 					this->data = ThisSign;
 					That.destruct();
 					return;
@@ -1315,7 +1359,6 @@ namespace LL {
 					{
 						*this = Res;
 						this->data = ThisSign;
-						this->Simplify();
 						That.destruct();
 						return;
 					}
@@ -1340,14 +1383,16 @@ namespace LL {
 			return LL::Print<DLL, Radix>(*this, out);
 		}
 	};
+#define NoNext(a) (a->next==nullptr||a==&NullObject)
 	//重载
 	template<class Class, typename Data, unsigned long Radix>
 	inline void __stdcall add(
 		Class& a, const Class& b
 	) noexcept {
-		Class Copy_b(b, true);//b的拷贝
+		Class NullObject(0, nullptr);
+		NullObject.next = &NullObject;
 		Class* OprtPtr_a = &a;//a的操作指针
-		Class* OprtPtr_b = &Copy_b;//Copy_b的操作指针
+		const Class* OprtPtr_b = &b;//b的操作指针
 		if constexpr (Radix == 0)
 		{
 			while (true)
@@ -1355,20 +1400,19 @@ namespace LL {
 				OprtPtr_a->data += OprtPtr_b->data;
 				if (
 					OprtPtr_a->next == nullptr
-					&& OprtPtr_b->next == nullptr
+					&& NoNext(OprtPtr_b)
 					)
 				{
-					~Copy_b;
 					OprtPtr_a = OprtPtr_b = nullptr;
-					return a;
+					return;
 				}
 				else if (OprtPtr_a->next == nullptr)
 				{
 					OprtPtr_a->insert();
 				}
-				else if (OprtPtr_b->next == nullptr)
+				else if (NoNext(OprtPtr_b))
 				{
-					OprtPtr_b->insert();
+					OprtPtr_b = &NullObject;
 				}
 				OprtPtr_a = OprtPtr_a->next;
 				OprtPtr_b = OprtPtr_b->next;
@@ -1377,14 +1421,12 @@ namespace LL {
 		//二进制
 		else if constexpr (Radix == 2)
 		{
-			Class CopyThis(a, true);//a的拷贝
 			bool Bit = false;//true表示进位或退位
 			if (a.next == nullptr || b.next == nullptr)
 			{
-				~CopyThis;
-				~Copy_b;
-				return a;
+				return;
 			}
+			Class CopyThis(a, true);//a的拷贝
 			if (OprtPtr_a->data == OprtPtr_b->data)
 			{//加法模式
 
@@ -1428,7 +1470,7 @@ namespace LL {
 					}
 					//analyzing the next bit.
 					if (OprtPtr_a->next == nullptr
-						&& OprtPtr_b->next == nullptr
+						&& NoNext(OprtPtr_b)
 						&& !Bit)
 					{
 						a.data = true;
@@ -1436,18 +1478,18 @@ namespace LL {
 					}
 					else if (
 						OprtPtr_a->next == nullptr
-						&& OprtPtr_b->next == nullptr
+						&& NoNext(OprtPtr_b)
 						) {
 						OprtPtr_a->insert();
-						OprtPtr_b->insert();
+						OprtPtr_b = &NullObject;
 					}
 					else if (OprtPtr_a->next == nullptr)
 					{
 						OprtPtr_a->insert();
 					}
-					else if (OprtPtr_b->next == nullptr)
+					else if (NoNext(OprtPtr_b))
 					{
-						OprtPtr_b->insert();
+						OprtPtr_b = &NullObject;
 					}
 					OprtPtr_a = OprtPtr_a->next;
 					OprtPtr_b = OprtPtr_b->next;
@@ -1457,11 +1499,10 @@ namespace LL {
 			{
 				if (a.data == false)
 				{
-					~Copy_b;
 					OprtPtr_a = OprtPtr_b = nullptr;
 					a = b + (CopyThis);
 					~CopyThis;
-					return a;
+					return;
 				}
 				OprtPtr_a = OprtPtr_a->next;
 				OprtPtr_b = OprtPtr_b->next;
@@ -1499,23 +1540,23 @@ namespace LL {
 						OprtPtr_a->data = true;
 					}
 					//处理下一位
-					if (OprtPtr_a->next == nullptr && OprtPtr_b->next == nullptr && !Bit)
+					if (OprtPtr_a->next == nullptr && NoNext(OprtPtr_b) && !Bit)
 					{
 						a.data = true;
 						break;
 					}
 					else if (OprtPtr_a->next == nullptr)
 					{
-						~Copy_b;
 						OprtPtr_a = OprtPtr_b = nullptr;
-						a = -((-b) + (-CopyThis));
+						CopyThis.data = !CopyThis.data;
+						Class _b = -b;
+						a = -(_b + CopyThis);
 						~CopyThis;
-						return a;
+						return;
 					}
-					else if (OprtPtr_b->next == nullptr)
+					else if (NoNext(OprtPtr_b))
 					{
-						OprtPtr_b->insert();
-						OprtPtr_b = OprtPtr_b->next;
+						OprtPtr_b = &NullObject;
 						OprtPtr_a = OprtPtr_a->next;
 					}
 					else
@@ -1525,29 +1566,24 @@ namespace LL {
 					}
 				} while (true);
 			}
-			~Copy_b;
 			~CopyThis;
 			OprtPtr_a = OprtPtr_b = nullptr;
-			return a;
+			return;
 		}
 		//普遍情形
 		else
 		{
-			Class CopyThis(a, true);//a的拷贝
 			bool Bit = false;//true表示进位或退位
 			if (b.next == nullptr)//b为0
 			{
-				~Copy_b;
-				~CopyThis;
 				return;
 			}
 			else if (a.next == nullptr)//a为0，直接将b拷贝到a
 			{
 				a = Class(b, true);
-				~CopyThis;
-				~Copy_b;
 				return;
 			}
+			Class CopyThis(a, true);//a的拷贝
 			if (OprtPtr_a->data == OprtPtr_b->data)//加法模式
 			{//处理符号位
 				if (OprtPtr_a->data)//a，b均为正数
@@ -1565,8 +1601,8 @@ namespace LL {
 				do
 				{//处理指针指向的当前位
 					if (
-						((unsigned long)OprtPtr_a->data
-							+ (unsigned long)OprtPtr_b->data
+						(static_cast<unsigned long long>(OprtPtr_a->data)
+							+ static_cast<unsigned long long>(OprtPtr_b->data)
 							)
 						>= Radix - (Bit ? 1ULL : 0ULL)
 						)//需要进位
@@ -1590,7 +1626,7 @@ namespace LL {
 					//根据下一位的存在情况，决定所选操作
 					if (OprtPtr_a->next == nullptr
 						&&
-						OprtPtr_b->next == nullptr
+						NoNext(OprtPtr_b)
 						&&
 						Bit == false)//无需进位且a，b均已结束
 					{
@@ -1599,19 +1635,19 @@ namespace LL {
 					else if (
 						OprtPtr_a->next == nullptr
 						&&
-						OprtPtr_b->next == nullptr
+						NoNext(OprtPtr_b)
 						)//a，b已经结束，但仍需进位
 					{
-						OprtPtr_a->insert();
-						OprtPtr_b->insert();
+						OprtPtr_a->insert(0);
+						OprtPtr_b = &NullObject;
 					}
 					else if (OprtPtr_a->next == nullptr)//a已经结束，但b未结束
 					{
-						OprtPtr_a->insert();
+						OprtPtr_a->insert(0);
 					}
-					else if (OprtPtr_b->next == nullptr)//
+					else if (NoNext(OprtPtr_b))//
 					{
-						OprtPtr_b->insert();
+						OprtPtr_b = &NullObject;
 					}
 					OprtPtr_a = OprtPtr_a->next;
 					OprtPtr_b = OprtPtr_b->next;
@@ -1621,10 +1657,9 @@ namespace LL {
 			{
 				if (a.data == false)
 				{
-					OprtPtr_a = OprtPtr_b = nullptr;
+					//OprtPtr_a = OprtPtr_b = nullptr;
 					a = b + CopyThis;
 					~CopyThis;
-					~Copy_b;
 					return;
 				}
 				OprtPtr_a = OprtPtr_a->next;
@@ -1643,30 +1678,31 @@ namespace LL {
 					else
 					{
 						OprtPtr_a->data = Data(
-							(unsigned long)OprtPtr_a->data
+							(unsigned long long)OprtPtr_a->data
 							+ Radix
-							- (unsigned long)Data(Bit)
-							- (unsigned long)OprtPtr_b->data);
+							- (unsigned long long)Data(Bit)
+							- (unsigned long long)OprtPtr_b->data);
 						Bit = true;
 					}
 					//处理下一位
-					if (OprtPtr_a->next == nullptr && OprtPtr_b->next == nullptr && !Bit)
+					if (OprtPtr_a->next == nullptr && NoNext(OprtPtr_b) && !Bit)
 					{
 						a.data = 1;
 						break;
 					}
 					else if (OprtPtr_a->next == nullptr)
 					{
-						~Copy_b;
-						OprtPtr_a = OprtPtr_b = nullptr;
-						a = -((-CopyThis) + (-b));
+						CopyThis.data = !CopyThis.data;//取反
+						Class _b = -b;
+						a = CopyThis + _b;
+						a.data = !a.data;
+						~_b;
 						~CopyThis;
 						return;
 					}
-					else if (OprtPtr_b->next == nullptr)
+					else if (NoNext(OprtPtr_b))
 					{
-						OprtPtr_b->insert();
-						OprtPtr_b = OprtPtr_b->next;
+						OprtPtr_b = &NullObject;
 						OprtPtr_a = OprtPtr_a->next;
 					}
 					else
@@ -1676,12 +1712,14 @@ namespace LL {
 					}
 				} while (true);
 			}
-			~Copy_b;
 			~CopyThis;
-			OprtPtr_a = OprtPtr_b = nullptr;
+			OprtPtr_a = nullptr;
 			return;
 		}
 	}
+#ifdef NoNext
+#undef NoNext
+#endif // NoNext
 
 	template<class Class, typename Data, unsigned long Radix>
 	void __stdcall multiply(Class& a, const Class& b) noexcept {
@@ -1695,8 +1733,8 @@ namespace LL {
 			{
 				break;
 			}
-			_temp = temp * static_cast<unsigned short>(OprtPtr_b->data);
-			add<Class, Data, Radix>(a, _temp);
+			_temp = temp * OprtPtr_b->data;
+			a += _temp;
 			temp << 1;
 			OprtPtr_b = OprtPtr_b->next;
 		}
@@ -1740,7 +1778,7 @@ namespace LL {
 				if (OprtPtr->next == nullptr && onbit == 0) break;
 				else if (OprtPtr->next == nullptr)
 				{
-					OprtPtr->insert();
+					OprtPtr->insert(0);
 				}
 				OprtPtr = OprtPtr->next;
 			}

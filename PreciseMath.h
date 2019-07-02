@@ -65,7 +65,8 @@ namespace LL {
 			else if (Denominator == 0)
 			{
 #ifdef _DEBUG
-				throw std::runtime_error("Denominator can't be 0.(from LL::Q::Simplify())");
+				DEBUG_OUT;
+				throw std::out_of_range("Denominator can't be 0.(from LL::Q::Simplify())");
 #else
 				Numerator = 1;
 #endif // _DEBUG
@@ -77,20 +78,20 @@ namespace LL {
 				b.data = 1;
 				while (true)
 				{
-					if (a == b)
-					{
-						this->Numerator /= a;
-						this->Denominator /= b;
-						a.destruct();
-						b.destruct();
-						return;
-					}
 					{
 						bool _a = (a == 0), _b = (b == 0);
 						if (_a && _b)
 						{
-							throw std::runtime_error("Computation error");
+#ifdef _DEBUG
+							~a; ~b;
+							DEBUG_OUT;
+							throw std::out_of_range("Computation error");
+#else
+							~a; ~b;
+							return;
+#endif // _DEBUG
 						}
+
 						if (_a)
 						{
 							this->Numerator /= b;
@@ -106,23 +107,21 @@ namespace LL {
 							return;
 						}
 					}
+					if (a == b)
+					{
+						this->Numerator /= a;
+						this->Denominator /= b;
+						a.destruct();
+						b.destruct();
+						return;
+					}
 					{
 						difference = static_cast<long long>(a.RawLength()) - b.RawLength();
-						if (difference == 0)
+						if (a < b)
 						{
-							if (a < b)
-							{
-								b -= a;
-							}
-							else a -= b;
+							b %= a;
 						}
-						else {
-							if (a < b)
-							{
-								b %= a;
-							}
-							else a %= b;
-						}
+						else a %= b;
 					}
 				}
 			}
@@ -133,7 +132,7 @@ namespace LL {
 		}
 
 		void __stdcall operator+=(long that) {
-			Z Product(this->Denominator * that,false);
+			Z Product(this->Denominator * that);
 			this->Numerator += Product;
 			Product.destruct();
 			this->Simplify();
