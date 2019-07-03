@@ -1,5 +1,5 @@
 #pragma once
-// Line.cpp : ¶¨Òå¾²Ì¬¿âµÄº¯Êı¡£
+// Line.cpp : å®šä¹‰é™æ€åº“çš„å‡½æ•°ã€‚
 //
 
 #include "Line.h"
@@ -12,13 +12,13 @@ Line Line::operator=(const Line& that) {
 	return *this;
 }
 
-//»ñµÃÖ±Ïß²ÎÊı
+//è·å¾—ç›´çº¿å‚æ•°
 extern inline Line __stdcall GetLine(
 	CODNT Start,
 	CODNT End
 ) {
-	Line line;//Ö±Ïß²ÎÊı£¨Ö±ÏßµÄÒ»°ãÊ½£©
-	if (Start.x == End.x && Start.y == End.y) {//Ëù¸øÁ½µãÖØºÏ
+	Line line;//ç›´çº¿å‚æ•°ï¼ˆç›´çº¿çš„ä¸€èˆ¬å¼ï¼‰
+	if (Start.x == End.x && Start.y == End.y) {//æ‰€ç»™ä¸¤ç‚¹é‡åˆ
 #ifdef _DEBUG
 		throw;
 #else
@@ -28,17 +28,17 @@ extern inline Line __stdcall GetLine(
 		line.C = -line.A * Start.x - line.B * Start.y;
 #endif // _DEBUG
 	}
-	else if (Start.x == End.x && Start.y != End.y) {//Æ½ĞĞÓÚyÖáµÄÖ±Ïß
+	else if (Start.x == End.x && Start.y != End.y) {//å¹³è¡Œäºyè½´çš„ç›´çº¿
 		line.B = 0;
 		line.A = 1L;
 		line.C = -Start.x;
 	}
-	else if (Start.x != End.x && Start.y == End.y) {//Æ½ĞĞÓÚxÖáµÄÖ±Ïß
+	else if (Start.x != End.x && Start.y == End.y) {//å¹³è¡Œäºxè½´çš„ç›´çº¿
 		line.A = 0;
 		line.B = 1L;
 		line.C = -Start.y;
 	}
-	else if (Start.x != End.x && Start.y != End.y) {//Ò»°ãÎ»ÖÃÇúÏß
+	else if (Start.x != End.x && Start.y != End.y) {//ä¸€èˆ¬ä½ç½®æ›²çº¿
 		line.A = End.y - Start.y;
 		line.B = -(End.x - Start.x);
 		line.C = -End.x * line.A - End.y * line.B;

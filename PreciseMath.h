@@ -8,14 +8,14 @@ namespace LL {
 
 	typedef DLL<unsigned short, Z_MAX> Z;
 
-	//ÓÐÀíÊý
+	//æœ‰ç†æ•°
 	//Rational Number
 	//negative sign on denominator will be ignored
 	class Q
 	{
 	protected:
-		Z Numerator;//·Ö×Ó
-		Z Denominator;//·ÖÄ¸
+		Z Numerator;//åˆ†å­
+		Z Denominator;//åˆ†æ¯
 	public:
 		//__stdcall Q();
 		explicit __stdcall Q(long n, unsigned short d = 1)noexcept :
@@ -29,7 +29,7 @@ namespace LL {
 			this->Denominator.destruct();
 			this->Numerator.destruct();
 		}
-		//Ô¼·Ö
+		//çº¦åˆ†
 		void __stdcall Simplify() {
 			while (true)
 			{

@@ -5,8 +5,8 @@
 #include "Statistics.h"
 
 
-template<unsigned char Radix = 255>//Ö¸Ê¾¸ÃÎ»µÄ×î´óÖµ
-//ÎŞ·ûºÅµ¥×Ö½ÚÊı
+template<unsigned char Radix = 255>//æŒ‡ç¤ºè¯¥ä½çš„æœ€å¤§å€¼
+//æ— ç¬¦å·å•å­—èŠ‚æ•°
 class Byte {
 private:
 	unsigned char data;
@@ -129,7 +129,7 @@ public:
 			return(this->data >= that.data) ? true : false;
 		}
 	}
-	//×Ô¶¯½«Êä³ö½øÖÆ¸´Î»Îª10
+	//è‡ªåŠ¨å°†è¾“å‡ºè¿›åˆ¶å¤ä½ä¸º10
 	friend inline std::ostream& operator<<(
 		std::ostream & out,
 		const Byte & that

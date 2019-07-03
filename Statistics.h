@@ -1,9 +1,11 @@
 #pragma once
 
-#define Posi(a) (((a)>0)?(a):0)//È¡ÕıÖµ
-template<typename Data>constexpr bool sign(Data data) { return ((data >= 0) ? true : false); }//È¡·ûºÅ£¬0ÊÓÎªÕı
-#define Sign(a) ((a)>0)?(1):((((a)<0)?(-1):(0)))//È¡·ûºÅ
-#define ABS(a) (((a)>0)?(a):(-(a)))//È¡¾ø¶ÔÖµ
+#include <forward_list>
+
+#define Posi(a) (((a)>0)?(a):0)//å–æ­£å€¼
+template<typename Data>constexpr bool sign(Data data) { return ((data >= 0) ? true : false); }//å–ç¬¦å·ï¼Œ0è§†ä¸ºæ­£
+#define Sign(a) ((a)>0)?(1):((((a)<0)?(-1):(0)))//å–ç¬¦å·
+#define ABS(a) (((a)>0)?(a):(-(a)))//å–ç»å¯¹å€¼
 
 
 inline long __stdcall Max(long[], long);
@@ -14,16 +16,27 @@ inline long __cdecl Min(long, long, ...);
 inline long __cdecl Average(long, long, ...);
 constexpr inline unsigned __stdcall GetPowerTimes(unsigned long long,unsigned int);
 template<typename Data>inline void __stdcall Swap(Data& a,Data& b);
+constexpr inline bool IsPrime(int val) {
+	for (int i = 1; i*i <= val; i++)
+	{
+		if (val%i==0)
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
 
 template<typename Data,Data dt> inline constexpr bool CheckUnsigned() { 
 	std::is_convertible<Data, unsigned long long> Cvt; 
 	return(Cvt.value && static_cast<long long>(static_cast<Data>(-1)) != -1LL); 
 }
 
-//Êı×é°æÇó×î´óÖµ
+//æ•°ç»„ç‰ˆæ±‚æœ€å¤§å€¼
 inline long __stdcall Max(
 	long argument[],
-	long MaxIndex//Êı×é×î´óË÷ÒıÖµ
+	long MaxIndex//æ•°ç»„æœ€å¤§ç´¢å¼•å€¼
 ) {
 	long MaxNumber = argument[0];
 	if (MaxIndex == 0)
@@ -40,10 +53,10 @@ inline long __stdcall Max(
 }
 
 
-//Êı×é°æÇó×îĞ¡Öµ
+//æ•°ç»„ç‰ˆæ±‚æœ€å°å€¼
 inline long __stdcall Min(
 	long argument[],
-	long MaxIndex//Êı×é×î´óË÷ÒıÖµ
+	long MaxIndex//æ•°ç»„æœ€å¤§ç´¢å¼•å€¼
 ) {
 	long MinNumber = argument[0];
 	if (MaxIndex == 0)
@@ -60,10 +73,10 @@ inline long __stdcall Min(
 }
 
 
-//Êı×é°æÇóÆ½¾ùÖµ
+//æ•°ç»„ç‰ˆæ±‚å¹³å‡å€¼
 inline long __stdcall Average(
 	long argument[],
-	long Account//²ÎÊıÊıÄ¿
+	long Account//å‚æ•°æ•°ç›®
 )
 {
 	long average = 0;
@@ -74,21 +87,21 @@ inline long __stdcall Average(
 	return (long)average;
 }
 
-//²»¶¨²ÎÊı
+//ä¸å®šå‚æ•°
 inline long __cdecl Max(
 	long num, long data, ...
 ) {
 	return Max(&data, num);
 }
 
-//²»¶¨²ÎÊı
+//ä¸å®šå‚æ•°
 inline long __cdecl Min(
 	long num, long data, ...
 ) {
 	return Min(&data, num);
 }
 
-//²»¶¨²ÎÊı
+//ä¸å®šå‚æ•°
 inline long __cdecl Average(
 	long num, long data, ...
 ) {
@@ -133,7 +146,7 @@ constexpr unsigned inline __stdcall GetPowerTimes(
 	return 0;
 }
 
-//²»ÅĞ¶ÏÁ½ÊıÏàµÈ
+//ä¸åˆ¤æ–­ä¸¤æ•°ç›¸ç­‰
 template<typename Data>inline void __stdcall Swap(Data& a, Data& b) {
 	a = a ^ b;
 	b = a ^ b;

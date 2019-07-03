@@ -2,7 +2,7 @@
 
 #include "CODNT.h"
 
-//Ö±Ïß²ÎÊı£¨Ò»°ãÊ½£©
+//ç›´çº¿å‚æ•°ï¼ˆä¸€èˆ¬å¼ï¼‰
 typedef struct Line {
 	long A, B, C;
 	struct Line operator=(const struct Line& that);

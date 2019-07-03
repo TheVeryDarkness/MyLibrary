@@ -1,4 +1,4 @@
-﻿#include <amp.h>
+#include <amp.h>
 
 using concurrency::array;
 using concurrency::array_view;

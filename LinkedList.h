@@ -13,15 +13,15 @@
 #include "Shared.h"
 
 
-//¸ù¾İ¹æ·¶£¨µ±È»ÊÇÎÒ×Ô¼ººúÖßµÄ¹æ·¶£©£¬
-//Simplify()ºÍFresh()²Ù×÷Ó¦ÔÚ¼Ó¼õ³Ë³ı²Ù×÷Íê³Éºó·µ»ØÊ±Ö÷¶¯µ÷ÓÃ
-//ÒÔ±ÜÃâÈßÓàºÍ´íÎ»
+//æ ¹æ®è§„èŒƒï¼ˆå½“ç„¶æ˜¯æˆ‘è‡ªå·±èƒ¡è¯Œçš„è§„èŒƒï¼‰ï¼Œ
+//Simplify()å’ŒFresh()æ“ä½œåº”åœ¨åŠ å‡ä¹˜é™¤æ“ä½œå®Œæˆåè¿”å›æ—¶ä¸»åŠ¨è°ƒç”¨
+//ä»¥é¿å…å†—ä½™å’Œé”™ä½
 #pragma pack(push)
 #pragma pack(2)
 #define LL_LENGTH(type) const type* OprtPtr=this;size_t s=0;while(OprtPtr!=nullptr){OprtPtr=OprtPtr->next;s++;}return s;
 #define LL_SIMPLIFY(type) {type* Flag = this;type* OprtPtr = this;while (true){if (OprtPtr->data!=Data(0U)){Flag = OprtPtr;}if (OprtPtr->next == nullptr){break;}OprtPtr = OprtPtr->next;}while (Flag->next != nullptr){Flag->cut();}return Flag;}
 namespace LL {
-	//Ç°ÏòÉùÃ÷
+	//å‰å‘å£°æ˜
 	template <typename Data, unsigned long Radix>
 	class OLL;
 	template<typename Data, unsigned long Radix>
@@ -37,27 +37,27 @@ namespace LL {
 		)noexcept;
 
 
-	//¶¨Òå
+	//å®šä¹‰
 
 
-	//DataÎªÊı¾İÀàĞÍ£¬Îğ½«ÆäÖÃÎªÖ¸Õë
+	//Dataä¸ºæ•°æ®ç±»å‹ï¼Œå‹¿å°†å…¶ç½®ä¸ºæŒ‡é’ˆ
 	template <
 		typename Data, unsigned long Radix = 0
 	>
-		//µ¥Ïò£¨oneway£©Á´±í£¨linked list£©£¨»ùÀà£©
+		//å•å‘ï¼ˆonewayï¼‰é“¾è¡¨ï¼ˆlinked listï¼‰ï¼ˆåŸºç±»ï¼‰
 		//Notice:
 		//The head of the linked list should be in the stack or heap,
 		//however, the other sections should be in the heap.
 		class OLL
 	{
 		template<class Class, typename Data, unsigned long Radix>
-		//ÖØÔØ
+		//é‡è½½
 		inline friend void __stdcall add(
 			Class& a,
 			const Class& b
 		)noexcept;
 		template<class Class, typename Data, unsigned long Radix>
-		//ÖØÔØ
+		//é‡è½½
 		inline friend void __stdcall multiply(
 			Class& a,
 			const Class& b
@@ -93,53 +93,53 @@ namespace LL {
 				const Type& that
 			)noexcept;
 	public:
-		//ÖØÔØ
+		//é‡è½½
 		/*inline*/void __stdcall operator*=(int times) noexcept {
 			LL::multiply<OLL, Data, Radix>(*this, times);
 		}
-		//ÖØÔØ
+		//é‡è½½
 		/*inline*/OLL __stdcall operator*(int times)const noexcept {
 			OLL Res(*this, true);
 			Res *= times;
 			return Res;
 		}
-		//ÖØÔØ
+		//é‡è½½
 		/*inline*/void __stdcall operator*=(const OLL& b) noexcept {
 			LL::multiply<OLL, Data, Radix>(*this, b);
 		}
-		//ÖØÔØ
+		//é‡è½½
 		/*inline*/OLL __stdcall operator*(const OLL& b)const noexcept {
 			OLL Res(*this, true);
 			Res *= b;
 			return Res;
 		}
-		//ÖØÔØ
+		//é‡è½½
 		inline void __stdcall operator-=(const OLL& b) noexcept {
 			*this += (-b);
 		}
-		//ÖØÔØOLLÁ´±í¸ººÅ
+		//é‡è½½OLLé“¾è¡¨è´Ÿå·
 		inline OLL __stdcall operator-(
 			)const noexcept {
 			OLL res(*this);
 			res.data = !res.data;
 			return res;
 		}
-		//ÖØÔØOLLÁ´±í¼ÓºÅ
+		//é‡è½½OLLé“¾è¡¨åŠ å·
 		inline OLL __stdcall operator+(
-			const OLL& b//²Ù×÷Êı
+			const OLL& b//æ“ä½œæ•°
 			)  const noexcept {
-			OLL Result(*this, true);//´æ´¢½á¹û
+			OLL Result(*this, true);//å­˜å‚¨ç»“æœ
 			Result += b;
 			return Result;
 		}
-		//ÖØÔØOLLÁ´±í+=
+		//é‡è½½OLLé“¾è¡¨+=
 		inline void __stdcall operator+=(const OLL& that) noexcept {
 			LL::add<OLL, Data, Radix>(*this, that);
 			this->Simplify();
 		}
-		//ÖØÔØOLLÁ´±í¼õºÅ
+		//é‡è½½OLLé“¾è¡¨å‡å·
 		/*inline*/OLL __stdcall operator-(
-			const OLL& b//²Ù×÷Êı
+			const OLL& b//æ“ä½œæ•°
 			)const noexcept {
 			return (*this + (-b));
 		}
@@ -147,12 +147,12 @@ namespace LL {
 			this->next = nullptr;
 		}
 	protected:
-		//Ö¸ÏòÏÂÒ»½ÚµÄÖ¸Õë
+		//æŒ‡å‘ä¸‹ä¸€èŠ‚çš„æŒ‡é’ˆ
 		OLL* next = nullptr;
-		//Êı¾İ
+		//æ•°æ®
 		Data data;
-		//¸´ÖÆ¹¹Ôìº¯Êı
-		//Ä¬ÈÏÎªÉî¿½±´
+		//å¤åˆ¶æ„é€ å‡½æ•°
+		//é»˜è®¤ä¸ºæ·±æ‹·è´
 		inline __stdcall OLL(
 			const OLL& that,
 			bool DeepCopy
@@ -191,8 +191,8 @@ namespace LL {
 		inline size_t __stdcall RawLength()const noexcept {
 			LL_LENGTH(OLL);
 		}
-		//¸´ÖÆ¹¹Ôìº¯Êı
-		//Ä¬ÈÏÎªÇ³¿½±´
+		//å¤åˆ¶æ„é€ å‡½æ•°
+		//é»˜è®¤ä¸ºæµ…æ‹·è´
 		inline __stdcall OLL(
 			const OLL& that
 		) noexcept {
@@ -201,7 +201,7 @@ namespace LL {
 			this->next = that.next;
 			return;
 		}
-		//½ö³õÊ¼»¯Á´±íÍ·µÄ¹¹Ôìº¯Êı
+		//ä»…åˆå§‹åŒ–é“¾è¡¨å¤´çš„æ„é€ å‡½æ•°
 		explicit inline __stdcall OLL(
 			Data HeadData,
 			OLL* NextPtr = nullptr
@@ -225,7 +225,7 @@ namespace LL {
 			this->next = NextPtr;
 			return;
 		}
-		//ÊÍ·ÅÁ´±íÍ·ºó¶ÔÓ¦Á´½ÚµÄÖ¸Õë
+		//é‡Šæ”¾é“¾è¡¨å¤´åå¯¹åº”é“¾èŠ‚çš„æŒ‡é’ˆ
 		inline void __stdcall destruct() noexcept {
 			OLL* OprtPtr = this->next;
 			this->next = nullptr;
@@ -237,12 +237,12 @@ namespace LL {
 			}
 			return;
 		}
-		//ÊÍ·ÅÁ´±íÍ·ºó¶ÔÓ¦Á´½ÚµÄÖ¸Õë
+		//é‡Šæ”¾é“¾è¡¨å¤´åå¯¹åº”é“¾èŠ‚çš„æŒ‡é’ˆ
 		inline void __stdcall operator~() noexcept {
 			this->destruct();
 			return;
 		}
-		//Á´±í°æÇó×î´óÖµ
+		//é“¾è¡¨ç‰ˆæ±‚æœ€å¤§å€¼
 		/*inline*/Data __stdcall Max() const noexcept {
 			const OLL* OprtPtr = this;
 			Data MaxNumber = OprtPtr->data;
@@ -263,7 +263,7 @@ namespace LL {
 			OprtPtr = nullptr;
 			return MaxNumber;
 		}
-		//Á´±í°æÇó×îĞ¡Öµ
+		//é“¾è¡¨ç‰ˆæ±‚æœ€å°å€¼
 		/*inline*/Data __stdcall Min()const noexcept {
 			const OLL* OprtPtr = this;
 			Data MinNumber = OprtPtr->data;
@@ -284,8 +284,8 @@ namespace LL {
 			OprtPtr = nullptr;
 			return MinNumber;
 		}
-		//Á´±í°æÇóÆ½¾ùÖµ
-		//Á´±í³¤¶È²»µÃ³¬¹ıLONG_MAX
+		//é“¾è¡¨ç‰ˆæ±‚å¹³å‡å€¼
+		//é“¾è¡¨é•¿åº¦ä¸å¾—è¶…è¿‡LONG_MAX
 		/*inline*/Data __stdcall Average()const noexcept
 		{
 			const OLL* OprtPtr = this;
@@ -311,7 +311,7 @@ namespace LL {
 			OprtPtr = nullptr;
 			return (long)average;
 		}
-		//½»»»
+		//äº¤æ¢
 		inline void __stdcall swap(
 			OLL& that
 		) noexcept {
@@ -323,11 +323,11 @@ namespace LL {
 			this->next = TempPtr;
 			return;
 		}
-		//¸²¸Ç¸³Öµ
+		//è¦†ç›–èµ‹å€¼
 		/*inline*/void __stdcall SetValue(
 			long num, const Data* data
 		) noexcept {
-			OLL* OprtPtr = this;//²Ù×÷µ±Ç°¶ÔÏó
+			OLL* OprtPtr = this;//æ“ä½œå½“å‰å¯¹è±¡
 			OprtPtr->data = data;
 			long count = 1;
 			while (true)
@@ -350,12 +350,12 @@ namespace LL {
 			}
 			return;
 		}
-		//¸²¸Ç¸³Öµ
-		//ÒòÎª²»ÖªÃûµÄÔ­Òò£¬¶ÔSBOLL½ûÓÃ
+		//è¦†ç›–èµ‹å€¼
+		//å› ä¸ºä¸çŸ¥åçš„åŸå› ï¼Œå¯¹SBOLLç¦ç”¨
 		/*inline*/void __cdecl SetValue(
 			long num, Data data, ...
 		) noexcept {
-			OLL* OprtPtr = this;//²Ù×÷µ±Ç°¶ÔÏó
+			OLL* OprtPtr = this;//æ“ä½œå½“å‰å¯¹è±¡
 			OprtPtr->data = data;
 			long count = 1;
 			while (true)
@@ -378,9 +378,9 @@ namespace LL {
 			}
 			return;
 		}
-		//¸²¸Ç¸³Öµ
-		//Ç³¿½±´
-		//½«Çå³ı±»¸³Öµ¶ÔÏóÔ­ÓĞÄÚÈİ
+		//è¦†ç›–èµ‹å€¼
+		//æµ…æ‹·è´
+		//å°†æ¸…é™¤è¢«èµ‹å€¼å¯¹è±¡åŸæœ‰å†…å®¹
 		inline OLL& __stdcall operator=(
 			const OLL& that
 			) noexcept {
@@ -393,9 +393,9 @@ namespace LL {
 			this->next = that.next;
 			return *this;
 		}
-		//Î»ÒÆÔËËã
-		//°´¶ÀÁ¢½øÖÆ¶ø·Ç¶ş½øÖÆ
-		//×óÒÆÊ±ÓÃÄ¬ÈÏÖµ²¹Æë
+		//ä½ç§»è¿ç®—
+		//æŒ‰ç‹¬ç«‹è¿›åˆ¶è€ŒéäºŒè¿›åˆ¶
+		//å·¦ç§»æ—¶ç”¨é»˜è®¤å€¼è¡¥é½
 		/*inline*/OLL& operator<<(
 			unsigned int bits) noexcept {
 			for (unsigned int i = 0; i < bits; i++)
@@ -430,9 +430,9 @@ namespace LL {
 				PreOprtPtr = PreOprtPtr->next;
 			}
 		}
-		//Î»ÒÆÔËËã
-		//°´¶ÀÁ¢½øÖÆ¶ø·Ç¶ş½øÖÆ
-		//ÓÒÒÆÊ±µÚÒ»Î»Ïú»Ù
+		//ä½ç§»è¿ç®—
+		//æŒ‰ç‹¬ç«‹è¿›åˆ¶è€ŒéäºŒè¿›åˆ¶
+		//å³ç§»æ—¶ç¬¬ä¸€ä½é”€æ¯
 		/*inline*/OLL& operator>>(unsigned int bits) noexcept {
 			for (unsigned int i = 0; i < bits; i++)
 			{
@@ -440,8 +440,8 @@ namespace LL {
 			}
 			return *this;
 		}
-		//´ÓÁ´±íÍ·£¨²»°üÀ¨Á´±íÍ·£©¿ªÊ¼£¬µ¹ÖÃÖ®ºóµÄÁ´½Ú
-		//Ê¹ÓÃnew´´½¨ĞÂÁ´±í
+		//ä»é“¾è¡¨å¤´ï¼ˆä¸åŒ…æ‹¬é“¾è¡¨å¤´ï¼‰å¼€å§‹ï¼Œå€’ç½®ä¹‹åçš„é“¾èŠ‚
+		//ä½¿ç”¨newåˆ›å»ºæ–°é“¾è¡¨
 		/*inline*/OLL __stdcall invert(const OLL& b) const noexcept {
 			OLL Result(b.data);
 			const OLL* OprtPtr = &b;
@@ -452,13 +452,13 @@ namespace LL {
 			}
 			return Result;
 		}
-		//ÔÚµ±Ç°Î»ÖÃºó²åÈëĞÂµÄÒ»½Ú
+		//åœ¨å½“å‰ä½ç½®åæ’å…¥æ–°çš„ä¸€èŠ‚
 		inline void insert(Data New = Data(false)) noexcept {
 			OLL* temp = this->next;
 			this->next = new OLL(New, temp);
 			return;
 		}
-		//É¾³ıµ±Ç°Î»ÖÃºóµÄÒ»Î»
+		//åˆ é™¤å½“å‰ä½ç½®åçš„ä¸€ä½
 		inline void __stdcall cut() noexcept {
 			if (this->next == nullptr)
 			{
@@ -480,7 +480,7 @@ namespace LL {
 		inline OLL* __stdcall Simplify() noexcept {
 			LL_SIMPLIFY(OLL);
 		}
-		//¸²¸Ç¸³Öµ
+		//è¦†ç›–èµ‹å€¼
 		/*inline*/OLL& __stdcall operator=(
 			long value
 			) noexcept {
@@ -490,7 +490,7 @@ namespace LL {
 			}
 			else
 			{
-				OLL* OprtPtr = this;//²Ù×÷µ±Ç°¶ÔÏó
+				OLL* OprtPtr = this;//æ“ä½œå½“å‰å¯¹è±¡
 				if (value >= 0)
 				{
 					OprtPtr->data = Data(true);
@@ -517,8 +517,8 @@ namespace LL {
 			}
 			return *this;
 		}
-		//ÅĞ¶ÏthatÁ´½ÚÊÇ·ñÎªÁ´±íµÄÄ©Î²
-		//ÈôÊ¹ÓÃÈ±Ê¡²ÎÊı£¬±íÊ¾»ñÈ¡µ±Ç°Á´½ÚÊÇ·ñÎªÁ´±íµÄÄ©Î²
+		//åˆ¤æ–­thaté“¾èŠ‚æ˜¯å¦ä¸ºé“¾è¡¨çš„æœ«å°¾
+		//è‹¥ä½¿ç”¨ç¼ºçœå‚æ•°ï¼Œè¡¨ç¤ºè·å–å½“å‰é“¾èŠ‚æ˜¯å¦ä¸ºé“¾è¡¨çš„æœ«å°¾
 		inline bool __stdcall IsEnding(
 			const OLL* that = nullptr
 		)const noexcept {
@@ -528,8 +528,8 @@ namespace LL {
 				:
 				(that->next == nullptr));
 		}
-		//»ñÈ¡´æ´¢µÄÖµ
-		//¿ÉÄÜÒç³ö
+		//è·å–å­˜å‚¨çš„å€¼
+		//å¯èƒ½æº¢å‡º
 		/*inline*/long  __stdcall GetValue()const noexcept {
 			bool sign = (this->data > 0) ? true : false;
 			long value = 0;
@@ -564,15 +564,15 @@ namespace LL {
 		)const noexcept {
 			return LL::SinglePrint<OLL>(*this, out);
 		}
-		//¶ş½øÖÆÊä³öµ½¿ØÖÆÌ¨´°¿Ú
+		//äºŒè¿›åˆ¶è¾“å‡ºåˆ°æ§åˆ¶å°çª—å£
 		/*inline*/std::ostream& __stdcall Print(
 			std::ostream& out = std::cout
 		) const noexcept {
 			return LL::Print<OLL, Radix>(*this, out);
 		}
 	protected:
-		//»ñÈ¡thatÁ´½Ú´æ´¢µÄÊı¾İ
-		//ÈôÊ¹ÓÃÈ±Ê¡²ÎÊı£¬±íÊ¾»ñÈ¡µ±Ç°Á´½Ú´æ´¢µÄÊı¾İ
+		//è·å–thaté“¾èŠ‚å­˜å‚¨çš„æ•°æ®
+		//è‹¥ä½¿ç”¨ç¼ºçœå‚æ•°ï¼Œè¡¨ç¤ºè·å–å½“å‰é“¾èŠ‚å­˜å‚¨çš„æ•°æ®
 		inline const Data& __stdcall GetThisData(
 			const OLL* that = nullptr
 		)const noexcept {
@@ -581,8 +581,8 @@ namespace LL {
 				:
 				that->data);
 		}
-		//»ñÈ¡thatÁ´½ÚµÄÏÂÒ»Á´½Ú
-		//ÈôÊ¹ÓÃÈ±Ê¡²ÎÊı£¬±íÊ¾»ñÈ¡µ±Ç°Á´½ÚµÄÏÂÒ»Á´½Ú
+		//è·å–thaté“¾èŠ‚çš„ä¸‹ä¸€é“¾èŠ‚
+		//è‹¥ä½¿ç”¨ç¼ºçœå‚æ•°ï¼Œè¡¨ç¤ºè·å–å½“å‰é“¾èŠ‚çš„ä¸‹ä¸€é“¾èŠ‚
 		inline const OLL* __stdcall GetNext(
 			const OLL* that = nullptr
 		)const noexcept {
@@ -595,14 +595,16 @@ namespace LL {
 	template<typename Data, unsigned long Radix>
 	class DLL
 	{
+		//å‹å…ƒå‡½æ•°å£°æ˜
+
 		template<class Class, typename Data, unsigned long Radix>
-		//ÖØÔØ
+		//é‡è½½
 		inline friend void __stdcall add(
 			Class& a,
 			const Class& b
 		)noexcept;
 		template<class Class, typename Data, unsigned long Radix>
-		//ÖØÔØ
+		//é‡è½½
 		inline friend void __stdcall multiply(
 			Class& a,
 			const Class& b
@@ -639,72 +641,72 @@ namespace LL {
 			)noexcept;
 		friend class Q;
 	public:
-		//ÖØÔØ
+		//é‡è½½
 		inline void __stdcall operator*=(int times) {
 			LL::multiply<DLL, Data, Radix>(*this, times);
 		}
-		//ÖØÔØ
+		//é‡è½½
 		inline DLL __stdcall operator*(int times)const {
 			DLL Res(*this, true);
 			Res *= times;
 			return Res;
 		}
-		//ÖØÔØ
+		//é‡è½½
 		/*inline*/void __stdcall operator*=(const DLL& b) {
 			LL::multiply<DLL, Data, Radix>(*this, b);
 		}
-		//ÖØÔØ
+		//é‡è½½
 		inline DLL __stdcall operator*(const DLL& b)const {
 			DLL Res(*this, true);
 			Res *= b;
 			return Res;
 		}
-		//ÖØÔØ¾ø¶ÔÖµ
+		//é‡è½½ç»å¯¹å€¼
 		inline const DLL __stdcall abs()const noexcept {
 			return ((this->data > 0) ? *this : (-*this));
 		}
-		//ÖØÔØÕı
+		//é‡è½½æ­£
 		inline bool __stdcall IsPositive()const noexcept {
 			return (this->data > 0);
 		}
-		//ÖØÔØ¸º
+		//é‡è½½è´Ÿ
 		inline void __stdcall SetToContradict()noexcept {
 			this->data = ((this->data == 0) ? 1 : 0);
 		}
-		//ÖØÔØDLLÁ´±í¼ÓºÅ
+		//é‡è½½DLLé“¾è¡¨åŠ å·
 		inline DLL __stdcall operator+(
-			const DLL& b//²Ù×÷Êı
+			const DLL& b//æ“ä½œæ•°
 			)  const noexcept {
-			DLL Result(*this, true);//´æ´¢½á¹û
+			DLL Result(*this, true);//å­˜å‚¨ç»“æœ
 			Result += b;
 			return Result;
 		}
-		//ÖØÔØDLLÁ´±í+=
+		//é‡è½½DLLé“¾è¡¨+=
 		inline void __stdcall operator+=(const DLL& that)noexcept {
 			LL::add<DLL, Data, Radix>(*this, that);
 			this->Fresh();
 			this->Simplify();
 		}
-		//ÖØÔØDLLÁ´±í¼õºÅ
+		//é‡è½½DLLé“¾è¡¨å‡å·
 		inline DLL __stdcall operator-(
-			const DLL& b//²Ù×÷Êı
+			const DLL& b//æ“ä½œæ•°
 			)const noexcept {
 			return (*this + (-b));
 		}
-		//ÖØÔØ
+		//é‡è½½
 		inline void __stdcall operator-=(const DLL& b)noexcept {
 			DLL _b = -b;
 			*this += _b;
 			_b.destruct();
 		}
-		//ÖØÔØ
+		//é‡è½½
 		inline void __stdcall operator-=(DLL& b)noexcept {
 			Data Orig = b.data;
 			b.data = !b.data;
 			*this += b;
 			b.data = Orig;
 		}
-		//ÖØÔØDLLÁ´±í¸ººÅ
+		//é‡è½½DLLé“¾è¡¨è´Ÿå·
 		inline DLL __stdcall operator-(
 			)const noexcept {
 			DLL res(*this, true);
@@ -719,7 +721,7 @@ namespace LL {
 		Data data;
 		DLL* next = nullptr;
 		DLL* last = nullptr;
-		//Éî¿½±´ÓëÇ³¿½±´ÓÉ²ÎÊıDeepCopyÖ¸¶¨
+		//æ·±æ‹·è´ä¸æµ…æ‹·è´ç”±å‚æ•°DeepCopyæŒ‡å®š
 		explicit inline __stdcall DLL(
 			const DLL& that,
 			bool DeepCopy
@@ -749,7 +751,7 @@ namespace LL {
 			return;
 		}
 	public:
-		//°´data£¬next£¬lastÊäÈë
+		//æŒ‰dataï¼Œnextï¼Œlastè¾“å…¥
 		explicit inline __stdcall DLL(
 			Data HeadData = Data(false),
 			DLL* NextPtr = nullptr,
@@ -758,7 +760,7 @@ namespace LL {
 			data(HeadData),
 			next(NextPtr),
 			last(LastPtr) {}
-		//Ç³¿½±´
+		//æµ…æ‹·è´
 		inline __stdcall DLL(
 			const DLL& that
 		) noexcept :data(that.data) {
@@ -767,7 +769,7 @@ namespace LL {
 			this->last = that.last;
 			if (this->next != nullptr)
 			{
-				//´Ë²½Öè·Ç³£ÖØÒª
+				//æ­¤æ­¥éª¤éå¸¸é‡è¦
 				this->next->last = this;
 			}
 #ifdef _DEBUG
@@ -778,9 +780,9 @@ namespace LL {
 			}
 #endif // _DEBUG
 		}
-		//¸²¸Ç¸³Öµ
-		//Ç³¿½±´
-		//½«Çå³ı±»¸³Öµ¶ÔÏóÔ­ÓĞÄÚÈİ
+		//è¦†ç›–èµ‹å€¼
+		//æµ…æ‹·è´
+		//å°†æ¸…é™¤è¢«èµ‹å€¼å¯¹è±¡åŸæœ‰å†…å®¹
 		inline void __stdcall operator=(
 			const DLL& that
 			) noexcept {
@@ -891,10 +893,10 @@ namespace LL {
 				{
 					return false;
 				}
-				//*this Óë that ¾ùÎªÕı
+				//*this ä¸ that å‡ä¸ºæ­£
 			}
-			//ÈôOprtPtr¶ÔÓ¦Á´±íĞ¡ÓÚPreOprtPtr¶ÔÓ¦Á´±í
-			//	·µ»ØÕæ
+			//è‹¥OprtPtrå¯¹åº”é“¾è¡¨å°äºPreOprtPtrå¯¹åº”é“¾è¡¨
+			//	è¿”å›çœŸ
 			while (true)
 			{
 				if (OprtPtr->data == PreOprtPtr->data)
@@ -903,7 +905,7 @@ namespace LL {
 					PreOprtPtr = PreOprtPtr->last;
 				}
 				else return (OprtPtr->data < PreOprtPtr->data);
-				//ÏàµÈ
+				//ç›¸ç­‰
 				if (OprtPtr->last == nullptr && PreOprtPtr->last == nullptr)
 				{
 					return false;
@@ -940,10 +942,10 @@ namespace LL {
 				{
 					return false;
 				}
-				//*this Óë that ¾ùÎªÕı
+				//*this ä¸ that å‡ä¸ºæ­£
 			}
-			//ÈôOprtPtr¶ÔÓ¦Á´±íĞ¡ÓÚPreOprtPtr¶ÔÓ¦Á´±í
-			//	·µ»ØÕæ
+			//è‹¥OprtPtrå¯¹åº”é“¾è¡¨å°äºPreOprtPtrå¯¹åº”é“¾è¡¨
+			//	è¿”å›çœŸ
 			while (true)
 			{
 				if (OprtPtr->data == PreOprtPtr->data)
@@ -952,7 +954,7 @@ namespace LL {
 					PreOprtPtr = PreOprtPtr->last;
 				}
 				else return (OprtPtr->data < PreOprtPtr->data);
-				//ÏàµÈ
+				//ç›¸ç­‰
 				if (OprtPtr->last == nullptr && PreOprtPtr->last == nullptr)
 				{
 					return true;
@@ -976,7 +978,7 @@ namespace LL {
 			this->destruct();
 			return;
 		}
-		//ÔÚµ±Ç°Î»ÖÃºó²åÈëĞÂµÄÒ»½Ú
+		//åœ¨å½“å‰ä½ç½®åæ’å…¥æ–°çš„ä¸€èŠ‚
 		inline void __stdcall insert(
 			Data New = Data(false)
 		) noexcept {
@@ -988,7 +990,7 @@ namespace LL {
 			}
 			return;
 		}
-		//É¾³ıµ±Ç°Î»ÖÃºóµÄÒ»Î»
+		//åˆ é™¤å½“å‰ä½ç½®åçš„ä¸€ä½
 		inline void __stdcall cut() noexcept {
 			if (this->next == nullptr)
 			{
@@ -1011,30 +1013,30 @@ namespace LL {
 			}
 			return;
 		}
-		//¼ôÈ¥¿Õ°×¸ßÎ»
-		//·µ»ØÖ¸Ïò·Ç¿Õ×î¸ßÎ»µÄÖ¸Õë
+		//å‰ªå»ç©ºç™½é«˜ä½
+		//è¿”å›æŒ‡å‘éç©ºæœ€é«˜ä½çš„æŒ‡é’ˆ
 		inline DLL* __stdcall Simplify() noexcept {
 			LL_SIMPLIFY(DLL);
 		}
 	protected:
-		//Ë¢ĞÂlastÖ¸Õë
-		//±£Ö¤Ö¸ÏòÕıÈ·
-		//·µ»ØÄ©Î²Ö¸Õë
+		//åˆ·æ–°lastæŒ‡é’ˆ
+		//ä¿è¯æŒ‡å‘æ­£ç¡®
+		//è¿”å›æœ«å°¾æŒ‡é’ˆ
 		inline DLL* __stdcall Fresh() noexcept {
+#ifdef _DEBUG
 			DLL* OprtPtr = this;
 			while (OprtPtr->next != nullptr) {
-#ifdef _DEBUG
 				if (OprtPtr->next->last != OprtPtr)
 				{
 					DEBUG_OUT;
 					throw std::out_of_range("Unexpected");
 				}
-#endif // _DEBUG
 				OprtPtr->next->last = OprtPtr;
 				OprtPtr = OprtPtr->next;
 			}
 			this->last = nullptr;
 			return OprtPtr;
+#endif // _DEBUG
 		}
 		inline DLL* __stdcall GetEnd()const noexcept {
 			if (this->next == nullptr)
@@ -1064,7 +1066,7 @@ namespace LL {
 			{
 				this->data = static_cast<Data>(positive);
 				this->destruct();
-				DLL* OprtPtr = this;//²Ù×÷µ±Ç°¶ÔÏó
+				DLL* OprtPtr = this;//æ“ä½œå½“å‰å¯¹è±¡
 				while (true)
 				{
 					if (value == 0)
@@ -1082,8 +1084,8 @@ namespace LL {
 				}
 			}
 		}
-		//Ç³¿½±´
-		//¸²¸Ç¸³Öµ
+		//æµ…æ‹·è´
+		//è¦†ç›–èµ‹å€¼
 		inline DLL& __stdcall operator=(
 			long value
 			) noexcept {
@@ -1091,10 +1093,10 @@ namespace LL {
 			*this = DLL(sign(value), std::abs(value));
 			return *this;
 		}
-		//Î»ÒÆÔËËã
-		//±£Áô·ûºÅÎ»
-		//°´¶ÀÁ¢½øÖÆ¶ø·Ç¶ş½øÖÆ
-		//×óÒÆÊ±ÓÃÄ¬ÈÏÖµ²¹Æë
+		//ä½ç§»è¿ç®—
+		//ä¿ç•™ç¬¦å·ä½
+		//æŒ‰ç‹¬ç«‹è¿›åˆ¶è€ŒéäºŒè¿›åˆ¶
+		//å·¦ç§»æ—¶ç”¨é»˜è®¤å€¼è¡¥é½
 		inline DLL& operator<<(
 			size_t bits
 			) noexcept {
@@ -1104,10 +1106,10 @@ namespace LL {
 			}
 			return *this;
 		}
-		//Î»ÒÆÔËËã
-		//±£Áô·ûºÅÎ»
-		//°´¶ÀÁ¢½øÖÆ¶ø·Ç¶ş½øÖÆ
-		//ÓÒÒÆÊ±µÚÒ»Î»Ïú»Ù
+		//ä½ç§»è¿ç®—
+		//ä¿ç•™ç¬¦å·ä½
+		//æŒ‰ç‹¬ç«‹è¿›åˆ¶è€ŒéäºŒè¿›åˆ¶
+		//å³ç§»æ—¶ç¬¬ä¸€ä½é”€æ¯
 		inline DLL& operator>>(
 			size_t bits
 			) noexcept {
@@ -1117,7 +1119,7 @@ namespace LL {
 			}
 			return *this;
 		}
-		//ÖØÔØ
+		//é‡è½½
 		inline void __stdcall operator/=(
 			unsigned long that
 			) noexcept {
@@ -1327,18 +1329,18 @@ namespace LL {
 						That.data = 0;
 						*this += That;
 						That.data = 1;
-						DLL one(true, 1);//´Ë´¦¿ÉÓÅ»¯
+						DLL one(true, 1);//æ­¤å¤„å¯ä¼˜åŒ–
 						Res += one;
 						one.destruct();
 					}
 				}
 				else if (*this == That)
 				{
-					//±¾¶Î´úÂëÎŞÓÃ
-					//ÎªÌá¸ßĞ§ÂÊÂÔÈ¥
+					//æœ¬æ®µä»£ç æ— ç”¨
+					//ä¸ºæé«˜æ•ˆç‡ç•¥å»
 					//*this -= that;
 
-					DLL one(true, 1);//´Ë´¦¿ÉÓÅ»¯
+					DLL one(true, 1);//æ­¤å¤„å¯ä¼˜åŒ–
 					Res += one;
 					one.destruct();
 					Res << bit;
@@ -1376,7 +1378,7 @@ namespace LL {
 		)const noexcept {
 			return LL::SinglePrint<DLL>(*this, out);
 		}
-		//¶ş½øÖÆÊä³öµ½¿ØÖÆÌ¨´°¿Ú
+		//äºŒè¿›åˆ¶è¾“å‡ºåˆ°æ§åˆ¶å°çª—å£
 		inline std::ostream& __stdcall Print(
 			std::ostream& out = std::cout
 		)const noexcept {
@@ -1384,15 +1386,15 @@ namespace LL {
 		}
 	};
 #define NoNext(a) (a->next==nullptr||a==&NullObject)
-	//ÖØÔØ
+	//é‡è½½
 	template<class Class, typename Data, unsigned long Radix>
 	inline void __stdcall add(
 		Class& a, const Class& b
 	) noexcept {
 		Class NullObject(0, nullptr);
 		NullObject.next = &NullObject;
-		Class* OprtPtr_a = &a;//aµÄ²Ù×÷Ö¸Õë
-		const Class* OprtPtr_b = &b;//bµÄ²Ù×÷Ö¸Õë
+		Class* OprtPtr_a = &a;//açš„æ“ä½œæŒ‡é’ˆ
+		const Class* OprtPtr_b = &b;//bçš„æ“ä½œæŒ‡é’ˆ
 		if constexpr (Radix == 0)
 		{
 			while (true)
@@ -1418,21 +1420,21 @@ namespace LL {
 				OprtPtr_b = OprtPtr_b->next;
 			}
 		}
-		//¶ş½øÖÆ
+		//äºŒè¿›åˆ¶
 		else if constexpr (Radix == 2)
 		{
-			bool Bit = false;//true±íÊ¾½øÎ»»òÍËÎ»
+			bool Bit = false;//trueè¡¨ç¤ºè¿›ä½æˆ–é€€ä½
 			if (a.next == nullptr || b.next == nullptr)
 			{
 				return;
 			}
-			Class CopyThis(a, true);//aµÄ¿½±´
+			Class CopyThis(a, true);//açš„æ‹·è´
 			if (OprtPtr_a->data == OprtPtr_b->data)
-			{//¼Ó·¨Ä£Ê½
+			{//åŠ æ³•æ¨¡å¼
 
 				OprtPtr_a = OprtPtr_a->next;
 				OprtPtr_b = OprtPtr_b->next;
-				//´¦ÀíÖ÷ÒªÊı¾İ²¿·Ö
+				//å¤„ç†ä¸»è¦æ•°æ®éƒ¨åˆ†
 				do
 				{
 					//Processing this bit
@@ -1495,7 +1497,7 @@ namespace LL {
 					OprtPtr_b = OprtPtr_b->next;
 				} while (true);
 			}
-			else//¼õ·¨Ä£Ê½
+			else//å‡æ³•æ¨¡å¼
 			{
 				if (a.data == false)
 				{
@@ -1508,7 +1510,7 @@ namespace LL {
 				OprtPtr_b = OprtPtr_b->next;
 				do
 				{
-					//´¦Àíµ±Ç°Î»
+					//å¤„ç†å½“å‰ä½
 					if (OprtPtr_a->data == OprtPtr_b->data && Bit)
 					{
 						Bit = true;
@@ -1539,7 +1541,7 @@ namespace LL {
 						Bit = true;
 						OprtPtr_a->data = true;
 					}
-					//´¦ÀíÏÂÒ»Î»
+					//å¤„ç†ä¸‹ä¸€ä½
 					if (OprtPtr_a->next == nullptr && NoNext(OprtPtr_b) && !Bit)
 					{
 						a.data = true;
@@ -1570,42 +1572,42 @@ namespace LL {
 			OprtPtr_a = OprtPtr_b = nullptr;
 			return;
 		}
-		//ÆÕ±éÇéĞÎ
+		//æ™®éæƒ…å½¢
 		else
 		{
-			bool Bit = false;//true±íÊ¾½øÎ»»òÍËÎ»
-			if (b.next == nullptr)//bÎª0
+			bool Bit = false;//trueè¡¨ç¤ºè¿›ä½æˆ–é€€ä½
+			if (b.next == nullptr)//bä¸º0
 			{
 				return;
 			}
-			else if (a.next == nullptr)//aÎª0£¬Ö±½Ó½«b¿½±´µ½a
+			else if (a.next == nullptr)//aä¸º0ï¼Œç›´æ¥å°†bæ‹·è´åˆ°a
 			{
 				a = Class(b, true);
 				return;
 			}
-			Class CopyThis(a, true);//aµÄ¿½±´
-			if (OprtPtr_a->data == OprtPtr_b->data)//¼Ó·¨Ä£Ê½
-			{//´¦Àí·ûºÅÎ»
-				if (OprtPtr_a->data)//a£¬b¾ùÎªÕıÊı
+			Class CopyThis(a, true);//açš„æ‹·è´
+			if (OprtPtr_a->data == OprtPtr_b->data)//åŠ æ³•æ¨¡å¼
+			{//å¤„ç†ç¬¦å·ä½
+				if (OprtPtr_a->data)//aï¼Œbå‡ä¸ºæ­£æ•°
 				{
 					a.data = true;
 				}
-				else//a£¬b¾ùÎª¸ºÊı
+				else//aï¼Œbå‡ä¸ºè´Ÿæ•°
 				{
 					a.data = false;;
 				}
-				//ºóÒÆ
+				//åç§»
 				OprtPtr_a = OprtPtr_a->next;
 				OprtPtr_b = OprtPtr_b->next;
-				//´¦ÀíÊıÖµ²¿·Ö
+				//å¤„ç†æ•°å€¼éƒ¨åˆ†
 				do
-				{//´¦ÀíÖ¸ÕëÖ¸ÏòµÄµ±Ç°Î»
+				{//å¤„ç†æŒ‡é’ˆæŒ‡å‘çš„å½“å‰ä½
 					if (
 						(static_cast<unsigned long long>(OprtPtr_a->data)
 							+ static_cast<unsigned long long>(OprtPtr_b->data)
 							)
 						>= Radix - (Bit ? 1ULL : 0ULL)
-						)//ĞèÒª½øÎ»
+						)//éœ€è¦è¿›ä½
 					{
 						OprtPtr_a->data =
 							Data(
@@ -1615,7 +1617,7 @@ namespace LL {
 								+ (Bit ? 1ULL : 0ULL)) - Radix);
 						Bit = true;
 					}
-					else//²»ĞèÒª½øÎ»
+					else//ä¸éœ€è¦è¿›ä½
 					{
 						OprtPtr_a->data =
 							(OprtPtr_a->data
@@ -1623,12 +1625,12 @@ namespace LL {
 								+ static_cast<Data>(Bit));
 						Bit = false;
 					}
-					//¸ù¾İÏÂÒ»Î»µÄ´æÔÚÇé¿ö£¬¾ö¶¨ËùÑ¡²Ù×÷
+					//æ ¹æ®ä¸‹ä¸€ä½çš„å­˜åœ¨æƒ…å†µï¼Œå†³å®šæ‰€é€‰æ“ä½œ
 					if (OprtPtr_a->next == nullptr
 						&&
 						NoNext(OprtPtr_b)
 						&&
-						Bit == false)//ÎŞĞè½øÎ»ÇÒa£¬b¾ùÒÑ½áÊø
+						Bit == false)//æ— éœ€è¿›ä½ä¸”aï¼Œbå‡å·²ç»“æŸ
 					{
 						break;
 					}
@@ -1636,12 +1638,12 @@ namespace LL {
 						OprtPtr_a->next == nullptr
 						&&
 						NoNext(OprtPtr_b)
-						)//a£¬bÒÑ¾­½áÊø£¬µ«ÈÔĞè½øÎ»
+						)//aï¼Œbå·²ç»ç»“æŸï¼Œä½†ä»éœ€è¿›ä½
 					{
 						OprtPtr_a->insert(0);
 						OprtPtr_b = &NullObject;
 					}
-					else if (OprtPtr_a->next == nullptr)//aÒÑ¾­½áÊø£¬µ«bÎ´½áÊø
+					else if (OprtPtr_a->next == nullptr)//aå·²ç»ç»“æŸï¼Œä½†bæœªç»“æŸ
 					{
 						OprtPtr_a->insert(0);
 					}
@@ -1653,7 +1655,7 @@ namespace LL {
 					OprtPtr_b = OprtPtr_b->next;
 				} while (true);
 			}
-			else//¼õ·¨Ä£Ê½
+			else//å‡æ³•æ¨¡å¼
 			{
 				if (a.data == false)
 				{
@@ -1666,7 +1668,7 @@ namespace LL {
 				OprtPtr_b = OprtPtr_b->next;
 				do
 				{
-					//´¦Àíµ±Ç°Î»
+					//å¤„ç†å½“å‰ä½
 					if (OprtPtr_a->data >= OprtPtr_b->data + Data(Bit))
 					{
 						OprtPtr_a->data =
@@ -1684,7 +1686,7 @@ namespace LL {
 							- (unsigned long long)OprtPtr_b->data);
 						Bit = true;
 					}
-					//´¦ÀíÏÂÒ»Î»
+					//å¤„ç†ä¸‹ä¸€ä½
 					if (OprtPtr_a->next == nullptr && NoNext(OprtPtr_b) && !Bit)
 					{
 						a.data = 1;
@@ -1692,7 +1694,7 @@ namespace LL {
 					}
 					else if (OprtPtr_a->next == nullptr)
 					{
-						CopyThis.data = !CopyThis.data;//È¡·´
+						CopyThis.data = !CopyThis.data;//å–å
 						Class _b = -b;
 						a = CopyThis + _b;
 						a.data = !a.data;
@@ -1787,7 +1789,7 @@ namespace LL {
 	}
 
 	template<typename Type, unsigned long Radix = 0>
-	//Êä³öÁ÷
+	//è¾“å‡ºæµ
 	/*inline*/std::ostream & __stdcall out(
 		std::ostream & out, const Type & b
 	) noexcept {
@@ -1802,8 +1804,8 @@ namespace LL {
 		return out;
 	}
 	template<typename Type>
-	//¼òµ¥Êä³öµ½¿ØÖÆÌ¨´°¿Ú
-	//ĞèÒªÓÃ»§²¹»»ĞĞ
+	//ç®€å•è¾“å‡ºåˆ°æ§åˆ¶å°çª—å£
+	//éœ€è¦ç”¨æˆ·è¡¥æ¢è¡Œ
 	inline void __stdcall SinglePrint(
 		const Type& that,
 		std::ostream& out = std::cout,
@@ -1839,8 +1841,8 @@ namespace LL {
 		return;
 	}
 	template<typename Type, unsigned long Radix = 0>
-	//¶ş½øÖÆÊä³öµ½¿ØÖÆÌ¨´°¿Ú
-	//²»ÔÙ×Ô¶¯»»ĞĞ
+	//äºŒè¿›åˆ¶è¾“å‡ºåˆ°æ§åˆ¶å°çª—å£
+	//ä¸å†è‡ªåŠ¨æ¢è¡Œ
 	/*inline*/std::ostream & __stdcall Print(
 		const Type & that,
 		std::ostream & out = std::cout
@@ -1893,11 +1895,11 @@ namespace LL {
 		out << std::setbase(10);
 		return out;
 	}
-	//»Øµ÷½Ó¿Ú
-	//DataÎªÔ´Á´±íÁ´½ÚÖĞÊı¾İÔ´µÄÀàĞÍ
-	//SubDataÎªÈ¡³öµÄÊı¾İµÄÀàĞÍ
-	//TypeÎªÔ´Á´±íÀàĞÍ
-	//SubTypeÎª×ÓÁ´±í
+	//å›è°ƒæ¥å£
+	//Dataä¸ºæºé“¾è¡¨é“¾èŠ‚ä¸­æ•°æ®æºçš„ç±»å‹
+	//SubDataä¸ºå–å‡ºçš„æ•°æ®çš„ç±»å‹
+	//Typeä¸ºæºé“¾è¡¨ç±»å‹
+	//SubTypeä¸ºå­é“¾è¡¨
 	template<
 		typename Data,
 		typename SubData,

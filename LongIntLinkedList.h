@@ -4,10 +4,10 @@
 #include "CODNT.h"
 
 namespace LL {
-	//³¤ÕûĞÍÊı£¨long£©µ¥Ïò£¨oneway£©Á´±í£¨linked list£©
+	//é•¿æ•´å‹æ•°ï¼ˆlongï¼‰å•å‘ï¼ˆonewayï¼‰é“¾è¡¨ï¼ˆlinked listï¼‰
 	typedef OLL<long> LOLL;
-	//×ø±ê£¨coordinate£©µ¥Ïò£¨oneway£©Á´±í£¨linked list£©
+	//åæ ‡ï¼ˆcoordinateï¼‰å•å‘ï¼ˆonewayï¼‰é“¾è¡¨ï¼ˆlinked listï¼‰
 	typedef OLL<CODNT>COLL;
 }
 
-//¶¨ÒåÇø
+//å®šä¹‰åŒº

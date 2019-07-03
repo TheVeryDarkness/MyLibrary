@@ -2,19 +2,19 @@
 
 #include <ostream>
 //Coordination
-//二维直角坐标
+//浜岀淮鐩磋鍧愭爣
 class CODNT
 {
 public:
-	static long xOrigin, yOrigin;//原点
+	static long xOrigin, yOrigin;//鍘熺偣
 	long x;
 	long y;
 	__stdcall CODNT(long, long);
 	static const long& __stdcall GetX(const CODNT&);
 	static const long& __stdcall GetY(const CODNT&);
 	std::ostream& __stdcall operator<<(std::ostream&);
-	//坐标转换
+	//鍧愭爣杞崲
 	CODNT __stdcall Translate(CODNT);
-	//坐标转换
+	//鍧愭爣杞崲
 	CODNT __stdcall Translate(long, long);
 };
