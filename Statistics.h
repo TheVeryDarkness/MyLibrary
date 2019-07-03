@@ -147,7 +147,7 @@ template<typename Data>inline void __stdcall Swap(Data& a, Data& b) {
 }
 
 template<typename Data>constexpr inline bool IsPrime(Data val){
-	for (Data i = 1; i * i <= val; i++)
+	for (Data i = 2; i * i <= val; i++)
 	{
 		if (val % i == 0)
 		{
@@ -169,7 +169,7 @@ template<typename Data>inline std::forward_list<Data> PrimeList(Data Max){
 
 template<typename Data>inline std::forward_list<Data> PrimeFactorList(Data Max) {
 	std::forward_list<Data> List;
-	for (Data i = Max; i >0; i--)
+	for (Data i = Max; i >1; i--)
 	{
 		if (IsPrime(i) && (Max % i == 0))
 			List.push_front(i);
@@ -178,6 +178,10 @@ template<typename Data>inline std::forward_list<Data> PrimeFactorList(Data Max) 
 }
 
 template<typename Data>inline Data MinConti(const std::forward_list<Data>& BigToSmallSorted) {
+	if (BigToSmallSorted.empty())
+	{
+		return static_cast<Data>(1);
+	}
 	Data PreData = *BigToSmallSorted.begin();
 	for (auto i:BigToSmallSorted){
 		if (i != (++PreData))
@@ -185,5 +189,5 @@ template<typename Data>inline Data MinConti(const std::forward_list<Data>& BigTo
 			return (--PreData);
 		}
 	}
-	return static_cast<Data>(*PreData);
+	return PreData;
 }
