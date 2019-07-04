@@ -1,9 +1,6 @@
 #pragma once
 
-#ifdef _DEBUG
-#include <string>
-#endif // _DEBUG
-
+#include <iterator>
 #include <iostream>
 #include <iomanip>
 #include <string>
@@ -592,11 +589,12 @@ namespace LL {
 				that->next);
 		}
 	};
-	template<typename Data, unsigned long Radix>
+template<typename Data, unsigned long Radix>
 	class DLL
 	{
 		static const inline std::forward_list<Data> Factor = PrimeFactorList(static_cast<Data>(Radix));
 		static const inline Data MaxFactor = MinConti(Factor);
+
 		//ÓÑÔªº¯ÊýÉùÃ÷
 		
 		template<class Class, typename Data, unsigned long Radix>
