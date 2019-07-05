@@ -1,5 +1,8 @@
 #pragma once
 
+#ifdef _DEBUG
+#include "VisualStudioDebug.h"
+#endif // _DEBUG
 #include <iterator>
 #include <iostream>
 #include <iomanip>
@@ -8,7 +11,12 @@
 #include "Exception.h"
 #include "Statistics.h"
 #include "Shared.h"
-
+#ifdef max
+#undef max
+#endif // max
+#ifdef min
+#undef min
+#endif // min
 
 //根据规范（当然是我自己胡诌的规范），
 //Simplify()和Fresh()操作应在加减乘除操作完成后返回时主动调用
@@ -47,6 +55,8 @@ namespace LL {
 		//however, the other sections should be in the heap.
 		class OLL
 	{
+		template<class node, typename Data, Data _Max, Data _Min>
+		friend class LinkedListComputeTraits;
 		template<class Class, typename Data, unsigned long Radix>
 		//重载
 		inline friend void __stdcall add(
@@ -595,6 +605,8 @@ template<typename Data, unsigned long Radix>
 		static const inline std::forward_list<Data> Factor = PrimeFactorList(static_cast<Data>(Radix));
 		static const inline Data MaxFactor = MinConti(Factor);
 
+		template<class node, typename Data, Data _Max, Data _Min>
+		friend class LinkedListComputeTraits;
 		//友元函数声明
 		
 		template<class Class, typename Data, unsigned long Radix>
@@ -684,7 +696,9 @@ template<typename Data, unsigned long Radix>
 		//重载DLL链表+=
 		inline void __stdcall operator+=(const DLL& that)noexcept {
 			LL::add<DLL, Data, Radix>(*this, that);
+#ifdef _DEBUG
 			this->Fresh();
+#endif // _DEBUG
 			this->Simplify();
 		}
 		//重载DLL链表减号
@@ -1036,6 +1050,8 @@ template<typename Data, unsigned long Radix>
 			}
 			this->last = nullptr;
 			return OprtPtr;
+#else
+			return this;
 #endif // _DEBUG
 		}
 		inline DLL* __stdcall GetEnd()const noexcept {
@@ -1927,6 +1943,79 @@ template<typename Data, unsigned long Radix>
 		}
 		return Result;
 	}
+	template<class node,typename Data, Data _Max = std::numeric_limits<Data>::max(), Data _Min = std::numeric_limits<Data>::min()>
+	class LinkedListComputeTraits
+	{
+	public:
+		__stdcall LinkedListComputeTraits() = delete;
+		__stdcall ~LinkedListComputeTraits() = delete;
+		const static inline Data Null = 0;
+
+		static Data& GetData(node* ptr) { return ptr->data; } 
+
+		static const Data& GetData(const node* ptr) { return ptr->data; }
+
+		static node* GetNext(node* ptr) { return ptr->next; } 
+
+		static const node* GetNext(const node* ptr) { return ptr->next; } 
+
+		static short Flow(const Data data,...){
+			Data Sum = (&data)[0];
+			Data Res = 0;
+			for (size_t i = 1; i < 3; i++)
+			{
+				if ((&data)[i] > 0)
+				{
+					if ((&data)[i] - 1 > _Max - Sum)
+					{
+						Sum = ((&data)[i] - 1 - (_Max - Sum));
+						Res++;
+					}
+					else Sum += (&data)[i];
+				}
+				else if (Sum > 0)
+				{
+					if (Sum - 1 > _Max - (&data)[i])
+					{
+						Sum = (Sum - 1 - (_Max - (&data)[i]));
+						Res++;
+					}
+					else  Sum += (&data)[i];
+				}
+				else Sum = 0;
+			}
+			return Res;
+		}
+		static Data Sum(const Data data,...){
+			Data Res = (&data)[0];
+			for (size_t i = 1; i < 3; i++)
+			{
+				if ((&data)[i] > 0)
+				{
+					if ((&data)[i] - 1 > _Max - Res)
+					{
+						Res = ((&data)[i] - 1 - (_Max - Res));
+					}
+					else Res += (&data)[i];
+				}
+				else if (Res > 0)
+				{
+					if (Res - 1 > _Max - (&data)[i])
+					{
+						Res = (Res - 1 - (_Max - (&data)[i]));
+					}
+					else  Res += (&data)[i];
+				}
+				else Res = 0;
+			}
+			return Res;
+		}
+
+		static void InsertAfter(node** ptr) { (*ptr)->insert(); }
+	private:
+
+	};
+
 #ifdef OLL
 #undef OLL
 #endif // OLL
