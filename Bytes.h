@@ -8,7 +8,7 @@ namespace Array {
 	template<size_t Length>
 	class Bytes;
 	template<typename Data>
-	constexpr size_t GetLength(Data data);
+	constexpr size_t GetMinLength(Data data);
 	//***************************************************
 	//***************************************************
 	//
@@ -26,7 +26,8 @@ namespace Array {
 	public:
 		explicit __stdcall Bytes() {}
 		template<size_t OriginLength> explicit __stdcall Bytes(const Bytes<OriginLength>&);
-		template<typename Data> inline __stdcall Bytes(const Data data);
+		template<typename Data> __stdcall Bytes(const Data data);
+		size_t __stdcall GetLength()const;
 		Bytes& __stdcall operator=(unsigned char Value) {
 			if constexpr (Length != 0)
 			{
@@ -46,14 +47,32 @@ namespace Array {
 				}
 				Byte[Length] += that.Byte[Length];
 			}
-#ifdef _DEBUG
-
-#endif // _DEBUG
 			return *this;
 		}
-		Bytes& __stdcall operator+(const Bytes& that) const{
+		Bytes __stdcall operator+(const Bytes& that) const{
 			Bytes Ret = *this;
 			return (Ret += that);
+		}
+		Bytes& __stdcall operator/=(const Bytes& that){
+
+		}
+		Bytes __stdcall operator/(const Bytes& that)const {
+			Bytes Ret = *this;
+			return (Ret /= that);
+		}
+		Bytes& __stdcall operator%=(const Bytes& that){
+		}
+		Bytes __stdcall operator%(const Bytes& that)const {
+			Bytes Ret = *this;
+			return (Ret %= that);
+		}
+		Bytes& __stdcall operator-=(const Bytes& that){
+			Bytes Minus = ~that + Bytes(1);
+			*this += Minus;
+		}
+		Bytes __stdcall operator-(const Bytes& that)const {
+			Bytes Ret = *this;
+			return (Ret -= that);
 		}
 		Bytes& __stdcall operator|=(const Bytes& that){
 			for (size_t i = 0; i < Length; i++)
@@ -189,9 +208,21 @@ namespace Array {
 		}
 	}
 
+	template<size_t Length>
+	size_t __stdcall Bytes<Length>::GetLength()const{
+		size_t Res = 0;
+		Bytes<Length> This = *this;
+		while (This!=0)
+		{
+			This >>= 1;
+			Res++;
+		}
+		return Res;
+	}
+
 
 	template<typename Data>
-	constexpr inline size_t GetLength(Data data) {
+	constexpr inline size_t GetMinLength(Data data) {
 		size_t res = 1;
 		do{
 			res++;

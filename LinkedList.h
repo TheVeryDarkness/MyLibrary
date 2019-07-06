@@ -1943,7 +1943,7 @@ template<typename Data, unsigned long Radix>
 		__stdcall LinkedListComputeTraits() = delete;
 		__stdcall ~LinkedListComputeTraits() = delete;
 		static const inline node NullObject = node(0, nullptr);
-		static const inline size_t length = Array::GetLength(_Max);
+		static const inline size_t length = Array::GetMinLength(_Max);
 		static const inline Array::Bytes<length> Max = Array::Bytes<length>(_Max);
 		static const inline Array::Bytes<length> Radix= Array::Bytes<length>(Max + 1);
 
