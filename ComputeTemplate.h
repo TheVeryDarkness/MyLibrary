@@ -6,19 +6,17 @@
 //The _Traits must give these functions:
 //	Linear* GetNext(Linear*);
 //	Data& GetData(Linear*);
-//	short Flow(Data[3]);
-//	short InterFlow(Data[3]);
-//	Data Sum(Data[3]);
-//	Data InterSum(Data[3]);
+//	void Add(Data&,bool,const Data,const Data);
+//	void Subtract(Data&,bool,const Data, const Data)
 //	void InsertAfter(Linear**);//However, it doen't need to insert an element after it
 //When an element doesn't a next element, GetNext(Linear*) should return nullptr.
 //
 //The _Traits must give these definition:
-//	Null;
-//An object constructed with Null must have 0 data, and not have an next element.
+//	NullObject;
+//NullObject must have 0 data, and not have an next element.
 namespace LongCompute {
-	template<typename Linear, typename Data,class _Traits>
-	inline bool Iterate(const Linear& NullObject,const Linear*& That, Linear*& This,const Data& Flow) {
+	template<typename Linear, typename Data, class _Traits>
+	inline bool Iterate(const Linear& NullObject, const Linear*& That, Linear*& This, const Data& CarryBit) {
 		//Next element
 		if (((_Traits::GetNext(That)) != nullptr) && ((_Traits::GetNext(This)) != nullptr))
 		{
@@ -38,12 +36,10 @@ namespace LongCompute {
 		}
 		else if (((_Traits::GetNext(That)) == nullptr) && ((_Traits::GetNext(This)) == nullptr))
 		{
-			if (Flow == 0)
-			{
+			if (CarryBit == 0){
 				return false;
 			}
-			else
-			{
+			else{
 				That = &NullObject;
 				_Traits::InsertAfter(&This);
 				This = (_Traits::GetNext(This));
@@ -56,34 +52,30 @@ namespace LongCompute {
 	inline void AddTo(const Linear* a, Linear* b) {
 		const Linear* OprtPtrA = a;
 		Linear* OprtPtrB = b;
-		Linear NullObject(_Traits::Null);
-		Data Flow = _Traits::Null;
+		bool Carry = false;
 		while (true)
 		{
 			//This element
-			Data temp = _Traits::Flow(_Traits::GetData(OprtPtrA), _Traits::GetData(OprtPtrB), Flow);
-			_Traits::GetData(OprtPtrB) = _Traits::Sum( _Traits::GetData(OprtPtrA) ,_Traits::GetData(OprtPtrB),Flow);
-			Flow = temp;
-			if (!Iterate<Linear, Data, _Traits>(NullObject, OprtPtrA, OprtPtrB, Flow))
+			_Traits::Add(_Traits::GetData(OprtPtrB), Carry, _Traits::GetData(OprtPtrA), _Traits::GetData(OprtPtrB));
+			if (!Iterate<Linear, Data, _Traits>(_Traits::NullObject, OprtPtrA, OprtPtrB, Carry))
 			{
 				break;
 			}
+		}
+	}
+	template<typename Linear, typename Data, class _Traits>
+	inline void SubtractFrom(const Linear& a, Linear& b) {
+		const Linear* OprtPtrA = &a;
+		Linear* OprtPtrB = &b;
+		bool Carry = false;
+		while (true)
+		{
+			//This element
+			_Traits::SubTract(_Traits::GetData(OprtPtrB), Carry, _Traits::GetData(OprtPtrA), _Traits::GetData(OprtPtrB));
+			if (!Iterate<Linear, Data, _Traits>(_Traits::NullObject, OprtPtrA, OprtPtrB, Carry)) {
+				break;
 			}
 		}
-		template<typename Linear, typename Data, class _Traits>
-		inline void SubtractFrom(const Linear& a, Linear& b) {
-			const Linear* OprtPtrA = &a;
-			Linear* OprtPtrB = &b;
-			Linear NullObject(_Traits::Null);
-			Data Flow = _Traits::Null;
-			while (true)
-			{
-				//This element
-				Data temp = _Traits::InterFlow(_Traits::GetData(OprtPtrA), _Traits::GetData(OprtPtrB), Flow);
-				_Traits::GetData(OprtPtrB) = _Traits::InterSum(_Traits::GetData(OprtPtrA), _Traits::GetData(OprtPtrB), Flow);
-				Flow = temp;
-				Iterate<Linear, Data, _Traits>(NullObject, OprtPtrA, OprtPtrB, Flow);
-			}
-		}
-	
+	}
+
 }

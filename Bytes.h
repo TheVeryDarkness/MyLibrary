@@ -5,6 +5,10 @@
 
 namespace Array {
 	constexpr size_t BitsPerByte = 8;
+	template<size_t Length>
+	class Bytes;
+	template<typename Data>
+	constexpr size_t GetLength(Data data);
 	//***************************************************
 	//***************************************************
 	//
@@ -21,9 +25,8 @@ namespace Array {
 		value_type Byte[Length] = {};
 	public:
 		explicit __stdcall Bytes() {}
-		template<size_t OriginLength> explicit __stdcall Bytes(
-			const Bytes<OriginLength>&
-		);
+		template<size_t OriginLength> explicit __stdcall Bytes(const Bytes<OriginLength>&);
+		template<typename Data> inline __stdcall Bytes(const Data data);
 		Bytes& __stdcall operator=(unsigned char Value) {
 			if constexpr (Length != 0)
 			{
@@ -37,14 +40,22 @@ namespace Array {
 			{
 				for (size_t i = 0; i < Length; i++)
 				{
-					Byte[i + 1] += ((Byte[i] > UCHAR_MAX - that.Byte[i]) ? 1 : 0);
+					//If (a + b) overflows, then (a + b) < min{a, b}.
+					Byte[i + 1] += ((Byte[i] + that.Byte[i] < Byte[i]) ? 1 : 0);
 					Byte[i] += that.Byte[i];
 				}
 				Byte[Length] += that.Byte[Length];
 			}
+#ifdef _DEBUG
+
+#endif // _DEBUG
 			return *this;
 		}
-		Bytes __stdcall operator|=(const Bytes& that){
+		Bytes& __stdcall operator+(const Bytes& that) const{
+			Bytes Ret = *this;
+			return (Ret += that);
+		}
+		Bytes& __stdcall operator|=(const Bytes& that){
 			for (size_t i = 0; i < Length; i++)
 			{
 				this->Byte[i] |= that.Byte[i];
@@ -55,7 +66,7 @@ namespace Array {
 			Bytes ret = *this;
 			return (ret |= that);
 		}
-		Bytes __stdcall operator&=(const Bytes& that) {
+		Bytes& __stdcall operator&=(const Bytes& that) {
 			for (size_t i = 0; i < Length; i++)
 			{
 				this->Byte[i] &= that.Byte[i];
@@ -163,5 +174,28 @@ namespace Array {
 			}
 			this->Byte[a++] = i;
 		}
+	}
+	
+	template<size_t Length>
+	template<typename Data>
+	inline __stdcall Array::Bytes<Length>::Bytes(Data data) {
+		if constexpr (sizeof(Data)<=Length)
+		{
+			memcpy(this->Byte, &data, sizeof(Data));
+		}
+		else
+		{
+			memcpy(this->Byte, &data, Length);
+		}
+	}
+
+
+	template<typename Data>
+	constexpr inline size_t GetLength(Data data) {
+		size_t res = 1;
+		do{
+			res++;
+		} while ((data >>= 8) != 0);
+		return res;
 	}
 };

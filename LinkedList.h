@@ -55,7 +55,7 @@ namespace LL {
 		//however, the other sections should be in the heap.
 		class OLL
 	{
-		template<class node, typename Data, Data _Max, Data _Min>
+		template<class node, typename Data, Data _Max>
 		friend class LinkedListComputeTraits;
 		template<class Class, typename Data, unsigned long Radix>
 		//重载
@@ -605,7 +605,7 @@ template<typename Data, unsigned long Radix>
 		static const inline std::forward_list<Data> Factor = PrimeFactorList(static_cast<Data>(Radix));
 		static const inline Data MaxFactor = MinConti(Factor);
 
-		template<class node, typename Data, Data _Max, Data _Min>
+		template<class node, typename Data, Data _Max>
 		friend class LinkedListComputeTraits;
 		//友元函数声明
 		
@@ -786,13 +786,6 @@ template<typename Data, unsigned long Radix>
 				//此步骤非常重要
 				this->next->last = this;
 			}
-#ifdef _DEBUG
-			if (reinterpret_cast<void*>(this->last) == reinterpret_cast<void*>(0xcccccccccccccccc))
-			{
-				DEBUG_OUT;
-				throw std::out_of_range("Unexpected Error");
-			}
-#endif // _DEBUG
 		}
 		//覆盖赋值
 		//浅拷贝
@@ -1943,72 +1936,42 @@ template<typename Data, unsigned long Radix>
 		}
 		return Result;
 	}
-	template<class node,typename Data, Data _Max = std::numeric_limits<Data>::max(), Data _Min = std::numeric_limits<Data>::min()>
+	template<class node,typename Data, Data _Max = std::numeric_limits<Data>::max()>
 	class LinkedListComputeTraits
 	{
 	public:
 		__stdcall LinkedListComputeTraits() = delete;
 		__stdcall ~LinkedListComputeTraits() = delete;
-		const static inline Data Null = 0;
+		static const inline node NullObject = node(0, nullptr);
+		static const inline size_t length = Array::GetLength(_Max);
+		static const inline Array::Bytes<length> Max = Array::Bytes<length>(_Max);
+		static const inline Array::Bytes<length> Radix= Array::Bytes<length>(Max + 1);
 
 		static Data& GetData(node* ptr) { return ptr->data; } 
-
 		static const Data& GetData(const node* ptr) { return ptr->data; }
 
 		static node* GetNext(node* ptr) { return ptr->next; } 
-
 		static const node* GetNext(const node* ptr) { return ptr->next; } 
 
-		static short Flow(const Data data,...){
-			Data Sum = (&data)[0];
-			Data Res = 0;
-			for (size_t i = 1; i < 3; i++)
+		static void Add(Data& Res,bool& Carry,const Data a,const Data b){
+			Array::Bytes<length> Sum = a;
+			Sum += b;
+			if (Carry)
 			{
-				if ((&data)[i] > 0)
-				{
-					if ((&data)[i] - 1 > _Max - Sum)
-					{
-						Sum = ((&data)[i] - 1 - (_Max - Sum));
-						Res++;
-					}
-					else Sum += (&data)[i];
-				}
-				else if (Sum > 0)
-				{
-					if (Sum - 1 > _Max - (&data)[i])
-					{
-						Sum = (Sum - 1 - (_Max - (&data)[i]));
-						Res++;
-					}
-					else  Sum += (&data)[i];
-				}
-				else Sum = 0;
+				Sum += 1;
 			}
-			return Res;
+			Res = (Sum % Radix);
+			Carry = ((Sum / Radix > 0) ? true : false);
 		}
-		static Data Sum(const Data data,...){
-			Data Res = (&data)[0];
-			for (size_t i = 1; i < 3; i++)
+		static void Subtract(Data& Res, bool& Carry, const Data a, const Data b){
+			if (a>=b)
 			{
-				if ((&data)[i] > 0)
-				{
-					if ((&data)[i] - 1 > _Max - Res)
-					{
-						Res = ((&data)[i] - 1 - (_Max - Res));
-					}
-					else Res += (&data)[i];
-				}
-				else if (Res > 0)
-				{
-					if (Res - 1 > _Max - (&data)[i])
-					{
-						Res = (Res - 1 - (_Max - (&data)[i]));
-					}
-					else  Res += (&data)[i];
-				}
-				else Res = 0;
+				Res = (a - b);
 			}
-			return Res;
+			else
+			{
+
+			}
 		}
 
 		static void InsertAfter(node** ptr) { (*ptr)->insert(); }
