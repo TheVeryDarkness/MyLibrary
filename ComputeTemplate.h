@@ -6,8 +6,9 @@
 //The _Traits must give these functions:
 //	Linear* GetNext(Linear*);
 //	Data& GetData(Linear*);
-//	void Add(Data&,bool,const Data,const Data);
-//	void Subtract(Data&,bool,const Data, const Data)
+//	void Add(Data&, bool, const Data, const Data);
+//	void Subtract(Data&, bool, const Data, const Data)
+//	void GetSize(size_t&, Linear&);
 //	void InsertAfter(Linear**);//However, it doen't need to insert an element after it
 //When an element doesn't a next element, GetNext(Linear*) should return nullptr.
 //
@@ -77,5 +78,11 @@ namespace LongCompute {
 			}
 		}
 	}
+	template<typename Linear, typename Data, class _Traits>
+	inline void DivideBy(const Linear& a, Linear& b) {
+		while (true)
+		{
 
+		}
+	}
 }
