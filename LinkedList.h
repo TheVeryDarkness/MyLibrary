@@ -1942,10 +1942,11 @@ namespace LL {
 	public:
 		__stdcall LinkedListComputeTraits() = delete;
 		__stdcall ~LinkedListComputeTraits() = delete;
-		static const inline node NullObject = node(0, nullptr);
+		static inline node NullNode = node(0, nullptr);
+		constexpr static inline node* NullIterator = &NullNode;
 		static const inline size_t length = Array::GetMinLength(_Max);
 		static const inline Array::Bytes<length> Max = Array::Bytes<length>(_Max);
-		static const inline Array::Bytes<length> Radix = Array::Bytes<length>(Max + 1);
+		static const inline Array::Bytes<length> Radix = Array::Bytes<length>(Max + Array::Bytes<length>(1));
 
 		static Data& GetData(node* ptr) { return ptr->data; }
 		static const Data& GetData(const node* ptr) { return ptr->data; }
@@ -1954,14 +1955,14 @@ namespace LL {
 		static const node* GetNext(const node* ptr) { return ptr->next; }
 
 		static void Add(Data& Res, bool& Carry, const Data a, const Data b) {
-			Array::Bytes<length> Sum = a;
-			Sum += b;
+			Array::Bytes<length> Sum = Array::Bytes<length>(a);
+			Sum += Array::Bytes<length>(b);
 			if (Carry)
 			{
-				Sum += 1;
+				Sum += Array::Bytes<length>(1);
 			}
-			Res = (Sum % Radix);
-			Carry = ((Sum / Radix > 0) ? true : false);
+			Res = Data(Sum % Radix);
+			Carry = ((Sum / Radix > Array::Bytes<length>(0)) ? true : false);
 		}
 		static void Subtract(Data& Res, bool& Carry, const Data a, const Data b) {
 			if (a >= b)

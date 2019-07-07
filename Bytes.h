@@ -1,20 +1,28 @@
 #pragma once
 
 #include <memory>
+#include "ComputeTemplate.h"
 #include "Shared.h"
 
 namespace Array {
 	constexpr size_t BitsPerByte = 8;
 	template<size_t Length>
+
 	class Bytes;
+
 	template<typename Data>
 	constexpr size_t GetMinLength(Data data);
+
+	template<size_t Length>
+	class BytesTraits;
 	//***************************************************
 	//***************************************************
 	//
 	//
 	//***************************************************
 	//***************************************************
+
+
 
 	template<size_t Length = 1>
 	class Bytes
@@ -26,7 +34,8 @@ namespace Array {
 	public:
 		explicit __stdcall Bytes() {}
 		template<size_t OriginLength> explicit __stdcall Bytes(const Bytes<OriginLength>&);
-		template<typename Data> __stdcall Bytes(const Data data);
+		template<typename Data>explicit  __stdcall Bytes(const Data data);
+		template<typename Data> __stdcall operator Data();
 		size_t __stdcall GetLength()const;
 		Bytes& __stdcall operator=(unsigned char Value) {
 			if constexpr (Length != 0)
@@ -45,7 +54,7 @@ namespace Array {
 					Byte[i + 1] += ((Byte[i] + that.Byte[i] < Byte[i]) ? 1 : 0);
 					Byte[i] += that.Byte[i];
 				}
-				Byte[Length] += that.Byte[Length];
+				Byte[Length-1] += that.Byte[Length-1];
 			}
 			return *this;
 		}
@@ -54,13 +63,18 @@ namespace Array {
 			return (Ret += that);
 		}
 		Bytes& __stdcall operator/=(const Bytes& that){
-
+			Bytes Res;
+			LongCompute::DivideInto<value_type, value_type, BytesTraits<Length>>(*Res.Byte, *that.Byte, *this->Byte);
+			return Res;
 		}
 		Bytes __stdcall operator/(const Bytes& that)const {
 			Bytes Ret = *this;
 			return (Ret /= that);
 		}
 		Bytes& __stdcall operator%=(const Bytes& that){
+			Bytes Res;
+			LongCompute::DivideInto<value_type,value_type,BytesTraits<Length>>(*Res.Byte, *that.Byte, *this->Byte);
+			return *this;
 		}
 		Bytes __stdcall operator%(const Bytes& that)const {
 			Bytes Ret = *this;
@@ -115,6 +129,12 @@ namespace Array {
 			Bytes ret = *this;
 			return (ret ^= that);
 		}
+		Bytes& __stdcall operator<<=(size_t Bits) {
+			return(*this = *this << Bits);
+		}
+		Bytes& __stdcall operator>>=(size_t Bits) {
+			return(*this = *this >> Bits);
+		}
 		Bytes __stdcall operator<<(size_t Bits)const {
 			if ((Bits / Length) >= BitsPerByte)
 			{
@@ -165,7 +185,45 @@ namespace Array {
 			}
 			return ret;
 		}
-		const value_type& operator[](size_t index) { return this->Byte[index]; }
+		bool __stdcall operator<(const Bytes& that)const{
+			if (Length == 0)return false;
+			for (size_t i = Length-1; i > 0; i--)
+			{
+				if (this->Byte[i] < that.Byte[i])
+				{
+					return true;
+				}
+				else if (this->Byte[i] > that.Byte[i])
+				{
+					return false;
+				}
+				else continue;
+			}
+			return false;
+		}
+		bool __stdcall operator<=(const Bytes& that)const {
+			if (Length == 0)return true;
+			for (size_t i = Length - 1; i > 0; i--)
+			{
+				if (this->Byte[i] < that.Byte[i])
+				{
+					return true;
+				}
+				else if (this->Byte[i] > that.Byte[i])
+				{
+					return false;
+				}
+				else continue;
+			}
+			return true;
+		}
+		bool __stdcall operator>(const Bytes& that)const {
+			return !(*this <= that);
+		}
+		bool __stdcall operator>=(const Bytes& that)const {
+			return !(*this < that);
+		}
+		const value_type& __stdcall operator[](size_t index) { return this->Byte[index]; }
 		__stdcall Bytes(const std::initializer_list<value_type>& that);
 	};
 	//***************************************************
@@ -209,6 +267,21 @@ namespace Array {
 	}
 
 	template<size_t Length>
+	template<typename Data>
+	inline __stdcall Array::Bytes<Length>::operator Data () {
+		Data data = {};
+		if constexpr (sizeof(Data) <= Length)
+		{
+			memcpy(&data, this->Byte, sizeof(Data));
+		}
+		else
+		{
+			memcpy(&data, this->Byte, Length);
+		}
+		return data;
+	}
+
+	template<size_t Length>
 	size_t __stdcall Bytes<Length>::GetLength()const{
 		size_t Res = 0;
 		Bytes<Length> This = *this;
@@ -229,4 +302,28 @@ namespace Array {
 		} while ((data >>= 8) != 0);
 		return res;
 	}
+
+
+	template<size_t Length>
+	class BytesTraits:virtual public Bytes<Length>
+	{
+	public:
+		BytesTraits() = delete;
+		~BytesTraits() = delete;
+		struct BytesIterator
+		{
+			Bytes<Length>* Head;
+			size_t Index;
+		};
+
+		BytesIterator __stdcall GetNext(BytesIterator ptr){
+			if (ptr.Head != nullptr)
+			{
+
+			}
+			else return nullptr;
+		}
+	private:
+
+	};
 };

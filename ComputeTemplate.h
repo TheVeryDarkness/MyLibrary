@@ -1,47 +1,44 @@
 #pragma once
 
-#include <cstdlib>
-#include <iterator>
-
 //The _Traits must give these functions:
-//	Linear* GetNext(Linear*);
-//	Data& GetData(Linear*);
+//	Iterator GetNext(Iterator);
+//	Data& GetData(Iterator);
 //	void Add(Data&, bool, const Data, const Data);
 //	void Subtract(Data&, bool, const Data, const Data)
-//	void GetSize(size_t&, Linear&);
-//	void InsertAfter(Linear**);//However, it doen't need to insert an element after it
-//When an element doesn't a next element, GetNext(Linear*) should return nullptr.
+//	size_t GetRemainedNonNullLength(const Iterator);
+//	void InsertAfter(Iterator*);//However, it doen't need to insert an element after it
+//When an element doesn't a next element, GetNext(Iterator) should return NullIterator.
 //
 //The _Traits must give these definition:
-//	NullObject;
-//NullObject must have 0 data, and not have an next element.
+//	NullIterator;
+//NullIterator must have 0 data, and not have an next element.
 namespace LongCompute {
-	template<typename Linear, typename Data, class _Traits>
-	inline bool Iterate(const Linear& NullObject, const Linear*& That, Linear*& This, const Data& CarryBit) {
+	template<typename Iterator, typename Data, class _Traits>
+	inline bool Iterate(const Iterator const &NullIterator, Iterator& That, Iterator& This, const Data& CarryBit) {
 		//Next element
-		if (((_Traits::GetNext(That)) != nullptr) && ((_Traits::GetNext(This)) != nullptr))
+		if (((_Traits::GetNext(That)) != NullIterator) && ((_Traits::GetNext(This)) != NullIterator))
 		{
 			That = (_Traits::GetNext(That));
 			This = (_Traits::GetNext(This));
 		}
-		else if (((_Traits::GetNext(That)) == nullptr) && ((_Traits::GetNext(This)) != nullptr))
+		else if (((_Traits::GetNext(That)) == NullIterator) && ((_Traits::GetNext(This)) != NullIterator))
 		{
-			That = &NullObject;
+			That = NullIterator;
 			This = (_Traits::GetNext(This));
 		}
-		else if (((_Traits::GetNext(That)) != nullptr) && ((_Traits::GetNext(This)) == nullptr))
+		else if (((_Traits::GetNext(That)) != NullIterator) && ((_Traits::GetNext(This)) == NullIterator))
 		{
 			_Traits::InsertAfter(&This);
 			That = (_Traits::GetNext(That));
 			This = (_Traits::GetNext(This));
 		}
-		else if (((_Traits::GetNext(That)) == nullptr) && ((_Traits::GetNext(This)) == nullptr))
+		else if (((_Traits::GetNext(That)) == NullIterator) && ((_Traits::GetNext(This)) == NullIterator))
 		{
-			if (CarryBit == 0){
+			if (CarryBit == 0) {
 				return false;
 			}
-			else{
-				That = &NullObject;
+			else {
+				That = NullIterator;
 				_Traits::InsertAfter(&This);
 				This = (_Traits::GetNext(This));
 			}
@@ -49,40 +46,51 @@ namespace LongCompute {
 		return true;
 	}
 
-	template<typename Linear, typename Data, class _Traits>
-	inline void AddTo(const Linear* a, Linear* b) {
-		const Linear* OprtPtrA = a;
-		Linear* OprtPtrB = b;
+	template<typename Iterator, typename Data, class _Traits>
+	inline void AddTo(Iterator a, Iterator b) {
+		Iterator OprtPtrA = a;
+		Iterator OprtPtrB = b;
 		bool Carry = false;
 		while (true)
 		{
 			//This element
 			_Traits::Add(_Traits::GetData(OprtPtrB), Carry, _Traits::GetData(OprtPtrA), _Traits::GetData(OprtPtrB));
-			if (!Iterate<Linear, Data, _Traits>(_Traits::NullObject, OprtPtrA, OprtPtrB, Carry))
+			if (!Iterate<Iterator, Data, _Traits>(_Traits::NullIterator, OprtPtrA, OprtPtrB, Carry))
 			{
 				break;
 			}
 		}
 	}
-	template<typename Linear, typename Data, class _Traits>
-	inline void SubtractFrom(const Linear& a, Linear& b) {
-		const Linear* OprtPtrA = &a;
-		Linear* OprtPtrB = &b;
+	template<typename Iterator, typename Data, class _Traits>
+	inline void SubtractFrom(const Iterator& a, Iterator& b) {
+		const Iterator OprtPtrA = &a;
+		Iterator OprtPtrB = &b;
 		bool Carry = false;
 		while (true)
 		{
 			//This element
 			_Traits::SubTract(_Traits::GetData(OprtPtrB), Carry, _Traits::GetData(OprtPtrA), _Traits::GetData(OprtPtrB));
-			if (!Iterate<Linear, Data, _Traits>(_Traits::NullObject, OprtPtrA, OprtPtrB, Carry)) {
+			if (!Iterate<Iterator, Data, _Traits>(_Traits::NullIterator, OprtPtrA, OprtPtrB, Carry)) {
 				break;
 			}
 		}
 	}
-	template<typename Linear, typename Data, class _Traits>
-	inline void DivideBy(const Linear& a, Linear& b) {
-		while (true)
+	template<typename Iterator, typename Data, class _Traits>
+	inline void DivideInto(Iterator& Res,const Iterator& a, Iterator& b) {
 		{
-
+			size_t LenA = _Traits::GetRemainedNonNullLength(&a), LenB = _Traits::GetRemainedNonNullLength(&b);
+			if (a>b){
+				return;
+			}
+			else{
+				DivideInto(Res,a, _Traits::GetNext(b));
+				Res <<= 1;
+			}
 		}
+		do
+		{
+			//Regarding of the compatibility, we didn't use any majorization.
+			b -= a;
+		} while (a<b);
 	}
 }
