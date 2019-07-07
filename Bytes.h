@@ -62,6 +62,12 @@ namespace Array {
 			Bytes Ret = *this;
 			return (Ret += that);
 		}
+		Bytes& __stdcall operator++() {
+			return (*this += Bytes(1));
+		}
+		Bytes& __stdcall operator--() {
+			return (*this -= Bytes(1));
+		}
 		Bytes& __stdcall operator/=(const Bytes& that){
 			Bytes Res;
 			LongCompute::DivideInto<Bytes, BytesTraits<Length>::BytesIterator, BytesTraits<Length>::BytesIterator, BytesTraits<Length>>(Res, &that, this);
@@ -320,14 +326,14 @@ namespace Array {
 
 		const static inline BytesIterator NullObject = { nullptr,0 };
 
-		static BytesIterator __stdcall GetNext(BytesIterator ptr){
+		static BytesIterator __stdcall GetNext(const BytesIterator ptr){
 			if (ptr.Head != nullptr)
 			{
 				if (ptr.index>=Length-1)
 				{
 					return NullObject;
 				}
-				return ptr.Head->Byte[ptr.index + 1];
+				return BytesIterator(ptr.Head, ptr.index + 1);
 			}
 			else return nullptr;
 		}

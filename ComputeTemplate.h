@@ -13,6 +13,11 @@
 //	NullIterator;
 //NullIterator must have 0 data, and not have an next element.
 namespace LongCompute {
+	constexpr short Larger = 0x1;
+	constexpr short Equal = 0x0;
+	constexpr short Smaller = -0x1;
+
+
 	template<typename Iterator, typename Data, class _Traits>
 	inline bool Iterate(const Iterator const &NullIterator, Iterator& That, Iterator& This, const Data& CarryBit) {
 		//Next element
@@ -76,7 +81,7 @@ namespace LongCompute {
 	template<typename Linear,typename Iterator, typename Data, class _Traits>
 	inline void DivideInto(Linear& Res,const Iterator a, Iterator b) {
 		{
-			if (*a > *b) {
+			if (Compare<Iterator, Data>(a, b) == Larger) {
 				return;
 			}
 			else{
@@ -88,7 +93,31 @@ namespace LongCompute {
 		{
 			//Regarding of the compatibility, we didn't use any majorization.
 			SubtractFrom<Iterator, Data, _Traits>(a, b);
-			Res+=1;
-		} while (*a < *b);
+			Res ++;
+		} while (Compare<Iterator, Data>(a, b) == Smaller);
+	}
+	template<typename Iterator, typename Data>
+	short __stdcall Compare(const Iterator& a, const Iterator& b) {
+		short PreRes = Compare<Iterator, Data>(_Traits::GetNext(a), _Traits::GetNext(a));
+		if (PreRes!=0)
+		{
+			return PreRes;
+		}
+		else
+		{
+			return (
+				(_Traits::GetData(a) > _Traits::GetData(a))
+				?
+				Larger
+				:
+				(
+				(_Traits::GetData(a) < _Traits::GetData(a))
+					?
+					Smaller
+					:
+					Equal
+					)
+				);
+		}
 	}
 }
