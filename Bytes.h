@@ -64,7 +64,7 @@ namespace Array {
 		}
 		Bytes& __stdcall operator/=(const Bytes& that){
 			Bytes Res;
-			LongCompute::DivideInto<value_type, value_type, BytesTraits<Length>>(*Res.Byte, *that.Byte, *this->Byte);
+			LongCompute::DivideInto<Bytes, BytesTraits<Length>::BytesIterator, BytesTraits<Length>::BytesIterator, BytesTraits<Length>>(Res, &that, this);
 			return Res;
 		}
 		Bytes __stdcall operator/(const Bytes& that)const {
@@ -73,7 +73,7 @@ namespace Array {
 		}
 		Bytes& __stdcall operator%=(const Bytes& that){
 			Bytes Res;
-			LongCompute::DivideInto<value_type,value_type,BytesTraits<Length>>(*Res.Byte, *that.Byte, *this->Byte);
+			LongCompute::DivideInto<Bytes,BytesTraits<Length>::BytesIterator, BytesTraits<Length>::BytesIterator,BytesTraits<Length>>(Res, &that, this);
 			return *this;
 		}
 		Bytes __stdcall operator%(const Bytes& that)const {
@@ -312,14 +312,22 @@ namespace Array {
 		~BytesTraits() = delete;
 		struct BytesIterator
 		{
-			Bytes<Length>* Head;
+			const Bytes<Length>* Head;
 			size_t Index;
+			__stdcall BytesIterator(const Bytes<Length>* Head, const size_t index = 0) :Head(Head), Index(index) {}
 		};
 
-		BytesIterator __stdcall GetNext(BytesIterator ptr){
+
+		const static inline BytesIterator NullObject = { nullptr,0 };
+
+		static BytesIterator __stdcall GetNext(BytesIterator ptr){
 			if (ptr.Head != nullptr)
 			{
-
+				if (ptr.index>=Length-1)
+				{
+					return NullObject;
+				}
+				return ptr.Head->Byte[ptr.index + 1];
 			}
 			else return nullptr;
 		}

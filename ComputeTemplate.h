@@ -5,7 +5,7 @@
 //	Data& GetData(Iterator);
 //	void Add(Data&, bool, const Data, const Data);
 //	void Subtract(Data&, bool, const Data, const Data)
-//	size_t GetRemainedNonNullLength(const Iterator);
+//	Linear operator*(Iterator*);
 //	void InsertAfter(Iterator*);//However, it doen't need to insert an element after it
 //When an element doesn't a next element, GetNext(Iterator) should return NullIterator.
 //
@@ -48,14 +48,12 @@ namespace LongCompute {
 
 	template<typename Iterator, typename Data, class _Traits>
 	inline void AddTo(Iterator a, Iterator b) {
-		Iterator OprtPtrA = a;
-		Iterator OprtPtrB = b;
 		bool Carry = false;
 		while (true)
 		{
 			//This element
-			_Traits::Add(_Traits::GetData(OprtPtrB), Carry, _Traits::GetData(OprtPtrA), _Traits::GetData(OprtPtrB));
-			if (!Iterate<Iterator, Data, _Traits>(_Traits::NullIterator, OprtPtrA, OprtPtrB, Carry))
+			_Traits::Add(_Traits::GetData(b), Carry, _Traits::GetData(a), _Traits::GetData(b));
+			if (!Iterate<Iterator, Data, _Traits>(_Traits::NullIterator, a, b, Carry))
 			{
 				break;
 			}
@@ -75,22 +73,22 @@ namespace LongCompute {
 			}
 		}
 	}
-	template<typename Iterator, typename Data, class _Traits>
-	inline void DivideInto(Iterator& Res,const Iterator& a, Iterator& b) {
+	template<typename Linear,typename Iterator, typename Data, class _Traits>
+	inline void DivideInto(Linear& Res,const Iterator a, Iterator b) {
 		{
-			size_t LenA = _Traits::GetRemainedNonNullLength(&a), LenB = _Traits::GetRemainedNonNullLength(&b);
-			if (a>b){
+			if (*a > *b) {
 				return;
 			}
 			else{
-				DivideInto(Res,a, _Traits::GetNext(b));
+				DivideInto<Linear,Iterator, Data, _Traits>(Res,a, _Traits::GetNext(b));
 				Res <<= 1;
 			}
 		}
 		do
 		{
 			//Regarding of the compatibility, we didn't use any majorization.
-			b -= a;
-		} while (a<b);
+			SubtractFrom<Iterator, Data, _Traits>(a, b);
+			Res+=1;
+		} while (*a < *b);
 	}
 }
