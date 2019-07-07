@@ -403,7 +403,7 @@ namespace LL {
 		//位移运算
 		//按独立进制而非二进制
 		//左移时用默认值补齐
-		/*inline*/OLL& operator<<(
+		/*inline*/OLL& operator<<=(
 			unsigned int bits) noexcept {
 			for (unsigned int i = 0; i < bits; i++)
 			{
@@ -440,7 +440,7 @@ namespace LL {
 		//位移运算
 		//按独立进制而非二进制
 		//右移时第一位销毁
-		/*inline*/OLL& operator>>(unsigned int bits) noexcept {
+		/*inline*/OLL& operator>>=(unsigned int bits) noexcept {
 			for (unsigned int i = 0; i < bits; i++)
 			{
 				this->cut();
@@ -599,7 +599,7 @@ namespace LL {
 				that->next);
 		}
 	};
-template<typename Data, unsigned long Radix>
+	template<typename Data, unsigned long Radix>
 	class DLL
 	{
 		static const inline std::forward_list<Data> Factor = PrimeFactorList(static_cast<Data>(Radix));
@@ -608,7 +608,7 @@ template<typename Data, unsigned long Radix>
 		template<class node, typename Data, Data _Max>
 		friend class LinkedListComputeTraits;
 		//友元函数声明
-		
+
 		template<class Class, typename Data, unsigned long Radix>
 		//重载
 		inline friend void __stdcall add(
@@ -1106,7 +1106,7 @@ template<typename Data, unsigned long Radix>
 		//保留符号位
 		//按独立进制而非二进制
 		//左移时用默认值补齐
-		inline DLL& operator<<(
+		inline DLL& operator<<=(
 			size_t bits
 			) noexcept {
 			for (size_t i = 0; i < bits; i++)
@@ -1119,7 +1119,7 @@ template<typename Data, unsigned long Radix>
 		//保留符号位
 		//按独立进制而非二进制
 		//右移时第一位销毁
-		inline DLL& operator>>(
+		inline DLL& operator>>=(
 			size_t bits
 			) noexcept {
 			for (size_t i = 0; i < bits; i++)
@@ -1151,7 +1151,7 @@ template<typename Data, unsigned long Radix>
 			}
 			if constexpr (Radix == 0)throw std::invalid_argument();
 			if (that % Radix == 0) {
-				return ((*this >> 1) /= (that / Radix));
+				return ((*this >>= 1) /= (that / Radix));
 			}
 			else
 			{
@@ -1256,7 +1256,7 @@ template<typename Data, unsigned long Radix>
 			size_t bit = static_cast<size_t>(d);
 			DLL That(that, true);
 			That.data = 1;
-			That << bit;
+			That <<= bit;
 			while (true)
 			{
 				//size_t ThisLength = this->RawLength();
@@ -1291,7 +1291,7 @@ template<typename Data, unsigned long Radix>
 					else
 					{
 						bit--;
-						That >> 1U;
+						That >>= 1U;
 					}
 				}
 			}
@@ -1315,7 +1315,7 @@ template<typename Data, unsigned long Radix>
 			unsigned int bit = static_cast<unsigned int>(static_cast<long long>(l1) - l2);
 			DLL That(that, true);
 			That.data = 1;
-			That << bit;
+			That <<= bit;
 			Data ThisSign = this->data;
 			this->data = 1;
 			DLL Res(true);
@@ -1352,7 +1352,7 @@ template<typename Data, unsigned long Radix>
 					DLL one(true, 1);//此处可优化
 					Res += one;
 					one.destruct();
-					Res << bit;
+					Res <<= bit;
 					*this = Res;
 					this->data = ThisSign;
 					That.destruct();
@@ -1362,8 +1362,8 @@ template<typename Data, unsigned long Radix>
 				{
 					if (bit > 0)
 					{
-						Res << 1U;
-						That >> 1U;
+						Res <<= 1U;
+						That >>= 1U;
 						bit--;
 					}
 					else
@@ -1376,7 +1376,7 @@ template<typename Data, unsigned long Radix>
 				}
 			}
 		}
-		inline friend std::ostream& __stdcall operator<<(
+		inline friend std::ostream& __stdcall operator<<=(
 			std::ostream& out, const DLL& that
 			) noexcept {
 			return LL::out<DLL, Radix>(out, that);
@@ -1746,7 +1746,7 @@ template<typename Data, unsigned long Radix>
 			}
 			_temp = temp * OprtPtr_b->data;
 			a += _temp;
-			temp << 1;
+			temp <<= 1;
 			OprtPtr_b = OprtPtr_b->next;
 		}
 		_temp.destruct();
@@ -1936,7 +1936,7 @@ template<typename Data, unsigned long Radix>
 		}
 		return Result;
 	}
-	template<class node,typename Data, Data _Max = std::numeric_limits<Data>::max()>
+	template<class node, typename Data, Data _Max = std::numeric_limits<Data>::max()>
 	class LinkedListComputeTraits
 	{
 	public:
@@ -1945,15 +1945,15 @@ template<typename Data, unsigned long Radix>
 		static const inline node NullObject = node(0, nullptr);
 		static const inline size_t length = Array::GetMinLength(_Max);
 		static const inline Array::Bytes<length> Max = Array::Bytes<length>(_Max);
-		static const inline Array::Bytes<length> Radix= Array::Bytes<length>(Max + 1);
+		static const inline Array::Bytes<length> Radix = Array::Bytes<length>(Max + 1);
 
-		static Data& GetData(node* ptr) { return ptr->data; } 
+		static Data& GetData(node* ptr) { return ptr->data; }
 		static const Data& GetData(const node* ptr) { return ptr->data; }
 
-		static node* GetNext(node* ptr) { return ptr->next; } 
-		static const node* GetNext(const node* ptr) { return ptr->next; } 
+		static node* GetNext(node* ptr) { return ptr->next; }
+		static const node* GetNext(const node* ptr) { return ptr->next; }
 
-		static void Add(Data& Res,bool& Carry,const Data a,const Data b){
+		static void Add(Data& Res, bool& Carry, const Data a, const Data b) {
 			Array::Bytes<length> Sum = a;
 			Sum += b;
 			if (Carry)
@@ -1963,8 +1963,8 @@ template<typename Data, unsigned long Radix>
 			Res = (Sum % Radix);
 			Carry = ((Sum / Radix > 0) ? true : false);
 		}
-		static void Subtract(Data& Res, bool& Carry, const Data a, const Data b){
-			if (a>=b)
+		static void Subtract(Data& Res, bool& Carry, const Data a, const Data b) {
+			if (a >= b)
 			{
 				Res = (a - b);
 			}

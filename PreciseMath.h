@@ -46,8 +46,8 @@ namespace LL {
 					&&
 					(this->Numerator.next->data == 0))
 				{
-					this->Denominator >> 1;
-					this->Numerator >> 1;
+					this->Denominator >>= 1;
+					this->Numerator >>= 1;
 				}
 				else break;
 			}
