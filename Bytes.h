@@ -6,15 +6,21 @@
 
 namespace Array {
 	constexpr size_t BitsPerByte = 8;
-	template<size_t Length>
 
+	template<size_t Length>
 	class Bytes;
 
 	template<typename Data>
 	constexpr size_t GetMinLength(Data data);
 
 	template<size_t Length>
+	struct BytesIterator;
+	template<size_t Length>
 	class BytesTraits;
+	template<typename Data, Data _Max>
+	class SampleTraits;
+
+	using value_type=unsigned char;
 	//***************************************************
 	//***************************************************
 	//
@@ -27,9 +33,8 @@ namespace Array {
 	template<size_t Length = 1>
 	class Bytes
 	{
-	public:
-		using value_type=unsigned char;
 	private:
+		friend class BytesTraits<Length>;
 		value_type Byte[Length] = {};
 	public:
 		explicit __stdcall Bytes() {}
@@ -51,7 +56,10 @@ namespace Array {
 				for (size_t i = 0; i < Length; i++)
 				{
 					//If (a + b) overflows, then (a + b) < min{a, b}.
-					Byte[i + 1] += ((Byte[i] + that.Byte[i] < Byte[i]) ? 1 : 0);
+					if (i + 1 != Length)
+					{
+						Byte[i + 1] += ((Byte[i] + that.Byte[i] < Byte[i]) ? 1 : 0);
+					}
 					Byte[i] += that.Byte[i];
 				}
 				Byte[Length-1] += that.Byte[Length-1];
@@ -68,9 +76,17 @@ namespace Array {
 		Bytes& __stdcall operator--() {
 			return (*this -= Bytes(1));
 		}
+		Bytes __stdcall operator~ ()const{
+			Bytes ret;
+			for (size_t i = 0; i < Length; i++)
+			{
+				ret.Byte[i] = ~this->Byte[i];
+			}
+			return ret;
+		}
 		Bytes& __stdcall operator/=(const Bytes& that){
 			Bytes Res;
-			LongCompute::DivideInto<Bytes, BytesTraits<Length>::BytesIterator, BytesTraits<Length>::BytesIterator, BytesTraits<Length>>(Res, &that, this);
+			LongCompute::DivideInto<Bytes, BytesIterator<Length>, value_type, BytesTraits<Length>>(Res, &that, this);
 			return Res;
 		}
 		Bytes __stdcall operator/(const Bytes& that)const {
@@ -79,7 +95,7 @@ namespace Array {
 		}
 		Bytes& __stdcall operator%=(const Bytes& that){
 			Bytes Res;
-			LongCompute::DivideInto<Bytes,BytesTraits<Length>::BytesIterator, BytesTraits<Length>::BytesIterator,BytesTraits<Length>>(Res, &that, this);
+			LongCompute::DivideInto<Bytes, BytesIterator<Length>, value_type, BytesTraits<Length>>(Res, &that, this);
 			return *this;
 		}
 		Bytes __stdcall operator%(const Bytes& that)const {
@@ -115,14 +131,6 @@ namespace Array {
 		Bytes __stdcall operator&(const Bytes& that)const {
 			Bytes ret = *this;
 			return (ret &= that);
-		}
-		Bytes __stdcall operator~ () {
-			Bytes ret;
-			for (size_t i = 0; i < Length; i++)
-			{
-				ret.Byte[i] = ~this->Byte[i];
-			}
-			return *this;
 		}
 		Bytes __stdcall operator^=(const Bytes& that) {
 			for (size_t i = 0; i < Length; i++)
@@ -311,33 +319,78 @@ namespace Array {
 
 
 	template<size_t Length>
-	class BytesTraits:virtual public Bytes<Length>
+	struct BytesIterator
+	{
+		const Bytes<Length>* Head;
+		size_t Index;
+		__stdcall BytesIterator(const Bytes<Length>* Head, const size_t index = 0) :Head(Head), Index(index) {}
+	};
+
+
+	template<typename Data, Data _Max = std::numeric_limits<Data>::max()>
+	class SampleTraits
+	{
+	public:
+		SampleTraits() = delete;
+		~SampleTraits() = delete;
+		static const inline size_t length = Array::GetMinLength(_Max);
+		static const inline Array::Bytes<length> Max = Array::Bytes<length>(_Max);
+		static const inline Array::Bytes<length> Radix = Array::Bytes<length>(Max + Array::Bytes<length>(1));
+
+		static void Add(Data& Res, Data& Carry, const Data a, const Data b) {
+			Array::Bytes<length> Sum = Array::Bytes<length>(a);
+			Sum += Array::Bytes<length>(b);
+			if (Carry)
+			{
+				Sum += Array::Bytes<length>(1);
+			}
+			Res = Data(Sum % Radix);
+			Carry = ((Sum / Radix > Array::Bytes<length>(0)) ? true : false);
+		}
+		static void SubTract(Data& Res, Data& Carry, const Data a, const Data b) {
+			Bytes<length> _a = Bytes<length>(a);
+			if (Carry)
+			{
+				_a -= Array::Bytes<length>(1);
+			}
+			Res = (_a - static_cast<Bytes<length>>(b));
+			if (a >= b)
+			{
+				Carry = 1;
+			}
+			else
+			{
+				Carry = 0;
+			}
+		}
+	};
+
+	template<size_t Length>
+	class BytesTraits :public Bytes<Length>, public SampleTraits<value_type>
 	{
 	public:
 		BytesTraits() = delete;
 		~BytesTraits() = delete;
-		struct BytesIterator
-		{
-			const Bytes<Length>* Head;
-			size_t Index;
-			__stdcall BytesIterator(const Bytes<Length>* Head, const size_t index = 0) :Head(Head), Index(index) {}
-		};
 
+		const static inline BytesIterator<Length> NullIterator = { nullptr,0 };
 
-		const static inline BytesIterator NullObject = { nullptr,0 };
-
-		static BytesIterator __stdcall GetNext(const BytesIterator ptr){
+		static BytesIterator<Length> __stdcall GetNext(const BytesIterator<Length>& ptr){
 			if (ptr.Head != nullptr)
 			{
-				if (ptr.index>=Length-1)
+				if (ptr.Index>=Length-1)
 				{
-					return NullObject;
+					return NullIterator;
 				}
-				return BytesIterator(ptr.Head, ptr.index + 1);
+				return BytesIterator<Length>(ptr.Head, ptr.Index + 1);
 			}
-			else return nullptr;
+			else return NullIterator;
+		}
+
+		static value_type& __stdcall GetData(BytesIterator<Length> ptr) {
+			return const_cast<value_type*>(ptr.Head->Byte)[ptr.Index];
 		}
 	private:
 
 	};
+
 };

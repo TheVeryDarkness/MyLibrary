@@ -1937,16 +1937,13 @@ namespace LL {
 		return Result;
 	}
 	template<class node, typename Data, Data _Max = std::numeric_limits<Data>::max()>
-	class LinkedListComputeTraits
+	class LinkedListComputeTraits :public Array::SampleTraits<Data, _Max>
 	{
 	public:
 		__stdcall LinkedListComputeTraits() = delete;
 		__stdcall ~LinkedListComputeTraits() = delete;
 		static inline node NullNode = node(0, nullptr);
 		constexpr static inline node* NullIterator = &NullNode;
-		static const inline size_t length = Array::GetMinLength(_Max);
-		static const inline Array::Bytes<length> Max = Array::Bytes<length>(_Max);
-		static const inline Array::Bytes<length> Radix = Array::Bytes<length>(Max + Array::Bytes<length>(1));
 
 		static Data& GetData(node* ptr) { return ptr->data; }
 		static const Data& GetData(const node* ptr) { return ptr->data; }
@@ -1954,26 +1951,6 @@ namespace LL {
 		static node* GetNext(node* ptr) { return ptr->next; }
 		static const node* GetNext(const node* ptr) { return ptr->next; }
 
-		static void Add(Data& Res, bool& Carry, const Data a, const Data b) {
-			Array::Bytes<length> Sum = Array::Bytes<length>(a);
-			Sum += Array::Bytes<length>(b);
-			if (Carry)
-			{
-				Sum += Array::Bytes<length>(1);
-			}
-			Res = Data(Sum % Radix);
-			Carry = ((Sum / Radix > Array::Bytes<length>(0)) ? true : false);
-		}
-		static void Subtract(Data& Res, bool& Carry, const Data a, const Data b) {
-			if (a >= b)
-			{
-				Res = (a - b);
-			}
-			else
-			{
-
-			}
-		}
 
 		static void InsertAfter(node** ptr) { (*ptr)->insert(); }
 	private:

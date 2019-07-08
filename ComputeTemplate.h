@@ -1,25 +1,27 @@
 #pragma once
 
-//The _Traits must give these functions:
-//	Iterator GetNext(Iterator);
-//	Data& GetData(Iterator);
-//	void Add(Data&, bool, const Data, const Data);
-//	void Subtract(Data&, bool, const Data, const Data)
-//	Linear operator*(Iterator*);
-//	void InsertAfter(Iterator*);//However, it doen't need to insert an element after it
-//When an element doesn't a next element, GetNext(Iterator) should return NullIterator.
-//
-//The _Traits must give these definition:
-//	NullIterator;
-//NullIterator must have 0 data, and not have an next element.
 namespace LongCompute {
 	constexpr short Larger = 0x1;
 	constexpr short Equal = 0x0;
 	constexpr short Smaller = -0x1;
 
 
+
+	//The _Traits must give these functions:
+	//	Iterator GetNext(Iterator);
+	//	Data& GetData(Iterator);
+	//	void Add(Data&, bool, const Data, const Data);
+	//	void Subtract(Data&, bool, const Data, const Data)
+	//	Linear operator*(Iterator*);
+	//	void InsertAfter(Iterator*);//However, it doen't need to insert an element after it
+	//When an element doesn't a next element, GetNext(Iterator) should return NullIterator.
+	//
+	//The _Traits must give these definition:
+	//	NullIterator;
+	//NullIterator must have 0 data, and not have an next element.
+
 	template<typename Iterator, typename Data, class _Traits>
-	inline bool Iterate(const Iterator const &NullIterator, Iterator& That, Iterator& This, const Data& CarryBit) {
+	inline bool Iterate(const Iterator & NullIterator, Iterator& That, Iterator& This, const Data& CarryBit) {
 		//Next element
 		if (((_Traits::GetNext(That)) != NullIterator) && ((_Traits::GetNext(This)) != NullIterator))
 		{
@@ -53,7 +55,7 @@ namespace LongCompute {
 
 	template<typename Iterator, typename Data, class _Traits>
 	inline void AddTo(Iterator a, Iterator b) {
-		bool Carry = false;
+		Data Carry = 0;
 		while (true)
 		{
 			//This element
@@ -65,23 +67,21 @@ namespace LongCompute {
 		}
 	}
 	template<typename Iterator, typename Data, class _Traits>
-	inline void SubtractFrom(const Iterator& a, Iterator& b) {
-		const Iterator OprtPtrA = &a;
-		Iterator OprtPtrB = &b;
-		bool Carry = false;
+	inline void SubtractFrom(Iterator a, Iterator b) {
+		Data Carry = 0;
 		while (true)
 		{
 			//This element
-			_Traits::SubTract(_Traits::GetData(OprtPtrB), Carry, _Traits::GetData(OprtPtrA), _Traits::GetData(OprtPtrB));
-			if (!Iterate<Iterator, Data, _Traits>(_Traits::NullIterator, OprtPtrA, OprtPtrB, Carry)) {
+			_Traits::SubTract(_Traits::GetData(b), Carry, _Traits::GetData(a), _Traits::GetData(b));
+			if (!Iterate<Iterator, Data, _Traits>(_Traits::NullIterator, a, b, Carry)) {
 				break;
 			}
 		}
 	}
 	template<typename Linear,typename Iterator, typename Data, class _Traits>
-	inline void DivideInto(Linear& Res,const Iterator a, Iterator b) {
+	inline void DivideInto(Linear& Res,Iterator a, Iterator b) {
 		{
-			if (Compare<Iterator, Data>(a, b) == Larger) {
+			if (Compare<Iterator, Data, _Traits>(a, b) == Larger) {
 				return;
 			}
 			else{
@@ -93,12 +93,12 @@ namespace LongCompute {
 		{
 			//Regarding of the compatibility, we didn't use any majorization.
 			SubtractFrom<Iterator, Data, _Traits>(a, b);
-			Res ++;
-		} while (Compare<Iterator, Data>(a, b) == Smaller);
+			++Res;
+		} while (Compare<Iterator, Data, _Traits>(a, b) == Smaller);
 	}
-	template<typename Iterator, typename Data>
+	template<typename Iterator, typename Data, class _Traits>
 	short __stdcall Compare(const Iterator& a, const Iterator& b) {
-		short PreRes = Compare<Iterator, Data>(_Traits::GetNext(a), _Traits::GetNext(a));
+		short PreRes = Compare<Iterator, Data,_Traits>(_Traits::GetNext(a), _Traits::GetNext(a));
 		if (PreRes!=0)
 		{
 			return PreRes;
