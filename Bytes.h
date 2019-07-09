@@ -37,12 +37,12 @@ namespace Array {
 		friend class BytesTraits<Length>;
 		value_type Byte[Length] = {};
 	public:
-		explicit __stdcall Bytes() {}
-		template<size_t OriginLength> explicit __stdcall Bytes(const Bytes<OriginLength>&);
-		template<typename Data>explicit  __stdcall Bytes(const Data data);
-		template<typename Data> __stdcall operator Data();
-		size_t __stdcall GetLength()const;
-		Bytes& __stdcall operator=(unsigned char Value) {
+		explicit MY_LIBRARY Bytes() {}
+		template<size_t OriginLength> explicit MY_LIBRARY Bytes(const Bytes<OriginLength>&);
+		template<typename Data>explicit  MY_LIBRARY Bytes(const Data data);
+		template<typename Data> MY_LIBRARY operator Data();
+		size_t MY_LIBRARY GetLength()const;
+		Bytes& MY_LIBRARY operator=(unsigned char Value) {
 			if constexpr (Length != 0)
 			{
 				memset(this->Byte, 0, Length);
@@ -50,7 +50,7 @@ namespace Array {
 			}
 			return *this;
 		}
-		Bytes& __stdcall operator+=(const Bytes& that) {
+		Bytes& MY_LIBRARY operator+=(const Bytes& that) {
 			if constexpr (Length != 0)
 			{
 				for (size_t i = 0; i < Length; i++)
@@ -66,17 +66,17 @@ namespace Array {
 			}
 			return *this;
 		}
-		Bytes __stdcall operator+(const Bytes& that) const{
+		Bytes MY_LIBRARY operator+(const Bytes& that) const{
 			Bytes Ret = *this;
 			return (Ret += that);
 		}
-		Bytes& __stdcall operator++() {
+		Bytes& MY_LIBRARY operator++() {
 			return (*this += Bytes(1));
 		}
-		Bytes& __stdcall operator--() {
+		Bytes& MY_LIBRARY operator--() {
 			return (*this -= Bytes(1));
 		}
-		Bytes __stdcall operator~ ()const{
+		Bytes MY_LIBRARY operator~ ()const{
 			Bytes ret;
 			for (size_t i = 0; i < Length; i++)
 			{
@@ -84,72 +84,86 @@ namespace Array {
 			}
 			return ret;
 		}
-		Bytes& __stdcall operator/=(const Bytes& that){
+		Bytes& MY_LIBRARY operator/=(const Bytes& that){
 			Bytes Res;
 			LongCompute::DivideInto<Bytes, BytesIterator<Length>, value_type, BytesTraits<Length>>(Res, &that, this);
-			return Res;
+			*this = Res;
+			return *this;
 		}
-		Bytes __stdcall operator/(const Bytes& that)const {
+		Bytes MY_LIBRARY operator/(const Bytes& that)const {
 			Bytes Ret = *this;
 			return (Ret /= that);
 		}
-		Bytes& __stdcall operator%=(const Bytes& that){
+		Bytes& MY_LIBRARY operator%=(const Bytes& that){
 			Bytes Res;
 			LongCompute::DivideInto<Bytes, BytesIterator<Length>, value_type, BytesTraits<Length>>(Res, &that, this);
 			return *this;
 		}
-		Bytes __stdcall operator%(const Bytes& that)const {
+		Bytes MY_LIBRARY operator%(const Bytes& that)const {
 			Bytes Ret = *this;
 			return (Ret %= that);
 		}
-		Bytes& __stdcall operator-=(const Bytes& that){
+		Bytes& MY_LIBRARY operator-=(const Bytes& that){
 			Bytes Minus = ~that + Bytes(1);
-			*this += Minus;
+			return(*this += Minus);
 		}
-		Bytes __stdcall operator-(const Bytes& that)const {
+		Bytes MY_LIBRARY operator-(const Bytes& that)const {
 			Bytes Ret = *this;
 			return (Ret -= that);
 		}
-		Bytes& __stdcall operator|=(const Bytes& that){
+		Bytes& MY_LIBRARY operator|=(const Bytes& that){
 			for (size_t i = 0; i < Length; i++)
 			{
 				this->Byte[i] |= that.Byte[i];
 			}
 			return *this;
 		}
-		Bytes __stdcall operator|(const Bytes& that)const {
+		Bytes MY_LIBRARY operator|(const Bytes& that)const {
 			Bytes ret = *this;
 			return (ret |= that);
 		}
-		Bytes& __stdcall operator&=(const Bytes& that) {
+		Bytes& MY_LIBRARY operator&=(const Bytes& that) {
 			for (size_t i = 0; i < Length; i++)
 			{
 				this->Byte[i] &= that.Byte[i];
 			}
 			return *this;
 		}
-		Bytes __stdcall operator&(const Bytes& that)const {
+		Bytes MY_LIBRARY operator&(const Bytes& that)const {
 			Bytes ret = *this;
 			return (ret &= that);
 		}
-		Bytes __stdcall operator^=(const Bytes& that) {
+		Bytes MY_LIBRARY operator^=(const Bytes& that) {
 			for (size_t i = 0; i < Length; i++)
 			{
 				this->Byte[i] ^= that.Byte[i];
 			}
 			return *this;
 		}
-		Bytes __stdcall operator^(const Bytes& that)const{
+		Bytes MY_LIBRARY operator^(const Bytes& that)const{
 			Bytes ret = *this;
 			return (ret ^= that);
 		}
-		Bytes& __stdcall operator<<=(size_t Bits) {
+		bool MY_LIBRARY operator!=(const Bytes& that)const {
+			for (size_t i = 0; i < Length; i++)
+			{
+				if (this->Byte[i]!=that.Byte[i])
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+		bool MY_LIBRARY operator==(const Bytes& that)const {
+			return !(*this != that);
+		}
+		Bytes& MY_LIBRARY operator<<=(size_t Bits) {
 			return(*this = *this << Bits);
 		}
-		Bytes& __stdcall operator>>=(size_t Bits) {
+		Bytes& MY_LIBRARY operator>>=(size_t Bits) {
 			return(*this = *this >> Bits);
 		}
-		Bytes __stdcall operator<<(size_t Bits)const {
+		Bytes MY_LIBRARY operator<<(size_t Bits)const {
 			if ((Bits / Length) >= BitsPerByte)
 			{
 				return Bytes();
@@ -174,7 +188,7 @@ namespace Array {
 			}
 			return ret;
 		}
-		Bytes __stdcall operator>>(size_t Bits)const {
+		Bytes MY_LIBRARY operator>>(size_t Bits)const {
 			if ((Bits / Length) >= BitsPerByte)
 			{
 				return Bytes();
@@ -199,7 +213,7 @@ namespace Array {
 			}
 			return ret;
 		}
-		bool __stdcall operator<(const Bytes& that)const{
+		bool MY_LIBRARY operator<(const Bytes& that)const{
 			if (Length == 0)return false;
 			for (size_t i = Length-1; i > 0; i--)
 			{
@@ -215,7 +229,7 @@ namespace Array {
 			}
 			return false;
 		}
-		bool __stdcall operator<=(const Bytes& that)const {
+		bool MY_LIBRARY operator<=(const Bytes& that)const {
 			if (Length == 0)return true;
 			for (size_t i = Length - 1; i > 0; i--)
 			{
@@ -231,19 +245,19 @@ namespace Array {
 			}
 			return true;
 		}
-		bool __stdcall operator>(const Bytes& that)const {
+		bool MY_LIBRARY operator>(const Bytes& that)const {
 			return !(*this <= that);
 		}
-		bool __stdcall operator>=(const Bytes& that)const {
+		bool MY_LIBRARY operator>=(const Bytes& that)const {
 			return !(*this < that);
 		}
-		const value_type& __stdcall operator[](size_t index) { return this->Byte[index]; }
-		__stdcall Bytes(const std::initializer_list<value_type>& that);
+		const value_type& MY_LIBRARY operator[](size_t index) { return this->Byte[index]; }
+		MY_LIBRARY Bytes(const std::initializer_list<value_type>& that);
 	};
 	//***************************************************
 	template<size_t Length>
 	template<size_t OriginLength>
-	inline __stdcall Bytes<Length>::Bytes(
+	inline MY_LIBRARY Bytes<Length>::Bytes(
 		const Bytes<OriginLength>& that
 	) {
 		if constexpr (Length >= OriginLength)
@@ -253,7 +267,7 @@ namespace Array {
 		return;
 	}
 	template<size_t Length>
-	inline __stdcall Array::Bytes<Length>::Bytes(
+	inline MY_LIBRARY Array::Bytes<Length>::Bytes(
 		const std::initializer_list<value_type>& that
 	) {
 		size_t a = 0;
@@ -269,7 +283,7 @@ namespace Array {
 	
 	template<size_t Length>
 	template<typename Data>
-	inline __stdcall Array::Bytes<Length>::Bytes(Data data) {
+	inline MY_LIBRARY Array::Bytes<Length>::Bytes(Data data) {
 		if constexpr (sizeof(Data)<=Length)
 		{
 			memcpy(this->Byte, &data, sizeof(Data));
@@ -282,7 +296,7 @@ namespace Array {
 
 	template<size_t Length>
 	template<typename Data>
-	inline __stdcall Array::Bytes<Length>::operator Data () {
+	inline MY_LIBRARY Array::Bytes<Length>::operator Data () {
 		Data data = {};
 		if constexpr (sizeof(Data) <= Length)
 		{
@@ -296,7 +310,7 @@ namespace Array {
 	}
 
 	template<size_t Length>
-	size_t __stdcall Bytes<Length>::GetLength()const{
+	size_t MY_LIBRARY Bytes<Length>::GetLength()const{
 		size_t Res = 0;
 		Bytes<Length> This = *this;
 		while (This!=0)
@@ -323,7 +337,9 @@ namespace Array {
 	{
 		const Bytes<Length>* Head;
 		size_t Index;
-		__stdcall BytesIterator(const Bytes<Length>* Head, const size_t index = 0) :Head(Head), Index(index) {}
+		constexpr MY_LIBRARY BytesIterator(const Bytes<Length>* Head, const size_t index = 0) :Head(Head), Index(index) {}
+		bool MY_LIBRARY operator==(const BytesIterator& that)const { return ((this->Head == that.Head) && (this->Index == that.Index)); }
+		bool MY_LIBRARY operator!=(const BytesIterator& that)const { return !(*this == that); }
 	};
 
 
@@ -372,23 +388,25 @@ namespace Array {
 		BytesTraits() = delete;
 		~BytesTraits() = delete;
 
-		const static inline BytesIterator<Length> NullIterator = { nullptr,0 };
+		const static inline Bytes<Length> NullObject;
+		constexpr static inline BytesIterator<Length> NullIterator = { &NullObject,0 };
 
-		static BytesIterator<Length> __stdcall GetNext(const BytesIterator<Length>& ptr){
-			if (ptr.Head != nullptr)
+		static BytesIterator<Length> MY_LIBRARY GetNext(const BytesIterator<Length>& ptr){
+			if (ptr.Head != nullptr && ptr.Head != &NullObject)
 			{
 				if (ptr.Index>=Length-1)
 				{
 					return NullIterator;
 				}
-				return BytesIterator<Length>(ptr.Head, ptr.Index + 1);
+				else return BytesIterator<Length>(ptr.Head, ptr.Index + 1);
 			}
 			else return NullIterator;
 		}
 
-		static value_type& __stdcall GetData(BytesIterator<Length> ptr) {
+		static value_type& MY_LIBRARY GetData(BytesIterator<Length> ptr) {
 			return const_cast<value_type*>(ptr.Head->Byte)[ptr.Index];
 		}
+		static void MY_LIBRARY InsertAfter(const BytesIterator<Length>* ptr) {}
 	private:
 
 	};

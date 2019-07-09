@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Shared.h"
+
 namespace LongCompute {
 	constexpr short Larger = 0x1;
 	constexpr short Equal = 0x0;
@@ -21,71 +23,76 @@ namespace LongCompute {
 	//NullIterator must have 0 data, and not have an next element.
 
 	template<typename Iterator, typename Data, class _Traits>
-	inline bool Iterate(const Iterator & NullIterator, Iterator& That, Iterator& This, const Data& CarryBit) {
+	inline bool MY_LIBRARY Iterate(Iterator& That, Iterator& This, const Data& CarryBit) {
 		//Next element
-		if (((_Traits::GetNext(That)) != NullIterator) && ((_Traits::GetNext(This)) != NullIterator))
+		Iterator ThatNext = (_Traits::GetNext(That)), ThisNext = (_Traits::GetNext(This));
+		if ((ThatNext != _Traits::NullIterator) && (ThisNext != _Traits::NullIterator))
 		{
-			That = (_Traits::GetNext(That));
-			This = (_Traits::GetNext(This));
+			That = ThatNext;
+			This = ThisNext;
 		}
-		else if (((_Traits::GetNext(That)) == NullIterator) && ((_Traits::GetNext(This)) != NullIterator))
+		else if ((ThatNext == _Traits::NullIterator) && (ThisNext != _Traits::NullIterator))
 		{
-			That = NullIterator;
-			This = (_Traits::GetNext(This));
+			That = _Traits::NullIterator;
+			This = ThisNext;
 		}
-		else if (((_Traits::GetNext(That)) != NullIterator) && ((_Traits::GetNext(This)) == NullIterator))
+		else if ((ThatNext != _Traits::NullIterator) && (ThisNext == _Traits::NullIterator))
 		{
 			_Traits::InsertAfter(&This);
-			That = (_Traits::GetNext(That));
-			This = (_Traits::GetNext(This));
+			That = ThatNext;
+			This = ThisNext;
 		}
-		else if (((_Traits::GetNext(That)) == NullIterator) && ((_Traits::GetNext(This)) == NullIterator))
+		else if ((ThatNext == _Traits::NullIterator) && (ThisNext == _Traits::NullIterator))
 		{
 			if (CarryBit == 0) {
 				return false;
 			}
 			else {
-				That = NullIterator;
+				That = _Traits::NullIterator;
 				_Traits::InsertAfter(&This);
-				This = (_Traits::GetNext(This));
+				This = ThisNext;
 			}
 		}
 		return true;
 	}
 
 	template<typename Iterator, typename Data, class _Traits>
-	inline void AddTo(Iterator a, Iterator b) {
+	inline void MY_LIBRARY AddTo(Iterator a, Iterator b) {
 		Data Carry = 0;
 		while (true)
 		{
 			//This element
-			_Traits::Add(_Traits::GetData(b), Carry, _Traits::GetData(a), _Traits::GetData(b));
-			if (!Iterate<Iterator, Data, _Traits>(_Traits::NullIterator, a, b, Carry))
+			Data temp;
+			_Traits::Add(temp, Carry, _Traits::GetData(a), _Traits::GetData(b));
+			_Traits::GetData(b) = temp;
+			if (!Iterate<Iterator, Data, _Traits>(a, b, Carry))
 			{
 				break;
 			}
 		}
 	}
 	template<typename Iterator, typename Data, class _Traits>
-	inline void SubtractFrom(Iterator a, Iterator b) {
+	inline void MY_LIBRARY SubtractFrom(Iterator a, Iterator b) {
 		Data Carry = 0;
 		while (true)
 		{
 			//This element
-			_Traits::SubTract(_Traits::GetData(b), Carry, _Traits::GetData(a), _Traits::GetData(b));
-			if (!Iterate<Iterator, Data, _Traits>(_Traits::NullIterator, a, b, Carry)) {
+			Data temp;
+			_Traits::SubTract(temp, Carry, _Traits::GetData(a), _Traits::GetData(b));
+			_Traits::GetData(b) = temp;
+			if (!Iterate<Iterator, Data, _Traits>(a, b, Carry)) {
 				break;
 			}
 		}
 	}
-	template<typename Linear,typename Iterator, typename Data, class _Traits>
-	inline void DivideInto(Linear& Res,Iterator a, Iterator b) {
+	template<typename Linear, typename Iterator, typename Data, class _Traits>
+	inline void MY_LIBRARY DivideInto(Linear& Res, Iterator a, Iterator b) {
 		{
 			if (Compare<Iterator, Data, _Traits>(a, b) == Larger) {
 				return;
 			}
-			else{
-				DivideInto<Linear,Iterator, Data, _Traits>(Res,a, _Traits::GetNext(b));
+			else {
+				DivideInto<Linear, Iterator, Data, _Traits>(Res, a, _Traits::GetNext(b));
 				Res <<= 1;
 			}
 		}
@@ -97,21 +104,25 @@ namespace LongCompute {
 		} while (Compare<Iterator, Data, _Traits>(a, b) == Smaller);
 	}
 	template<typename Iterator, typename Data, class _Traits>
-	short __stdcall Compare(const Iterator& a, const Iterator& b) {
-		short PreRes = Compare<Iterator, Data,_Traits>(_Traits::GetNext(a), _Traits::GetNext(a));
-		if (PreRes!=0)
+	inline short MY_LIBRARY Compare(const Iterator& a, const Iterator& b) {
+		if ((a == _Traits::NullIterator) && (b == _Traits::NullIterator))
+		{
+			return Equal;
+		}
+		short PreRes = Compare<Iterator, Data, _Traits>(_Traits::GetNext(a), _Traits::GetNext(b));
+		if (PreRes != Equal)
 		{
 			return PreRes;
 		}
 		else
 		{
 			return (
-				(_Traits::GetData(a) > _Traits::GetData(a))
+				(_Traits::GetData(a) > _Traits::GetData(b))
 				?
 				Larger
 				:
 				(
-				(_Traits::GetData(a) < _Traits::GetData(a))
+				(_Traits::GetData(a) < _Traits::GetData(b))
 					?
 					Smaller
 					:

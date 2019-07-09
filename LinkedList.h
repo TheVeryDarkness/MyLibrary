@@ -37,7 +37,7 @@ namespace LL {
 		typename Type,
 		typename SubType>
 		SubType GetSubList(
-			const SubData& (__stdcall* GetFunction)(const Data&),
+			const SubData& (MY_LIBRARY* GetFunction)(const Data&),
 			const Type& that
 		)noexcept;
 
@@ -59,26 +59,26 @@ namespace LL {
 		friend class LinkedListComputeTraits;
 		template<class Class, typename Data, unsigned long Radix>
 		//重载
-		inline friend void __stdcall add(
+		inline friend void MY_LIBRARY add(
 			Class& a,
 			const Class& b
 		)noexcept;
 		template<class Class, typename Data, unsigned long Radix>
 		//重载
-		inline friend void __stdcall multiply(
+		inline friend void MY_LIBRARY multiply(
 			Class& a,
 			const Class& b
 		)noexcept;
 		template<class Class, typename Data, unsigned long Radix>
-		inline friend void __stdcall multiply(
+		inline friend void MY_LIBRARY multiply(
 			Class& a,
 			int times)noexcept;
 		template<typename Type, unsigned long Radix>
-		/*inline*/friend std::ostream& __stdcall out(
+		/*inline*/friend std::ostream& MY_LIBRARY out(
 			std::ostream& out, const Type& b
 		)noexcept;
 		template<typename Type>
-		inline friend void __stdcall SinglePrint(
+		inline friend void MY_LIBRARY SinglePrint(
 			const Type& that,
 			std::ostream& out,
 			bool ShowComma,
@@ -86,7 +86,7 @@ namespace LL {
 			unsigned base
 		)noexcept;
 		template<typename Type, unsigned long Radix>
-		/*inline*/friend std::ostream& __stdcall Print(
+		/*inline*/friend std::ostream& MY_LIBRARY Print(
 			const Type& that,
 			std::ostream& out
 		)noexcept;
@@ -96,43 +96,43 @@ namespace LL {
 			typename Type,
 			typename SubType>
 			friend SubType GetSubList(
-				const SubData& (__stdcall* GetFunction)(const Data&),
+				const SubData& (MY_LIBRARY* GetFunction)(const Data&),
 				const Type& that
 			)noexcept;
 	public:
 		//重载
-		/*inline*/void __stdcall operator*=(int times) noexcept {
+		/*inline*/void MY_LIBRARY operator*=(int times) noexcept {
 			LL::multiply<OLL, Data, Radix>(*this, times);
 		}
 		//重载
-		/*inline*/OLL __stdcall operator*(int times)const noexcept {
+		/*inline*/OLL MY_LIBRARY operator*(int times)const noexcept {
 			OLL Res(*this, true);
 			Res *= times;
 			return Res;
 		}
 		//重载
-		/*inline*/void __stdcall operator*=(const OLL& b) noexcept {
+		/*inline*/void MY_LIBRARY operator*=(const OLL& b) noexcept {
 			LL::multiply<OLL, Data, Radix>(*this, b);
 		}
 		//重载
-		/*inline*/OLL __stdcall operator*(const OLL& b)const noexcept {
+		/*inline*/OLL MY_LIBRARY operator*(const OLL& b)const noexcept {
 			OLL Res(*this, true);
 			Res *= b;
 			return Res;
 		}
 		//重载
-		inline void __stdcall operator-=(const OLL& b) noexcept {
+		inline void MY_LIBRARY operator-=(const OLL& b) noexcept {
 			*this += (-b);
 		}
 		//重载OLL链表负号
-		inline OLL __stdcall operator-(
+		inline OLL MY_LIBRARY operator-(
 			)const noexcept {
 			OLL res(*this);
 			res.data = !res.data;
 			return res;
 		}
 		//重载OLL链表加号
-		inline OLL __stdcall operator+(
+		inline OLL MY_LIBRARY operator+(
 			const OLL& b//操作数
 			)  const noexcept {
 			OLL Result(*this, true);//存储结果
@@ -140,17 +140,17 @@ namespace LL {
 			return Result;
 		}
 		//重载OLL链表+=
-		inline void __stdcall operator+=(const OLL& that) noexcept {
+		inline void MY_LIBRARY operator+=(const OLL& that) noexcept {
 			LL::add<OLL, Data, Radix>(*this, that);
 			this->Simplify();
 		}
 		//重载OLL链表减号
-		/*inline*/OLL __stdcall operator-(
+		/*inline*/OLL MY_LIBRARY operator-(
 			const OLL& b//操作数
 			)const noexcept {
 			return (*this + (-b));
 		}
-		inline __stdcall ~OLL() {
+		inline MY_LIBRARY ~OLL() {
 			this->next = nullptr;
 		}
 	protected:
@@ -160,7 +160,7 @@ namespace LL {
 		Data data;
 		//复制构造函数
 		//默认为深拷贝
-		inline __stdcall OLL(
+		inline MY_LIBRARY OLL(
 			const OLL& that,
 			bool DeepCopy
 		) noexcept {
@@ -192,15 +192,15 @@ namespace LL {
 			return;
 		}
 	public:
-		inline unsigned long __stdcall GetRadix()const noexcept {
+		inline unsigned long MY_LIBRARY GetRadix()const noexcept {
 			return Radix;
 		}
-		inline size_t __stdcall RawLength()const noexcept {
+		inline size_t MY_LIBRARY RawLength()const noexcept {
 			LL_LENGTH(OLL);
 		}
 		//复制构造函数
 		//默认为浅拷贝
-		inline __stdcall OLL(
+		inline MY_LIBRARY OLL(
 			const OLL& that
 		) noexcept {
 			this->data = that.data;
@@ -209,7 +209,7 @@ namespace LL {
 			return;
 		}
 		//仅初始化链表头的构造函数
-		explicit inline __stdcall OLL(
+		explicit inline MY_LIBRARY OLL(
 			Data HeadData,
 			OLL* NextPtr = nullptr
 		) noexcept {
@@ -228,12 +228,15 @@ namespace LL {
 				(unsigned long)((Data)(Radix - 1))
 				)
 				throw RadixError("Radix overflow.");
-			this->data = Data(HeadData);
-			this->next = NextPtr;
+			else
+			{
+				this->data = Data(HeadData);
+				this->next = NextPtr;
+			}
 			return;
 		}
 		//释放链表头后对应链节的指针
-		inline void __stdcall destruct() noexcept {
+		inline void MY_LIBRARY destruct() noexcept {
 			OLL* OprtPtr = this->next;
 			this->next = nullptr;
 			while (OprtPtr != nullptr)
@@ -245,12 +248,12 @@ namespace LL {
 			return;
 		}
 		//释放链表头后对应链节的指针
-		inline void __stdcall operator~() noexcept {
+		inline void MY_LIBRARY operator~() noexcept {
 			this->destruct();
 			return;
 		}
 		//链表版求最大值
-		/*inline*/Data __stdcall Max() const noexcept {
+		/*inline*/Data MY_LIBRARY Max() const noexcept {
 			const OLL* OprtPtr = this;
 			Data MaxNumber = OprtPtr->data;
 			do
@@ -271,7 +274,7 @@ namespace LL {
 			return MaxNumber;
 		}
 		//链表版求最小值
-		/*inline*/Data __stdcall Min()const noexcept {
+		/*inline*/Data MY_LIBRARY Min()const noexcept {
 			const OLL* OprtPtr = this;
 			Data MinNumber = OprtPtr->data;
 			do
@@ -293,7 +296,7 @@ namespace LL {
 		}
 		//链表版求平均值
 		//链表长度不得超过LONG_MAX
-		/*inline*/Data __stdcall Average()const noexcept
+		/*inline*/Data MY_LIBRARY Average()const noexcept
 		{
 			const OLL* OprtPtr = this;
 			double average = 0;
@@ -319,7 +322,7 @@ namespace LL {
 			return (long)average;
 		}
 		//交换
-		inline void __stdcall swap(
+		inline void MY_LIBRARY swap(
 			OLL& that
 		) noexcept {
 			Data TempData = that.data;
@@ -331,7 +334,7 @@ namespace LL {
 			return;
 		}
 		//覆盖赋值
-		/*inline*/void __stdcall SetValue(
+		/*inline*/void MY_LIBRARY SetValue(
 			long num, const Data* data
 		) noexcept {
 			OLL* OprtPtr = this;//操作当前对象
@@ -388,7 +391,7 @@ namespace LL {
 		//覆盖赋值
 		//浅拷贝
 		//将清除被赋值对象原有内容
-		inline OLL& __stdcall operator=(
+		inline OLL& MY_LIBRARY operator=(
 			const OLL& that
 			) noexcept {
 			if (&that == this)
@@ -411,7 +414,7 @@ namespace LL {
 			}
 			return *this;
 		}
-		/*inline*/bool __stdcall operator==(
+		/*inline*/bool MY_LIBRARY operator==(
 			const OLL& that
 			)const noexcept {
 			OLL* OprtPtr = this, * PreOprtPtr = &that;
@@ -449,7 +452,7 @@ namespace LL {
 		}
 		//从链表头（不包括链表头）开始，倒置之后的链节
 		//使用new创建新链表
-		/*inline*/OLL __stdcall invert(const OLL& b) const noexcept {
+		/*inline*/OLL MY_LIBRARY invert(const OLL& b) const noexcept {
 			OLL Result(b.data);
 			const OLL* OprtPtr = &b;
 			while (OprtPtr->next != nullptr)
@@ -466,7 +469,7 @@ namespace LL {
 			return;
 		}
 		//删除当前位置后的一位
-		inline void __stdcall cut() noexcept {
+		inline void MY_LIBRARY cut() noexcept {
 			if (this->next == nullptr)
 			{
 #ifdef _DEBUG
@@ -484,11 +487,11 @@ namespace LL {
 			}
 			return;
 		}
-		inline OLL* __stdcall Simplify() noexcept {
+		inline OLL* MY_LIBRARY Simplify() noexcept {
 			LL_SIMPLIFY(OLL);
 		}
 		//覆盖赋值
-		/*inline*/OLL& __stdcall operator=(
+		/*inline*/OLL& MY_LIBRARY operator=(
 			long value
 			) noexcept {
 			if constexpr (Radix == 0)
@@ -526,7 +529,7 @@ namespace LL {
 		}
 		//判断that链节是否为链表的末尾
 		//若使用缺省参数，表示获取当前链节是否为链表的末尾
-		inline bool __stdcall IsEnding(
+		inline bool MY_LIBRARY IsEnding(
 			const OLL* that = nullptr
 		)const noexcept {
 			return ((that == nullptr)
@@ -537,7 +540,7 @@ namespace LL {
 		}
 		//获取存储的值
 		//可能溢出
-		/*inline*/long  __stdcall GetValue()const noexcept {
+		/*inline*/long  MY_LIBRARY GetValue()const noexcept {
 			bool sign = (this->data > 0) ? true : false;
 			long value = 0;
 			long n = 0;
@@ -561,18 +564,18 @@ namespace LL {
 			}
 			return (sign) ? value : (-value);
 		}
-		inline friend std::ostream& __stdcall operator<<(
+		inline friend std::ostream& MY_LIBRARY operator<<(
 			std::ostream& out, const OLL& that) noexcept {
 			return LL::out<OLL, Radix>(out, that);
 		}
-		void __stdcall SinglePrint(
+		void MY_LIBRARY SinglePrint(
 			std::ostream& out = std::cout,
 			bool Comma = true
 		)const noexcept {
 			return LL::SinglePrint<OLL>(*this, out);
 		}
 		//二进制输出到控制台窗口
-		/*inline*/std::ostream& __stdcall Print(
+		/*inline*/std::ostream& MY_LIBRARY Print(
 			std::ostream& out = std::cout
 		) const noexcept {
 			return LL::Print<OLL, Radix>(*this, out);
@@ -580,7 +583,7 @@ namespace LL {
 	protected:
 		//获取that链节存储的数据
 		//若使用缺省参数，表示获取当前链节存储的数据
-		inline const Data& __stdcall GetThisData(
+		inline const Data& MY_LIBRARY GetThisData(
 			const OLL* that = nullptr
 		)const noexcept {
 			return ((that == nullptr) ?
@@ -590,7 +593,7 @@ namespace LL {
 		}
 		//获取that链节的下一链节
 		//若使用缺省参数，表示获取当前链节的下一链节
-		inline const OLL* __stdcall GetNext(
+		inline const OLL* MY_LIBRARY GetNext(
 			const OLL* that = nullptr
 		)const noexcept {
 			return ((that == nullptr) ?
@@ -611,26 +614,26 @@ namespace LL {
 
 		template<class Class, typename Data, unsigned long Radix>
 		//重载
-		inline friend void __stdcall add(
+		inline friend void MY_LIBRARY add(
 			Class& a,
 			const Class& b
 		)noexcept;
 		template<class Class, typename Data, unsigned long Radix>
 		//重载
-		inline friend void __stdcall multiply(
+		inline friend void MY_LIBRARY multiply(
 			Class& a,
 			const Class& b
 		)noexcept;
 		template<class Class, typename Data, unsigned long Radix>
-		inline friend void __stdcall multiply(
+		inline friend void MY_LIBRARY multiply(
 			Class& a,
 			int times)noexcept;
 		template<typename Type, unsigned long Radix>
-		/*inline*/friend std::ostream& __stdcall out(
+		/*inline*/friend std::ostream& MY_LIBRARY out(
 			std::ostream& out, const Type& b
 		)noexcept;
 		template<typename Type>
-		inline friend void __stdcall SinglePrint(
+		inline friend void MY_LIBRARY SinglePrint(
 			const Type& that,
 			std::ostream& out,
 			bool ShowComma,
@@ -638,7 +641,7 @@ namespace LL {
 			unsigned base
 		)noexcept;
 		template<typename Type, unsigned long Radix>
-		/*inline*/friend std::ostream& __stdcall Print(
+		/*inline*/friend std::ostream& MY_LIBRARY Print(
 			const Type& that,
 			std::ostream& out
 		)noexcept;
@@ -648,45 +651,45 @@ namespace LL {
 			typename Type,
 			typename SubType>
 			friend SubType GetSubList(
-				const SubData& (__stdcall* GetFunction)(const Data&),
+				const SubData& (MY_LIBRARY* GetFunction)(const Data&),
 				const Type& that
 			)noexcept;
 		friend class Q;
 	public:
 		//重载
-		inline void __stdcall operator*=(int times) {
+		inline void MY_LIBRARY operator*=(int times) {
 			LL::multiply<DLL, Data, Radix>(*this, times);
 		}
 		//重载
-		inline DLL __stdcall operator*(int times)const {
+		inline DLL MY_LIBRARY operator*(int times)const {
 			DLL Res(*this, true);
 			Res *= times;
 			return Res;
 		}
 		//重载
-		/*inline*/void __stdcall operator*=(const DLL& b) {
+		/*inline*/void MY_LIBRARY operator*=(const DLL& b) {
 			LL::multiply<DLL, Data, Radix>(*this, b);
 		}
 		//重载
-		inline DLL __stdcall operator*(const DLL& b)const {
+		inline DLL MY_LIBRARY operator*(const DLL& b)const {
 			DLL Res(*this, true);
 			Res *= b;
 			return Res;
 		}
 		//重载绝对值
-		inline const DLL __stdcall abs()const noexcept {
+		inline const DLL MY_LIBRARY abs()const noexcept {
 			return ((this->data > 0) ? *this : (-*this));
 		}
 		//重载正
-		inline bool __stdcall IsPositive()const noexcept {
+		inline bool MY_LIBRARY IsPositive()const noexcept {
 			return (this->data > 0);
 		}
 		//重载负
-		inline void __stdcall SetToContradict()noexcept {
+		inline void MY_LIBRARY SetToContradict()noexcept {
 			this->data = ((this->data == 0) ? 1 : 0);
 		}
 		//重载DLL链表加号
-		inline DLL __stdcall operator+(
+		inline DLL MY_LIBRARY operator+(
 			const DLL& b//操作数
 			)  const noexcept {
 			DLL Result(*this, true);//存储结果
@@ -694,7 +697,7 @@ namespace LL {
 			return Result;
 		}
 		//重载DLL链表+=
-		inline void __stdcall operator+=(const DLL& that)noexcept {
+		inline void MY_LIBRARY operator+=(const DLL& that)noexcept {
 			LL::add<DLL, Data, Radix>(*this, that);
 #ifdef _DEBUG
 			this->Fresh();
@@ -702,26 +705,26 @@ namespace LL {
 			this->Simplify();
 		}
 		//重载DLL链表减号
-		inline DLL __stdcall operator-(
+		inline DLL MY_LIBRARY operator-(
 			const DLL& b//操作数
 			)const noexcept {
 			return (*this + (-b));
 		}
 		//重载
-		inline void __stdcall operator-=(const DLL& b)noexcept {
+		inline void MY_LIBRARY operator-=(const DLL& b)noexcept {
 			DLL _b = -b;
 			*this += _b;
 			_b.destruct();
 		}
 		//重载
-		inline void __stdcall operator-=(DLL& b)noexcept {
+		inline void MY_LIBRARY operator-=(DLL& b)noexcept {
 			Data Orig = b.data;
 			b.data = !b.data;
 			*this += b;
 			b.data = Orig;
 		}
 		//重载DLL链表负号
-		inline DLL __stdcall operator-(
+		inline DLL MY_LIBRARY operator-(
 			)const noexcept {
 			DLL res(*this, true);
 			res.data = !res.data;
@@ -736,7 +739,7 @@ namespace LL {
 		DLL* next = nullptr;
 		DLL* last = nullptr;
 		//深拷贝与浅拷贝由参数DeepCopy指定
-		explicit inline __stdcall DLL(
+		explicit inline MY_LIBRARY DLL(
 			const DLL& that,
 			bool DeepCopy
 		) noexcept :data(that.data) {
@@ -766,7 +769,7 @@ namespace LL {
 		}
 	public:
 		//按data，next，last输入
-		explicit inline __stdcall DLL(
+		explicit inline MY_LIBRARY DLL(
 			Data HeadData = Data(false),
 			DLL* NextPtr = nullptr,
 			DLL* LastPtr = nullptr
@@ -775,7 +778,7 @@ namespace LL {
 			next(NextPtr),
 			last(LastPtr) {}
 		//浅拷贝
-		inline __stdcall DLL(
+		inline MY_LIBRARY DLL(
 			const DLL& that
 		) noexcept :data(that.data) {
 			this->destruct();
@@ -790,7 +793,7 @@ namespace LL {
 		//覆盖赋值
 		//浅拷贝
 		//将清除被赋值对象原有内容
-		inline void __stdcall operator=(
+		inline void MY_LIBRARY operator=(
 			const DLL& that
 			) noexcept {
 			if (&that == this)
@@ -807,7 +810,7 @@ namespace LL {
 			}
 			return;
 		}
-		inline bool __stdcall operator==(
+		inline bool MY_LIBRARY operator==(
 			int that
 			)const noexcept {
 			if (this->next == nullptr && that == 0)
@@ -847,7 +850,7 @@ namespace LL {
 			}
 			return false;
 		}
-		inline bool __stdcall operator==(
+		inline bool MY_LIBRARY operator==(
 			const DLL& that
 			)const noexcept {
 			const DLL* OprtPtr = this, * PreOprtPtr = &that;
@@ -870,7 +873,7 @@ namespace LL {
 				return false;
 			}
 		}
-		inline bool __stdcall operator<(const DLL& that)const noexcept {
+		inline bool MY_LIBRARY operator<(const DLL& that)const noexcept {
 			if (this->data > 0 && that.data == 0)
 				return false;
 			if (this->data == 0 && that.data > 0)
@@ -919,7 +922,7 @@ namespace LL {
 				}
 			}
 		}
-		inline bool __stdcall operator<=(const DLL& that)const noexcept {
+		inline bool MY_LIBRARY operator<=(const DLL& that)const noexcept {
 			if (this->data > 0 && that.data == 0)
 				return false;
 			if (this->data == 0 && that.data > 0)
@@ -968,25 +971,25 @@ namespace LL {
 				}
 			}
 		}
-		inline bool __stdcall operator>(const DLL& that)const noexcept {
+		inline bool MY_LIBRARY operator>(const DLL& that)const noexcept {
 			return (that < *this);
 		}
-		inline bool __stdcall operator>=(const DLL& that)const noexcept {
+		inline bool MY_LIBRARY operator>=(const DLL& that)const noexcept {
 			return (that <= *this);
 		}
-		inline void __stdcall destruct() noexcept {
+		inline void MY_LIBRARY destruct() noexcept {
 			while (this->next != nullptr)
 			{
 				this->cut();
 			}
 			return;
 		}
-		inline void __stdcall operator~() noexcept {
+		inline void MY_LIBRARY operator~() noexcept {
 			this->destruct();
 			return;
 		}
 		//在当前位置后插入新的一节
-		inline void __stdcall insert(
+		inline void MY_LIBRARY insert(
 			Data New = Data(false)
 		) noexcept {
 			DLL* temp = this->next;
@@ -998,7 +1001,7 @@ namespace LL {
 			return;
 		}
 		//删除当前位置后的一位
-		inline void __stdcall cut() noexcept {
+		inline void MY_LIBRARY cut() noexcept {
 			if (this->next == nullptr)
 			{
 #ifdef _DEBUG
@@ -1022,14 +1025,14 @@ namespace LL {
 		}
 		//剪去空白高位
 		//返回指向非空最高位的指针
-		inline DLL* __stdcall Simplify() noexcept {
+		inline DLL* MY_LIBRARY Simplify() noexcept {
 			LL_SIMPLIFY(DLL);
 		}
 	protected:
 		//刷新last指针
 		//保证指向正确
 		//返回末尾指针
-		inline DLL* __stdcall Fresh() noexcept {
+		inline DLL* MY_LIBRARY Fresh() noexcept {
 #ifdef _DEBUG
 			DLL* OprtPtr = this;
 			while (OprtPtr->next != nullptr) {
@@ -1047,7 +1050,7 @@ namespace LL {
 			return this;
 #endif // _DEBUG
 		}
-		inline DLL* __stdcall GetEnd()const noexcept {
+		inline DLL* MY_LIBRARY GetEnd()const noexcept {
 			if (this->next == nullptr)
 			{
 				return const_cast<DLL*>(this);
@@ -1060,10 +1063,10 @@ namespace LL {
 		}
 	public:
 		//Head included
-		inline size_t __stdcall RawLength()const noexcept {
+		inline size_t MY_LIBRARY RawLength()const noexcept {
 			LL_LENGTH(DLL);
 		}
-		explicit inline __stdcall DLL(
+		explicit inline MY_LIBRARY DLL(
 			bool positive,
 			unsigned long value
 		) noexcept {
@@ -1095,7 +1098,7 @@ namespace LL {
 		}
 		//浅拷贝
 		//覆盖赋值
-		inline DLL& __stdcall operator=(
+		inline DLL& MY_LIBRARY operator=(
 			long value
 			) noexcept {
 			this->destruct();
@@ -1129,7 +1132,7 @@ namespace LL {
 			return *this;
 		}
 		//重载
-		inline void __stdcall operator/=(
+		inline void MY_LIBRARY operator/=(
 			unsigned long that
 			) noexcept {
 			if (that == 0)
@@ -1184,7 +1187,7 @@ namespace LL {
 				return *this;
 			}
 		}
-		inline void __stdcall operator%=(unsigned long that) noexcept {
+		inline void MY_LIBRARY operator%=(unsigned long that) noexcept {
 			if (that == 0)
 			{
 #ifdef _DEBUG
@@ -1235,7 +1238,7 @@ namespace LL {
 			OprtPtr->destruct();
 			return *this;
 		}
-		inline void __stdcall operator%=(const DLL& that) noexcept {
+		inline void MY_LIBRARY operator%=(const DLL& that) noexcept {
 			if (that == 0)
 			{
 #ifdef _DEBUG
@@ -1296,7 +1299,7 @@ namespace LL {
 				}
 			}
 		}
-		inline void __stdcall operator/=(const DLL& that) noexcept {
+		inline void MY_LIBRARY operator/=(const DLL& that) noexcept {
 			if (that == 0)
 			{
 #ifdef _DEBUG
@@ -1376,19 +1379,19 @@ namespace LL {
 				}
 			}
 		}
-		inline friend std::ostream& __stdcall operator<<=(
+		inline friend std::ostream& MY_LIBRARY operator<<=(
 			std::ostream& out, const DLL& that
 			) noexcept {
 			return LL::out<DLL, Radix>(out, that);
 		}
-		inline void __stdcall SinglePrint(
+		inline void MY_LIBRARY SinglePrint(
 			std::ostream& out = std::cout,
 			bool Comma = true
 		)const noexcept {
 			return LL::SinglePrint<DLL>(*this, out);
 		}
 		//二进制输出到控制台窗口
-		inline std::ostream& __stdcall Print(
+		inline std::ostream& MY_LIBRARY Print(
 			std::ostream& out = std::cout
 		)const noexcept {
 			return LL::Print<DLL, Radix>(*this, out);
@@ -1397,7 +1400,7 @@ namespace LL {
 #define NoNext(a) (a->next==nullptr||a==&NullObject)
 	//重载
 	template<class Class, typename Data, unsigned long Radix>
-	inline void __stdcall add(
+	inline void MY_LIBRARY add(
 		Class& a, const Class& b
 	) noexcept {
 		Class NullObject(0, nullptr);
@@ -1733,7 +1736,7 @@ namespace LL {
 #endif // NoNext
 
 	template<class Class, typename Data, unsigned long Radix>
-	void __stdcall multiply(Class& a, const Class& b) noexcept {
+	void MY_LIBRARY multiply(Class& a, const Class& b) noexcept {
 		a.data = (b.data) ? (a.data) : (!a.data);
 		Class temp(a, true), _temp(false);
 		a.destruct();
@@ -1753,7 +1756,7 @@ namespace LL {
 		temp.destruct();
 	}
 	template<class Class, typename Data, unsigned long Radix>
-	void __stdcall multiply(Class& a, int times) noexcept {
+	void MY_LIBRARY multiply(Class& a, int times) noexcept {
 		if constexpr (Radix == 0) {
 			Class* OprtPtr = &a;
 			while (true)
@@ -1799,7 +1802,7 @@ namespace LL {
 
 	template<typename Type, unsigned long Radix = 0>
 	//输出流
-	/*inline*/std::ostream & __stdcall out(
+	/*inline*/std::ostream & MY_LIBRARY out(
 		std::ostream & out, const Type & b
 	) noexcept {
 		if (b.next != nullptr)
@@ -1815,7 +1818,7 @@ namespace LL {
 	template<typename Type>
 	//简单输出到控制台窗口
 	//需要用户补换行
-	inline void __stdcall SinglePrint(
+	inline void MY_LIBRARY SinglePrint(
 		const Type& that,
 		std::ostream& out = std::cout,
 		bool ShowComma = true,
@@ -1852,7 +1855,7 @@ namespace LL {
 	template<typename Type, unsigned long Radix = 0>
 	//二进制输出到控制台窗口
 	//不再自动换行
-	/*inline*/std::ostream & __stdcall Print(
+	/*inline*/std::ostream & MY_LIBRARY Print(
 		const Type & that,
 		std::ostream & out = std::cout
 	) noexcept {
@@ -1916,7 +1919,7 @@ namespace LL {
 		typename SubType
 	>
 		SubType GetSubList(
-			const SubData& (__stdcall* GetFunction)(const Data&),
+			const SubData& (MY_LIBRARY* GetFunction)(const Data&),
 			const Type& that
 		) noexcept {
 		const Type* OprtPtr = &that;
@@ -1940,19 +1943,19 @@ namespace LL {
 	class LinkedListComputeTraits :public Array::SampleTraits<Data, _Max>
 	{
 	public:
-		__stdcall LinkedListComputeTraits() = delete;
-		__stdcall ~LinkedListComputeTraits() = delete;
+		MY_LIBRARY LinkedListComputeTraits() = delete;
+		MY_LIBRARY ~LinkedListComputeTraits() = delete;
 		static inline node NullNode = node(0, nullptr);
 		constexpr static inline node* NullIterator = &NullNode;
 
-		static Data& GetData(node* ptr) { return ptr->data; }
-		static const Data& GetData(const node* ptr) { return ptr->data; }
+		static Data& MY_LIBRARY GetData(node* ptr) { return ptr->data; }
+		static const Data& MY_LIBRARY GetData(const node* ptr) { return ptr->data; }
 
-		static node* GetNext(node* ptr) { return ptr->next; }
-		static const node* GetNext(const node* ptr) { return ptr->next; }
+		static node* MY_LIBRARY GetNext(node* ptr) { return ptr->next; }
+		static const node* MY_LIBRARY GetNext(const node* ptr) { return ptr->next; }
 
 
-		static void InsertAfter(node** ptr) { (*ptr)->insert(); }
+		static void MY_LIBRARY InsertAfter(node** ptr) { (*ptr)->insert(); }
 	private:
 
 	};

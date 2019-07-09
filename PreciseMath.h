@@ -17,20 +17,20 @@ namespace LL {
 		Z Numerator;//分子
 		Z Denominator;//分母
 	public:
-		//__stdcall Q();
-		explicit __stdcall Q(long n, unsigned short d = 1)noexcept :
+		//MY_LIBRARY Q();
+		explicit MY_LIBRARY Q(long n, unsigned short d = 1)noexcept :
 			Numerator(sign(n), static_cast<unsigned long>(abs(n))),
 			Denominator(true, static_cast<unsigned long>(d)) {}
-		__stdcall Q(const Q& that, bool DeepCopy) noexcept :
+		MY_LIBRARY Q(const Q& that, bool DeepCopy) noexcept :
 			Denominator(that.Denominator, DeepCopy),
 			Numerator(that.Numerator, DeepCopy) {}
-		__stdcall ~Q();
-		inline void __stdcall destruct() {
+		MY_LIBRARY ~Q();
+		inline void MY_LIBRARY destruct() {
 			this->Denominator.destruct();
 			this->Numerator.destruct();
 		}
 		//约分
-		void __stdcall Simplify() {
+		void MY_LIBRARY Simplify() {
 			while (true)
 			{
 				if (this->Denominator.next == nullptr && this->Numerator.next == nullptr)
@@ -126,59 +126,59 @@ namespace LL {
 				}
 			}
 		}
-		void __stdcall operator=(long that) {
+		void MY_LIBRARY operator=(long that) {
 			this->Denominator = 1;
 			this->Numerator = that;
 		}
 
-		void __stdcall operator+=(long that) {
+		void MY_LIBRARY operator+=(long that) {
 			Z Product(this->Denominator * that);
 			this->Numerator += Product;
 			Product.destruct();
 			this->Simplify();
 		}
-		void __stdcall operator-=(long that) {
+		void MY_LIBRARY operator-=(long that) {
 			Z Product = this->Denominator * that;
 			this->Numerator -= Product;
 			Product.destruct();
 			this->Simplify();
 		}
-		Q __stdcall operator-(const Q& that)const {
+		Q MY_LIBRARY operator-(const Q& that)const {
 			Q Res(*this, true);
 			Res -= that;
 			return Res;
 		}
 
-		void __stdcall operator+=(const Z& that) {
+		void MY_LIBRARY operator+=(const Z& that) {
 			this->Numerator += that * this->Denominator;
 			this->Simplify();
 		}
-		void __stdcall operator-=(const Z& that) {
+		void MY_LIBRARY operator-=(const Z& that) {
 			this->Numerator -= that * this->Denominator;
 			this->Simplify();
 		}
 
-		void __stdcall operator+=(const Q& that) {
+		void MY_LIBRARY operator+=(const Q& that) {
 			this->Numerator *= that.Denominator;
 			this->Numerator += (that.Numerator * this->Denominator);
 			this->Simplify();
 		}
-		void __stdcall operator-=(const Q& that) {
+		void MY_LIBRARY operator-=(const Q& that) {
 			this->Numerator *= that.Denominator;
 			this->Numerator -= (that.Numerator * this->Denominator);
 			this->Simplify();
 		}
-		Q __stdcall operator+(const Q& that)const {
+		Q MY_LIBRARY operator+(const Q& that)const {
 			Q Res(*this, true);
 			Res += that;
 			return Res;
 		}
-		void __stdcall operator*=(const Q& that) {
+		void MY_LIBRARY operator*=(const Q& that) {
 			this->Denominator *= that.Denominator;
 			this->Numerator *= that.Numerator;
 			this->Simplify();
 		}
-		void __stdcall operator/=(const Q& that) {
+		void MY_LIBRARY operator/=(const Q& that) {
 			this->Denominator *= that.Numerator;
 			this->Numerator *= that.Denominator;
 			this->Simplify();
@@ -188,23 +188,23 @@ namespace LL {
 				this->Denominator.SetToContradict();
 			}
 		}
-		Q __stdcall operator*(const Q& that)const {
+		Q MY_LIBRARY operator*(const Q& that)const {
 			Q Res(*this, true);
 			Res *= that;
 			return Res;
 		}
-		Q __stdcall operator/(const Q& that)const {
+		Q MY_LIBRARY operator/(const Q& that)const {
 			Q Res(*this, true);
 			Res /= that;
 			return Res;
 		}
-		bool __stdcall operator==(long that)const {
+		bool MY_LIBRARY operator==(long that)const {
 			Z temp = this->Denominator * that;
 			bool ret = (temp == this->Numerator);
 			temp.destruct();
 			return ret;
 		}
-		bool __stdcall operator==(const Q& that)const {
+		bool MY_LIBRARY operator==(const Q& that)const {
 			return ((this->Numerator == that.Numerator) && (this->Denominator == that.Denominator));
 		}
 		std::ostream& Print(std::ostream& o)const {
@@ -216,7 +216,7 @@ namespace LL {
 			return q.Print(o);
 		}
 	};
-	inline __stdcall Q::~Q() {}
+	inline MY_LIBRARY Q::~Q() {}
 }
 #ifdef Z_MAX
 #undef Z_MAX
