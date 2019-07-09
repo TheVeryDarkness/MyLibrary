@@ -12,8 +12,8 @@ namespace LongCompute {
 	//The _Traits must give these functions:
 	//	Iterator GetNext(Iterator);
 	//	Data& GetData(Iterator);
-	//	void Add(Data&, bool, const Data, const Data);
-	//	void Subtract(Data&, bool, const Data, const Data)
+	//	void Add(Data&, bool, Data, Data);
+	//	void Subtract(Data&, bool, Data, Data)
 	//	Linear operator*(Iterator*);
 	//	void InsertAfter(Iterator*);//However, it doen't need to insert an element after it
 	//When an element doesn't a next element, GetNext(Iterator) should return NullIterator.
@@ -63,7 +63,7 @@ namespace LongCompute {
 		{
 			//This element
 			Data temp;
-			_Traits::Add(temp, Carry, _Traits::GetData(a), _Traits::GetData(b));
+			_Traits::AddTo(temp, Carry, _Traits::GetData(a), _Traits::GetData(b));
 			_Traits::GetData(b) = temp;
 			if (!Iterate<Iterator, Data, _Traits>(a, b, Carry))
 			{
@@ -78,9 +78,9 @@ namespace LongCompute {
 		{
 			//This element
 			Data temp;
-			_Traits::SubTract(temp, Carry, _Traits::GetData(a), _Traits::GetData(b));
+			_Traits::SubTractFrom(temp, Carry, _Traits::GetData(a), _Traits::GetData(b));
 			_Traits::GetData(b) = temp;
-			if (!Iterate<Iterator, Data, _Traits>(a, b, Carry)) {
+			if (!Iterate<Iterator, Data, _Traits>(a, b, 0)) {
 				break;
 			}
 		}

@@ -37,7 +37,7 @@ namespace Array {
 		friend class BytesTraits<Length>;
 		value_type Byte[Length] = {};
 	public:
-		explicit MY_LIBRARY Bytes() {}
+		constexpr explicit MY_LIBRARY Bytes() {}
 		template<size_t OriginLength> explicit MY_LIBRARY Bytes(const Bytes<OriginLength>&);
 		template<typename Data>explicit  MY_LIBRARY Bytes(const Data data);
 		template<typename Data> MY_LIBRARY operator Data();
@@ -56,13 +56,13 @@ namespace Array {
 				for (size_t i = 0; i < Length; i++)
 				{
 					//If (a + b) overflows, then (a + b) < min{a, b}.
-					if (i + 1 != Length)
+					if ((i != Length - 1) && ((Byte[i] + that.Byte[i]) < Byte[i]))
 					{
-						Byte[i + 1] += ((Byte[i] + that.Byte[i] < Byte[i]) ? 1 : 0);
+						Byte[i + 1] += 1;
 					}
 					Byte[i] += that.Byte[i];
 				}
-				Byte[Length-1] += that.Byte[Length-1];
+				Byte[Length - 1] += that.Byte[Length - 1];
 			}
 			return *this;
 		}
@@ -353,7 +353,7 @@ namespace Array {
 		static const inline Array::Bytes<length> Max = Array::Bytes<length>(_Max);
 		static const inline Array::Bytes<length> Radix = Array::Bytes<length>(Max + Array::Bytes<length>(1));
 
-		static void Add(Data& Res, Data& Carry, const Data a, const Data b) {
+		static void AddTo(Data& Res, Data& Carry, Data a, Data b) {
 			Array::Bytes<length> Sum = Array::Bytes<length>(a);
 			Sum += Array::Bytes<length>(b);
 			if (Carry)
@@ -363,14 +363,15 @@ namespace Array {
 			Res = Data(Sum % Radix);
 			Carry = ((Sum / Radix > Array::Bytes<length>(0)) ? true : false);
 		}
-		static void SubTract(Data& Res, Data& Carry, const Data a, const Data b) {
-			Bytes<length> _a = Bytes<length>(a);
+		static void SubTractFrom(Data& Res, Data& Carry, Data a, Data b) {
+			Bytes<length> _b = Bytes<length>(b);
 			if (Carry)
 			{
-				_a -= Array::Bytes<length>(1);
+				_b -= Array::Bytes<length>(1);
 			}
-			Res = (_a - static_cast<Bytes<length>>(b));
-			if (a >= b)
+			Bytes<length> _a = Bytes<length>(a);
+			Res = (_b - _a);
+			if (_b > _a)
 			{
 				Carry = 1;
 			}
@@ -388,7 +389,7 @@ namespace Array {
 		BytesTraits() = delete;
 		~BytesTraits() = delete;
 
-		const static inline Bytes<Length> NullObject;
+		constexpr static inline Bytes<Length> NullObject = Bytes<Length>();
 		constexpr static inline BytesIterator<Length> NullIterator = { &NullObject,0 };
 
 		static BytesIterator<Length> MY_LIBRARY GetNext(const BytesIterator<Length>& ptr){
