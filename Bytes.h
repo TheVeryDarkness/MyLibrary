@@ -56,13 +56,17 @@ namespace Array {
 				for (size_t i = 0; i < Length; i++)
 				{
 					//If (a + b) overflows, then (a + b) < min{a, b}.
-					if ((i != Length - 1) && ((Byte[i] + that.Byte[i]) < Byte[i]))
+					if (i != Length - 1)
 					{
-						Byte[i + 1] += 1;
+						//Due to unknown bug, I must write like this.
+						value_type temp = (Byte[i] + that.Byte[i]);
+						if (temp < (Byte[i]))
+						{
+							Byte[i + 1] += 1;
+						}
 					}
 					Byte[i] += that.Byte[i];
 				}
-				Byte[Length - 1] += that.Byte[Length - 1];
 			}
 			return *this;
 		}
