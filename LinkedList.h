@@ -209,7 +209,7 @@ namespace LL {
 			return;
 		}
 		//仅初始化链表头的构造函数
-		explicit inline MY_LIBRARY OLL(
+		constexpr explicit inline MY_LIBRARY OLL(
 			Data HeadData,
 			OLL* NextPtr = nullptr
 		) noexcept {
@@ -769,7 +769,7 @@ namespace LL {
 		}
 	public:
 		//按data，next，last输入
-		explicit inline MY_LIBRARY DLL(
+		constexpr explicit inline MY_LIBRARY DLL(
 			Data HeadData = Data(false),
 			DLL* NextPtr = nullptr,
 			DLL* LastPtr = nullptr
@@ -1945,14 +1945,13 @@ namespace LL {
 	public:
 		MY_LIBRARY LinkedListComputeTraits() = delete;
 		MY_LIBRARY ~LinkedListComputeTraits() = delete;
-		static inline node NullNode = node(0, nullptr);
-		constexpr static inline node* NullIterator = &NullNode;
+		constexpr static const node Ring(node ptr) { ptr.next = ptr; return ptr; }
+		constexpr static inline node NullNode = Ring(node(0, nullptr));
+		constexpr static inline const node*NullIterator = &NullNode;
 
 		static Data& MY_LIBRARY GetData(node* ptr) { return ptr->data; }
-		static const Data& MY_LIBRARY GetData(const node* ptr) { return ptr->data; }
 
-		static node* MY_LIBRARY GetNext(node* ptr) { return ptr->next; }
-		static const node* MY_LIBRARY GetNext(const node* ptr) { return ptr->next; }
+		static node* MY_LIBRARY GetNext(node* ptr) {return ptr->next;}
 
 
 		static void MY_LIBRARY InsertAfter(node** ptr) { (*ptr)->insert(); }
