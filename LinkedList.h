@@ -3,14 +3,14 @@
 #ifdef _DEBUG
 #include "VisualStudioDebug.h"
 #endif // _DEBUG
-#include <iterator>
+#include "Abandoned.h"
+
 #include <iostream>
 #include <iomanip>
 #include <string>
 #include <charconv>
 #include "Exception.h"
 #include "Statistics.h"
-#include "Shared.h"
 #ifdef max
 #undef max
 #endif // max
@@ -150,6 +150,11 @@ namespace LL {
 			)const noexcept {
 			return (*this + (-b));
 		}
+		void MY_LIBRARY operator++() {
+			OLL temp(true, 1);
+			*this += temp;
+			temp.destruct();
+		}
 		inline MY_LIBRARY ~OLL() {
 			this->next = nullptr;
 		}
@@ -207,6 +212,13 @@ namespace LL {
 			this->destruct();
 			this->next = that.next;
 			return;
+		}
+		inline MY_LIBRARY OLL(
+			bool positive,
+			unsigned short value
+		) {
+			this->data = positive;
+			*this = value;
 		}
 		//仅初始化链表头的构造函数
 		constexpr explicit inline MY_LIBRARY OLL(
@@ -450,6 +462,74 @@ namespace LL {
 			}
 			return *this;
 		}
+		bool MY_LIBRARY operator<(const OLL& that)const noexcept {
+			if (this->data == 0 && that.data > 0)
+			{
+				return true;
+			}
+			if (this->data > 0 && that.data == 0)
+			{
+				return false;
+			}
+			if (this->data > 0 && that.data > 0)
+			{
+				if (LongCompute::Compare<OLL*, Data, LinkedListComputeTraits<OLL, Data>>(this, &that) == LongCompute::Smaller)
+					return true;
+				else return false;
+			}
+			else
+			{
+				if (LongCompute::Compare<OLL*, Data, LinkedListComputeTraits<OLL, Data>>(&that, this) == LongCompute::Smaller)
+					return true;
+				else return false;
+			}
+		}
+		bool MY_LIBRARY operator>(const OLL& that)const noexcept {
+			if (this->data == 0 && that.data > 0)
+			{
+				return false;
+			}
+			if (this->data > 0 && that.data == 0)
+			{
+				return true;
+			}
+			if (this->data > 0 && that.data > 0)
+			{
+				if (LongCompute::Compare<OLL*, Data, LinkedListComputeTraits<OLL, Data>>(this, &that) == LongCompute::Larger)
+					return true;
+				else return false;
+			}
+			else
+			{
+				if (LongCompute::Compare<OLL*, Data, LinkedListComputeTraits<OLL, Data>>(&that, this) == LongCompute::Larger)
+					return true;
+				else return false;
+			}
+		}
+		bool MY_LIBRARY operator<=(const OLL& that)const noexcept {
+			return !(*this > that);
+		}
+		bool MY_LIBRARY operator>=(const OLL& that)const noexcept {
+			return !(*this < that);
+		}
+		void MY_LIBRARY operator%=(const OLL& that)noexcept {
+			if (this->next != nullptr && that.next != nullptr)
+			{
+				LongCompute::DivideInto<OLL*,Data, LinkedListComputeTraits<OLL, Data, static_cast<Data>(Radix > 0 ? Radix - 1 : 0)>>(that.next, this->next);
+			}
+			else return;
+			this->Simplify();
+		}
+		void MY_LIBRARY operator/=(const OLL& that)noexcept {
+			if (this->next != nullptr && that.next != nullptr)
+			{
+				OLL Res(this->data);
+				LongCompute::DivideInto<OLL, OLL*,Data, LinkedListComputeTraits<OLL,Data, static_cast<Data>(Radix > 0 ? Radix - 1 : 0)>>(Res, that.next, this->next);
+				*this = Res;
+			}
+			else return;
+			this->Simplify();
+		}
 		//从链表头（不包括链表头）开始，倒置之后的链节
 		//使用new创建新链表
 		/*inline*/OLL MY_LIBRARY invert(const OLL& b) const noexcept {
@@ -605,8 +685,8 @@ namespace LL {
 	template<typename Data, unsigned long Radix>
 	class DLL
 	{
-		static const inline std::forward_list<Data> Factor = PrimeFactorList(static_cast<Data>(Radix));
-		static const inline Data MaxFactor = MinConti(Factor);
+		//static const inline std::forward_list<Data> Factor = PrimeFactorList(static_cast<Data>(Radix));
+		//static const inline Data MaxFactor = MinConti(Factor);
 
 		template<class node, typename Data, Data _Max>
 		friend class LinkedListComputeTraits;
@@ -729,6 +809,11 @@ namespace LL {
 			DLL res(*this, true);
 			res.data = !res.data;
 			return res;
+		}
+		void MY_LIBRARY operator++() {
+			DLL temp(true, 1);
+			*this += temp;
+			temp.destruct();
 		}
 		inline _stdcall ~DLL() {
 			this->next = nullptr;
@@ -1397,408 +1482,6 @@ namespace LL {
 			return LL::Print<DLL, Radix>(*this, out);
 		}
 	};
-#define NoNext(a) (a->next==nullptr||a==&NullObject)
-	//重载
-	template<class Class, typename Data, unsigned long Radix>
-	inline void MY_LIBRARY add(
-		Class& a, const Class& b
-	) noexcept {
-		Class NullObject(0, nullptr);
-		NullObject.next = &NullObject;
-		Class* OprtPtr_a = &a;//a的操作指针
-		const Class* OprtPtr_b = &b;//b的操作指针
-		if constexpr (Radix == 0)
-		{
-			while (true)
-			{
-				OprtPtr_a->data += OprtPtr_b->data;
-				if (
-					OprtPtr_a->next == nullptr
-					&& NoNext(OprtPtr_b)
-					)
-				{
-					OprtPtr_a = OprtPtr_b = nullptr;
-					return;
-				}
-				else if (OprtPtr_a->next == nullptr)
-				{
-					OprtPtr_a->insert();
-				}
-				else if (NoNext(OprtPtr_b))
-				{
-					OprtPtr_b = &NullObject;
-				}
-				OprtPtr_a = OprtPtr_a->next;
-				OprtPtr_b = OprtPtr_b->next;
-			}
-		}
-		//二进制
-		else if constexpr (Radix == 2)
-		{
-			bool Bit = false;//true表示进位或退位
-			if (a.next == nullptr || b.next == nullptr)
-			{
-				return;
-			}
-			Class CopyThis(a, true);//a的拷贝
-			if (OprtPtr_a->data == OprtPtr_b->data)
-			{//加法模式
-
-				OprtPtr_a = OprtPtr_a->next;
-				OprtPtr_b = OprtPtr_b->next;
-				//处理主要数据部分
-				do
-				{
-					//Processing this bit
-					if (
-						OprtPtr_a->data
-						&& OprtPtr_b->data
-						&& Bit
-						) {
-						OprtPtr_a->data = true;
-						Bit = true;
-					}
-					//
-					else if (
-						(OprtPtr_a->data && OprtPtr_b->data)
-						|| (OprtPtr_a->data && Bit)
-						|| (OprtPtr_b->data && Bit)
-						) {
-						OprtPtr_a->data = false;
-						Bit = true;
-					}
-					//
-					else if (
-						Bit
-						|| OprtPtr_b->data
-						|| OprtPtr_a->data
-						) {
-						OprtPtr_a->data = true;
-						Bit = false;
-					}
-					//
-					else
-					{
-						OprtPtr_a->data = false;
-						Bit = false;
-					}
-					//analyzing the next bit.
-					if (OprtPtr_a->next == nullptr
-						&& NoNext(OprtPtr_b)
-						&& !Bit)
-					{
-						a.data = true;
-						break;
-					}
-					else if (
-						OprtPtr_a->next == nullptr
-						&& NoNext(OprtPtr_b)
-						) {
-						OprtPtr_a->insert();
-						OprtPtr_b = &NullObject;
-					}
-					else if (OprtPtr_a->next == nullptr)
-					{
-						OprtPtr_a->insert();
-					}
-					else if (NoNext(OprtPtr_b))
-					{
-						OprtPtr_b = &NullObject;
-					}
-					OprtPtr_a = OprtPtr_a->next;
-					OprtPtr_b = OprtPtr_b->next;
-				} while (true);
-			}
-			else//减法模式
-			{
-				if (a.data == false)
-				{
-					OprtPtr_a = OprtPtr_b = nullptr;
-					a = b + (CopyThis);
-					~CopyThis;
-					return;
-				}
-				OprtPtr_a = OprtPtr_a->next;
-				OprtPtr_b = OprtPtr_b->next;
-				do
-				{
-					//处理当前位
-					if (OprtPtr_a->data == OprtPtr_b->data && Bit)
-					{
-						Bit = true;
-						OprtPtr_a->data = true;
-					}
-					else if (OprtPtr_a->data && Bit)
-					{
-						Bit = false;
-						OprtPtr_a->data = false;
-					}
-					else if (OprtPtr_b->data && Bit)
-					{
-						Bit = true;
-						OprtPtr_a->data = false;
-					}
-					else if (OprtPtr_a->data == OprtPtr_b->data)
-					{
-						Bit = false;
-						OprtPtr_a->data = false;
-					}
-					else if (OprtPtr_a->data)
-					{
-						Bit = false;
-						OprtPtr_a->data = true;
-					}
-					else if (OprtPtr_b->data)
-					{
-						Bit = true;
-						OprtPtr_a->data = true;
-					}
-					//处理下一位
-					if (OprtPtr_a->next == nullptr && NoNext(OprtPtr_b) && !Bit)
-					{
-						a.data = true;
-						break;
-					}
-					else if (OprtPtr_a->next == nullptr)
-					{
-						OprtPtr_a = OprtPtr_b = nullptr;
-						CopyThis.data = !CopyThis.data;
-						Class _b = -b;
-						a = -(_b + CopyThis);
-						~CopyThis;
-						return;
-					}
-					else if (NoNext(OprtPtr_b))
-					{
-						OprtPtr_b = &NullObject;
-						OprtPtr_a = OprtPtr_a->next;
-					}
-					else
-					{
-						OprtPtr_b = OprtPtr_b->next;
-						OprtPtr_a = OprtPtr_a->next;
-					}
-				} while (true);
-			}
-			~CopyThis;
-			OprtPtr_a = OprtPtr_b = nullptr;
-			return;
-		}
-		//普遍情形
-		else
-		{
-			bool Bit = false;//true表示进位或退位
-			if (b.next == nullptr)//b为0
-			{
-				return;
-			}
-			else if (a.next == nullptr)//a为0，直接将b拷贝到a
-			{
-				a = Class(b, true);
-				return;
-			}
-			Class CopyThis(a, true);//a的拷贝
-			if (OprtPtr_a->data == OprtPtr_b->data)//加法模式
-			{//处理符号位
-				if (OprtPtr_a->data)//a，b均为正数
-				{
-					a.data = true;
-				}
-				else//a，b均为负数
-				{
-					a.data = false;;
-				}
-				//后移
-				OprtPtr_a = OprtPtr_a->next;
-				OprtPtr_b = OprtPtr_b->next;
-				//处理数值部分
-				do
-				{//处理指针指向的当前位
-					if (
-						(static_cast<unsigned long long>(OprtPtr_a->data)
-							+ static_cast<unsigned long long>(OprtPtr_b->data)
-							)
-						>= Radix - (Bit ? 1ULL : 0ULL)
-						)//需要进位
-					{
-						OprtPtr_a->data =
-							Data(
-							(
-								(unsigned long long)OprtPtr_a->data
-								+ (unsigned long long)OprtPtr_b->data
-								+ (Bit ? 1ULL : 0ULL)) - Radix);
-						Bit = true;
-					}
-					else//不需要进位
-					{
-						OprtPtr_a->data =
-							(OprtPtr_a->data
-								+ OprtPtr_b->data
-								+ static_cast<Data>(Bit));
-						Bit = false;
-					}
-					//根据下一位的存在情况，决定所选操作
-					if (OprtPtr_a->next == nullptr
-						&&
-						NoNext(OprtPtr_b)
-						&&
-						Bit == false)//无需进位且a，b均已结束
-					{
-						break;
-					}
-					else if (
-						OprtPtr_a->next == nullptr
-						&&
-						NoNext(OprtPtr_b)
-						)//a，b已经结束，但仍需进位
-					{
-						OprtPtr_a->insert(0);
-						OprtPtr_b = &NullObject;
-					}
-					else if (OprtPtr_a->next == nullptr)//a已经结束，但b未结束
-					{
-						OprtPtr_a->insert(0);
-					}
-					else if (NoNext(OprtPtr_b))//
-					{
-						OprtPtr_b = &NullObject;
-					}
-					OprtPtr_a = OprtPtr_a->next;
-					OprtPtr_b = OprtPtr_b->next;
-				} while (true);
-			}
-			else//减法模式
-			{
-				if (a.data == false)
-				{
-					//OprtPtr_a = OprtPtr_b = nullptr;
-					a = b + CopyThis;
-					~CopyThis;
-					return;
-				}
-				OprtPtr_a = OprtPtr_a->next;
-				OprtPtr_b = OprtPtr_b->next;
-				do
-				{
-					//处理当前位
-					if (OprtPtr_a->data >= OprtPtr_b->data + Data(Bit))
-					{
-						OprtPtr_a->data =
-							static_cast<unsigned long long>(OprtPtr_a->data)
-							- static_cast<unsigned long long>(static_cast<Data>(Bit))
-							- static_cast<unsigned long long>(OprtPtr_b->data);
-						Bit = false;
-					}
-					else
-					{
-						OprtPtr_a->data = Data(
-							(unsigned long long)OprtPtr_a->data
-							+ Radix
-							- (unsigned long long)Data(Bit)
-							- (unsigned long long)OprtPtr_b->data);
-						Bit = true;
-					}
-					//处理下一位
-					if (OprtPtr_a->next == nullptr && NoNext(OprtPtr_b) && !Bit)
-					{
-						a.data = 1;
-						break;
-					}
-					else if (OprtPtr_a->next == nullptr)
-					{
-						CopyThis.data = !CopyThis.data;//取反
-						Class _b = -b;
-						a = CopyThis + _b;
-						a.data = !a.data;
-						~_b;
-						~CopyThis;
-						return;
-					}
-					else if (NoNext(OprtPtr_b))
-					{
-						OprtPtr_b = &NullObject;
-						OprtPtr_a = OprtPtr_a->next;
-					}
-					else
-					{
-						OprtPtr_b = OprtPtr_b->next;
-						OprtPtr_a = OprtPtr_a->next;
-					}
-				} while (true);
-			}
-			~CopyThis;
-			OprtPtr_a = nullptr;
-			return;
-		}
-	}
-#ifdef NoNext
-#undef NoNext
-#endif // NoNext
-
-	template<class Class, typename Data, unsigned long Radix>
-	void MY_LIBRARY multiply(Class& a, const Class& b) noexcept {
-		a.data = (b.data) ? (a.data) : (!a.data);
-		Class temp(a, true), _temp(false);
-		a.destruct();
-		const Class* OprtPtr_b = b.next;
-		while (true)
-		{
-			if (OprtPtr_b == nullptr)
-			{
-				break;
-			}
-			_temp = temp * OprtPtr_b->data;
-			a += _temp;
-			temp <<= 1;
-			OprtPtr_b = OprtPtr_b->next;
-		}
-		_temp.destruct();
-		temp.destruct();
-	}
-	template<class Class, typename Data, unsigned long Radix>
-	void MY_LIBRARY multiply(Class& a, int times) noexcept {
-		if constexpr (Radix == 0) {
-			Class* OprtPtr = &a;
-			while (true)
-			{
-				if (OprtPtr != nullptr)
-				{
-					OprtPtr->data *= times;
-				}
-				else
-				{
-					break;
-				}
-			}
-		}
-		else
-		{
-			a.data = (times >= 0) ?
-				a.data : (!(a.data));
-			times = (times >= 0) ? times : (-times);
-			if (a.next == nullptr)
-			{
-				return;
-			}
-			Class* OprtPtr = a.next;
-			unsigned long onbit = 0, temp = 0;
-			while (true)
-			{
-				temp = (static_cast<unsigned long long>(OprtPtr->data) * times + onbit)
-					/ Radix;
-				OprtPtr->data =
-					static_cast<unsigned long long>((static_cast<unsigned long long>(OprtPtr->data) * times + onbit) % Radix);
-				onbit = temp;
-				if (OprtPtr->next == nullptr && onbit == 0) break;
-				else if (OprtPtr->next == nullptr)
-				{
-					OprtPtr->insert(0);
-				}
-				OprtPtr = OprtPtr->next;
-			}
-		}
-		return;
-	}
 
 	template<typename Type, unsigned long Radix = 0>
 	//输出流
@@ -1946,14 +1629,15 @@ namespace LL {
 		MY_LIBRARY LinkedListComputeTraits() = delete;
 		MY_LIBRARY ~LinkedListComputeTraits() = delete;
 		static inline Data NullData = 0;
-		constexpr static inline node*NullIterator = nullptr;
+		constexpr static inline node* NullIterator = nullptr;
 
 		static Data& MY_LIBRARY GetData(node* ptr) { return ((ptr == nullptr) ? (NullData = 0) : (ptr->data)); }
 
 		static node* MY_LIBRARY GetNext(node* ptr) { return ((ptr == nullptr) ? nullptr : (ptr->next)); }
 
-
+		static void MY_LIBRARY assign(node* ptr, size_t sz) { *ptr <<= sz; }
 		static void MY_LIBRARY InsertAfter(node** ptr) { (*ptr)->insert(); }
+
 	private:
 
 	};

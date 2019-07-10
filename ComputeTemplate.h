@@ -104,6 +104,22 @@ namespace LongCompute {
 		} while (Compare<Iterator, Data, _Traits>(a, b) == Smaller);
 	}
 	template<typename Iterator, typename Data, class _Traits>
+	inline void MY_LIBRARY DivideInto(Iterator a, Iterator b) {
+		{
+			if (Compare<Iterator, Data, _Traits>(a, b) == Larger) {
+				return;
+			}
+			else {
+				DivideInto<Iterator, Data, _Traits>( a, _Traits::GetNext(b));
+			}
+		}
+		do
+		{
+			//Regarding of the compatibility, we didn't use any majorization.
+			SubtractFrom<Iterator, Data, _Traits>(a, b);
+		} while (Compare<Iterator, Data, _Traits>(a, b) == Smaller);
+	}
+	template<typename Iterator, typename Data, class _Traits>
 	inline short MY_LIBRARY Compare(const Iterator& a, const Iterator& b) {
 		if ((a == _Traits::NullIterator) && (b == _Traits::NullIterator))
 		{
