@@ -249,13 +249,9 @@ namespace LL {
 		}
 		//释放链表头后对应链节的指针
 		inline void MY_LIBRARY destruct() noexcept {
-			OLL* OprtPtr = this->next;
-			this->next = nullptr;
-			while (OprtPtr != nullptr)
+			while (this->next != nullptr)
 			{
-				OLL* temp = OprtPtr->next;
-				delete OprtPtr;
-				OprtPtr = temp;
+				this->cut();
 			}
 			return;
 		}
@@ -598,10 +594,9 @@ namespace LL {
 					}
 					else if (OprtPtr->next == nullptr)
 					{
-						OprtPtr->insert();
+						OprtPtr->insert((Data)(value % Radix));
 					}
 					OprtPtr = OprtPtr->next;
-					OprtPtr->data = (Data)(value % Radix);
 					value = value / Radix;
 				}
 			}
