@@ -1945,13 +1945,12 @@ namespace LL {
 	public:
 		MY_LIBRARY LinkedListComputeTraits() = delete;
 		MY_LIBRARY ~LinkedListComputeTraits() = delete;
-		constexpr static const node Ring(node ptr) { ptr.next = ptr; return ptr; }
-		constexpr static inline node NullNode = Ring(node(0, nullptr));
-		constexpr static inline const node*NullIterator = &NullNode;
+		static inline Data NullData = 0;
+		constexpr static inline node*NullIterator = nullptr;
 
-		static Data& MY_LIBRARY GetData(node* ptr) { return ptr->data; }
+		static Data& MY_LIBRARY GetData(node* ptr) { return ((ptr == nullptr) ? (NullData = 0) : (ptr->data)); }
 
-		static node* MY_LIBRARY GetNext(node* ptr) {return ptr->next;}
+		static node* MY_LIBRARY GetNext(node* ptr) { return ((ptr == nullptr) ? nullptr : (ptr->next)); }
 
 
 		static void MY_LIBRARY InsertAfter(node** ptr) { (*ptr)->insert(); }

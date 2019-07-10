@@ -40,7 +40,7 @@ namespace LongCompute {
 		{
 			_Traits::InsertAfter(&This);
 			That = ThatNext;
-			This = ThisNext;
+			This = (_Traits::GetNext(This));
 		}
 		else if ((ThatNext == _Traits::NullIterator) && (ThisNext == _Traits::NullIterator))
 		{
@@ -50,7 +50,7 @@ namespace LongCompute {
 			else {
 				That = _Traits::NullIterator;
 				_Traits::InsertAfter(&This);
-				This = ThisNext;
+				This = (_Traits::GetNext(This));
 			}
 		}
 		return true;

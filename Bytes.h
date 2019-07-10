@@ -53,15 +53,26 @@ namespace Array {
 		Bytes& MY_LIBRARY operator+=(const Bytes& that) {
 			if constexpr (Length != 0)
 			{
+				value_type Carry = 0;
 				for (size_t i = 0; i < Length; i++)
 				{
 					//If (a + b) overflows, then a > ~b.
-					if (i != Length - 1)
+					if (Carry > 0)
 					{
-						if (Byte[i] > ~that.Byte[i])
+						if (Byte[i] > static_cast<value_type>(~Carry))
 						{
-							Byte[i + 1] += 1;
+							Byte[i] = 0;
+							Carry = 1;
 						}
+						else
+						{
+							Byte[i] += 1;
+							Carry = 0;
+						}
+					}
+					if (Byte[i] > static_cast<value_type>(~that.Byte[i]))
+					{
+						Carry = 1;
 					}
 					Byte[i] += that.Byte[i];
 				}
@@ -367,7 +378,7 @@ namespace Array {
 				Sum += Array::Bytes<length>(1);
 			}
 			Res = Data(Sum % Radix);
-			Carry = ((Sum / Radix > Array::Bytes<length>(0)) ? 1 : 0);
+			Carry = (((Sum / Radix) > Array::Bytes<length>(0)) ? 1 : 0);
 		}
 		static void SubTractFrom(Data& Res, Data& Carry, Data a, Data b) {
 			Bytes<length> _b = Bytes<length>(b);
