@@ -55,12 +55,10 @@ namespace Array {
 			{
 				for (size_t i = 0; i < Length; i++)
 				{
-					//If (a + b) overflows, then (a + b) < min{a, b}.
+					//If (a + b) overflows, then a > ~b.
 					if (i != Length - 1)
 					{
-						//Due to unknown bug, I must write like this.
-						value_type temp = (Byte[i] + that.Byte[i]);
-						if (temp < (Byte[i]))
+						if (Byte[i] > ~that.Byte[i])
 						{
 							Byte[i + 1] += 1;
 						}
@@ -219,7 +217,7 @@ namespace Array {
 		}
 		bool MY_LIBRARY operator<(const Bytes& that)const{
 			if (Length == 0)return false;
-			for (size_t i = Length-1; i > 0; i--)
+			for (size_t i = Length-1;; i--)
 			{
 				if (this->Byte[i] < that.Byte[i])
 				{
@@ -230,6 +228,10 @@ namespace Array {
 					return false;
 				}
 				else continue;
+				if (i==0)
+				{
+					break;
+				}
 			}
 			return false;
 		}
@@ -365,7 +367,7 @@ namespace Array {
 				Sum += Array::Bytes<length>(1);
 			}
 			Res = Data(Sum % Radix);
-			Carry = ((Sum / Radix > Array::Bytes<length>(0)) ? true : false);
+			Carry = ((Sum / Radix > Array::Bytes<length>(0)) ? 1 : 0);
 		}
 		static void SubTractFrom(Data& Res, Data& Carry, Data a, Data b) {
 			Bytes<length> _b = Bytes<length>(b);
@@ -375,7 +377,7 @@ namespace Array {
 			}
 			Bytes<length> _a = Bytes<length>(a);
 			Res = (_b - _a);
-			if (_b > _a)
+			if (_b < _a)
 			{
 				Carry = 1;
 			}
@@ -396,6 +398,9 @@ namespace Array {
 		constexpr static inline Bytes<Length> NullObject = Bytes<Length>();
 		constexpr static inline BytesIterator<Length> NullIterator = { &NullObject,0 };
 
+		static void MY_LIBRARY assign(Bytes<Length>* ptr, size_t s) {
+			*ptr <<= 8;
+		}
 		static BytesIterator<Length> MY_LIBRARY GetNext(const BytesIterator<Length>& ptr){
 			if (ptr.Head != nullptr && ptr.Head != &NullObject)
 			{

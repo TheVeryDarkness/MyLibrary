@@ -14,7 +14,7 @@ namespace LongCompute {
 	//	Data& GetData(Iterator);
 	//	void Add(Data&, bool, Data, Data);
 	//	void Subtract(Data&, bool, Data, Data)
-	//	Linear operator*(Iterator*);
+	//	void assign(Linear*, size_t);
 	//	void InsertAfter(Iterator*);//However, it doen't need to insert an element after it
 	//When an element doesn't a next element, GetNext(Iterator) should return NullIterator.
 	//
@@ -93,7 +93,7 @@ namespace LongCompute {
 			}
 			else {
 				DivideInto<Linear, Iterator, Data, _Traits>(Res, a, _Traits::GetNext(b));
-				Res <<= 1;
+				_Traits::assign(&Res, 1);
 			}
 		}
 		do
