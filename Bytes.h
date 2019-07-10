@@ -79,6 +79,38 @@ namespace Array {
 			}
 			return *this;
 		}
+		value_type MY_LIBRARY add_s(const Bytes& that) {
+			value_type Carry = 0;
+			if constexpr (Length != 0)
+			{
+				for (size_t i = 0; i < Length; i++)
+				{
+					//If (a + b) overflows, then a > ~b.
+					if (Carry > 0)
+					{
+						if (Byte[i] > static_cast<value_type>(~Carry))
+						{
+							Byte[i] = 0;
+							Carry = 1;
+						}
+						else
+						{
+							Byte[i] += 1;
+							Carry = 0;
+						}
+					}
+					if (Byte[i] > static_cast<value_type>(~that.Byte[i]))
+					{
+						Carry = 1;
+					}
+					Byte[i] += that.Byte[i];
+				}
+			}
+			return Carry;
+		}
+		value_type MY_LIBRARY sub_s(const Bytes& that) {
+			return ((this->add_s(~that + Bytes(1)) > 0) ? 0 : 1);
+		}
 		Bytes MY_LIBRARY operator+(const Bytes& that) const{
 			Bytes Ret = *this;
 			return (Ret += that);
@@ -341,7 +373,7 @@ namespace Array {
 
 	template<typename Data>
 	constexpr inline size_t GetMinLength(Data data) {
-		size_t res = 1;
+		size_t res = 0;
 		do{
 			res++;
 		} while ((data >>= 8) != 0);
@@ -371,31 +403,18 @@ namespace Array {
 		static const inline Array::Bytes<length> Radix = Array::Bytes<length>(Max + Array::Bytes<length>(1));
 
 		static void AddTo(Data& Res, Data& Carry, Data a, Data b) {
-			Array::Bytes<length> Sum = Array::Bytes<length>(a);
-			Sum += Array::Bytes<length>(b);
-			if (Carry)
-			{
-				Sum += Array::Bytes<length>(1);
-			}
+			Array::Bytes<length> Sum = Array::Bytes<length>(b);
+			if (Sum.add_s(Bytes<length>(a)) | (Carry && Sum.add_s(Array::Bytes<length>(1))))
+				Carry = 1;
 			Res = Data(Sum % Radix);
-			Carry = (((Sum / Radix) > Array::Bytes<length>(0)) ? 1 : 0);
 		}
 		static void SubTractFrom(Data& Res, Data& Carry, Data a, Data b) {
-			Bytes<length> _b = Bytes<length>(b);
-			if (Carry)
-			{
-				_b -= Array::Bytes<length>(1);
-			}
-			Bytes<length> _a = Bytes<length>(a);
-			Res = (_b - _a);
-			if (_b < _a)
+			Bytes<length> Dif = Bytes<length>(b);
+			if (Dif.sub_s(Bytes<length>(a)) | (Carry && Dif.sub_s(Array::Bytes<length>(1))))
 			{
 				Carry = 1;
 			}
-			else
-			{
-				Carry = 0;
-			}
+			Res = Data(Dif % Radix);
 		}
 	};
 
