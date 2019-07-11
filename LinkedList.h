@@ -47,7 +47,7 @@ namespace LL {
 
 	//Data为数据类型，勿将其置为指针
 	template <
-		typename Data, unsigned long Radix = 0
+		typename Data, unsigned long Radix
 	>
 		//单向（oneway）链表（linked list）（基类）
 		//Notice:

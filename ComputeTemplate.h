@@ -88,37 +88,53 @@ namespace LongCompute {
 	template<typename Linear, typename Iterator, typename Data, class _Traits>
 	inline void MY_LIBRARY DivideInto(Linear& Res, Iterator a, Iterator b) {
 		{
-			if (Compare<Iterator, Data, _Traits>(a, b) == Larger) {
+			switch (Compare<Iterator, Data, _Traits>(a, b))
+			{
+			case Larger:
 				return;
-			}
-			else {
-				DivideInto<Linear, Iterator, Data, _Traits>(Res, a, _Traits::GetNext(b));
+			case Equal:
+				SubtractFrom<Iterator, Data, _Traits>(a, b);
+				++Res;
+				return;
+			case Smaller:
+				DivideInto<Iterator, Data, _Traits>(a, _Traits::GetNext(b));
 				_Traits::assign(&Res, 1);
+				break;
+			default:
+				break;
 			}
 		}
-		do
+		while (Compare<Iterator, Data, _Traits>(a, b) != Larger)
 		{
 			//Regarding of the compatibility, we didn't use any majorization.
 			SubtractFrom<Iterator, Data, _Traits>(a, b);
 			++Res;
-		} while (Compare<Iterator, Data, _Traits>(a, b) == Smaller);
+		}
 	}
 	template<typename Iterator, typename Data, class _Traits>
 	inline void MY_LIBRARY DivideInto(Iterator a, Iterator b) {
 		{
-			if (Compare<Iterator, Data, _Traits>(a, b) == Larger) {
+			switch (Compare<Iterator, Data, _Traits>(a, b))
+			{
+			case Larger:
 				return;
-			}
-			else {
-				DivideInto<Iterator, Data, _Traits>( a, _Traits::GetNext(b));
+			case Equal:
+				SubtractFrom<Iterator, Data, _Traits>(a, b);
+				return;
+			case Smaller:
+				DivideInto<Iterator, Data, _Traits>(a, _Traits::GetNext(b));
+				break;
+			default:
+				break;
 			}
 		}
-		do
+		while (Compare<Iterator, Data, _Traits>(a, b) != Larger)
 		{
 			//Regarding of the compatibility, we didn't use any majorization.
 			SubtractFrom<Iterator, Data, _Traits>(a, b);
-		} while (Compare<Iterator, Data, _Traits>(a, b) == Smaller);
+		}
 	}
+	//Compare a to b.
 	template<typename Iterator, typename Data, class _Traits>
 	inline short MY_LIBRARY Compare(const Iterator& a, const Iterator& b) {
 		if ((a == _Traits::NullIterator) && (b == _Traits::NullIterator))

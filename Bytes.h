@@ -38,8 +38,8 @@ namespace Array {
 		value_type Byte[Length] = {};
 	public:
 		constexpr explicit MY_LIBRARY Bytes() {}
-		template<size_t OriginLength> explicit MY_LIBRARY Bytes(const Bytes<OriginLength>&);
-		template<typename Data>explicit  MY_LIBRARY Bytes(const Data data);
+		template<size_t OriginLength> constexpr explicit MY_LIBRARY Bytes(const Bytes<OriginLength>&);
+		template<typename Data>constexpr explicit  MY_LIBRARY Bytes(const Data data);
 		template<typename Data> MY_LIBRARY operator Data();
 		size_t MY_LIBRARY GetLength()const;
 		Bytes& MY_LIBRARY operator=(unsigned char Value) {
@@ -50,7 +50,7 @@ namespace Array {
 			}
 			return *this;
 		}
-		Bytes& MY_LIBRARY operator+=(const Bytes& that) {
+		constexpr Bytes& MY_LIBRARY operator+=(const Bytes& that) {
 			if constexpr (Length != 0)
 			{
 				value_type Carry = 0;
@@ -79,7 +79,7 @@ namespace Array {
 			}
 			return *this;
 		}
-		value_type MY_LIBRARY add_s(const Bytes& that) {
+		constexpr value_type MY_LIBRARY add_s(const Bytes& that) {
 			value_type Carry = 0;
 			if constexpr (Length != 0)
 			{
@@ -108,20 +108,20 @@ namespace Array {
 			}
 			return Carry;
 		}
-		value_type MY_LIBRARY sub_s(const Bytes& that) {
-			return ((this->add_s(~that + Bytes(1)) > 0) ? 0 : 1);
+		constexpr value_type MY_LIBRARY sub_s(const Bytes& that) {
+			return (((this->add_s(~that) | this->add_s(Bytes(1))) > 0) ? 0 : 1);
 		}
-		Bytes MY_LIBRARY operator+(const Bytes& that) const{
+		constexpr Bytes MY_LIBRARY operator+(const Bytes& that) const{
 			Bytes Ret = *this;
 			return (Ret += that);
 		}
-		Bytes& MY_LIBRARY operator++() {
+		constexpr Bytes& MY_LIBRARY operator++() {
 			return (*this += Bytes(1));
 		}
-		Bytes& MY_LIBRARY operator--() {
+		constexpr Bytes& MY_LIBRARY operator--() {
 			return (*this -= Bytes(1));
 		}
-		Bytes MY_LIBRARY operator~ ()const{
+		constexpr Bytes MY_LIBRARY operator~ ()const{
 			Bytes ret;
 			for (size_t i = 0; i < Length; i++)
 			{
@@ -140,56 +140,55 @@ namespace Array {
 			return (Ret /= that);
 		}
 		Bytes& MY_LIBRARY operator%=(const Bytes& that){
-			Bytes Res;
-			LongCompute::DivideInto<Bytes, BytesIterator<Length>, value_type, BytesTraits<Length>>(Res, &that, this);
+			LongCompute::DivideInto<BytesIterator<Length>, value_type, BytesTraits<Length>> (&that, this);
 			return *this;
 		}
 		Bytes MY_LIBRARY operator%(const Bytes& that)const {
 			Bytes Ret = *this;
 			return (Ret %= that);
 		}
-		Bytes& MY_LIBRARY operator-=(const Bytes& that){
+		constexpr Bytes& MY_LIBRARY operator-=(const Bytes& that){
 			Bytes Minus = ~that + Bytes(1);
 			return(*this += Minus);
 		}
-		Bytes MY_LIBRARY operator-(const Bytes& that)const {
+		constexpr Bytes MY_LIBRARY operator-(const Bytes& that)const {
 			Bytes Ret = *this;
 			return (Ret -= that);
 		}
-		Bytes& MY_LIBRARY operator|=(const Bytes& that){
+		constexpr Bytes& MY_LIBRARY operator|=(const Bytes& that){
 			for (size_t i = 0; i < Length; i++)
 			{
 				this->Byte[i] |= that.Byte[i];
 			}
 			return *this;
 		}
-		Bytes MY_LIBRARY operator|(const Bytes& that)const {
+		constexpr Bytes MY_LIBRARY operator|(const Bytes& that)const {
 			Bytes ret = *this;
 			return (ret |= that);
 		}
-		Bytes& MY_LIBRARY operator&=(const Bytes& that) {
+		constexpr Bytes& MY_LIBRARY operator&=(const Bytes& that) {
 			for (size_t i = 0; i < Length; i++)
 			{
 				this->Byte[i] &= that.Byte[i];
 			}
 			return *this;
 		}
-		Bytes MY_LIBRARY operator&(const Bytes& that)const {
+		constexpr Bytes MY_LIBRARY operator&(const Bytes& that)const {
 			Bytes ret = *this;
 			return (ret &= that);
 		}
-		Bytes MY_LIBRARY operator^=(const Bytes& that) {
+		constexpr Bytes MY_LIBRARY operator^=(const Bytes& that) {
 			for (size_t i = 0; i < Length; i++)
 			{
 				this->Byte[i] ^= that.Byte[i];
 			}
 			return *this;
 		}
-		Bytes MY_LIBRARY operator^(const Bytes& that)const{
+		constexpr Bytes MY_LIBRARY operator^(const Bytes& that)const{
 			Bytes ret = *this;
 			return (ret ^= that);
 		}
-		bool MY_LIBRARY operator!=(const Bytes& that)const {
+		constexpr bool MY_LIBRARY operator!=(const Bytes& that)const {
 			for (size_t i = 0; i < Length; i++)
 			{
 				if (this->Byte[i]!=that.Byte[i])
@@ -199,7 +198,7 @@ namespace Array {
 			}
 			return false;
 		}
-		bool MY_LIBRARY operator==(const Bytes& that)const {
+		constexpr bool MY_LIBRARY operator==(const Bytes& that)const {
 			return !(*this != that);
 		}
 		Bytes& MY_LIBRARY operator<<=(size_t Bits) {
@@ -306,7 +305,7 @@ namespace Array {
 	//***************************************************
 	template<size_t Length>
 	template<size_t OriginLength>
-	inline MY_LIBRARY Bytes<Length>::Bytes(
+	constexpr inline MY_LIBRARY Bytes<Length>::Bytes(
 		const Bytes<OriginLength>& that
 	) {
 		if constexpr (Length >= OriginLength)
@@ -332,7 +331,13 @@ namespace Array {
 	
 	template<size_t Length>
 	template<typename Data>
-	inline MY_LIBRARY Array::Bytes<Length>::Bytes(Data data) {
+	constexpr inline MY_LIBRARY Array::Bytes<Length>::Bytes(Data data) {
+		for (size_t i = 0; i < Length; i++)
+		{
+			this->Byte[i] = data & 0xff;
+			data >>= 8;
+		}
+		/*
 		if constexpr (sizeof(Data)<=Length)
 		{
 			memcpy(this->Byte, &data, sizeof(Data));
@@ -340,7 +345,7 @@ namespace Array {
 		else
 		{
 			memcpy(this->Byte, &data, Length);
-		}
+		}*/
 	}
 
 	template<size_t Length>
@@ -373,7 +378,7 @@ namespace Array {
 
 	template<typename Data>
 	constexpr inline size_t GetMinLength(Data data) {
-		size_t res = 0;
+		size_t res = ((static_cast<Data>(~data) == 0) ? 1 : 0);
 		do{
 			res++;
 		} while ((data >>= 8) != 0);
@@ -398,14 +403,17 @@ namespace Array {
 	public:
 		SampleTraits() = delete;
 		~SampleTraits() = delete;
-		static const inline size_t length = Array::GetMinLength(_Max);
-		static const inline Array::Bytes<length> Max = Array::Bytes<length>(_Max);
-		static const inline Array::Bytes<length> Radix = Array::Bytes<length>(Max + Array::Bytes<length>(1));
+		static constexpr inline size_t length = Array::GetMinLength(_Max);
+		static constexpr inline Array::Bytes<length> Max = Array::Bytes<length>(_Max);
+		static constexpr inline Array::Bytes<length> Radix = Array::Bytes<length>(Max + Array::Bytes<length>(1));
 
 		static void AddTo(Data& Res, Data& Carry, Data a, Data b) {
 			Array::Bytes<length> Sum = Array::Bytes<length>(b);
 			if (Sum.add_s(Bytes<length>(a)) | (Carry && Sum.add_s(Array::Bytes<length>(1))))
+			{
 				Carry = 1;
+				Sum = Max - ~Sum;
+			}
 			Res = Data(Sum % Radix);
 		}
 		static void SubTractFrom(Data& Res, Data& Carry, Data a, Data b) {
@@ -413,6 +421,7 @@ namespace Array {
 			if (Dif.sub_s(Bytes<length>(a)) | (Carry && Dif.sub_s(Array::Bytes<length>(1))))
 			{
 				Carry = 1;
+				Dif = Max - ~Dif;
 			}
 			Res = Data(Dif % Radix);
 		}
