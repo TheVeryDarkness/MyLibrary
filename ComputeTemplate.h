@@ -133,7 +133,7 @@ namespace LongCompute {
 				break;
 			}
 		}
-		while (Compare<Iterator, Data, _Traits>(a, b) != Larger)
+		while (_Compare<Iterator, Data, _Traits>(b, a) >= 0)
 		{
 			//Regarding of the compatibility, we didn't use any majorization.
 			SubtractFrom<Iterator, Data, _Traits>(a, b);
@@ -164,6 +164,35 @@ namespace LongCompute {
 					Smaller
 					:
 					Equal
+					)
+				);
+		}
+	}
+	//Extension for Compare()
+	template<typename Iterator, typename Data, class _Traits>
+	inline std::pair<Data,short> MY_LIBRARY _Compare(const Iterator& a, const Iterator& b) {
+		if ((a == _Traits::NullIterator) && (b == _Traits::NullIterator))
+		{
+			return (0,Equal);
+		}
+		short PreRes = Compare<Iterator, Data, _Traits>(_Traits::GetNext(a), _Traits::GetNext(b));
+		if (PreRes != Equal)
+		{
+			return PreRes;
+		}
+		else
+		{
+			return (
+				(_Traits::GetData(a) > _Traits::GetData(b))
+				?
+				((_Traits::GetData(a) / (_Traits::GetData(b) + Data(1))), Larger)
+				:
+				(
+				(_Traits::GetData(a) < _Traits::GetData(b))
+					?
+					((_Traits::GetData(a) / (_Traits::GetData(b) + Data(1))),Smaller)
+					:
+					(0,Equal)
 					)
 				);
 		}
