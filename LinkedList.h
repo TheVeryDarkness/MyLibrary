@@ -27,9 +27,9 @@
 #define LL_SIMPLIFY(type) {type* Flag = this;type* OprtPtr = this;while (true){if (OprtPtr->data!=Data(0U)){Flag = OprtPtr;}if (OprtPtr->next == nullptr){break;}OprtPtr = OprtPtr->next;}while (Flag->next != nullptr){Flag->cut();}return Flag;}
 namespace LL {
 	//前向声明
-	template <typename Data, unsigned long Radix>
+	template <typename Data, Data Max>
 	class OLL;
-	template<typename Data, unsigned long Radix>
+	template<typename Data, Data Max>
 	class DLL;
 	template<
 		typename Data,
@@ -47,7 +47,7 @@ namespace LL {
 
 	//Data为数据类型，勿将其置为指针
 	template <
-		typename Data, unsigned long Radix
+		typename Data, Data Max
 	>
 		//单向（oneway）链表（linked list）（基类）
 		//Notice:
@@ -57,12 +57,6 @@ namespace LL {
 	{
 		template<class node, typename Data, Data _Max>
 		friend class LinkedListComputeTraits;
-		template<class Class, typename Data, unsigned long Radix>
-		//重载
-		inline friend void MY_LIBRARY add(
-			Class& a,
-			const Class& b
-		)noexcept;
 		template<class Class, typename Data, unsigned long Radix>
 		//重载
 		inline friend void MY_LIBRARY multiply(
@@ -141,7 +135,22 @@ namespace LL {
 		}
 		//重载OLL链表+=
 		inline void MY_LIBRARY operator+=(const OLL& that) noexcept {
-			LL::add<OLL, Data, Radix>(*this, that);
+			if (that.next==nullptr)
+			{
+				return;
+			}
+			if (this->next==nullptr)
+			{
+				*this = OLL(that,true);
+				return;
+			}
+			if ((this->data > 0 && that.data > 0) || (this->data == 0 && that.data == 0))
+			{
+				LongCompute::AddTo<OLL*, Data, LinkedListComputeTraits<OLL, Data, Max>>(that.next, this->next);
+			}
+			else{
+				short Cmpr = LongCompute::Compare(this->next, that.next);
+			}
 			this->Simplify();
 		}
 		//重载OLL链表减号
@@ -158,7 +167,12 @@ namespace LL {
 		inline MY_LIBRARY ~OLL() {
 			this->next = nullptr;
 		}
+#ifdef _DEBUG
+		public:
+#else
 	protected:
+#endif // _DEBUG
+
 		//指向下一节的指针
 		OLL* next = nullptr;
 		//数据
@@ -197,8 +211,8 @@ namespace LL {
 			return;
 		}
 	public:
-		inline unsigned long MY_LIBRARY GetRadix()const noexcept {
-			return Radix;
+		inline unsigned long MY_LIBRARY GetMax()const noexcept {
+			return Max;
 		}
 		inline size_t MY_LIBRARY RawLength()const noexcept {
 			LL_LENGTH(OLL);
@@ -225,21 +239,11 @@ namespace LL {
 			Data HeadData,
 			OLL* NextPtr = nullptr
 		) noexcept {
-			if constexpr (Radix == 0)
+			if constexpr (Max == 0)
 			{
 				this->data = HeadData;
 				this->next = NextPtr;
 			}
-			else if constexpr (Radix == 1)
-			{
-				throw RadixError("Radix can't be 1.");
-			}
-			else if constexpr (
-				(Radix - 1)
-				!=
-				(unsigned long)((Data)(Radix - 1))
-				)
-				throw RadixError("Radix overflow.");
 			else
 			{
 				this->data = Data(HeadData);
@@ -511,7 +515,7 @@ namespace LL {
 		void MY_LIBRARY operator%=(const OLL& that)noexcept {
 			if (this->next != nullptr && that.next != nullptr)
 			{
-				LongCompute::DivideInto<OLL*,Data, LinkedListComputeTraits<OLL, Data, static_cast<Data>(Radix > 0 ? Radix - 1 : 0)>>(that.next, this->next);
+				LongCompute::DivideInto<OLL*,Data, LinkedListComputeTraits<OLL, Data,Max>>(that.next, this->next);
 			}
 			else return;
 			this->Simplify();
@@ -677,7 +681,7 @@ namespace LL {
 				that->next);
 		}
 	};
-	template<typename Data, unsigned long Radix>
+	template<typename Data, Data Max>
 	class DLL
 	{
 		//static const inline std::forward_list<Data> Factor = PrimeFactorList(static_cast<Data>(Radix));
@@ -687,12 +691,6 @@ namespace LL {
 		friend class LinkedListComputeTraits;
 		//友元函数声明
 
-		template<class Class, typename Data, unsigned long Radix>
-		//重载
-		inline friend void MY_LIBRARY add(
-			Class& a,
-			const Class& b
-		)noexcept;
 		template<class Class, typename Data, unsigned long Radix>
 		//重载
 		inline friend void MY_LIBRARY multiply(

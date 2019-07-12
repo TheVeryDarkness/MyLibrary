@@ -80,10 +80,15 @@ namespace LongCompute {
 			Data temp;
 			_Traits::SubTractFrom(temp, Carry, _Traits::GetData(a), _Traits::GetData(b));
 			_Traits::GetData(b) = temp;
+			//Carry a bit can never solve it, so we don't pass it to the function.
 			if (!Iterate<Iterator, Data, _Traits>(a, b, 0)) {
 				break;
 			}
 		}
+	}
+	template<typename Linear, typename Iterator, typename Data, class _Traits>
+	inline void MY_LIBRARY MultiplyTo(Iterator a, Iterator b) {
+
 	}
 	template<typename Linear, typename Iterator, typename Data, class _Traits>
 	inline void MY_LIBRARY DivideInto(Linear& Res, Iterator a, Iterator b) {
