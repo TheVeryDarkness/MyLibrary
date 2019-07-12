@@ -269,7 +269,6 @@ namespace Array {
 				{
 					return false;
 				}
-				else continue;
 				if (i==0)
 				{
 					break;
@@ -289,7 +288,10 @@ namespace Array {
 				{
 					return false;
 				}
-				else continue;
+				if (i == 0)
+				{
+					break;
+				}
 			}
 			return true;
 		}
@@ -408,22 +410,54 @@ namespace Array {
 		static constexpr inline Array::Bytes<length> Radix = Array::Bytes<length>(Max + Array::Bytes<length>(1));
 
 		static void AddTo(Data& Res, Data& Carry, Data a, Data b) {
-			Array::Bytes<length> Sum = Array::Bytes<length>(b);
-			if (Sum.add_s(Bytes<length>(a)) | (Carry && Sum.add_s(Array::Bytes<length>(1))))
+			Bytes<length> Sum = Bytes<length>(a);
+			if (Carry>0)
+			{
+				if (Sum >= Radix - 1)
+				{
+					Carry = 1;
+					Sum = 0;
+				}
+				else
+				{
+					Sum += Bytes<length>(1);
+				}
+			}
+			if (Sum >= Radix - Bytes<length>(b))
 			{
 				Carry = 1;
-				Sum = Max - ~Sum;
+				Sum -= (Radix - Bytes<length>(b));
 			}
-			Res = Data(Sum % Radix);
+			else
+			{
+				Sum += Bytes<length>(b);
+			}
+			Res = Data(Sum);
 		}
 		static void SubTractFrom(Data& Res, Data& Carry, Data a, Data b) {
 			Bytes<length> Dif = Bytes<length>(b);
-			if (Dif.sub_s(Bytes<length>(a)) | (Carry && Dif.sub_s(Array::Bytes<length>(1))))
+			if (Carry > 0)
+			{
+				if (Dif == Bytes<length>(0))
+				{
+					Carry = 1;
+					Dif = Max;
+				}
+				else
+				{
+					Dif -= Bytes<length>(1);
+				}
+			}
+			if (Dif < Bytes<length>(a))
 			{
 				Carry = 1;
-				Dif = Max - ~Dif;
+				Dif += (Radix - Bytes<length>(a));
 			}
-			Res = Data(Dif % Radix);
+			else
+			{
+				Dif -= Bytes<length>(a);
+			}
+			Res = Data(Dif);
 		}
 	};
 

@@ -814,7 +814,11 @@ namespace LL {
 			this->next = nullptr;
 			this->last = nullptr;
 		}
+#ifdef _DEBUG
+		public:
+#else
 	protected:
+#endif // _DEBUG
 		Data data;
 		DLL* next = nullptr;
 		DLL* last = nullptr;
