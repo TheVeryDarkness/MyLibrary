@@ -489,7 +489,7 @@ namespace Array {
 		static value_type& MY_LIBRARY GetData(BytesIterator<Length> ptr) {
 			return const_cast<value_type*>(ptr.Head->Byte)[ptr.Index];
 		}
-		static void MY_LIBRARY InsertAfter(const BytesIterator<Length>* ptr) {}
+		static void MY_LIBRARY InsertAfter(const BytesIterator<Length>* ptr, value_type data) {}
 	private:
 
 	};

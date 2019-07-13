@@ -1656,7 +1656,7 @@ namespace LL {
 		static node* MY_LIBRARY GetNext(node* ptr) { return ((ptr == nullptr) ? nullptr : (ptr->next)); }
 
 		static void MY_LIBRARY assign(node* ptr, size_t sz) { *ptr <<= sz; }
-		static void MY_LIBRARY InsertAfter(node** ptr) { (*ptr)->insert(); }
+		static void MY_LIBRARY InsertAfter(node** ptr, Data data) { (*ptr)->insert(data); }
 
 	private:
 

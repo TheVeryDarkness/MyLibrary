@@ -15,7 +15,7 @@ namespace LongCompute {
 	//	void Add(Data&, bool, Data, Data);
 	//	void Subtract(Data&, bool, Data, Data)
 	//	void assign(Linear*, size_t);
-	//	void InsertAfter(Iterator*);//However, it doen't need to insert an element after it
+	//	void InsertAfter(Iterator*, Data);//However, it doen't need to insert an element after it
 	//When an element doesn't a next element, GetNext(Iterator) should return NullIterator.
 	//
 	//The _Traits must give these definition:
@@ -23,7 +23,7 @@ namespace LongCompute {
 	//NullIterator must have 0 data, and not have an next element.
 
 	template<typename Iterator, typename Data, class _Traits>
-	inline bool MY_LIBRARY Iterate(Iterator& That, Iterator& This, const Data& CarryBit) {
+	inline bool MY_LIBRARY Iterate(Iterator& That, Iterator& This, Data& CarryBit) {
 		//Next element
 		Iterator ThatNext = (_Traits::GetNext(That)), ThisNext = (_Traits::GetNext(This));
 		if ((ThatNext != _Traits::NullIterator) && (ThisNext != _Traits::NullIterator))
@@ -38,7 +38,8 @@ namespace LongCompute {
 		}
 		else if ((ThatNext != _Traits::NullIterator) && (ThisNext == _Traits::NullIterator))
 		{
-			_Traits::InsertAfter(&This);
+			_Traits::InsertAfter(&This, CarryBit);
+			CarryBit = 0;
 			That = ThatNext;
 			This = (_Traits::GetNext(This));
 		}
@@ -49,7 +50,9 @@ namespace LongCompute {
 			}
 			else {
 				That = _Traits::NullIterator;
-				_Traits::InsertAfter(&This);
+				_Traits::InsertAfter(&This, CarryBit);
+				CarryBit = 0;
+				return false;
 				This = (_Traits::GetNext(This));
 			}
 		}
