@@ -197,4 +197,36 @@ namespace LongCompute {
 				);
 		}
 	}
+	template<typename Data>
+	class StandardComputeTraits
+	{
+	public:
+		StandardComputeTraits() = delete;
+		~StandardComputeTraits() = delete;
+		static void AddTo(Data& Res, Data& Carry, Data a, Data b) {
+			Res = a + b + Carry;
+			if (Carry>0)
+			{
+				Carry = ((a > Data(~Data(b + 1))) || (b > Data(~Data(1))) ? 1 : 0);
+			}
+			else
+			{
+				Carry = ((a > Data(~b)) ? 1 : 0);
+			}
+		}
+		static void SubTractFrom(Data& Res, Data& Carry, Data a, Data b) {
+			Res = a - b - Carry;
+			if (Carry>0)
+			{
+				Carry = ((a <= b) ? 1 : 0);
+			}
+			else
+			{
+				Carry = ((a < b) ? 1 : 0);
+			}
+		}
+	private:
+
+	};
+
 }

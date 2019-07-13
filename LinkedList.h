@@ -524,7 +524,7 @@ namespace LL {
 			if (this->next != nullptr && that.next != nullptr)
 			{
 				OLL Res(this->data);
-				LongCompute::DivideInto<OLL, OLL*,Data, LinkedListComputeTraits<OLL,Data, static_cast<Data>(Radix > 0 ? Radix - 1 : 0)>>(Res, that.next, this->next);
+				LongCompute::DivideInto<OLL, OLL*,Data, LinkedListComputeTraits<OLL,Data, Max>>(Res, that.next, this->next);
 				*this = Res;
 			}
 			else return;
@@ -574,7 +574,7 @@ namespace LL {
 		/*inline*/OLL& MY_LIBRARY operator=(
 			long value
 			) noexcept {
-			if constexpr (Radix == 0)
+			if constexpr (Max == Data(0))
 			{
 				this->data = (Data)value;
 			}
@@ -598,10 +598,18 @@ namespace LL {
 					}
 					else if (OprtPtr->next == nullptr)
 					{
-						OprtPtr->insert((Data)(value % Radix));
+						if constexpr (Max == std::numeric_limits<Data>::max())
+						{
+							OprtPtr->insert(static_cast<Data>(value));
+						}
+						else OprtPtr->insert((Data)(value % (Max + 1)));
 					}
 					OprtPtr = OprtPtr->next;
-					value = value / Radix;
+					if constexpr (Max == std::numeric_limits<Data>::max())
+					{
+						value >>= sizeof(Data) * Array::BitsPerByte;
+					}
+					else value = value / (Max + 1);
 				}
 			}
 			return *this;
@@ -619,9 +627,9 @@ namespace LL {
 		}
 		//获取存储的值
 		//可能溢出
-		/*inline*/long  MY_LIBRARY GetValue()const noexcept {
+		/*inline*/long long  MY_LIBRARY GetValue()const noexcept {
 			bool sign = (this->data > 0) ? true : false;
-			long value = 0;
+			long long value = 0;
 			long n = 0;
 			const OLL* OprtPtr = this;
 			if (OprtPtr == nullptr)
@@ -633,7 +641,7 @@ namespace LL {
 				if (OprtPtr->next != nullptr)
 				{
 					OprtPtr = OprtPtr->next;
-					value += ((unsigned long long)(OprtPtr->data)) * (unsigned long long)pow(Radix, n);
+					value += ((unsigned long long)(OprtPtr->data)) * (unsigned long long)pow(static_cast<long long>(Max) + 1, n);
 					n++;
 				}
 				else
@@ -771,10 +779,22 @@ namespace LL {
 		}
 		//重载DLL链表+=
 		inline void MY_LIBRARY operator+=(const DLL& that)noexcept {
-			LL::add<DLL, Data, Radix>(*this, that);
-#ifdef _DEBUG
-			this->Fresh();
-#endif // _DEBUG
+			if (that.next == nullptr)
+			{
+				return;
+			}
+			if (this->next == nullptr)
+			{
+				*this = DLL(that, true);
+				return;
+			}
+			if ((this->data > 0 && that.data > 0) || (this->data == 0 && that.data == 0))
+			{
+				LongCompute::AddTo<DLL*, Data, LinkedListComputeTraits<DLL, Data, Max>>(that.next, this->next);
+			}
+			else {
+				short Cmpr = LongCompute::Compare(this->next, that.next);
+			}
 			this->Simplify();
 		}
 		//重载DLL链表减号
@@ -1152,7 +1172,7 @@ namespace LL {
 			bool positive,
 			unsigned long value
 		) noexcept {
-			if constexpr (Radix == 0)
+			if constexpr (Max == 0)
 			{
 				this->data = static_cast<Data>(value * ((positive) ? 1 : (-1)));
 				return;
@@ -1173,7 +1193,11 @@ namespace LL {
 							(Data)(value % Radix)
 						);
 						OprtPtr = OprtPtr->next;
-						value /= Radix;
+						if constexpr (Max == std::numeric_limits<Data>::max())
+						{
+							value >>= sizeof(Data) * Array::BitsPerByte;
+						}
+						else value /= (Max + 1);
 					}
 				}
 			}
@@ -1230,11 +1254,10 @@ namespace LL {
 			{
 				return *this;
 			}
-			if constexpr (Radix == 0)
+			if constexpr (Max == 0)
 			{
 				return *this;
 			}
-			if constexpr (Radix == 0)throw std::invalid_argument();
 			if (that % Radix == 0) {
 				return ((*this >>= 1) /= (that / Radix));
 			}
@@ -1283,7 +1306,7 @@ namespace LL {
 			{
 				return *this;
 			}
-			if constexpr (Radix == 0)
+			if constexpr (Max == 0)
 			{
 				return *this;
 			}

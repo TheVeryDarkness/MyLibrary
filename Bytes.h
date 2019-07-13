@@ -495,3 +495,8 @@ namespace Array {
 	};
 
 };
+
+template<size_t _Length>class std::numeric_limits<Array::Bytes<_Length>> {
+	constexpr Array::Bytes<_Length> max() { return ~Bytes<_Length>(0); }
+	constexpr Array::Bytes<_Length> min() { return Bytes<_Length>(0); }
+};
