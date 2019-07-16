@@ -26,6 +26,21 @@
 #pragma pack(2)
 #define LL_LENGTH(type) const type* OprtPtr=this;size_t s=0;while(OprtPtr!=nullptr){OprtPtr=OprtPtr->next;s++;}return s;
 #define LL_SIMPLIFY(type) {type* Flag = this;type* OprtPtr = this;while (true){if (OprtPtr->data!=Data(0U)){Flag = OprtPtr;}if (OprtPtr->next == nullptr){break;}OprtPtr = OprtPtr->next;}while (Flag->next != nullptr){Flag->cut();}return Flag;}
+
+//Use a std::array to cache memorry
+#define MEMORY_CACHE(MEMORY_CACHE_SIZE) \
+static inline std::array<void*, MEMORY_CACHE_SIZE> Buffer = {};\
+static void* MY_LIBRARY operator new(size_t size) {\
+	auto i = std::find_if_not(Buffer.begin(), Buffer.end(), [](void* that)->bool {return(that == nullptr); });\
+	if (i == Buffer.end()) { return malloc(size); }\
+	else { void* temp = *i; *i = nullptr; return temp; }}\
+static void MY_LIBRARY operator delete(void* _ptr, size_t size) {\
+	auto i = std::find_if(Buffer.begin(), Buffer.end(), [](void* that)->bool {return(that == nullptr); });\
+	if (i == Buffer.end()) { return free(_ptr); }\
+	else { *i = _ptr; }}
+
+//#define MEMORY_CACHE(X)
+
 namespace LL {
 	//前向声明
 	template <typename Data, Data Max>
@@ -95,30 +110,7 @@ namespace LL {
 				const Type& that
 			)noexcept;
 
-		//内存缓冲
-		static inline std::array<void*, 20> Buffer = {};
-		static void* MY_LIBRARY operator new(size_t size) {
-			auto i = std::find_if_not(Buffer.begin(), Buffer.end(), [](void* that)->bool {return(that == nullptr); });
-			if (i==Buffer.end())
-			{
-				return malloc(size);
-			}
-			else {
-				void* temp = *i;
-				*i = nullptr;
-				return temp;
-			}
-		}
-		static void MY_LIBRARY operator delete(void* _ptr, size_t size) {
-			auto i = std::find_if(Buffer.begin(), Buffer.end(),  [](void* that)->bool {return(that == nullptr); });
-			if (i == Buffer.end())
-			{
-				return free(_ptr);
-			}
-			else {
-				*i = _ptr;
-			}
-		}
+		MEMORRY_CACHE(20);
 	public:
 		//重载
 		/*inline*/void MY_LIBRARY operator*=(int times) noexcept {
@@ -776,6 +768,8 @@ namespace LL {
 				const Type& that
 			)noexcept;
 		friend class Q;
+
+		MEMORRY_CACHE(20);
 	public:
 		//重载
 		inline void MY_LIBRARY operator*=(int times) {
