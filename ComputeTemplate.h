@@ -84,7 +84,7 @@ namespace LongCompute {
 			_Traits::SubTractFrom(temp, Carry, _Traits::GetData(a), _Traits::GetData(b));
 			_Traits::GetData(b) = temp;
 			//Carry a bit can never solve it, so we don't pass it to the function.
-			if (!Iterate<Iterator, Data, _Traits>(a, b, 0)) {
+			if (!Iterate<Iterator, Data, _Traits>(a, b, Carry)) {
 				break;
 			}
 		}

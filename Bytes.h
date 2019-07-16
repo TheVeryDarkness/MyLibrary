@@ -413,7 +413,7 @@ namespace Array {
 			Bytes<length> Sum = Bytes<length>(a);
 			if (Carry>0)
 			{
-				if (Sum >= Radix - 1)
+				if (Sum >= Radix - Bytes<length>(1))
 				{
 					Carry = 1;
 					Sum = 0;

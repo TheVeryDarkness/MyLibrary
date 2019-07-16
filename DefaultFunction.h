@@ -6,11 +6,11 @@ namespace LL {
 	class power
 	{
 	public:
-		__stdcall power(const Q& Coefficient, const Q& Index)noexcept
+		MY_LIBRARY power(const Q& Coefficient, const Q& Index)noexcept
 			:c(Coefficient, true), i(Index, true) {
 			this->simplify();
 		}
-		__stdcall power(
+		MY_LIBRARY power(
 			long Coefficient1, unsigned short Coefficient2,
 			unsigned short Index1, unsigned short Index2
 		) : c(Coefficient1, Coefficient2), i(Index1, Index2) {
@@ -24,9 +24,9 @@ namespace LL {
 			}
 			this->simplify();
 		}
-		__stdcall ~power() {}
-		void __stdcall destruct() { this->c.destruct(); this->i.destruct(); }
-		power& __stdcall diff() {
+		MY_LIBRARY ~power() {}
+		void MY_LIBRARY destruct() { this->c.destruct(); this->i.destruct(); }
+		power& MY_LIBRARY diff() {
 			if (i == 0)
 			{
 				i = 0;
@@ -39,7 +39,7 @@ namespace LL {
 			}
 			return *this;
 		}
-		power& __stdcall integral() {
+		power& MY_LIBRARY integral() {
 			i += 1;
 			if (i == 0)
 			{
@@ -51,20 +51,20 @@ namespace LL {
 			c /= i;
 			return *this;
 		}
-		void __stdcall simplify() {
+		void MY_LIBRARY simplify() {
 			c.Simplify();
 			i.Simplify();
 		}
-		std::ostream& __stdcall Print(std::ostream& o)const {
+		std::ostream& MY_LIBRARY Print(std::ostream& o)const {
 			return o << '(' << c << ')' << "*x^(" << i << ')';
 		}
-		inline bool __stdcall operator==(const power& that)const {
+		inline bool MY_LIBRARY operator==(const power& that)const {
 			return (this->c == that.c && this->i == that.i);
 		}
-		inline bool __stdcall operator!=(const power& that)const {
+		inline bool MY_LIBRARY operator!=(const power& that)const {
 			return !(*this == that);
 		}
-		friend std::ostream& __stdcall operator<<(std::ostream& o, const power& p) {
+		friend std::ostream& MY_LIBRARY operator<<(std::ostream& o, const power& p) {
 			return p.Print(o);
 		}
 	private:
