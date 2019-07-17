@@ -5,6 +5,7 @@
 #endif // _DEBUG
 #include "Abandoned.h"
 
+
 #include <iostream>
 #include <array>
 #include <iomanip>
@@ -12,12 +13,10 @@
 #include <charconv>
 #include "Exception.h"
 #include "Statistics.h"
-#ifdef max
-#undef max
-#endif // max
-#ifdef min
-#undef min
-#endif // min
+#include "Bytes.h"
+#include "MemoryCache.h"
+
+
 
 //根据规范（当然是我自己胡诌的规范），
 //Simplify()和Fresh()操作应在加减乘除操作完成后返回时主动调用
@@ -27,17 +26,18 @@
 #define LL_LENGTH(type) const type* OprtPtr=this;size_t s=0;while(OprtPtr!=nullptr){OprtPtr=OprtPtr->next;s++;}return s;
 #define LL_SIMPLIFY(type) {type* Flag = this;type* OprtPtr = this;while (true){if (OprtPtr->data!=Data(0U)){Flag = OprtPtr;}if (OprtPtr->next == nullptr){break;}OprtPtr = OprtPtr->next;}while (Flag->next != nullptr){Flag->cut();}return Flag;}
 
+
+#ifdef max
+#undef max
+#endif // max
+#ifdef min
+#undef min
+#endif // min
 //Use a std::array to cache memory
 #define MEMORY_CACHE(MEMORY_CACHE_SIZE) \
-static inline std::array<void*, MEMORY_CACHE_SIZE> Buffer = {};\
-static void* MY_LIBRARY operator new(size_t size) {\
-	auto i = std::find_if_not(Buffer.begin(), Buffer.end(), [](void* that)->bool {return(that == nullptr); });\
-	if (i == Buffer.end()) { return malloc(size); }\
-	else { void* temp = *i; *i = nullptr; return temp; }}\
-static void MY_LIBRARY operator delete(void* _ptr, size_t size) {\
-	auto i = std::find_if(Buffer.begin(), Buffer.end(), [](void* that)->bool {return(that == nullptr); });\
-	if (i == Buffer.end()) { return free(_ptr); }\
-	else { *i = _ptr; }}
+static inline MemorryCache<MEMORY_CACHE_SIZE> Buffer = {};\
+static void* MY_LIBRARY operator new(size_t size) {return Buffer.pop(size);}\
+static void MY_LIBRARY operator delete(void* _ptr, size_t size) {return Buffer.push(_ptr);}
 
 //#define MEMORY_CACHE(X)
 
@@ -577,7 +577,7 @@ namespace LL {
 		//在当前位置后插入新的一节
 		inline void insert(Data New = Data(false)) noexcept {
 			OLL* temp = this->next;
-			this->next = new OLL(New, temp);
+			this->next = DBG_NEW OLL(New, temp);
 			return;
 		}
 		//删除当前位置后的一位
@@ -1143,7 +1143,7 @@ namespace LL {
 			Data New = Data(false)
 		) noexcept {
 			DLL* temp = this->next;
-			this->next = new DLL(New, temp, this);
+			this->next = DBG_NEW DLL(New, temp, this);
 			if (temp != nullptr)
 			{
 				temp->last = this->next;
@@ -1580,7 +1580,7 @@ namespace LL {
 		{
 			SinglePrint(*that.next, out, ShowComma, MinLength, base);
 			out << ((ShowComma) ? "," : "");
-			char* c = new char[MinLength + 1ULL]();
+			char* c = DBG_NEW char[MinLength + 1ULL]();
 			std::to_chars_result rs = std::to_chars(c, &(c[MinLength]), static_cast<int>(that.data), base);
 
 			std::string str = c;
@@ -1680,7 +1680,7 @@ namespace LL {
 		{
 			if (OprtPtr->next != nullptr)
 			{
-				SubOprtPtr->next = new SubType(GetFunction(OprtPtr->next->data));
+				SubOprtPtr->next = DBG_NEW SubType(GetFunction(OprtPtr->next->data));
 			}
 			else
 			{

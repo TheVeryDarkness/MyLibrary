@@ -136,10 +136,18 @@ namespace LongCompute {
 				break;
 			}
 		}
-		while (_Compare<Iterator, Data, _Traits>(b, a) >= 0)
+		while (true)
 		{
-			//Regarding of the compatibility, we didn't use any majorization.
-			SubtractFrom<Iterator, Data, _Traits>(a, b);
+			auto [res, cmpr] = _Compare<Iterator, Data, _Traits>(b, a);
+			if (res==Smaller)
+			{
+				return;
+			}
+			for (Data i = 0; i < cmpr; i++)
+			{
+				//Regarding of the compatibility, we didn't use any majorization.
+				SubtractFrom<Iterator, Data, _Traits>(a, b);
+			}
 		}
 	}
 	//Compare a to b.
@@ -176,10 +184,10 @@ namespace LongCompute {
 	inline std::pair<Data, short> MY_LIBRARY _Compare(const Iterator& a, const Iterator& b) {
 		if ((a == _Traits::NullIterator) && (b == _Traits::NullIterator))
 		{
-			return (0, Equal);
+			return std::pair(0, Equal);
 		}
-		short PreRes = Compare<Iterator, Data, _Traits>(_Traits::GetNext(a), _Traits::GetNext(b));
-		if (PreRes != Equal)
+		auto PreRes = _Compare<Iterator, Data, _Traits>(_Traits::GetNext(a), _Traits::GetNext(b));
+		if (PreRes.second != Equal)
 		{
 			return PreRes;
 		}
@@ -188,14 +196,14 @@ namespace LongCompute {
 			return (
 				(_Traits::GetData(a) > _Traits::GetData(b))
 				?
-				((_Traits::GetData(a) / (_Traits::GetData(b) + Data(1))), Larger)
+				std::pair((_Traits::GetData(a) / (_Traits::GetData(b) + Data(1))), Larger)
 				:
 				(
 				(_Traits::GetData(a) < _Traits::GetData(b))
 					?
-					((_Traits::GetData(a) / (_Traits::GetData(b) + Data(1))), Smaller)
+					std::pair((_Traits::GetData(a) / (_Traits::GetData(b) + Data(1))), Smaller)
 					:
-					(0, Equal)
+					std::pair(0, Equal)
 					)
 				);
 		}

@@ -398,7 +398,7 @@ namespace Array {
 		bool MY_LIBRARY operator!=(const BytesIterator& that)const { return !(*this == that); }
 	};
 
-
+#undef max
 	template<typename Data, Data _Max = std::numeric_limits<Data>::max()>
 	class SampleTraits
 	{
@@ -495,7 +495,7 @@ namespace Array {
 	};
 
 };
-
+#undef min
 template<size_t _Length>class std::numeric_limits<Array::Bytes<_Length>> {
 	constexpr Array::Bytes<_Length> max() { return ~Bytes<_Length>(0); }
 	constexpr Array::Bytes<_Length> min() { return Bytes<_Length>(0); }

@@ -3,7 +3,7 @@
 #include <Shared.h>
 #include <array>
 
-template<size_t Block, size_t CacheSize>
+template<size_t CacheSize>
 class MemorryCache
 {
 public:
@@ -12,7 +12,7 @@ public:
 	MY_LIBRARY ~MemorryCache(){
 		for (auto var : Cache)
 		{
-			if (*var!=nullptr)
+			if (var!=nullptr)
 			{
 				free(var);
 				var = nullptr;
@@ -20,7 +20,8 @@ public:
 		}
 	}
 
-	void* pop() {
+
+	void* pop(size_t Block) {
 		auto i = std::find_if_not(Cache.begin(), Cache.end(), [](void* that)->bool {return(that == nullptr); });
 		if (i == Cache.end())
 		{
@@ -41,9 +42,10 @@ public:
 		}
 		else {
 			*i = block;
+			return;
 		}
 	}
 
 private:
-	std::array<void*, CacheSize> Cache = {};
+	std::array<void*, CacheSize> Cache;
 };
