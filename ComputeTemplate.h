@@ -201,7 +201,7 @@ namespace LongCompute {
 				(
 				(_Traits::GetData(a) < _Traits::GetData(b))
 					?
-					std::pair((_Traits::GetData(a) / (_Traits::GetData(b) + Data(1))), Smaller)
+					std::pair((_Traits::GetData(b) / (_Traits::GetData(a) + Data(1))), Smaller)
 					:
 					std::pair(0, Equal)
 					)
