@@ -173,10 +173,10 @@ namespace LongCompute {
 	}
 	//Extension for Compare()
 	template<typename Iterator, typename Data, class _Traits>
-	inline std::pair<Data,short> MY_LIBRARY _Compare(const Iterator& a, const Iterator& b) {
+	inline std::pair<Data, short> MY_LIBRARY _Compare(const Iterator& a, const Iterator& b) {
 		if ((a == _Traits::NullIterator) && (b == _Traits::NullIterator))
 		{
-			return (0,Equal);
+			return (0, Equal);
 		}
 		short PreRes = Compare<Iterator, Data, _Traits>(_Traits::GetNext(a), _Traits::GetNext(b));
 		if (PreRes != Equal)
@@ -193,9 +193,9 @@ namespace LongCompute {
 				(
 				(_Traits::GetData(a) < _Traits::GetData(b))
 					?
-					((_Traits::GetData(a) / (_Traits::GetData(b) + Data(1))),Smaller)
+					((_Traits::GetData(a) / (_Traits::GetData(b) + Data(1))), Smaller)
 					:
-					(0,Equal)
+					(0, Equal)
 					)
 				);
 		}
@@ -208,7 +208,7 @@ namespace LongCompute {
 		~StandardComputeTraits() = delete;
 		static void AddTo(Data& Res, Data& Carry, Data a, Data b) {
 			Res = a + b + Carry;
-			if (Carry>0)
+			if (Carry > 0)
 			{
 				Carry = ((a > Data(~Data(b + 1))) || (b > Data(~Data(1))) ? 1 : 0);
 			}
@@ -219,7 +219,7 @@ namespace LongCompute {
 		}
 		static void SubTractFrom(Data& Res, Data& Carry, Data a, Data b) {
 			Res = a - b - Carry;
-			if (Carry>0)
+			if (Carry > 0)
 			{
 				Carry = ((a <= b) ? 1 : 0);
 			}
