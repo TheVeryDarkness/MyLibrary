@@ -43,9 +43,9 @@ static void MY_LIBRARY operator delete(void* _ptr, size_t size) {return Buffer.p
 
 namespace LL {
 	//前向声明
-	template <typename Data, Data Max>
+	template <typename Data, Data Radix>
 	class OLL;
-	template<typename Data, Data Max>
+	template<typename Data, Data Radix>
 	class DLL;
 	template<
 		typename Data,
@@ -63,7 +63,7 @@ namespace LL {
 
 	//Data为数据类型，勿将其置为指针
 	template <
-		typename Data, Data Max
+		typename Data, Data Radix
 	>
 		//单向（oneway）链表（linked list）（基类）
 		//Notice:
@@ -114,7 +114,7 @@ namespace LL {
 	public:
 		//重载
 		/*inline*/void MY_LIBRARY operator*=(int times) noexcept {
-			LL::multiply<OLL, Data, Max + Data(1)>(*this, times);
+			LL::multiply<OLL, Data, Radix>(*this, times);
 		}
 		//重载
 		/*inline*/OLL MY_LIBRARY operator*(int times)const noexcept {
@@ -124,7 +124,7 @@ namespace LL {
 		}
 		//重载
 		/*inline*/void MY_LIBRARY operator*=(const OLL& b) noexcept {
-			LL::multiply<OLL, Data, Max + Data(1)>(*this, b);
+			LL::multiply<OLL, Data, Radix>(*this, b);
 		}
 		//重载
 		/*inline*/OLL MY_LIBRARY operator*(const OLL& b)const noexcept {
@@ -164,22 +164,22 @@ namespace LL {
 			}
 			if ((this->data > 0 && that.data > 0) || (this->data == 0 && that.data == 0))
 			{
-				LongCompute::AddTo<OLL*, Data, LinkedListComputeTraits<OLL, Data, Max>>(that.next, this->next);
+				LongCompute::AddTo<OLL*, Data, LinkedListComputeTraits<OLL, Data, Radix-(Data)1>>(that.next, this->next);
 			}
 			else {
-				short Cmpr = LongCompute::Compare<OLL*, Data, LinkedListComputeTraits<OLL, Data, Max>>(this->next, that.next);
+				short Cmpr = LongCompute::Compare<OLL*, Data, LinkedListComputeTraits<OLL, Data, Radix - (Data)1>>(this->next, that.next);
 				if (Cmpr == LongCompute::Equal)
 				{
 					this->destruct();
 				}
 				if (Cmpr == LongCompute::Larger)
 				{
-					LongCompute::SubtractFrom<OLL*, Data, LinkedListComputeTraits<OLL, Data, Max>>(that.next, this->next);
+					LongCompute::SubtractFrom<OLL*, Data, LinkedListComputeTraits<OLL, Data, Radix - (Data)1>>(that.next, this->next);
 				}
 				else
 				{
 					OLL temp(that, true);
-					LongCompute::SubtractFrom<OLL*, Data, LinkedListComputeTraits<OLL, Data, Max>>(this->next, temp.next);
+					LongCompute::SubtractFrom<OLL*, Data, LinkedListComputeTraits<OLL, Data, Radix - (Data)1>>(this->next, temp.next);
 					*this = temp;
 				}
 			}
@@ -243,8 +243,8 @@ namespace LL {
 			return;
 		}
 	public:
-		inline unsigned long MY_LIBRARY GetMax()const noexcept {
-			return Max;
+		inline Data MY_LIBRARY GetMax()const noexcept {
+			return Radix - (Data)1;
 		}
 		inline size_t MY_LIBRARY RawLength()const noexcept {
 			LL_LENGTH(OLL);
@@ -271,7 +271,7 @@ namespace LL {
 			Data HeadData,
 			OLL* NextPtr = nullptr
 		) noexcept {
-			if constexpr (Max == 0)
+			if constexpr (Radix == (Data)1)
 			{
 				this->data = HeadData;
 				this->next = NextPtr;
@@ -547,7 +547,7 @@ namespace LL {
 		void MY_LIBRARY operator%=(const OLL& that)noexcept {
 			if (this->next != nullptr && that.next != nullptr)
 			{
-				LongCompute::DivideInto<OLL*, Data, LinkedListComputeTraits<OLL, Data, Max>>(that.next, this->next);
+				LongCompute::DivideInto<OLL*, Data, LinkedListComputeTraits<OLL, Data, Radix - (Data)1>>(that.next, this->next);
 			}
 			else return;
 			this->Simplify();
@@ -556,7 +556,7 @@ namespace LL {
 			if (this->next != nullptr && that.next != nullptr)
 			{
 				OLL Res(this->data);
-				LongCompute::DivideInto<OLL, OLL*, Data, LinkedListComputeTraits<OLL, Data, Max>>(Res, that.next, this->next);
+				LongCompute::DivideInto<OLL, OLL*, Data, LinkedListComputeTraits<OLL, Data, Radix - (Data)1>>(Res, that.next, this->next);
 				*this = Res;
 			}
 			else return;
@@ -606,7 +606,7 @@ namespace LL {
 		/*inline*/OLL& MY_LIBRARY operator=(
 			long value
 			) noexcept {
-			if constexpr (Max == Data(0))
+			if constexpr (Radix == Data(1))
 			{
 				this->data = (Data)value;
 			}
@@ -630,18 +630,10 @@ namespace LL {
 					}
 					else if (OprtPtr->next == nullptr)
 					{
-						if constexpr (Max == std::numeric_limits<Data>::max())
-						{
-							OprtPtr->insert(static_cast<Data>(value));
-						}
-						else OprtPtr->insert((Data)(value % (Max + 1)));
+						OprtPtr->insert((Data)(value % Radix));
 					}
 					OprtPtr = OprtPtr->next;
-					if constexpr (Max == std::numeric_limits<Data>::max())
-					{
-						value >>= sizeof(Data) * Array::BitsPerByte;
-					}
-					else value = value / (Max + 1);
+					value = value / Radix;
 				}
 			}
 			return *this;
@@ -673,7 +665,7 @@ namespace LL {
 				if (OprtPtr->next != nullptr)
 				{
 					OprtPtr = OprtPtr->next;
-					value += ((unsigned long long)(OprtPtr->data)) * (unsigned long long)pow(static_cast<long long>(Max) + 1, n);
+					value += ((unsigned long long)(OprtPtr->data)) * (unsigned long long)pow(Radix, n);
 					n++;
 				}
 				else
@@ -697,7 +689,7 @@ namespace LL {
 		/*inline*/std::ostream& MY_LIBRARY Print(
 			std::ostream& out = std::cout
 		) const noexcept {
-			return LL::_Print<OLL, Max + Data(1)>(*this, out);
+			return LL::_Print<OLL, Radix>(*this, out);
 		}
 	protected:
 		//获取that链节存储的数据
@@ -721,7 +713,7 @@ namespace LL {
 				that->next);
 		}
 	};
-	template<typename Data, Data Max>
+	template<typename Data, Data Radix>
 	class DLL
 	{
 		//static const inline std::forward_list<Data> Factor = PrimeFactorList(static_cast<Data>(Radix));
@@ -773,7 +765,7 @@ namespace LL {
 	public:
 		//重载
 		inline void MY_LIBRARY operator*=(int times) {
-			LL::multiply<DLL, Data, Max + Data(1)>(*this, times);
+			LL::multiply<DLL, Data, Radix>(*this, times);
 		}
 		//重载
 		inline DLL MY_LIBRARY operator*(int times)const {
@@ -783,7 +775,7 @@ namespace LL {
 		}
 		//重载
 		/*inline*/void MY_LIBRARY operator*=(const DLL& b) {
-			LL::multiply<DLL, Data, Max + Data(1)>(*this, b);
+			LL::multiply<DLL, Data, Radix>(*this, b);
 		}
 		//重载
 		inline DLL MY_LIBRARY operator*(const DLL& b)const {
@@ -824,22 +816,22 @@ namespace LL {
 			}
 			if ((this->data > 0 && that.data > 0) || (this->data == 0 && that.data == 0))
 			{
-				LongCompute::AddTo<DLL*, Data, LinkedListComputeTraits<DLL, Data, Max>>(that.next, this->next);
+				LongCompute::AddTo<DLL*, Data, LinkedListComputeTraits<DLL, Data, Radix - (Data)1>>(that.next, this->next);
 			}
 			else {
-				short Cmpr = LongCompute::Compare<DLL*, Data, LinkedListComputeTraits<DLL, Data, Max>>(this->next, that.next);
+				short Cmpr = LongCompute::Compare<DLL*, Data, LinkedListComputeTraits<DLL, Data, Radix - (Data)1>>(this->next, that.next);
 				if (Cmpr == LongCompute::Equal)
 				{
 					this->destruct();
 				}
 				if (Cmpr == LongCompute::Larger)
 				{
-					LongCompute::SubtractFrom<DLL*, Data, LinkedListComputeTraits<DLL, Data, Max>>(that.next, this->next);
+					LongCompute::SubtractFrom<DLL*, Data, LinkedListComputeTraits<DLL, Data, Radix - (Data)1>>(that.next, this->next);
 				}
 				else
 				{
 					DLL temp(that, true);
-					LongCompute::SubtractFrom<DLL*, Data, LinkedListComputeTraits<DLL, Data, Max>>(this->next, temp.next);
+					LongCompute::SubtractFrom<DLL*, Data, LinkedListComputeTraits<DLL, Data, Radix - (Data)1>>(this->next, temp.next);
 					*this = temp;
 				}
 			}
@@ -982,11 +974,11 @@ namespace LL {
 			DLL* OprtPtr = this->next;
 			while (OprtPtr != nullptr)
 			{
-				if (OprtPtr->data != (that % (Max + 1)))
+				if (OprtPtr->data != (that % Radix))
 					return false;
 				else
 				{
-					that /= (Max + 1);
+					that /= Radix;
 					if (that == 0)
 					{
 						if (OprtPtr->next == nullptr || OprtPtr->next->data == 0)
@@ -1220,7 +1212,7 @@ namespace LL {
 			bool positive,
 			unsigned long value
 		) noexcept {
-			if constexpr (Max == 0)
+			if constexpr (Radix == 1)
 			{
 				this->data = static_cast<Data>(value * ((positive) ? 1 : (-1)));
 				return;
@@ -1238,14 +1230,10 @@ namespace LL {
 					if (OprtPtr->next == nullptr)
 					{
 						OprtPtr->insert(
-							(Data)(value % (Max + 1))
+							(Data)(value % Radix)
 						);
 						OprtPtr = OprtPtr->next;
-						if constexpr (Max == std::numeric_limits<Data>::max())
-						{
-							value >>= sizeof(Data) * Array::BitsPerByte;
-						}
-						else value /= (Max + 1);
+						value /= Radix;
 					}
 				}
 			}
@@ -1256,7 +1244,7 @@ namespace LL {
 			long value
 			) noexcept {
 			this->destruct();
-			*this = DLL(sign(value), std::abs(value));
+			*this = DLL(((value >= 0) ? 1 : 0), std::abs(value));
 			return *this;
 		}
 		//位移运算
@@ -1302,12 +1290,12 @@ namespace LL {
 			{
 				return *this;
 			}
-			if constexpr (Max == 0)
+			if constexpr (Radix == 1)
 			{
 				return *this;
 			}
-			if (that % (Max + 1) == 0) {
-				return ((*this >>= 1) /= (that / (Max + 1)));
+			if (that % Radix == 0) {
+				return ((*this >>= 1) /= (that / Radix));
 			}
 			else
 			{
@@ -1354,11 +1342,11 @@ namespace LL {
 			{
 				return *this;
 			}
-			if constexpr (Max == 0)
+			if constexpr (Radix == 1)
 			{
 				return *this;
 			}
-			if ((Max + 1) % that == 0) {
+			if (Radix % that == 0) {
 				this->next->destruct();
 				this->next->data %= that;
 				return *this;
@@ -1385,7 +1373,7 @@ namespace LL {
 					OprtPtr = OprtPtr->last;
 				}
 				else break;
-				OprtPtr->data = (OprtPtr->data + Upper * (Max + 1)) % that;
+				OprtPtr->data = (OprtPtr->data + Upper * Radix) % that;
 				Upper = OprtPtr->data;
 			}
 			OprtPtr->destruct();
@@ -1547,7 +1535,7 @@ namespace LL {
 		inline std::ostream& MY_LIBRARY Print(
 			std::ostream& out = std::cout
 		)const noexcept {
-			return LL::_Print<DLL, Max + Data(1)>(*this, out);
+			return LL::_Print<DLL, Radix>(*this, out);
 		}
 	};
 

@@ -19,7 +19,7 @@ namespace LL {
 	public:
 		//MY_LIBRARY Q();
 		explicit MY_LIBRARY Q(long n, unsigned short d = 1)noexcept :
-			Numerator(sign(n), static_cast<unsigned long>(abs(n))),
+			Numerator(((n > 0) ? 1 : 0), static_cast<unsigned long>(abs(n))),
 			Denominator(true, static_cast<unsigned long>(d)) {}
 		MY_LIBRARY Q(const Q& that, bool DeepCopy) noexcept :
 			Denominator(that.Denominator, DeepCopy),
