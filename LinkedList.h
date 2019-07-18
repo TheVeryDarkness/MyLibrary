@@ -1687,9 +1687,16 @@ namespace LL {
 		static inline Data NullData = 0;
 		constexpr static inline node* NullIterator = nullptr;
 
-		static Data& MY_LIBRARY GetData(node* ptr) { return ((ptr == nullptr) ? (NullData = 0) : (ptr->data)); }
+		static Data& MY_LIBRARY GetData(node* ptr) { 
+			return ((ptr == nullptr) ? (NullData = 0) : (ptr->data)); 
+		}
+		static Data MY_LIBRARY GetData(const node* ptr) { 
+			return ((ptr == nullptr) ? (NullData = 0) : (ptr->data)); 
+		}
 
-		static node* MY_LIBRARY GetNext(node* ptr) { return ((ptr == nullptr) ? nullptr : (ptr->next)); }
+		static node* MY_LIBRARY GetNext(node* ptr) { 
+			return ((ptr == nullptr) ? nullptr : (ptr->next)); 
+		}
 
 		static void MY_LIBRARY assign(node* ptr, size_t sz) { *ptr <<= sz; }
 		static void MY_LIBRARY InsertAfter(node** ptr, Data data) { (*ptr)->insert(data); }

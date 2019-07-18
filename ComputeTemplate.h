@@ -176,26 +176,24 @@ namespace LongCompute {
 	//Extension for Compare()
 	template<typename Iterator, typename Data, class _Traits>
 	inline std::pair<Data, short> MY_LIBRARY _CompareTo(const Iterator& a, const Iterator& b) {
-		if ((a == _Traits::NullIterator) && (b == _Traits::NullIterator))
+		if (!((_Traits::GetNext(a) == _Traits::NullIterator) && (_Traits::GetNext(b) == _Traits::NullIterator)))
 		{
-			return std::pair(0, Equal);
+			auto PreRes = _CompareTo<Iterator, Data, _Traits>(_Traits::GetNext(a), _Traits::GetNext(b));
+			if (PreRes.second != Equal)
+			{
+				return PreRes;
+			}
 		}
-		auto PreRes = _CompareTo<Iterator, Data, _Traits>(_Traits::GetNext(a), _Traits::GetNext(b));
-		if (PreRes.second != Equal)
-		{
-			return PreRes;
-		}
-		else
 		{
 			return (
 				(_Traits::GetData(a) > _Traits::GetData(b))
 				?
-				std::pair((_Traits::GetData(a) / (_Traits::GetData(b) + Data(1))), Larger)
+				std::pair(1, Larger)
 				:
 				(
 				(_Traits::GetData(a) < _Traits::GetData(b))
 					?
-					std::pair((_Traits::GetData(b) / (_Traits::GetData(a) + Data(1))), Smaller)
+					std::pair(1, Smaller)
 					:
 					std::pair(0, Equal)
 					)

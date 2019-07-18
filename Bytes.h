@@ -420,6 +420,7 @@ namespace Array {
 				}
 				else
 				{
+					Carry = 0;
 					Sum += Bytes<length>(1);
 				}
 			}
@@ -445,6 +446,7 @@ namespace Array {
 				}
 				else
 				{
+					Carry = 0;
 					Dif -= Bytes<length>(1);
 				}
 			}
