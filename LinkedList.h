@@ -1636,11 +1636,20 @@ namespace LL {
 				MinLength = GetPowerTimes(Radix, 8);
 				if (MinLength == 0)
 				{
-					OutBase = Radix;
-					out << "(Base:"
-						<< Radix
-						<< ")";
-					temp = true;
+					MinLength = GetPowerTimes(Radix, 2);
+					if (MinLength==0)
+					{
+						OutBase = Radix;
+						out << "(Base:"
+							<< Radix
+							<< ")";
+						temp = true;
+					}
+					else
+					{
+						OutBase = 2;
+						out << "0b" << std::setbase(2);
+					}
 				}
 				else
 				{

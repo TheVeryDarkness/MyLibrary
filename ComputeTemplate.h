@@ -52,8 +52,30 @@ namespace LongCompute {
 				That = _Traits::NullIterator;
 				_Traits::InsertAfter(&This, CarryBit);
 				CarryBit = 0;
-				return false;
 				This = (_Traits::GetNext(This));
+				return false;
+			}
+		}
+		return true;
+	}
+	template<typename Iterator, typename Data, class _Traits>
+	inline bool MY_LIBRARY Iterate(Iterator& This, Data& CarryBit) {
+		//Next element
+		Iterator ThisNext = (_Traits::GetNext(This));
+		if ((ThisNext != _Traits::NullIterator))
+		{
+			This = ThisNext;
+		}
+		else if ((ThisNext == _Traits::NullIterator))
+		{
+			if (CarryBit == 0) {
+				return false;
+			}
+			else {
+				_Traits::InsertAfter(&This, CarryBit);
+				CarryBit = 0;
+				This = (_Traits::GetNext(This));
+				return false;
 			}
 		}
 		return true;
@@ -90,13 +112,18 @@ namespace LongCompute {
 		}
 	}
 	template<typename Call, typename Iterator, typename Data, class _Traits>
-	inline void MY_LIBRARY VirtualMultiplyTo(Call call, Data Carry, Iterator a, Iterator b) {
+	inline void MY_LIBRARY VirtualMultiplyTo(Call call, Data Carry, Data a, Iterator b) {
+		if (a==Data(1))
+		{
+			call(Data(0));
+			return;
+		}
 		Data Res;
 		while (true)
 		{
 			_Traits::Multiply(Res, Carry, _Traits::GetData(a), _Traits::GetData(b));
 			call(Res);
-			if (!Iterate<Iterator, Data, _Traits>(a, b, Carry)) {
+			if (!Iterate<Iterator, Data, _Traits>(b, Carry)) {
 				break;
 			}
 		}
@@ -138,16 +165,18 @@ namespace LongCompute {
 	template<typename Linear, typename Iterator, typename Data, class _Traits>
 	inline void MY_LIBRARY DivideInto(Linear& Res, Iterator a, Iterator b) {
 		//Regarding of the compatibility, we didn't use any majorization.
-		auto func1 = [&Res](Iterator& a, Iterator& b)->void {SubtractFrom<Iterator, Data, _Traits>(a, b); Res++; };
+		auto func1 = [&a, &b, &Res]()->void {SubtractFrom<Iterator, Data, _Traits>(a, b); Res++; };
+		auto func3 = [&a, &b, &Res](Data times)->void {for (Data i = 0; i < times; i++) { SubtractFrom<Iterator, Data, _Traits>(a, b); Res++; }};
 		auto func2 = [&Res]()->void {_Traits::assign(&Res, 1); };
-		__DivideInto<decltype(func1), decltype(func2), Iterator, Data, _Traits>(a, b, func1, func2, );
+		__DivideInto<decltype(func1), decltype(func3), decltype(func2), Iterator, Data, _Traits>(a, b, func1, func2, func3);
 	}
 	template<typename Iterator, typename Data, class _Traits>
 	inline void MY_LIBRARY DivideInto(Iterator a, Iterator b) {
 		//Regarding of the compatibility, we didn't use any majorization.
-		auto func = [](Iterator& a, Iterator& b)->void {SubtractFrom<Iterator, Data, _Traits>(a, b); };
+		auto func = [&a, &b]()->void {SubtractFrom<Iterator, Data, _Traits>(a, b); };
+		auto _func = [&a, &b](Data times)->void {for (Data i = 0; i < times; i++) { SubtractFrom<Iterator, Data, _Traits>(a, b); } };
 		auto null = []()->void {};
-		__DivideInto<decltype(func), decltype(null), Iterator, Data, _Traits>(a, b, func, null);
+		__DivideInto<decltype(func), decltype(_func), decltype(null), Iterator, Data, _Traits>(a, b, func, null, _func);
 	}
 	//Compare a to b.
 	template<typename Iterator, typename Data, class _Traits>
