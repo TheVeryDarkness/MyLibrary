@@ -1241,7 +1241,7 @@ namespace LL {
 						if constexpr(Radix==0)
 						{
 							OprtPtr->insert((Data)value);
-							value >> (Array::BitsPerByte * sizeof(Data));
+							value >>= (Array::BitsPerByte * sizeof(Data));
 						}
 						else
 						{

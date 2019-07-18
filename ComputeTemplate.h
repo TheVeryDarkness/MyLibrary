@@ -89,9 +89,16 @@ namespace LongCompute {
 			}
 		}
 	}
-	template<typename Linear, typename Iterator, typename Data, class _Traits>
-	inline void MY_LIBRARY MultiplyTo(Iterator a, Iterator b) {
-
+	template<typename Call, typename Iterator, typename Data, class _Traits>
+	inline void MY_LIBRARY VirtualMultiplyTo(Call call, Data Carry,Iterator a, Iterator b) {
+		Data Res;
+		while (true)
+		{
+			_Traits::Multiply(Res, Carry, _Traits::GetData(a), _Traits::GetData(b));
+			if (!Iterate<Iterator, Data, _Traits>(a, b, Carry)) {
+				break;
+			}
+		}
 	}
 
 	template<typename Accumulation, typename Recursion, typename Iterator, typename Data, class _Traits>

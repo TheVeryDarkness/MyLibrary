@@ -461,6 +461,18 @@ namespace Array {
 			}
 			Res = Data(Dif);
 		}
+		static void Multiply(Data& Res, Data& Carry, Data a, Data b) {
+			if constexpr(Radix.Byte[length - 1] >> (BitsPerByte - 1) == 1)
+			{
+				throw std::exception("Overflow");
+			}
+			constexpr size_t _length = 2 * length;
+			Bytes<_length> Prod = Bytes<_length>(a);
+			Prod *= Bytes<_length>(b);
+			Prod += Bytes<_length>(Carry);
+			Carry = Data(Prod / Bytes<_length>(Radix));
+			Res = Data(Prod % Bytes<_length>(Radix));
+		}
 	};
 
 	template<size_t Length>
