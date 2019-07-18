@@ -94,7 +94,7 @@ namespace LongCompute {
 
 	}
 
-	template<typename Accumulation,typename Recursion, typename Iterator, typename Data, class _Traits>
+	template<typename Accumulation, typename Recursion, typename Iterator, typename Data, class _Traits>
 	inline void MY_LIBRARY __DivideInto(Accumulation Func1, Recursion Func2, Iterator _a, Iterator _b) {
 		{
 			switch (CompareTo<Iterator, Data, _Traits>(_a, _b))
@@ -135,14 +135,14 @@ namespace LongCompute {
 		//Regarding of the compatibility, we didn't use any majorization.
 		auto func1 = [&a, &b, &Res]()->void {SubtractFrom<Iterator, Data, _Traits>(a, b); Res++; };
 		auto func2 = [&Res]()->void {_Traits::assign(&Res, 1); };
-		__DivideInto<decltype(func1),decltype(func2), Iterator, Data, _Traits>(func1, func2, a, b);
+		__DivideInto<decltype(func1), decltype(func2), Iterator, Data, _Traits>(func1, func2, a, b);
 	}
 	template<typename Iterator, typename Data, class _Traits>
 	inline void MY_LIBRARY DivideInto(Iterator a, Iterator b) {
 		//Regarding of the compatibility, we didn't use any majorization.
 		auto func = [&a, &b]()->void {SubtractFrom<Iterator, Data, _Traits>(a, b); };
 		auto null = []()->void {};
-		__DivideInto<decltype(func),decltype(null), Iterator, Data, _Traits>(func, null, a, b);
+		__DivideInto<decltype(func), decltype(null), Iterator, Data, _Traits>(func, null, a, b);
 	}
 	//Compare a to b.
 	template<typename Iterator, typename Data, class _Traits>
