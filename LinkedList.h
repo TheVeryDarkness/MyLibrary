@@ -626,14 +626,17 @@ namespace LL {
 				{
 					if (value == 0)
 					{
-						break;
+						return *this;
 					}
-					else if (OprtPtr->next == nullptr)
-					{
+					if constexpr(Radix==0){
+						OprtPtr->insert((Data)(value));
+						value >>= (Array::BitsPerByte * sizeof(Data));
+					}
+					else {
 						OprtPtr->insert((Data)(value % Radix));
+						value = value / Radix;
 					}
 					OprtPtr = OprtPtr->next;
-					value = value / Radix;
 				}
 			}
 			return *this;
@@ -974,11 +977,17 @@ namespace LL {
 			DLL* OprtPtr = this->next;
 			while (OprtPtr != nullptr)
 			{
-				if (OprtPtr->data != (that % Radix))
-					return false;
+				if constexpr (Radix == 0) {
+					if (OprtPtr->data != ((Data)that))
+						return false;
+				}
+				else if (OprtPtr->data != (that % Radix))
+						return false;
 				else
 				{
-					that /= Radix;
+					if constexpr(Radix == 0)
+						that >> (Array::BitsPerByte * sizeof(Data));
+					else that /= Radix;
 					if (that == 0)
 					{
 						if (OprtPtr->next == nullptr || OprtPtr->next->data == 0)
@@ -1229,11 +1238,19 @@ namespace LL {
 					}
 					if (OprtPtr->next == nullptr)
 					{
-						OprtPtr->insert(
-							(Data)(value % Radix)
-						);
+						if constexpr(Radix==0)
+						{
+							OprtPtr->insert((Data)value);
+							value >> (Array::BitsPerByte * sizeof(Data));
+						}
+						else
+						{
+							OprtPtr->insert(
+								(Data)(value % Radix)
+							);
+							value /= Radix;
+						}
 						OprtPtr = OprtPtr->next;
-						value /= Radix;
 					}
 				}
 			}
