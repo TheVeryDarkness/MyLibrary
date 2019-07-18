@@ -93,44 +93,20 @@ namespace LongCompute {
 	inline void MY_LIBRARY MultiplyTo(Iterator a, Iterator b) {
 
 	}
-	template<typename Linear, typename Iterator, typename Data, class _Traits>
-	inline void MY_LIBRARY DivideInto(Linear& Res, Iterator a, Iterator b) {
+
+	template<typename Accumulation,typename Recursion, typename Iterator, typename Data, class _Traits>
+	inline void MY_LIBRARY __DivideInto(Accumulation Func1, Recursion Func2, Iterator _a, Iterator _b) {
 		{
-			switch (Compare<Iterator, Data, _Traits>(a, b))
+			switch (CompareTo<Iterator, Data, _Traits>(_a, _b))
 			{
 			case Larger:
 				return;
 			case Equal:
-				SubtractFrom<Iterator, Data, _Traits>(a, b);
-				++Res;
+				Func1();
 				return;
 			case Smaller:
-				DivideInto<Iterator, Data, _Traits>(a, _Traits::GetNext(b));
-				_Traits::assign(&Res, 1);
-				break;
-			default:
-				break;
-			}
-		}
-		while (Compare<Iterator, Data, _Traits>(a, b) != Larger)
-		{
-			//Regarding of the compatibility, we didn't use any majorization.
-			SubtractFrom<Iterator, Data, _Traits>(a, b);
-			++Res;
-		}
-	}
-	template<typename Iterator, typename Data, class _Traits>
-	inline void MY_LIBRARY DivideInto(Iterator a, Iterator b) {
-		{
-			switch (Compare<Iterator, Data, _Traits>(a, b))
-			{
-			case Larger:
-				return;
-			case Equal:
-				SubtractFrom<Iterator, Data, _Traits>(a, b);
-				return;
-			case Smaller:
-				DivideInto<Iterator, Data, _Traits>(a, _Traits::GetNext(b));
+				DivideInto<Iterator, Data, _Traits>(_a, _Traits::GetNext(_b));
+				Func2();
 				break;
 			default:
 				break;
@@ -138,26 +114,44 @@ namespace LongCompute {
 		}
 		while (true)
 		{
-			auto [res, cmpr] = _Compare<Iterator, Data, _Traits>(b, a);
-			if (res==Smaller)
+			auto [res, cmpr] = _CompareTo<Iterator, Data, _Traits>(_b, _a);
+			if (cmpr == Smaller)
 			{
 				return;
 			}
-			for (Data i = 0; i < cmpr; i++)
+			else if (cmpr == Equal)
 			{
-				//Regarding of the compatibility, we didn't use any majorization.
-				SubtractFrom<Iterator, Data, _Traits>(a, b);
+				Func1();
+				return;
+			}
+			for (Data i = 0; i < res; i++)
+			{
+				Func1();
 			}
 		}
 	}
+	template<typename Linear, typename Iterator, typename Data, class _Traits>
+	inline void MY_LIBRARY DivideInto(Linear& Res, Iterator a, Iterator b) {
+		//Regarding of the compatibility, we didn't use any majorization.
+		auto func1 = [&a, &b, &Res]()->void {SubtractFrom<Iterator, Data, _Traits>(a, b); Res++; };
+		auto func2 = [&Res]()->void {_Traits::assign(&Res, 1); };
+		__DivideInto<decltype(func1),decltype(func2), Iterator, Data, _Traits>(func1, func2, a, b);
+	}
+	template<typename Iterator, typename Data, class _Traits>
+	inline void MY_LIBRARY DivideInto(Iterator a, Iterator b) {
+		//Regarding of the compatibility, we didn't use any majorization.
+		auto func = [&a, &b]()->void {SubtractFrom<Iterator, Data, _Traits>(a, b); };
+		auto null = []()->void {};
+		__DivideInto<decltype(func),decltype(null), Iterator, Data, _Traits>(func, null, a, b);
+	}
 	//Compare a to b.
 	template<typename Iterator, typename Data, class _Traits>
-	inline short MY_LIBRARY Compare(const Iterator& a, const Iterator& b) {
+	inline short MY_LIBRARY CompareTo(const Iterator& a, const Iterator& b) {
 		if ((a == _Traits::NullIterator) && (b == _Traits::NullIterator))
 		{
 			return Equal;
 		}
-		short PreRes = Compare<Iterator, Data, _Traits>(_Traits::GetNext(a), _Traits::GetNext(b));
+		short PreRes = CompareTo<Iterator, Data, _Traits>(_Traits::GetNext(a), _Traits::GetNext(b));
 		if (PreRes != Equal)
 		{
 			return PreRes;
@@ -181,12 +175,12 @@ namespace LongCompute {
 	}
 	//Extension for Compare()
 	template<typename Iterator, typename Data, class _Traits>
-	inline std::pair<Data, short> MY_LIBRARY _Compare(const Iterator& a, const Iterator& b) {
+	inline std::pair<Data, short> MY_LIBRARY _CompareTo(const Iterator& a, const Iterator& b) {
 		if ((a == _Traits::NullIterator) && (b == _Traits::NullIterator))
 		{
 			return std::pair(0, Equal);
 		}
-		auto PreRes = _Compare<Iterator, Data, _Traits>(_Traits::GetNext(a), _Traits::GetNext(b));
+		auto PreRes = _CompareTo<Iterator, Data, _Traits>(_Traits::GetNext(a), _Traits::GetNext(b));
 		if (PreRes.second != Equal)
 		{
 			return PreRes;

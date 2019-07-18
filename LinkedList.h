@@ -167,7 +167,7 @@ namespace LL {
 				LongCompute::AddTo<OLL*, Data, LinkedListComputeTraits<OLL, Data, Radix-(Data)1>>(that.next, this->next);
 			}
 			else {
-				short Cmpr = LongCompute::Compare<OLL*, Data, LinkedListComputeTraits<OLL, Data, Radix - (Data)1>>(this->next, that.next);
+				short Cmpr = LongCompute::CompareTo<OLL*, Data, LinkedListComputeTraits<OLL, Data, Radix - (Data)1>>(this->next, that.next);
 				if (Cmpr == LongCompute::Equal)
 				{
 					this->destruct();
@@ -505,13 +505,13 @@ namespace LL {
 			}
 			if (this->data > 0 && that.data > 0)
 			{
-				if (LongCompute::Compare<OLL*, Data, LinkedListComputeTraits<OLL, Data>>(this, &that) == LongCompute::Smaller)
+				if (LongCompute::CompareTo<OLL*, Data, LinkedListComputeTraits<OLL, Data>>(this, &that) == LongCompute::Smaller)
 					return true;
 				else return false;
 			}
 			else
 			{
-				if (LongCompute::Compare<OLL*, Data, LinkedListComputeTraits<OLL, Data>>(&that, this) == LongCompute::Smaller)
+				if (LongCompute::CompareTo<OLL*, Data, LinkedListComputeTraits<OLL, Data>>(&that, this) == LongCompute::Smaller)
 					return true;
 				else return false;
 			}
@@ -527,13 +527,13 @@ namespace LL {
 			}
 			if (this->data > 0 && that.data > 0)
 			{
-				if (LongCompute::Compare<OLL*, Data, LinkedListComputeTraits<OLL, Data>>(this, &that) == LongCompute::Larger)
+				if (LongCompute::CompareTo<OLL*, Data, LinkedListComputeTraits<OLL, Data>>(this, &that) == LongCompute::Larger)
 					return true;
 				else return false;
 			}
 			else
 			{
-				if (LongCompute::Compare<OLL*, Data, LinkedListComputeTraits<OLL, Data>>(&that, this) == LongCompute::Larger)
+				if (LongCompute::CompareTo<OLL*, Data, LinkedListComputeTraits<OLL, Data>>(&that, this) == LongCompute::Larger)
 					return true;
 				else return false;
 			}
@@ -819,7 +819,7 @@ namespace LL {
 				LongCompute::AddTo<DLL*, Data, LinkedListComputeTraits<DLL, Data, Radix - (Data)1>>(that.next, this->next);
 			}
 			else {
-				short Cmpr = LongCompute::Compare<DLL*, Data, LinkedListComputeTraits<DLL, Data, Radix - (Data)1>>(this->next, that.next);
+				short Cmpr = LongCompute::CompareTo<DLL*, Data, LinkedListComputeTraits<DLL, Data, Radix - (Data)1>>(this->next, that.next);
 				if (Cmpr == LongCompute::Equal)
 				{
 					this->destruct();
