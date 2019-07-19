@@ -1639,6 +1639,7 @@ namespace LL {
 					MinLength = GetPowerTimes(Radix, 2);
 					if (MinLength==0)
 					{
+						MinLength = 1;
 						OutBase = Radix;
 						out << "(Base:"
 							<< Radix
