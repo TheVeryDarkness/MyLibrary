@@ -4,7 +4,7 @@
 #include "ComputeTemplate.h"
 #include "Shared.h"
 
-namespace Array {
+namespace LargeInteger {
 	constexpr size_t BitsPerByte = 8;
 
 	template<size_t Length>
@@ -317,7 +317,7 @@ namespace Array {
 		return;
 	}
 	template<size_t Length>
-	inline MY_LIBRARY Array::Bytes<Length>::Bytes(
+	inline MY_LIBRARY LargeInteger::Bytes<Length>::Bytes(
 		const std::initializer_list<value_type>& that
 	) {
 		size_t a = 0;
@@ -333,7 +333,7 @@ namespace Array {
 
 	template<size_t Length>
 	template<typename Data>
-	constexpr inline MY_LIBRARY Array::Bytes<Length>::Bytes(Data data) {
+	constexpr inline MY_LIBRARY LargeInteger::Bytes<Length>::Bytes(Data data) {
 		for (size_t i = 0; i < Length; i++)
 		{
 			this->Byte[i] = data & 0xff;
@@ -352,7 +352,7 @@ namespace Array {
 
 	template<size_t Length>
 	template<typename Data>
-	inline MY_LIBRARY Array::Bytes<Length>::operator Data () {
+	inline MY_LIBRARY LargeInteger::Bytes<Length>::operator Data () {
 		Data data = {};
 		if constexpr (sizeof(Data) <= Length)
 		{
@@ -405,9 +405,9 @@ namespace Array {
 	public:
 		SampleTraits() = delete;
 		~SampleTraits() = delete;
-		static constexpr inline size_t length = Array::GetMinLength(_Max);
-		static constexpr inline Array::Bytes<length> Max = Array::Bytes<length>(_Max);
-		static constexpr inline Array::Bytes<length> Radix = Array::Bytes<length>(Max + Array::Bytes<length>(1));
+		static constexpr inline size_t length = LargeInteger::GetMinLength(_Max);
+		static constexpr inline LargeInteger::Bytes<length> Max = LargeInteger::Bytes<length>(_Max);
+		static constexpr inline LargeInteger::Bytes<length> Radix = LargeInteger::Bytes<length>(Max + LargeInteger::Bytes<length>(1));
 
 		static void AddTo(Data& Res, Data& Carry, Data a, Data b) {
 			Bytes<length> Sum = Bytes<length>(a);
@@ -510,7 +510,7 @@ namespace Array {
 
 };
 #undef min
-template<size_t _Length>class std::numeric_limits<Array::Bytes<_Length>> {
-	constexpr Array::Bytes<_Length> max() { return ~Bytes<_Length>(0); }
-	constexpr Array::Bytes<_Length> min() { return Bytes<_Length>(0); }
+template<size_t _Length>class std::numeric_limits<LargeInteger::Bytes<_Length>> {
+	constexpr LargeInteger::Bytes<_Length> max() { return ~Bytes<_Length>(0); }
+	constexpr LargeInteger::Bytes<_Length> min() { return Bytes<_Length>(0); }
 };

@@ -1697,7 +1697,7 @@ namespace LL {
 		return Result;
 	}
 	template<class node, typename Data, Data _Max = std::numeric_limits<Data>::max()>
-	class LinkedListComputeTraits :public Array::SampleTraits<Data, _Max>
+	class LinkedListComputeTraits :public LargeInteger::SampleTraits<Data, _Max>
 	{
 	public:
 		MY_LIBRARY LinkedListComputeTraits() = delete;
