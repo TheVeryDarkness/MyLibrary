@@ -83,11 +83,11 @@ namespace LL {
 						if (_a && _b)
 						{
 #ifdef _DEBUG
-							~a; ~b;
+							a.destruct(); b.destruct();
 							DEBUG_OUT;
 							throw std::out_of_range("Computation error");
 #else
-							~a; ~b;
+							a.destruct(); b.destruct();
 							return;
 #endif // _DEBUG
 						}
@@ -96,14 +96,14 @@ namespace LL {
 						{
 							this->Numerator /= b;
 							this->Denominator /= b;
-							~a; ~b;
+							a.destruct(); b.destruct();
 							return;
 						}
 						if (_b)
 						{
 							this->Numerator /= a;
 							this->Denominator /= a;
-							~a, ~b;
+							a.destruct(), b.destruct();
 							return;
 						}
 					}

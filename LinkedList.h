@@ -291,11 +291,6 @@ namespace LL {
 			}
 			return;
 		}
-		//释放链表头后对应链节的指针
-		inline void MY_LIBRARY operator~() noexcept {
-			this->destruct();
-			return;
-		}
 		//链表版求最大值
 		/*inline*/Data MY_LIBRARY MaxInAllNodes() const noexcept {
 			const OLL* OprtPtr = this;
@@ -1133,10 +1128,6 @@ namespace LL {
 			{
 				this->cut();
 			}
-			return;
-		}
-		inline void MY_LIBRARY operator~() noexcept {
-			this->destruct();
 			return;
 		}
 		//在当前位置后插入新的一节

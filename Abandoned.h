@@ -121,7 +121,7 @@ namespace LL {
 				{
 					OprtPtr_a = OprtPtr_b = nullptr;
 					a = b + (CopyThis);
-					~CopyThis;
+					CopyThis.destruct();
 					return;
 				}
 				OprtPtr_a = OprtPtr_a->next;
@@ -171,7 +171,7 @@ namespace LL {
 						CopyThis.data = !CopyThis.data;
 						Class _b = -b;
 						a = -(_b + CopyThis);
-						~CopyThis;
+						CopyThis.destruct();
 						return;
 					}
 					else if (NoNext(OprtPtr_b))
@@ -186,7 +186,7 @@ namespace LL {
 					}
 				} while (true);
 			}
-			~CopyThis;
+			CopyThis.destruct();
 			OprtPtr_a = OprtPtr_b = nullptr;
 			return;
 		}
@@ -279,7 +279,7 @@ namespace LL {
 				{
 					//OprtPtr_a = OprtPtr_b = nullptr;
 					a = b + CopyThis;
-					~CopyThis;
+					CopyThis.destruct();
 					return;
 				}
 				OprtPtr_a = OprtPtr_a->next;
@@ -316,8 +316,8 @@ namespace LL {
 						Class _b = -b;
 						a = CopyThis + _b;
 						a.data = !a.data;
-						~_b;
-						~CopyThis;
+						_b.destruct();
+						CopyThis.destruct();
 						return;
 					}
 					else if (NoNext(OprtPtr_b))
@@ -332,7 +332,7 @@ namespace LL {
 					}
 				} while (true);
 			}
-			~CopyThis;
+			CopyThis.destruct();
 			OprtPtr_a = nullptr;
 			return;
 		}
