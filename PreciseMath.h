@@ -75,8 +75,8 @@ namespace LL {
 			else
 			{
 				Z a(Numerator, true), b(Denominator, true);
-				a.data = 1;
-				b.data = 1;
+				a.data = Data(1);
+				b.data = Data(1);
 				while (true)
 				{
 					{

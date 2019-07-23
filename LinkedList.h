@@ -167,7 +167,7 @@ namespace LL {
 			}
 			if ((this->data > 0 && that.data > 0) || (this->data == 0 && that.data == 0))
 			{
-				LongCompute::AddTo<OLL*, Data, LinkedListComputeTraits<OLL, Data, Radix-(Data)1>>(that.next, this->next);
+				LongCompute::AddTo<OLL*, Data, LinkedListComputeTraits<OLL, Data, Radix - (Data)1>>(that.next, this->next);
 			}
 			else {
 				short Cmpr = LongCompute::CompareTo<OLL*, Data, LinkedListComputeTraits<OLL, Data, Radix - (Data)1>>(this->next, that.next);
@@ -265,7 +265,13 @@ namespace LL {
 		inline MY_LIBRARY OLL(
 			bool positive,
 			Data value
-		):data(positive) {
+		) :data(positive) {
+			*this = value;
+		}
+		inline MY_LIBRARY OLL(
+			bool positive,
+			unsigned long value
+		) : data(Data(positive)) {
 			*this = value;
 		}
 		//仅初始化链表头的构造函数
@@ -625,7 +631,7 @@ namespace LL {
 					{
 						return *this;
 					}
-					if constexpr(Radix==0){
+					if constexpr (Radix == 0) {
 						OprtPtr->insert((Data)(value));
 						value >>= (Array::BitsPerByte * sizeof(Data));
 					}
@@ -815,22 +821,22 @@ namespace LL {
 			}
 			if ((this->data > 0 && that.data > 0) || (this->data == 0 && that.data == 0))
 			{
-				LongCompute::AddTo<DLL*, Data, LinkedListComputeTraits<DLL, Data, Radix - (Data)1>>(that.next, this->next);
+				LongCompute::AddTo<DLL*, Data, LinkedListComputeTraits<DLL, Data, Data(Radix) - (Data)1>>(that.next, this->next);
 			}
 			else {
-				short Cmpr = LongCompute::CompareTo<DLL*, Data, LinkedListComputeTraits<DLL, Data, Radix - (Data)1>>(this->next, that.next);
+				short Cmpr = LongCompute::CompareTo<DLL*, Data, LinkedListComputeTraits<DLL, Data, Data(Radix) - (Data)1>>(this->next, that.next);
 				if (Cmpr == LongCompute::Equal)
 				{
 					this->destruct();
 				}
 				if (Cmpr == LongCompute::Larger)
 				{
-					LongCompute::SubtractFrom<DLL*, Data, LinkedListComputeTraits<DLL, Data, Radix - (Data)1>>(that.next, this->next);
+					LongCompute::SubtractFrom<DLL*, Data, LinkedListComputeTraits<DLL, Data, Data(Radix) - (Data)1>>(that.next, this->next);
 				}
 				else
 				{
 					DLL temp(that, true);
-					LongCompute::SubtractFrom<DLL*, Data, LinkedListComputeTraits<DLL, Data, Radix - (Data)1>>(this->next, temp.next);
+					LongCompute::SubtractFrom<DLL*, Data, LinkedListComputeTraits<DLL, Data, Data(Radix) - (Data)1>>(this->next, temp.next);
 					*this = temp;
 				}
 			}
@@ -851,7 +857,7 @@ namespace LL {
 		//重载
 		inline void MY_LIBRARY operator-=(DLL& b)noexcept {
 			Data Orig = b.data;
-			b.data = !b.data;
+			b.data = Data(!b.data);
 			*this += b;
 			b.data = Orig;
 		}
@@ -978,10 +984,10 @@ namespace LL {
 						return false;
 				}
 				else if (OprtPtr->data != (that % Radix))
-						return false;
+					return false;
 				else
 				{
-					if constexpr(Radix == 0)
+					if constexpr (Radix == 0)
 						that >> (Array::BitsPerByte * sizeof(Data));
 					else that /= Radix;
 					if (that == 0)
@@ -1212,14 +1218,11 @@ namespace LL {
 		explicit inline MY_LIBRARY DLL(
 			bool positive,
 			unsigned long value
-		) noexcept {
-			if constexpr (Radix == 1)
+		) noexcept :
+			data(static_cast<Data>(positive)) {
+			static_assert(Radix != 1, "Not supported constructor for the radix.");
 			{
-				this->data = static_cast<Data>(value * ((positive) ? 1 : (-1)));
-				return;
-			}
-			{
-				this->data = static_cast<Data>(positive);
+
 				this->destruct();
 				DLL* OprtPtr = this;//操作当前对象
 				while (true)
@@ -1230,7 +1233,7 @@ namespace LL {
 					}
 					if (OprtPtr->next == nullptr)
 					{
-						if constexpr(Radix==0)
+						if constexpr (Radix == 0)
 						{
 							OprtPtr->insert((Data)value);
 							value >>= (Array::BitsPerByte * sizeof(Data));
@@ -1399,7 +1402,7 @@ namespace LL {
 #endif // _DEBUG
 			}
 			bool ThisSign = (this->data);
-			this->data = 1;
+			this->data = Data(1);
 			size_t ThatLength = that.RawLength();
 			long long d = (static_cast<long long>(this->RawLength()) - ThatLength);
 			if (d < 0LL)
@@ -1408,7 +1411,7 @@ namespace LL {
 			}
 			size_t bit = static_cast<size_t>(d);
 			DLL That(that, true);
-			That.data = 1;
+			That.data = Data(1);
 			That <<= bit;
 			while (true)
 			{
@@ -1438,7 +1441,7 @@ namespace LL {
 					if (bit == 0)
 					{
 						That.destruct();
-						this->data = ThisSign;
+						this->data = Data(ThisSign);
 						return;
 					}
 					else
@@ -1467,11 +1470,11 @@ namespace LL {
 			}
 			unsigned int bit = static_cast<unsigned int>(static_cast<long long>(l1) - l2);
 			DLL That(that, true);
-			That.data = 1;
+			That.data = Data(1);
 			That <<= bit;
 			Data ThisSign = this->data;
-			this->data = 1;
-			DLL Res(true);
+			this->data = Data(1);
+			DLL Res(Data(true));
 			while (true)
 			{
 				if (*this > That)
@@ -1479,7 +1482,7 @@ namespace LL {
 					DLL* _a = this->GetEnd(), * _b = that.GetEnd();
 					if ((_a->data) / (_b->data + 1) >= 2)
 					{
-						Data Ratio = (_a->data) / (_b->data + 1) - 1;
+						Data Ratio((_a->data) / (_b->data + 1) - 1);
 						DLL temp(That * Ratio, false);
 						*this -= temp;
 						temp = Ratio;
@@ -1488,9 +1491,9 @@ namespace LL {
 					}
 					else
 					{
-						That.data = 0;
+						That.data = Data(0);
 						*this += That;
-						That.data = 1;
+						That.data = Data(1);
 						DLL one(true, 1);//此处可优化
 						Res += one;
 						one.destruct();
@@ -1629,7 +1632,7 @@ namespace LL {
 				if (MinLength == 0)
 				{
 					MinLength = GetPowerTimes(Radix, 2);
-					if (MinLength==0)
+					if (MinLength == 0)
 					{
 						MinLength = 1;
 						OutBase = Radix;
@@ -1706,15 +1709,15 @@ namespace LL {
 		static inline Data NullData = 0;
 		constexpr static inline node* NullIterator = nullptr;
 
-		static Data& MY_LIBRARY GetData(node* ptr) { 
-			return ((ptr == nullptr) ? (NullData = 0) : (ptr->data)); 
+		static Data& MY_LIBRARY GetData(node* ptr) {
+			return ((ptr == nullptr) ? (NullData = 0) : (ptr->data));
 		}
-		static Data MY_LIBRARY GetData(const node* ptr) { 
-			return ((ptr == nullptr) ? (NullData = 0) : (ptr->data)); 
+		static Data MY_LIBRARY GetData(const node* ptr) {
+			return ((ptr == nullptr) ? (NullData = 0) : (ptr->data));
 		}
 
-		static node* MY_LIBRARY GetNext(node* ptr) { 
-			return ((ptr == nullptr) ? nullptr : (ptr->next)); 
+		static node* MY_LIBRARY GetNext(node* ptr) {
+			return ((ptr == nullptr) ? nullptr : (ptr->next));
 		}
 
 		static void MY_LIBRARY assign(node* ptr, size_t sz) { *ptr <<= sz; }

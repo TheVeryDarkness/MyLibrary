@@ -113,7 +113,7 @@ namespace LongCompute {
 	}
 	template<typename Call, typename Iterator, typename Data, class _Traits>
 	inline void MY_LIBRARY VirtualMultiplyTo(Call call, Data Carry, Data a, Iterator b) {
-		if (a==Data(1))
+		if (a == Data(1))
 		{
 			call(Data(0));
 			return;
