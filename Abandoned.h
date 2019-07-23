@@ -341,7 +341,7 @@ namespace LL {
 #undef NoNext
 #endif // NoNext
 
-	*/
+	
 	template<class Class, typename Data, unsigned long Radix>
 	void MY_LIBRARY multiply(Class& a, const Class& b) noexcept {
 		a.data = (b.data) ? (a.data) : (!a.data);
@@ -406,4 +406,4 @@ namespace LL {
 		}
 		return;
 	}
-}
+}*/

@@ -3,7 +3,6 @@
 #ifdef _DEBUG
 #include "VisualStudioDebug.h"
 #endif // _DEBUG
-#include "Abandoned.h"
 
 
 #include <iostream>

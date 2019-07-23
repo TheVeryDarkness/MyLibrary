@@ -66,10 +66,7 @@ namespace LargeInteger {
 
 	template<typename Data>
 	class NumTraits {
-		void Add(Data&, bool, Data, Data) {
-
-		}
-		void Subtract(Data&, bool, Data, Data) {
+		void AddTo(Data&, bool, Data, Data) {
 
 		}
 	};
