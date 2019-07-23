@@ -462,7 +462,7 @@ namespace LargeInteger {
 			Res = Data(Dif);
 		}
 		static void Multiply(Data& Res, Data& Carry, Data a, Data b) {
-			if constexpr(Radix.Byte[length - 1] >> (BitsPerByte - 1) == 1)
+			if constexpr (Radix.Byte[length - 1] >> (BitsPerByte - 1) == 1)
 			{
 				throw std::exception("Overflow");
 			}
