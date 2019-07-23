@@ -11,6 +11,7 @@
 #include <iomanip>
 #include <string>
 #include <charconv>
+#include "CustomizedRadixNumber.h"
 #include "Exception.h"
 #include "Statistics.h"
 #include "Bytes.h"
