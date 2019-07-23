@@ -544,7 +544,7 @@ namespace LL {
 		void MY_LIBRARY operator%=(const OLL& that)noexcept {
 			if (this->next != nullptr && that.next != nullptr)
 			{
-				LongCompute::DivideInto<OLL*, Data, LinkedListComputeTraits<OLL, Data, Radix - (Data)1>>(that.next, this->next);
+				LongCompute::DivideInto<OLL*, Data, LinkedListComputeTraits<OLL, Data, Data(Radix) - Data(_Data(1))>>(that.next, this->next);
 			}
 			else return;
 			this->Simplify();
