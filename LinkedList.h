@@ -44,9 +44,9 @@ static void MY_LIBRARY operator delete(void* _ptr, size_t size) {return Buffer.p
 
 namespace LL {
 	//前向声明
-	template <typename Data, Data Radix>
+	template <typename _Data, _Data Radix>
 	class OLL;
-	template<typename Data, Data Radix>
+	template<typename _Data, _Data Radix>
 	class DLL;
 	template<
 		typename Data,
@@ -64,7 +64,7 @@ namespace LL {
 
 	//Data为数据类型，勿将其置为指针
 	template <
-		typename Data, Data Radix
+		typename _Data, _Data Radix
 	>
 		//单向（oneway）链表（linked list）（基类）
 		//Notice:
@@ -72,6 +72,8 @@ namespace LL {
 		//however, the other sections should be in the heap.
 		class OLL
 	{
+		using Data=LargeInteger::Num<_Data, Radix>;
+
 		template<class node, typename Data, Data _Max>
 		friend class LinkedListComputeTraits;
 		template<class Class, typename Data, unsigned long Radix>
@@ -209,7 +211,7 @@ namespace LL {
 		//指向下一节的指针
 		OLL* next = nullptr;
 		//数据
-		Data data;
+		LargeInteger::Num<_Data, Radix> data;
 		//复制构造函数
 		//默认为深拷贝
 		inline MY_LIBRARY OLL(
@@ -262,9 +264,8 @@ namespace LL {
 		}
 		inline MY_LIBRARY OLL(
 			bool positive,
-			unsigned short value
-		) {
-			this->data = positive;
+			Data value
+		):data(positive) {
 			*this = value;
 		}
 		//仅初始化链表头的构造函数
@@ -712,11 +713,10 @@ namespace LL {
 				that->next);
 		}
 	};
-	template<typename Data, Data Radix>
+	template<typename _Data, _Data Radix>
 	class DLL
 	{
-		//static const inline std::forward_list<Data> Factor = PrimeFactorList(static_cast<Data>(Radix));
-		//static const inline Data MaxFactor = MinConti(Factor);
+		using Data=LargeInteger::Num<_Data, Radix>;
 
 		template<class node, typename Data, Data _Max>
 		friend class LinkedListComputeTraits;
@@ -876,7 +876,7 @@ namespace LL {
 #else
 	protected:
 #endif // _DEBUG
-		Data data;
+		LargeInteger::Num<_Data, Radix> data;
 		DLL* next = nullptr;
 		DLL* last = nullptr;
 		//深拷贝与浅拷贝由参数DeepCopy指定

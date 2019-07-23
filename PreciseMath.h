@@ -14,6 +14,7 @@ namespace LL {
 	class Q
 	{
 	protected:
+		using Data=LargeInteger::Num<unsigned short, Z_MAX>;
 		Z Numerator;//·Ö×Ó
 		Z Denominator;//·ÖÄ¸
 	public:
@@ -42,9 +43,9 @@ namespace LL {
 					break;
 				}
 				if (
-					(this->Denominator.next->data == 0)
+					(this->Denominator.next->data == Data(0))
 					&&
-					(this->Numerator.next->data == 0))
+					(this->Numerator.next->data == Data(0)))
 				{
 					this->Denominator >>= 1;
 					this->Numerator >>= 1;
