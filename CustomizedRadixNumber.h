@@ -64,6 +64,16 @@ namespace LargeInteger {
 	};
 
 
+	template<typename Data>
+	class NumTraits {
+		void Add(Data&, bool, Data, Data) {
+
+		}
+		void Subtract(Data&, bool, Data, Data) {
+
+		}
+	};
+
 }
 #undef max
 #undef min
@@ -71,3 +81,4 @@ template<typename Data, Data Radix>class std::numeric_limits<LargeInteger::Num<D
 	constexpr LargeInteger::Num<Data, Radix> max() { return ~Num<Data, Radix>(0); }
 	constexpr LargeInteger::Num<Data, Radix> min() { return Num<Data, Radix>(0); }
 };
+

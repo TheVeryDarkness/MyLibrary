@@ -74,7 +74,7 @@ namespace LL {
 	{
 		using Data=LargeInteger::Num<_Data, Radix>;
 
-		template<class node, typename Data, Data _Max>
+		template<class node, typename Data>
 		friend class LinkedListComputeTraits;
 		template<class Class, typename Data, unsigned long Radix>
 		//重载
@@ -278,19 +278,7 @@ namespace LL {
 		constexpr explicit inline MY_LIBRARY OLL(
 			Data HeadData,
 			OLL* NextPtr = nullptr
-		) noexcept {
-			if constexpr (Radix == (Data)1)
-			{
-				this->data = HeadData;
-				this->next = NextPtr;
-			}
-			else
-			{
-				this->data = Data(HeadData);
-				this->next = NextPtr;
-			}
-			return;
-		}
+		) noexcept :data(HeadData),next(NextPtr){}
 		//释放链表头后对应链节的指针
 		inline void MY_LIBRARY destruct() noexcept {
 			while (this->next != nullptr)
@@ -609,7 +597,7 @@ namespace LL {
 		/*inline*/OLL& MY_LIBRARY operator=(
 			long value
 			) noexcept {
-			if constexpr (Radix == Data(1))
+			if constexpr (Radix == _Data(1))
 			{
 				this->data = (Data)value;
 			}
@@ -724,7 +712,7 @@ namespace LL {
 	{
 		using Data=LargeInteger::Num<_Data, Radix>;
 
-		template<class node, typename Data, Data _Max>
+		template<class node, typename Data>
 		friend class LinkedListComputeTraits;
 		//友元函数声明
 
@@ -798,7 +786,7 @@ namespace LL {
 		}
 		//重载负
 		inline void MY_LIBRARY SetToContradict()noexcept {
-			this->data = ((this->data == 0) ? 1 : 0);
+			this->data = Data((this->data == 0) ? 1 : 0);
 		}
 		//重载DLL链表加号
 		inline DLL MY_LIBRARY operator+(
@@ -821,22 +809,22 @@ namespace LL {
 			}
 			if ((this->data > 0 && that.data > 0) || (this->data == 0 && that.data == 0))
 			{
-				LongCompute::AddTo<DLL*, Data, LinkedListComputeTraits<DLL, Data, Data(Radix) - (Data)1>>(that.next, this->next);
+				LongCompute::AddTo<DLL*, Data, LinkedListComputeTraits<DLL, Data>>(that.next, this->next);
 			}
 			else {
-				short Cmpr = LongCompute::CompareTo<DLL*, Data, LinkedListComputeTraits<DLL, Data, Data(Radix) - (Data)1>>(this->next, that.next);
+				short Cmpr = LongCompute::CompareTo<DLL*, Data, LinkedListComputeTraits<DLL, Data>>(this->next, that.next);
 				if (Cmpr == LongCompute::Equal)
 				{
 					this->destruct();
 				}
 				if (Cmpr == LongCompute::Larger)
 				{
-					LongCompute::SubtractFrom<DLL*, Data, LinkedListComputeTraits<DLL, Data, Data(Radix) - (Data)1>>(that.next, this->next);
+					LongCompute::SubtractFrom<DLL*, Data, LinkedListComputeTraits<DLL, Data>>(that.next, this->next);
 				}
 				else
 				{
 					DLL temp(that, true);
-					LongCompute::SubtractFrom<DLL*, Data, LinkedListComputeTraits<DLL, Data, Data(Radix) - (Data)1>>(this->next, temp.next);
+					LongCompute::SubtractFrom<DLL*, Data, LinkedListComputeTraits<DLL, Data>>(this->next, temp.next);
 					*this = temp;
 				}
 			}
@@ -865,7 +853,7 @@ namespace LL {
 		inline DLL MY_LIBRARY operator-(
 			)const noexcept {
 			DLL res(*this, true);
-			res.data = !res.data;
+			res.data = Data(!res.data);
 			return res;
 		}
 		void MY_LIBRARY operator++() {
@@ -1700,13 +1688,13 @@ namespace LL {
 		}
 		return Result;
 	}
-	template<class node, typename Data, Data _Max = std::numeric_limits<Data>::max()>
-	class LinkedListComputeTraits :public LargeInteger::SampleTraits<Data, _Max>
+	template<class node, typename Data>
+	class LinkedListComputeTraits :public LargeInteger::NumTraits<Data>
 	{
 	public:
 		MY_LIBRARY LinkedListComputeTraits() = delete;
 		MY_LIBRARY ~LinkedListComputeTraits() = delete;
-		static inline Data NullData = 0;
+		static inline Data NullData = Data(0);
 		constexpr static inline node* NullIterator = nullptr;
 
 		static Data& MY_LIBRARY GetData(node* ptr) {

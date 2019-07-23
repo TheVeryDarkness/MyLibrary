@@ -13,7 +13,7 @@ namespace LongCompute {
 	//	Iterator GetNext(Iterator);
 	//	Data& GetData(Iterator);
 	//	void Add(Data&, bool, Data, Data);
-	//	void Subtract(Data&, bool, Data, Data)
+	//	void Subtract(Data&, bool, Data, Data);
 	//	void assign(Linear*, size_t);
 	//	void InsertAfter(Iterator*, Data);//However, it doen't need to insert an element after it
 	//When an element doesn't a next element, GetNext(Iterator) should return NullIterator.
@@ -83,11 +83,11 @@ namespace LongCompute {
 
 	template<typename Iterator, typename Data, class _Traits>
 	inline void MY_LIBRARY AddTo(Iterator a, Iterator b) {
-		Data Carry = 0;
+		Data Carry = Data(0);
 		while (true)
 		{
 			//This element
-			Data temp;
+			Data temp(0);
 			_Traits::AddTo(temp, Carry, _Traits::GetData(a), _Traits::GetData(b));
 			_Traits::GetData(b) = temp;
 			if (!Iterate<Iterator, Data, _Traits>(a, b, Carry))
@@ -98,11 +98,11 @@ namespace LongCompute {
 	}
 	template<typename Iterator, typename Data, class _Traits>
 	inline void MY_LIBRARY SubtractFrom(Iterator a, Iterator b) {
-		Data Carry = 0;
+		Data Carry = Data(0);
 		while (true)
 		{
 			//This element
-			Data temp;
+			Data temp(0);
 			_Traits::SubTractFrom(temp, Carry, _Traits::GetData(a), _Traits::GetData(b));
 			_Traits::GetData(b) = temp;
 			//Carry a bit can never solve it, so we don't pass it to the function.
