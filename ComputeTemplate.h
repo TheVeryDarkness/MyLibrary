@@ -120,10 +120,15 @@ namespace LongCompute {
 			_Traits::Multiply(Over, Res, _Traits::GetData(a), _Traits::GetData(b));
 		}
 		MY_LIBRARY ~MultiplyIterator(){}
-		MultiplyIterator& MY_LIBRARY operator++() {
+		//Notice:
+		//	this function move the iterator a to its next place
+		void MY_LIBRARY operator++() {
 			a = _Traits::GetNext(a);
+		}
+		//Notice:
+		//	this function move the iterator b to its next place
+		void MY_LIBRARY operator++(int) {
 			b = _Traits::GetNext(b);
-			return *this; 
 		}
 		//overflow;result
 		Data Over, Res;
@@ -176,8 +181,14 @@ namespace LongCompute {
 	template<typename Iterator, typename Data, class _Traits>
 	inline void MY_LIBRARY DivideInto(Iterator a, Iterator b) {
 		//Regarding of the compatibility, we didn't use any majorization.
-		auto func = [&a, &b]()->void {SubtractFrom<Iterator, Data, _Traits>(a, b); };
-		auto _func = [&a, &b](Data times)->void {for (Data i = 0; i < times; i++) { SubtractFrom<Iterator, Data, _Traits>(a, b); } };
+		auto func = [&a, &b]()->void {
+			SubtractFrom<Iterator, Data, _Traits>(a, b);
+		};
+		auto _func = [&a, &b](Data times)->void {
+			for (Data i = Data(0); i < times; ++i) {
+				SubtractFrom<Iterator, Data, _Traits>(a, b); 
+			} 
+		};
 		auto null = []()->void {};
 		__DivideInto<decltype(func), decltype(_func), decltype(null), Iterator, Data, _Traits>(a, b, func, null, _func);
 	}
@@ -223,14 +234,14 @@ namespace LongCompute {
 			return (
 				(_Traits::GetData(a) > _Traits::GetData(b))
 				?
-				std::pair(1, Larger)
+				std::pair(Data(1), Larger)
 				:
 				(
 				(_Traits::GetData(a) < _Traits::GetData(b))
 					?
-					std::pair(1, Smaller)
+					std::pair(Data(1), Smaller)
 					:
-					std::pair(0, Equal)
+					std::pair(Data(0), Equal)
 					)
 				);
 		}
@@ -239,14 +250,14 @@ namespace LongCompute {
 			return	(
 				(_Traits::GetData(a) > _Traits::GetData(b))
 				?
-				std::pair(_Traits::GetData(a) / (_Traits::GetData(b) + Data(1)), Larger)
+				std::pair(Data(_Traits::GetData(a) / (_Traits::GetData(b) + Data(1))), Larger)
 				:
 				(
 				(_Traits::GetData(a) < _Traits::GetData(b))
 					?
-					std::pair(_Traits::GetData(b) / (_Traits::GetData(a) + Data(1)), Smaller)
+					std::pair(Data(_Traits::GetData(b) / (_Traits::GetData(a) + Data(1))), Smaller)
 					:
-					std::pair(0, Equal)
+					std::pair(Data(0), Equal)
 					)
 				);
 		}

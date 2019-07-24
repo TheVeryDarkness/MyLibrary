@@ -9,10 +9,17 @@ namespace LargeInteger {
 	class Num
 	{
 	public:
-		explicit constexpr MY_LIBRARY Num(Data init) :data(init) {
+		constexpr const Data& operator()()const { return this->data; }
+		constexpr MY_LIBRARY Num(Data init) :data(init) {
 			static_assert(std::is_integral<Data>::value, "Integral required");
 		}
-		constexpr MY_LIBRARY operator Data()const {
+		explicit constexpr MY_LIBRARY operator const Data&()const {
+			return data;
+		}
+		explicit constexpr MY_LIBRARY operator Data()const {
+			return data;
+		}
+		explicit constexpr MY_LIBRARY operator Data&(){
 			return data;
 		}
 		MY_LIBRARY ~Num() {}
@@ -32,7 +39,13 @@ namespace LargeInteger {
 		}
 		bool MY_LIBRARY OverFlowInAdding(const Num& that)const { return (this->data > (~that).data); }
 		bool MY_LIBRARY UnderFlowInSubtracting(const Num& that)const { return (this->data < that.data); }
+		bool MY_LIBRARY operator!()const {
+			return (this->data == 0);
+		}
 		bool MY_LIBRARY operator==(const Num& that)const { return (this->data == that.data); }
+		bool MY_LIBRARY operator!=(const Num& that)const { return (this->data != that.data); }
+		bool MY_LIBRARY operator==(const Data& data)const { return (this->data == data); }
+		Num& MY_LIBRARY operator=(const Num& that) { this->data = that.data; return*this; }
 		Num& MY_LIBRARY operator+=(const Num& that) {
 			if (OverFlowInAdding(that))
 			{
@@ -61,7 +74,58 @@ namespace LargeInteger {
 			Num Copy = *this;
 			return (Copy -= that);
 		}
-
+		Num& MY_LIBRARY operator/=(const Num& that) {
+			this->data /= that.data;
+			return *this;
+		}
+		Num& MY_LIBRARY operator%=(const Num& that) {
+			this->data %= that.data;
+			return *this;
+		}
+		Num MY_LIBRARY operator/(const Num& that) {
+			Num Copy(*this);
+			return (Copy /= that);
+		}
+		Num MY_LIBRARY operator%(const Num& that) {
+			Num Copy(*this);
+			return (Copy %= that);
+		}
+		Num& MY_LIBRARY operator++() { this->data++; return*this; }
+		bool MY_LIBRARY operator>(const Num& that)const { return (this->data > that.data); }
+		bool MY_LIBRARY operator>=(const Num& that)const { return (this->data >= that.data); }
+		bool MY_LIBRARY operator<(const Num& that)const { return (this->data < that.data); }
+		bool MY_LIBRARY operator<=(const Num& that)const { return (this->data <= that.data); }
+		bool MY_LIBRARY operator>(const Data& data)const { return (this->data > data); }
+		bool MY_LIBRARY operator>=(const Data& data)const { return (this->data >= data); }
+		bool MY_LIBRARY operator<(const Data& data)const { return (this->data < data); }
+		bool MY_LIBRARY operator<=(const Data& data)const { return (this->data <= data); }
+		Num& MY_LIBRARY operator*=(const Num& that) {
+			if (Radix == Data(0))
+			{
+				throw;
+			}
+			else
+			{
+				if (Radix > std::numeric_limits<Data>::max() / Radix)
+				{
+					throw;
+				}
+				else
+				{
+					this->data *= that.data;
+					this->data %= Radix;
+					return *this;
+				}
+			}
+		}
+		Num MY_LIBRARY operator*(const Num& that)const {
+			Num Copy = *this;
+			return (Copy *= that);
+		}
+		template<class os>
+		friend os& operator<<(os& o, const Num& n) {
+			return (o << n.data);
+		}
 	private:
 		Data data;
 	};

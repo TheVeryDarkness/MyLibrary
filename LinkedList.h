@@ -254,14 +254,15 @@ namespace LL {
 		inline MY_LIBRARY OLL(
 			bool positive,
 			Data value
-		) :data(positive) {
-			*this = value;
+		) :data(Data(positive)) {
+			this->insert(value);
 		}
 		inline MY_LIBRARY OLL(
 			bool positive,
 			unsigned long value
 		) : data(Data(positive)) {
 			*this = value;
+			this->data = Data(positive);
 		}
 		//仅初始化链表头的构造函数
 		constexpr explicit inline MY_LIBRARY OLL(
@@ -527,7 +528,7 @@ namespace LL {
 		void MY_LIBRARY operator%=(const OLL& that)noexcept {
 			if (this->next != nullptr && that.next != nullptr)
 			{
-				LongCompute::DivideInto<OLL*, Data, LinkedListComputeTraits<OLL, Data, Data(Radix) - Data(_Data(1))>>(that.next, this->next);
+				LongCompute::DivideInto<OLL*, Data, LinkedListComputeTraits<OLL, Data>>(that.next, this->next);
 			}
 			else return;
 			this->Simplify();
@@ -737,7 +738,7 @@ namespace LL {
 	public:
 		//重载
 		inline void MY_LIBRARY operator*=(int times) {
-			LL::multiply<DLL, Data, Radix>(*this, times);
+			throw;
 		}
 		//重载
 		inline DLL MY_LIBRARY operator*(int times)const {
@@ -746,7 +747,9 @@ namespace LL {
 			return Res;
 		}
 		//重载
-		/*inline*/void MY_LIBRARY operator*=(const DLL& b) = delete;
+		void MY_LIBRARY operator*=(const DLL& b) {
+			throw;
+		}
 		//重载
 		inline DLL MY_LIBRARY operator*(const DLL& b)const {
 			DLL Res(*this, true);
@@ -1366,7 +1369,7 @@ namespace LL {
 				return;
 #endif // _DEBUG
 			}
-			bool ThisSign = (this->data);
+			bool ThisSign = (_Data(this->data) > 0);
 			this->data = Data(1);
 			size_t ThatLength = that.RawLength();
 			long long d = (static_cast<long long>(this->RawLength()) - ThatLength);
@@ -1389,10 +1392,10 @@ namespace LL {
 				DLL* OprtPtr = this->GetEnd(), * PreOprtPtr = That.GetEnd();
 				if (*this >= That)
 				{
-					if (((OprtPtr->data) / (PreOprtPtr->data + Data(1))) >= 2)
+					if (((OprtPtr->data) / (PreOprtPtr->data + Data(1))) >= Data(2))
 					{
 						DLL temp(That, true);
-						temp *= ((OprtPtr->data) / (PreOprtPtr->data + Data(1)));
+						temp *= _Data((OprtPtr->data) / (PreOprtPtr->data + Data(1)));
 						*this -= temp;
 						temp.destruct();
 					}
@@ -1445,12 +1448,12 @@ namespace LL {
 				if (*this > That)
 				{
 					DLL* _a = this->GetEnd(), * _b = that.GetEnd();
-					if ((_a->data) / (_b->data + Data(1)) >= 2)
+					if ((_a->data) / (_b->data + Data(1)) >= Data(2))
 					{
-						Data Ratio((_a->data) / (_b->data + Data(1)) - 1);
-						DLL temp(That * Ratio, false);
+						Data Ratio((_a->data) / (_b->data + Data(1)) - Data(1));
+						DLL temp(That * _Data(Ratio), false);
 						*this -= temp;
-						temp = Ratio;
+						temp = _Data(Ratio);
 						Res += temp;
 						temp.destruct();
 					}
@@ -1546,7 +1549,7 @@ namespace LL {
 			SinglePrint(*that.next, out, ShowComma, MinLength, base);
 			out << ((ShowComma) ? "," : "");
 			char* c = DBG_NEW char[MinLength + 1ULL]();
-			std::to_chars_result rs = std::to_chars(c, &(c[MinLength]), static_cast<int>(that.data), base);
+			std::to_chars_result rs = std::to_chars(c, &(c[MinLength]), that.data(), base);
 
 			std::string str = c;
 			delete[] c;

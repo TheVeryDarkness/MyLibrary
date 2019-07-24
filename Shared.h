@@ -8,6 +8,8 @@ template<typename Ptr> inline void PtrDelete(Ptr ptr) { if (ptr != nullptr)delet
 
 #ifdef _DEBUG
 #include <crtdbg.h>
+#undef max
+#undef min
 #ifndef DBG_NEW
 #define DBG_NEW ::new ( _NORMAL_BLOCK , __FILE__ , __LINE__ )
 #endif 
