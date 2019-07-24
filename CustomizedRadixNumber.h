@@ -16,12 +16,12 @@ namespace LargeInteger {
 			return data;
 		}
 		MY_LIBRARY ~Num() {}
-		Data MY_LIBRARY ComplementCodeAsMinus()const {
-			if constexpr (data != Data(0))
+		Num MY_LIBRARY ComplementCodeAsMinus()const {
+			if (data != Data(0))
 			{
-				return (Radix - data);
+				return Num(Radix - data);
 			}
-			else return Data(0);
+			else return Num(0);
 		}
 		Num MY_LIBRARY operator~() const {
 			if constexpr (Radix == Data(0))
@@ -36,9 +36,12 @@ namespace LargeInteger {
 		Num& MY_LIBRARY operator+=(const Num& that) {
 			if (OverFlowInAdding(that))
 			{
-				return (*this -= that.ComplementCodeAsMinus);
+				return (*this -= that.ComplementCodeAsMinus());
 			}
-			else return (this->data += that.data);
+			else {
+				this->data += that.data;
+				return *this;
+			}
 		}
 		Num MY_LIBRARY operator+(const Num& that)const {
 			Num Copy = *this;
@@ -62,15 +65,6 @@ namespace LargeInteger {
 	private:
 		Data data;
 	};
-
-
-	template<typename Data>
-	class NumTraits {
-		void AddTo(Data&, bool, Data, Data) {
-
-		}
-	};
-
 }
 #undef max
 #undef min

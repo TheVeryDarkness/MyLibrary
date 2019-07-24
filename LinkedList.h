@@ -1411,10 +1411,10 @@ namespace LL {
 				DLL* OprtPtr = this->GetEnd(), * PreOprtPtr = That.GetEnd();
 				if (*this >= That)
 				{
-					if (((OprtPtr->data) / (PreOprtPtr->data + 1)) >= 2)
+					if (((OprtPtr->data) / (PreOprtPtr->data + Data(1))) >= 2)
 					{
 						DLL temp(That, true);
-						temp *= ((OprtPtr->data) / (PreOprtPtr->data + 1));
+						temp *= ((OprtPtr->data) / (PreOprtPtr->data + Data(1)));
 						*this -= temp;
 						temp.destruct();
 					}
@@ -1467,9 +1467,9 @@ namespace LL {
 				if (*this > That)
 				{
 					DLL* _a = this->GetEnd(), * _b = that.GetEnd();
-					if ((_a->data) / (_b->data + 1) >= 2)
+					if ((_a->data) / (_b->data + Data(1)) >= 2)
 					{
-						Data Ratio((_a->data) / (_b->data + 1) - 1);
+						Data Ratio((_a->data) / (_b->data + Data(1)) - 1);
 						DLL temp(That * Ratio, false);
 						*this -= temp;
 						temp = Ratio;
@@ -1688,7 +1688,7 @@ namespace LL {
 		return Result;
 	}
 	template<class node, typename Data>
-	class LinkedListComputeTraits :public LargeInteger::NumTraits<Data>
+	class LinkedListComputeTraits :public LongCompute::StandardComputeTraits<Data>
 	{
 	public:
 		MY_LIBRARY LinkedListComputeTraits() = delete;
@@ -1697,10 +1697,10 @@ namespace LL {
 		constexpr static inline node* NullIterator = nullptr;
 
 		static Data& MY_LIBRARY GetData(node* ptr) {
-			return ((ptr == nullptr) ? (NullData = 0) : (ptr->data));
+			return ((ptr == nullptr) ? (NullData = Data(0)) : (ptr->data));
 		}
 		static Data MY_LIBRARY GetData(const node* ptr) {
-			return ((ptr == nullptr) ? (NullData = 0) : (ptr->data));
+			return ((ptr == nullptr) ? (NullData = Data(0)) : (ptr->data));
 		}
 
 		static node* MY_LIBRARY GetNext(node* ptr) {

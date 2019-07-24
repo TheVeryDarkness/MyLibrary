@@ -39,7 +39,7 @@ namespace LongCompute {
 		else if ((ThatNext != _Traits::NullIterator) && (ThisNext == _Traits::NullIterator))
 		{
 			_Traits::InsertAfter(&This, CarryBit);
-			CarryBit = 0;
+			CarryBit = Data(0);
 			That = ThatNext;
 			This = (_Traits::GetNext(This));
 		}
@@ -51,7 +51,7 @@ namespace LongCompute {
 			else {
 				That = _Traits::NullIterator;
 				_Traits::InsertAfter(&This, CarryBit);
-				CarryBit = 0;
+				CarryBit = Data(0);
 				This = (_Traits::GetNext(This));
 				return false;
 			}
@@ -217,8 +217,6 @@ namespace LongCompute {
 			{
 				return PreRes;
 			}
-		}
-		{
 			return (
 				(_Traits::GetData(a) > _Traits::GetData(b))
 				?
@@ -228,6 +226,22 @@ namespace LongCompute {
 				(_Traits::GetData(a) < _Traits::GetData(b))
 					?
 					std::pair(1, Smaller)
+					:
+					std::pair(0, Equal)
+					)
+				);
+		}
+		else
+		{
+			return	(
+				(_Traits::GetData(a) > _Traits::GetData(b))
+				?
+				std::pair(_Traits::GetData(a) / (_Traits::GetData(b) + Data(1)), Larger)
+				:
+				(
+				(_Traits::GetData(a) < _Traits::GetData(b))
+					?
+					std::pair(_Traits::GetData(b) / (_Traits::GetData(a) + Data(1)), Smaller)
 					:
 					std::pair(0, Equal)
 					)
@@ -244,22 +258,22 @@ namespace LongCompute {
 			Res = a + b + Carry;
 			if (Carry > 0)
 			{
-				Carry = ((a > Data(~Data(b + 1))) || (b > Data(~Data(1))) ? 1 : 0);
+				Carry = Data((a > Data(~Data(b + 1))) || (b > Data(~Data(1))) ? 1 : 0);
 			}
 			else
 			{
-				Carry = ((a > Data(~b)) ? 1 : 0);
+				Carry = Data((a > Data(~b)) ? 1 : 0);
 			}
 		}
 		static void SubTractFrom(Data& Res, Data& Carry, Data a, Data b) {
 			Res = a - b - Carry;
 			if (Carry > 0)
 			{
-				Carry = ((a <= b) ? 1 : 0);
+				Carry = Data((a <= b) ? 1 : 0);
 			}
 			else
 			{
-				Carry = ((a < b) ? 1 : 0);
+				Carry = Data((a < b) ? 1 : 0);
 			}
 		}
 	private:
