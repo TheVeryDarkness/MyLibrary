@@ -75,16 +75,6 @@ namespace LL {
 
 		template<class node, typename Data>
 		friend class LinkedListComputeTraits;
-		template<class Class, typename Data, unsigned long Radix>
-		//重载
-		inline friend void MY_LIBRARY multiply(
-			Class& a,
-			const Class& b
-		)noexcept;
-		template<class Class, typename Data, unsigned long Radix>
-		inline friend void MY_LIBRARY multiply(
-			Class& a,
-			int times)noexcept;
 		template<typename Type, unsigned long Radix>
 		/*inline*/friend std::ostream& MY_LIBRARY out(
 			std::ostream& out, const Type& b
@@ -715,16 +705,6 @@ namespace LL {
 		friend class LinkedListComputeTraits;
 		//友元函数声明
 
-		template<class Class, typename Data, unsigned long Radix>
-		//重载
-		inline friend void MY_LIBRARY multiply(
-			Class& a,
-			const Class& b
-		)noexcept;
-		template<class Class, typename Data, unsigned long Radix>
-		inline friend void MY_LIBRARY multiply(
-			Class& a,
-			int times)noexcept;
 		template<typename Type, unsigned long Radix>
 		/*inline*/friend std::ostream& MY_LIBRARY out(
 			std::ostream& out, const Type& b

@@ -9,7 +9,7 @@ namespace LargeInteger {
 	class Num
 	{
 	public:
-		explicit constexpr MY_LIBRARY Num(Data init) :data(data) {
+		explicit constexpr MY_LIBRARY Num(Data init) :data(init) {
 			static_assert(std::is_integral<Data>::value, "Integral required");
 		}
 		constexpr MY_LIBRARY operator Data()const {
