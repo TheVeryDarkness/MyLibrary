@@ -165,9 +165,9 @@ namespace LongCompute {
 			else if ((cmpr == Equal) || (res == Data(1)))
 			{
 				SingleAccum();
-				return;
+				//return;
 			}
-			MultiAccum(res);
+			else MultiAccum(res);
 		}
 	}
 	template<typename Linear, typename Iterator, typename Data, class _Traits>
