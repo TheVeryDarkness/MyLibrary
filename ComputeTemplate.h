@@ -23,7 +23,7 @@ namespace LongCompute {
 	//NullIterator must have 0 data, and not have an next element.
 
 	template<typename Iterator, typename Data, class _Traits>
-	inline bool MY_LIBRARY Iterate(Iterator& That, Iterator& This, Data& CarryBit) {
+	inline bool MY_LIBRARY Iterate(Iterator& That, Iterator& This, Data& CarryBit)noexcept {
 		//Next element
 		Iterator ThatNext = (_Traits::GetNext(That)), ThisNext = (_Traits::GetNext(This));
 		if ((ThatNext != _Traits::NullIterator) && (ThisNext != _Traits::NullIterator))
@@ -59,7 +59,7 @@ namespace LongCompute {
 		return true;
 	}
 	template<typename Iterator, typename Data, class _Traits>
-	inline bool MY_LIBRARY Iterate(Iterator& This, Data& CarryBit) {
+	inline bool MY_LIBRARY Iterate(Iterator& This, Data& CarryBit)noexcept {
 		//Next element
 		Iterator ThisNext = (_Traits::GetNext(This));
 		if ((ThisNext != _Traits::NullIterator))
@@ -82,7 +82,7 @@ namespace LongCompute {
 	}
 
 	template<typename Iterator, typename Data, class _Traits>
-	inline void MY_LIBRARY AddTo(Iterator a, Iterator b) {
+	inline void MY_LIBRARY AddTo(Iterator a, Iterator b)noexcept {
 		Data Carry = Data(0);
 		while (true)
 		{
@@ -97,7 +97,7 @@ namespace LongCompute {
 		}
 	}
 	template<typename Iterator, typename Data, class _Traits>
-	inline void MY_LIBRARY SubtractFrom(Iterator a, Iterator b) {
+	inline void MY_LIBRARY SubtractFrom(Iterator a, Iterator b) noexcept{
 		Data Carry = Data(0);
 		while (true)
 		{
@@ -116,18 +116,18 @@ namespace LongCompute {
 	class MultiplyIterator
 	{
 	public:
-		MY_LIBRARY MultiplyIterator(Iterator a, Iterator b) :a(a), b(b) {
+		MY_LIBRARY MultiplyIterator(Iterator a, Iterator b)noexcept :a(a), b(b) {
 			_Traits::Multiply(Over, Res, _Traits::GetData(a), _Traits::GetData(b));
 		}
-		MY_LIBRARY ~MultiplyIterator(){}
+		MY_LIBRARY ~MultiplyIterator()noexcept{}
 		//Notice:
 		//	this function move the iterator a to its next place
-		void MY_LIBRARY operator++() {
+		void MY_LIBRARY operator++() noexcept{
 			a = _Traits::GetNext(a);
 		}
 		//Notice:
 		//	this function move the iterator b to its next place
-		void MY_LIBRARY operator++(int) {
+		void MY_LIBRARY operator++(int)noexcept {
 			b = _Traits::GetNext(b);
 		}
 		//overflow;result
@@ -138,7 +138,7 @@ namespace LongCompute {
 
 
 	template<typename SingleAccumulation, typename MultiAccumulation, typename Recursion, typename Iterator, typename Data, class _Traits>
-	inline void MY_LIBRARY __DivideInto(Iterator _a, Iterator _b, SingleAccumulation SingleAccum, Recursion Move, MultiAccumulation MultiAccum) {
+	inline void MY_LIBRARY __DivideInto(Iterator _a, Iterator _b, SingleAccumulation SingleAccum, Recursion Move, MultiAccumulation MultiAccum)noexcept {
 		{
 			switch (CompareTo<Iterator, Data, _Traits>(_a, _b))
 			{
@@ -171,7 +171,7 @@ namespace LongCompute {
 		}
 	}
 	template<typename Linear, typename Iterator, typename Data, class _Traits>
-	inline void MY_LIBRARY DivideInto(Linear& Res, Iterator a, Iterator b) {
+	inline void MY_LIBRARY DivideInto(Linear& Res, Iterator a, Iterator b) noexcept{
 		//Regarding of the compatibility, we didn't use any majorization.
 		auto func1 = [&a, &b, &Res]()->void {SubtractFrom<Iterator, Data, _Traits>(a, b); Res++; };
 		auto func3 = [&a, &b, &Res](Data times)->void {for (Data i = 0; i < times; i++) { SubtractFrom<Iterator, Data, _Traits>(a, b); Res++; }};
@@ -194,7 +194,7 @@ namespace LongCompute {
 	}
 	//Compare a to b.
 	template<typename Iterator, typename Data, class _Traits>
-	inline short MY_LIBRARY CompareTo(const Iterator& a, const Iterator& b) {
+	inline short MY_LIBRARY CompareTo(const Iterator& a, const Iterator& b) noexcept{
 		if ((a == _Traits::NullIterator) && (b == _Traits::NullIterator))
 		{
 			return Equal;
@@ -223,7 +223,7 @@ namespace LongCompute {
 	}
 	//Extension for Compare()
 	template<typename Iterator, typename Data, class _Traits>
-	inline std::pair<Data, short> MY_LIBRARY _CompareTo(const Iterator& a, const Iterator& b) {
+	inline std::pair<Data, short> MY_LIBRARY _CompareTo(const Iterator& a, const Iterator& b) noexcept{
 		if (!((_Traits::GetNext(a) == _Traits::NullIterator) && (_Traits::GetNext(b) == _Traits::NullIterator)))
 		{
 			auto PreRes = _CompareTo<Iterator, Data, _Traits>(_Traits::GetNext(a), _Traits::GetNext(b));
@@ -268,7 +268,7 @@ namespace LongCompute {
 	public:
 		StandardComputeTraits() = delete;
 		~StandardComputeTraits() = delete;
-		static void Add(Data& Res, Data& Carry, Data a, Data b) {
+		static void Add(Data& Res, Data& Carry, Data a, Data b)noexcept {
 			Res = a + b + Carry;
 			if (Carry > 0)
 			{
@@ -279,7 +279,7 @@ namespace LongCompute {
 				Carry = Data((a > Data(~b)) ? 1 : 0);
 			}
 		}
-		static void SubTractFrom(Data& Res, Data& Carry, Data a, Data b) {
+		static void SubTractFrom(Data& Res, Data& Carry, Data a, Data b) noexcept{
 			Res = b - a - Carry;
 			if (Carry > 0)
 			{

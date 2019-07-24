@@ -7,9 +7,9 @@ template<size_t CacheSize>
 class MemorryCache
 {
 public:
-	MY_LIBRARY MemorryCache(){}
+	MY_LIBRARY MemorryCache()noexcept{}
 
-	MY_LIBRARY ~MemorryCache(){
+	MY_LIBRARY ~MemorryCache()noexcept{
 		for (auto var : Cache)
 		{
 			if (var!=nullptr)
@@ -34,7 +34,7 @@ public:
 		}
 	}
 
-	void MY_LIBRARY push(void* block) {
+	void MY_LIBRARY push(void* block)noexcept {
 		auto i = std::find_if(Cache.begin(), Cache.end(), [](void* that)->bool {return(that == nullptr); });
 		if (i == Cache.end())
 		{

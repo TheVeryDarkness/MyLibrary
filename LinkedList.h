@@ -562,12 +562,12 @@ namespace LL {
 			return;
 		}
 		//删除当前位置后的一位
-		inline void MY_LIBRARY cut() noexcept {
+		inline void MY_LIBRARY cut() noexcept(DEBUG_FLAG) {
 			if (this->next == nullptr)
 			{
 #ifdef _DEBUG
 				DEBUG_OUT;
-				throw std::domain_error("No next node");
+				throw std::domain_error("No next node.");
 #else
 				return;
 #endif // _DEBUG
@@ -1118,7 +1118,7 @@ namespace LL {
 			return;
 		}
 		//删除当前位置后的一位
-		inline void MY_LIBRARY cut() noexcept {
+		inline void MY_LIBRARY cut() noexcept(DEBUG_FLAG) {
 			if (this->next == nullptr)
 			{
 #ifdef _DEBUG
@@ -1359,7 +1359,7 @@ namespace LL {
 			OprtPtr->destruct();
 			return *this;
 		}
-		inline void MY_LIBRARY operator%=(const DLL& that) noexcept {
+		inline void MY_LIBRARY operator%=(const DLL& that) noexcept(DEBUG_FLAG) {
 			if (that == 0)
 			{
 #ifdef _DEBUG
@@ -1420,7 +1420,7 @@ namespace LL {
 				}
 			}
 		}
-		inline void MY_LIBRARY operator/=(const DLL& that) noexcept {
+		inline void MY_LIBRARY operator/=(const DLL& that) noexcept(DEBUG_FLAG) {
 			if (that == 0)
 			{
 #ifdef _DEBUG

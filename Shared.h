@@ -2,6 +2,11 @@
 
 template<typename Ptr> inline void PtrDelete(Ptr ptr) { if (ptr != nullptr)delete ptr; }
 
+#ifdef _DEBUG
+#define DEBUG_FLAG 0
+#endif // _DEBUG
+
+
 #ifndef MY_LIBRARY
 #define MY_LIBRARY __stdcall
 #endif // !MY_LIBRARY
