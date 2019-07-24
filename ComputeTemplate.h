@@ -88,7 +88,7 @@ namespace LongCompute {
 		{
 			//This element
 			Data temp(0);
-			_Traits::AddTo(temp, Carry, _Traits::GetData(a), _Traits::GetData(b));
+			_Traits::Add(temp, Carry, _Traits::GetData(a), _Traits::GetData(b));
 			_Traits::GetData(b) = temp;
 			if (!Iterate<Iterator, Data, _Traits>(a, b, Carry))
 			{
@@ -106,7 +106,7 @@ namespace LongCompute {
 			_Traits::SubTractFrom(temp, Carry, _Traits::GetData(a), _Traits::GetData(b));
 			_Traits::GetData(b) = temp;
 			//Carry a bit can never solve it, so we don't pass it to the function.
-			if (!Iterate<Iterator, Data, _Traits>(a, b, Carry)) {
+			if (!Iterate<Iterator, Data, _Traits>(b, a, Carry)) {
 				break;
 			}
 		}
@@ -268,7 +268,7 @@ namespace LongCompute {
 	public:
 		StandardComputeTraits() = delete;
 		~StandardComputeTraits() = delete;
-		static void AddTo(Data& Res, Data& Carry, Data a, Data b) {
+		static void Add(Data& Res, Data& Carry, Data a, Data b) {
 			Res = a + b + Carry;
 			if (Carry > 0)
 			{
@@ -280,14 +280,14 @@ namespace LongCompute {
 			}
 		}
 		static void SubTractFrom(Data& Res, Data& Carry, Data a, Data b) {
-			Res = a - b - Carry;
+			Res = b - a - Carry;
 			if (Carry > 0)
 			{
-				Carry = Data((a <= b) ? 1 : 0);
+				Carry = Data((b <= a) ? 1 : 0);
 			}
 			else
 			{
-				Carry = Data((a < b) ? 1 : 0);
+				Carry = Data((b < a) ? 1 : 0);
 			}
 		}
 	private:

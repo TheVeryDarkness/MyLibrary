@@ -409,7 +409,7 @@ namespace LargeInteger {
 		static constexpr inline LargeInteger::Bytes<length> Max = LargeInteger::Bytes<length>(_Max);
 		static constexpr inline LargeInteger::Bytes<length> Radix = LargeInteger::Bytes<length>(Max + LargeInteger::Bytes<length>(1));
 
-		static void AddTo(Data& Res, Data& Carry, Data a, Data b) {
+		static void Add(Data& Res, Data& Carry, Data a, Data b) {
 			Bytes<length> Sum = Bytes<length>(a);
 			if (Carry > 0)
 			{
