@@ -111,23 +111,26 @@ namespace LongCompute {
 			}
 		}
 	}
-	template<typename Call, typename Iterator, typename Data, class _Traits>
-	inline void MY_LIBRARY VirtualMultiplyTo(Call call, Data Carry, Data a, Iterator b) {
-		if (a == Data(1))
-		{
-			call(Data(0));
-			return;
+	
+	template<typename Iterator,typename Data, typename _Traits>
+	class MultiplyIterator
+	{
+	public:
+		MY_LIBRARY MultiplyIterator(Iterator a, Iterator b) :a(a), b(b) {
+			_Traits::Multiply(Over, Res, _Traits::GetData(a), _Traits::GetData(b));
 		}
-		Data Res;
-		while (true)
-		{
-			_Traits::Multiply(Res, Carry, _Traits::GetData(a), _Traits::GetData(b));
-			call(Res);
-			if (!Iterate<Iterator, Data, _Traits>(b, Carry)) {
-				break;
-			}
+		MY_LIBRARY ~MultiplyIterator(){}
+		MultiplyIterator& MY_LIBRARY operator++() {
+			a = _Traits::GetNext(a);
+			b = _Traits::GetNext(b);
+			return *this; 
 		}
-	}
+		//overflow;result
+		Data Over, Res;
+	private:
+		Iterator a, b;
+	};
+
 
 	template<typename SingleAccumulation, typename MultiAccumulation, typename Recursion, typename Iterator, typename Data, class _Traits>
 	inline void MY_LIBRARY __DivideInto(Iterator _a, Iterator _b, SingleAccumulation SingleAccum, Recursion Move, MultiAccumulation MultiAccum) {

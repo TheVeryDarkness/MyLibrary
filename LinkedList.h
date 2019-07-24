@@ -746,9 +746,7 @@ namespace LL {
 			return Res;
 		}
 		//жиди
-		/*inline*/void MY_LIBRARY operator*=(const DLL& b) {
-			LL::multiply<DLL, Data, Radix>(*this, b);
-		}
+		/*inline*/void MY_LIBRARY operator*=(const DLL& b) = delete;
 		//жиди
 		inline DLL MY_LIBRARY operator*(const DLL& b)const {
 			DLL Res(*this, true);
