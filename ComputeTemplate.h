@@ -91,12 +91,12 @@ namespace LongCompute {
 
 
 	template<class ComputeFunction, typename Iterator, typename Data, typename _Traits>
-	class ResultIterator
+	class AppositionIterator
 	{
 	public:
-		MY_LIBRARY ResultIterator(Iterator a, Iterator b)noexcept
+		MY_LIBRARY AppositionIterator(Iterator a, Iterator b)noexcept
 			:a(a), b(b), c(), Result(c(Data(0), _Traits::GetData(a), _Traits::GetData(b))) {}
-		MY_LIBRARY ~ResultIterator()noexcept {}
+		MY_LIBRARY ~AppositionIterator()noexcept {}
 		//Notice:
 		//	this function move the iterator to its next place
 		void MY_LIBRARY operator++() noexcept {
@@ -110,14 +110,15 @@ namespace LongCompute {
 		}
 		//result;overflow
 		std::pair<Data, Data> Result;
-		Iterator a, b;
+		Iterator& a, b;
+	private:
 		ComputeFunction c;
 	};
 
 	template<typename Iterator, typename Data, class _Traits>
 	inline void MY_LIBRARY AddTo(Iterator a, Iterator b)noexcept {
 		Data Carry = Data(0);
-		ResultIterator<_Traits::Add, Iterator, Data, _Traits> add(a, b);
+		AppositionIterator<_Traits::Add, Iterator, Data, _Traits> add(a, b);
 		while (true)
 		{
 			//This element
@@ -134,7 +135,7 @@ namespace LongCompute {
 	template<typename Iterator, typename Data, class _Traits>
 	inline void MY_LIBRARY SubtractFrom(Iterator a, Iterator b) noexcept{
 		Data Carry = Data(0);
-		ResultIterator<_Traits::SubtractFrom, Iterator, Data, _Traits> sub(a, b);
+		AppositionIterator<_Traits::SubtractFrom, Iterator, Data, _Traits> sub(a, b);
 		while (true)
 		{
 			//This element
