@@ -87,6 +87,9 @@ namespace LargeInteger {
 			Num Copy(*this);
 			return (Copy %= that);
 		}
+		//Be careful when using as it never checks flow
+		Num& MY_LIBRARY operator--() { this->data--; return*this; }
+		//Be careful when using as it never checks flow
 		Num& MY_LIBRARY operator++() { this->data++; return*this; }
 		bool MY_LIBRARY operator>(const Num& that)const noexcept { return (this->data > that.data); }
 		bool MY_LIBRARY operator>=(const Num& that)const noexcept { return (this->data >= that.data); }
