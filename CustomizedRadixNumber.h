@@ -21,11 +21,13 @@ namespace LargeInteger {
 		}
 		MY_LIBRARY ~Num()noexcept {}
 		Num MY_LIBRARY ComplementCodeAsMinus()const noexcept{
+			 (Radix == Data(9)){
 			if (data != Data(0))
 			{
 				return Num(Radix - data);
 			}
 			else return Num(0);
+			}
 		}
 		Num MY_LIBRARY operator~() const noexcept {
 			if constexpr (Radix == Data(0))
