@@ -4,6 +4,8 @@ template<typename Ptr> inline void PtrDelete(Ptr ptr) { if (ptr != nullptr)delet
 
 #ifdef _DEBUG
 #define DEBUG_FLAG 0
+#else 
+#define DEBUG_FLAG 1
 #endif // _DEBUG
 
 
