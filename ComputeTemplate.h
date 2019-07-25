@@ -89,6 +89,31 @@ namespace LongCompute {
 		return true;
 	}
 
+
+	template<class ComputeFunction, typename Iterator, typename Data, typename _Traits>
+	class ResultIterator
+	{
+	public:
+		MY_LIBRARY ResultIterator(Iterator a, Iterator b)noexcept
+			:a(a), b(b), c(), Result(c(Data(0), _Traits::GetData(a), _Traits::GetData(b))) {}
+		MY_LIBRARY ~ResultIterator()noexcept {}
+		//Notice:
+		//	this function move the iterator to its next place
+		void MY_LIBRARY operator++() noexcept {
+			a = _Traits::GetNext(a);
+			b = _Traits::GetNext(b);
+			Result = c(Result.second, _Traits::GetData(a), _Traits::GetData(b));
+		}
+		//return true if the iterator is still working
+		MY_LIBRARY operator bool()const noexcept {
+			return !(a == _Traits::NullIterator && b == _Traits::NullIterator && Result.second == Data(0));
+		}
+		//result;overflow
+		std::pair<Data, Data> Result;
+		Iterator a, b;
+		ComputeFunction c;
+	};
+
 	template<typename Iterator, typename Data, class _Traits>
 	inline void MY_LIBRARY AddTo(Iterator a, Iterator b)noexcept {
 		Data Carry = Data(0);
@@ -105,34 +130,11 @@ namespace LongCompute {
 		}
 	}
 
-	template<class ComputeFunction,typename Iterator, typename Data, typename _Traits>
-	class ResultIterator
-	{
-	public:
-		MY_LIBRARY ResultIterator(Iterator a, Iterator b)noexcept
-			:a(a), b(b), c(), Result(c(Data(0), _Traits::GetData(a), _Traits::GetData(b))) {}
-		MY_LIBRARY ~ResultIterator()noexcept {}
-		//Notice:
-		//	this function move the iterator to its next place
-		void MY_LIBRARY operator++() noexcept {
-			a = _Traits::GetNext(a);
-			b = _Traits::GetNext(b);
-			Result = _Traits::SubtractFrom(Result.second, _Traits::GetData(a), _Traits::GetData(b));
-		}
-		//return true if the iterator is still working
-		MY_LIBRARY operator bool()const noexcept {
-			return !(a == _Traits::NullIterator && b == _Traits::NullIterator && Result.second == Data(0));
-		}
-		//result;overflow
-		std::pair<Data, Data> Result;
-		Iterator a, b;
-		ComputeFunction c;
-	};
 
 	template<typename Iterator, typename Data, class _Traits>
 	inline void MY_LIBRARY SubtractFrom(Iterator a, Iterator b) noexcept{
 		Data Carry = Data(0);
-		ResultIterator<Iterator, Data, _Traits> sub(a, b);
+		ResultIterator<_Traits::SubtractFrom, Iterator, Data, _Traits> sub(a, b);
 		while (true)
 		{
 			//This element
