@@ -29,8 +29,7 @@ namespace LargeInteger {
 29                         else return Num(0);
 			}
 			else{
-				this->data = ~this->data + 1;
-				return *this;
+				return Num(~this->data + Data(1));
 			}
 		}
 		Num MY_LIBRARY operator~() const noexcept {
