@@ -156,22 +156,22 @@ namespace LL {
 			}
 			if ((this->data > 0 && that.data > 0) || (this->data == 0 && that.data == 0))
 			{
-				LongCompute::AddTo<OLL*, Data, LinkedListComputeTraits<OLL, Data, Radix - (Data)1>>(that.next, this->next);
+				LongCompute::AddTo<OLL*, Data, LinkedListComputeTraits<OLL, Data>>(that.next, this->next);
 			}
 			else {
-				short Cmpr = LongCompute::CompareTo<OLL*, Data, LinkedListComputeTraits<OLL, Data, Radix - (Data)1>>(this->next, that.next);
+				short Cmpr = LongCompute::CompareTo<OLL*, Data, LinkedListComputeTraits<OLL, Data>>(this->next, that.next);
 				if (Cmpr == LongCompute::Equal)
 				{
 					this->destruct();
 				}
 				if (Cmpr == LongCompute::Larger)
 				{
-					LongCompute::SubtractFrom<OLL*, Data, LinkedListComputeTraits<OLL, Data, Radix - (Data)1>>(that.next, this->next);
+					LongCompute::SubtractFrom<OLL*, Data, LinkedListComputeTraits<OLL, Data>>(that.next, this->next);
 				}
 				else
 				{
 					OLL temp(that, true);
-					LongCompute::SubtractFrom<OLL*, Data, LinkedListComputeTraits<OLL, Data, Radix - (Data)1>>(this->next, temp.next);
+					LongCompute::SubtractFrom<OLL*, Data, LinkedListComputeTraits<OLL, Data>>(this->next, temp.next);
 					*this = temp;
 				}
 			}
@@ -206,7 +206,7 @@ namespace LL {
 		inline MY_LIBRARY OLL(
 			const OLL& that,
 			bool DeepCopy
-		) noexcept {
+		) noexcept :data(that.data){
 			this->data = that.data;
 			this->destruct();
 			if (DeepCopy)
@@ -245,8 +245,7 @@ namespace LL {
 		//Ä¬ÈÏÎªÇ³¿½±´
 		inline MY_LIBRARY OLL(
 			const OLL& that
-		) noexcept {
-			this->data = that.data;
+		) noexcept:data(that.data) {
 			this->destruct();
 			this->next = that.next;
 			return;

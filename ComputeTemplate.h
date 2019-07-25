@@ -22,7 +22,7 @@ namespace LongCompute {
 	//	NullIterator;
 	//NullIterator must have 0 data, and not have an next element.
 
-	template<typename Iterator, typename Data, class _Traits>
+	template<typename Iterator, typename Data, class _Traits, bool Insert = true>
 	inline bool MY_LIBRARY Iterate(Iterator& That, Iterator& This, Data& CarryBit)noexcept {
 		//Next element
 		Iterator ThatNext = (_Traits::GetNext(That)), ThisNext = (_Traits::GetNext(This));
@@ -38,13 +38,21 @@ namespace LongCompute {
 		}
 		else if ((ThatNext != _Traits::NullIterator) && (ThisNext == _Traits::NullIterator))
 		{
+			if constexpr(!Insert)
+			{
+				return false;
+			}
 			_Traits::InsertAfter(&This, CarryBit);
 			CarryBit = Data(0);
-			That = ThatNext;
 			This = (_Traits::GetNext(This));
+			That = ThatNext;
 		}
 		else if ((ThatNext == _Traits::NullIterator) && (ThisNext == _Traits::NullIterator))
 		{
+			if constexpr(Insert)
+			{
+				return false;
+			}
 			if (CarryBit == 0) {
 				return false;
 			}
@@ -84,29 +92,54 @@ namespace LongCompute {
 	template<typename Iterator, typename Data, class _Traits>
 	inline void MY_LIBRARY AddTo(Iterator a, Iterator b)noexcept {
 		Data Carry = Data(0);
+		ResultIterator<_Traits::Add, Iterator, Data, _Traits> add(a, b);
 		while (true)
 		{
 			//This element
-			Data temp(0);
-			_Traits::Add(temp, Carry, _Traits::GetData(a), _Traits::GetData(b));
-			_Traits::GetData(b) = temp;
-			if (!Iterate<Iterator, Data, _Traits>(a, b, Carry))
+			_Traits::GetData(b) = add.Result.first;
+			++add;
+			if (a == _Traits::NullIterator && b == _Traits::NullIterator)
 			{
 				break;
 			}
 		}
 	}
+
+	template<class ComputeFunction,typename Iterator, typename Data, typename _Traits>
+	class ResultIterator
+	{
+	public:
+		MY_LIBRARY ResultIterator(Iterator a, Iterator b)noexcept
+			:a(a), b(b), c(), Result(c(Data(0), _Traits::GetData(a), _Traits::GetData(b))) {}
+		MY_LIBRARY ~ResultIterator()noexcept {}
+		//Notice:
+		//	this function move the iterator to its next place
+		void MY_LIBRARY operator++() noexcept {
+			a = _Traits::GetNext(a);
+			b = _Traits::GetNext(b);
+			Result = _Traits::SubtractFrom(Result.second, _Traits::GetData(a), _Traits::GetData(b));
+		}
+		//return true if the iterator is still working
+		MY_LIBRARY operator bool()const noexcept {
+			return !(a == _Traits::NullIterator && b == _Traits::NullIterator && Result.second == Data(0));
+		}
+		//result;overflow
+		std::pair<Data, Data> Result;
+		Iterator a, b;
+		ComputeFunction c;
+	};
+
 	template<typename Iterator, typename Data, class _Traits>
 	inline void MY_LIBRARY SubtractFrom(Iterator a, Iterator b) noexcept{
 		Data Carry = Data(0);
+		ResultIterator<Iterator, Data, _Traits> sub(a, b);
 		while (true)
 		{
 			//This element
-			Data temp(0);
-			_Traits::SubTractFrom(temp, Carry, _Traits::GetData(a), _Traits::GetData(b));
-			_Traits::GetData(b) = temp;
-			//Carry a bit can never solve it, so we don't pass it to the function.
-			if (!Iterate<Iterator, Data, _Traits>(b, a, Carry)) {
+			_Traits::GetData(sub.b) = sub.Result.first;
+			++sub;
+			if (!sub)
+			{
 				break;
 			}
 		}
@@ -268,28 +301,39 @@ namespace LongCompute {
 	public:
 		StandardComputeTraits() = delete;
 		~StandardComputeTraits() = delete;
-		static void Add(Data& Res, Data& Carry, Data a, Data b)noexcept {
-			Res = a + b + Carry;
-			if (Carry > 0)
-			{
-				Carry = Data((a > Data(~Data(b + 1))) || (b > Data(~Data(1))) ? 1 : 0);
+		class Add
+		{
+		public:
+			MY_LIBRARY Add()noexcept {}
+			MY_LIBRARY ~Add()noexcept {}
+			std::pair<Data, Data> MY_LIBRARY operator()(Data Carry, Data a, Data b)noexcept{
+				return std::pair<Data, Data>(
+					a + b + Carry,
+					Data(
+					(Carry > 0) ?
+						((a > Data(~b)) ? 1 : 0)
+						:
+						((a > Data(~Data(b + 1))) || (b > Data(~Data(1))) ? 1 : 0)
+					));
 			}
-			else
-			{
-				Carry = Data((a > Data(~b)) ? 1 : 0);
+		};
+
+		class SubtractFrom
+		{
+		public:
+			MY_LIBRARY SubtractFrom()noexcept {}
+			MY_LIBRARY ~SubtractFrom()noexcept {}
+			std::pair<Data, Data> MY_LIBRARY operator()(Data Carry, Data a, Data b)noexcept {
+				return std::pair<Data, Data>(
+					b - a - Carry,
+					Data(
+					(Carry > 0) ?
+						((b <= a) ? 1 : 0)
+						:
+						((b < a) ? 1 : 0))
+					);
 			}
-		}
-		static void SubTractFrom(Data& Res, Data& Carry, Data a, Data b) noexcept{
-			Res = b - a - Carry;
-			if (Carry > 0)
-			{
-				Carry = Data((b <= a) ? 1 : 0);
-			}
-			else
-			{
-				Carry = Data((b < a) ? 1 : 0);
-			}
-		}
+		};
 	private:
 
 	};
