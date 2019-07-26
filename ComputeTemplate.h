@@ -110,7 +110,7 @@ namespace LongCompute {
 		}
 		//result;overflow
 		std::pair<Data, Data> Result;
-		Iterator& a, b;
+		Iterator a, b;
 	private:
 		ComputeFunction c;
 	};
@@ -122,9 +122,9 @@ namespace LongCompute {
 		while (true)
 		{
 			//This element
-			_Traits::GetData(b) = add.Result.first;
+			_Traits::GetData(add.b) = add.Result.first;
 			++add;
-			if (a == _Traits::NullIterator && b == _Traits::NullIterator)
+			if (!add)
 			{
 				break;
 			}
