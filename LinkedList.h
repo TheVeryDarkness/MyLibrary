@@ -1189,7 +1189,6 @@ namespace LL {
 			data(static_cast<Data>(positive)) {
 			static_assert(Radix != 1, "Not supported constructor for the radix.");
 			{
-
 				this->destruct();
 				DLL* OprtPtr = this;//操作当前对象
 				while (true)
@@ -1689,9 +1688,6 @@ namespace LL {
 
 		static void MY_LIBRARY assign(node* ptr, size_t sz) { *ptr <<= sz; }
 		static void MY_LIBRARY InsertAfter(node** ptr, Data data) { (*ptr)->insert(data); }
-
-	private:
-
 	};
 }
 #ifdef LL_LENGTH

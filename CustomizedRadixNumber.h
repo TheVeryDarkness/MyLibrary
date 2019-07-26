@@ -20,15 +20,15 @@ namespace LargeInteger {
 			return data;
 		}
 		MY_LIBRARY ~Num()noexcept {}
-		Num MY_LIBRARY ComplementCodeAsMinus()const noexcept{
-		        if constexpr (Radix != Data(0)){
-25                         if (data != Data(0))  
-26                         {  
-27                                 return Num(Radix - data);  
-28                         }  
-29                         else return Num(0);
+		constexpr Num MY_LIBRARY ComplementCodeAsMinus()const noexcept{
+			if constexpr (Radix != Data(0)) {
+				if (data != Data(0))
+				{
+					return Num(Radix - data);
+				}
+				else return Num(0);
 			}
-			else{
+			else {
 				return Num(~this->data + Data(1));
 			}
 		}

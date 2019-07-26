@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <type_traits>
 #include "ComputeTemplate.h"
 #include "Shared.h"
 
@@ -40,9 +41,9 @@ namespace LargeInteger {
 		constexpr explicit MY_LIBRARY Bytes()noexcept {}
 		template<size_t OriginLength> constexpr explicit MY_LIBRARY Bytes(const Bytes<OriginLength>&)noexcept;
 		template<typename Data>constexpr explicit  MY_LIBRARY Bytes(const Data data)noexcept;
-		template<typename Data> MY_LIBRARY operator Data()noexcept;
-		size_t MY_LIBRARY GetLength()const noexcept;
-		Bytes& MY_LIBRARY operator=(unsigned char Value) noexcept {
+		template<typename Data>constexpr MY_LIBRARY operator Data()noexcept;
+		constexpr size_t MY_LIBRARY GetLength()const noexcept;
+		constexpr Bytes& MY_LIBRARY operator=(unsigned char Value) noexcept {
 			if constexpr (Length != 0)
 			{
 				memset(this->Byte, 0, Length);
@@ -129,21 +130,21 @@ namespace LargeInteger {
 			}
 			return ret;
 		}
-		Bytes& MY_LIBRARY operator/=(const Bytes& that) noexcept {
+		constexpr Bytes& MY_LIBRARY operator/=(const Bytes& that) noexcept {
 			Bytes Res;
 			LongCompute::DivideInto<Bytes, BytesIterator<Length>, value_type, BytesTraits<Length>>(Res, &that, this);
 			*this = Res;
 			return *this;
 		}
-		Bytes MY_LIBRARY operator/(const Bytes& that)const noexcept {
+		constexpr Bytes MY_LIBRARY operator/(const Bytes& that)const noexcept {
 			Bytes Ret = *this;
 			return (Ret /= that);
 		}
-		Bytes& MY_LIBRARY operator%=(const Bytes& that) noexcept {
+		constexpr Bytes& MY_LIBRARY operator%=(const Bytes& that) noexcept {
 			LongCompute::DivideInto<BytesIterator<Length>, value_type, BytesTraits<Length>>(&that, this);
 			return *this;
 		}
-		Bytes MY_LIBRARY operator%(const Bytes& that)const noexcept {
+		constexpr Bytes MY_LIBRARY operator%(const Bytes& that)const noexcept {
 			Bytes Ret = *this;
 			return (Ret %= that);
 		}
@@ -201,13 +202,13 @@ namespace LargeInteger {
 		constexpr bool MY_LIBRARY operator==(const Bytes& that)const noexcept {
 			return !(*this != that);
 		}
-		Bytes& MY_LIBRARY operator<<=(size_t Bits) noexcept {
+		constexpr Bytes& MY_LIBRARY operator<<=(size_t Bits) noexcept {
 			return(*this = *this << Bits);
 		}
-		Bytes& MY_LIBRARY operator>>=(size_t Bits) noexcept {
+		constexpr Bytes& MY_LIBRARY operator>>=(size_t Bits) noexcept {
 			return(*this = *this >> Bits);
 		}
-		Bytes MY_LIBRARY operator<<(size_t Bits)const noexcept {
+		constexpr Bytes MY_LIBRARY operator<<(size_t Bits)const noexcept {
 			if ((Bits / Length) >= BitsPerByte)
 			{
 				return Bytes();
@@ -232,7 +233,7 @@ namespace LargeInteger {
 			}
 			return ret;
 		}
-		Bytes MY_LIBRARY operator>>(size_t Bits)const noexcept {
+		constexpr Bytes MY_LIBRARY operator>>(size_t Bits)const noexcept {
 			if ((Bits / Length) >= BitsPerByte)
 			{
 				return Bytes();
@@ -257,7 +258,7 @@ namespace LargeInteger {
 			}
 			return ret;
 		}
-		bool MY_LIBRARY operator<(const Bytes& that)const noexcept {
+		constexpr bool MY_LIBRARY operator<(const Bytes& that)const noexcept {
 			if (Length == 0)return false;
 			for (size_t i = Length - 1;; i--)
 			{
@@ -276,7 +277,7 @@ namespace LargeInteger {
 			}
 			return false;
 		}
-		bool MY_LIBRARY operator<=(const Bytes& that)const noexcept {
+		constexpr bool MY_LIBRARY operator<=(const Bytes& that)const noexcept {
 			if (Length == 0)return true;
 			for (size_t i = Length - 1; i > 0; i--)
 			{
@@ -295,14 +296,14 @@ namespace LargeInteger {
 			}
 			return true;
 		}
-		bool MY_LIBRARY operator>(const Bytes& that)const noexcept {
+		constexpr bool MY_LIBRARY operator>(const Bytes& that)const noexcept {
 			return !(*this <= that);
 		}
-		bool MY_LIBRARY operator>=(const Bytes& that)const noexcept {
+		constexpr bool MY_LIBRARY operator>=(const Bytes& that)const noexcept {
 			return !(*this < that);
 		}
-		const value_type& MY_LIBRARY operator[](size_t index)const noexcept { return this->Byte[index]; }
-		MY_LIBRARY Bytes(const std::initializer_list<value_type>& that)noexcept;
+		constexpr const value_type& MY_LIBRARY operator[](size_t index)const noexcept { return this->Byte[index]; }
+		constexpr MY_LIBRARY Bytes(const std::initializer_list<value_type>& that)noexcept;
 	};
 	//***************************************************
 	template<size_t Length>
@@ -317,7 +318,7 @@ namespace LargeInteger {
 		return;
 	}
 	template<size_t Length>
-	inline MY_LIBRARY LargeInteger::Bytes<Length>::Bytes(
+	constexpr inline MY_LIBRARY LargeInteger::Bytes<Length>::Bytes(
 		const std::initializer_list<value_type>& that
 	) noexcept {
 		size_t a = 0;
@@ -352,7 +353,7 @@ namespace LargeInteger {
 
 	template<size_t Length>
 	template<typename Data>
-	inline MY_LIBRARY LargeInteger::Bytes<Length>::operator Data () noexcept {
+	constexpr inline MY_LIBRARY LargeInteger::Bytes<Length>::operator Data () noexcept {
 		Data data = {};
 		if constexpr (sizeof(Data) <= Length)
 		{
@@ -366,7 +367,7 @@ namespace LargeInteger {
 	}
 
 	template<size_t Length>
-	size_t MY_LIBRARY Bytes<Length>::GetLength()const noexcept {
+	constexpr size_t MY_LIBRARY Bytes<Length>::GetLength()const noexcept {
 		size_t Res = 0;
 		Bytes<Length> This = *this;
 		while (This != 0)
@@ -377,9 +378,10 @@ namespace LargeInteger {
 		return Res;
 	}
 
-
 	template<typename Data>
 	constexpr inline size_t GetMinLength(Data data) noexcept {
+		static_assert(std::is_integral<Data>::value,"Integral required.");
+		static_assert(Data(-1) > 0, "Unsigned type required.");
 		size_t res = ((static_cast<Data>(~data) == 0) ? 1 : 0);
 		do {
 			res++;
@@ -387,15 +389,14 @@ namespace LargeInteger {
 		return res;
 	}
 
-
 	template<size_t Length>
 	struct BytesIterator
 	{
 		const Bytes<Length>* Head;
 		size_t Index;
 		constexpr MY_LIBRARY BytesIterator(const Bytes<Length>* Head, const size_t index = 0)noexcept :Head(Head), Index(index) {}
-		bool MY_LIBRARY operator==(const BytesIterator& that)const noexcept { return ((this->Head == that.Head) && (this->Index == that.Index)); }
-		bool MY_LIBRARY operator!=(const BytesIterator& that)const noexcept { return !(*this == that); }
+		constexpr bool MY_LIBRARY operator==(const BytesIterator& that)const noexcept { return ((this->Head == that.Head) && (this->Index == that.Index)); }
+		constexpr bool MY_LIBRARY operator!=(const BytesIterator& that)const noexcept { return !(*this == that); }
 	};
 
 #undef max
@@ -409,7 +410,7 @@ namespace LargeInteger {
 		static constexpr inline LargeInteger::Bytes<length> Max = LargeInteger::Bytes<length>(_Max);
 		static constexpr inline LargeInteger::Bytes<length> Radix = LargeInteger::Bytes<length>(Max + LargeInteger::Bytes<length>(1));
 
-		static void Add(Data& Res, Data& Carry, Data a, Data b) noexcept {
+		static constexpr void Add(Data& Res, Data& Carry, Data a, Data b) noexcept {
 			Bytes<length> Sum = Bytes<length>(a);
 			if (Carry > 0)
 			{
@@ -435,7 +436,7 @@ namespace LargeInteger {
 			}
 			Res = Data(Sum);
 		}
-		static void SubTractFrom(Data& Res, Data& Carry, Data a, Data b) noexcept {
+		static constexpr void SubTractFrom(Data& Res, Data& Carry, Data a, Data b) noexcept {
 			Bytes<length> Dif = Bytes<length>(b);
 			if (Carry > 0)
 			{
@@ -461,11 +462,8 @@ namespace LargeInteger {
 			}
 			Res = Data(Dif);
 		}
-		static void Multiply(Data& Res, Data& Carry, Data a, Data b) noexcept {
-			if constexpr (Radix.Byte[length - 1] >> (BitsPerByte - 1) == 1)
-			{
-				throw std::exception("Overflow");
-			}
+		static constexpr void Multiply(Data& Res, Data& Carry, Data a, Data b) noexcept {
+			static_assert(!(Radix.Byte[length - 1] >> (BitsPerByte - 1) == 1),"Overflow in multiply");
 			constexpr size_t _length = 2 * length;
 			Bytes<_length> Prod = Bytes<_length>(a);
 			Prod *= Bytes<_length>(b);
@@ -485,10 +483,10 @@ namespace LargeInteger {
 		constexpr static inline Bytes<Length> NullObject = Bytes<Length>();
 		constexpr static inline BytesIterator<Length> NullIterator = { &NullObject,0 };
 
-		static void MY_LIBRARY assign(Bytes<Length>* ptr, size_t s) noexcept {
+		static constexpr void MY_LIBRARY assign(Bytes<Length>* ptr, size_t s) noexcept {
 			*ptr <<= 8;
 		}
-		static BytesIterator<Length> MY_LIBRARY GetNext(const BytesIterator<Length>& ptr) noexcept {
+		static constexpr BytesIterator<Length> MY_LIBRARY GetNext(const BytesIterator<Length>& ptr) noexcept {
 			if (ptr.Head != nullptr && ptr.Head != &NullObject)
 			{
 				if (ptr.Index >= Length - 1)
@@ -500,10 +498,10 @@ namespace LargeInteger {
 			else return NullIterator;
 		}
 
-		static value_type& MY_LIBRARY GetData(BytesIterator<Length> ptr) noexcept {
+		static constexpr value_type& MY_LIBRARY GetData(BytesIterator<Length> ptr) noexcept {
 			return const_cast<value_type*>(ptr.Head->Byte)[ptr.Index];
 		}
-		static void MY_LIBRARY InsertAfter(const BytesIterator<Length>* ptr, value_type data) noexcept {}
+		static constexpr void MY_LIBRARY InsertAfter(const BytesIterator<Length>* ptr, value_type data) noexcept {}
 	private:
 
 	};
