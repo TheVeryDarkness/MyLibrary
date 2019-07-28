@@ -99,27 +99,32 @@ namespace LL {
 		MEMORY_CACHE(20);
 	public:
 		//重载
-		/*inline*/void MY_LIBRARY operator*=(int times) noexcept {
-			if (times == 0)
+		/*inline*/void MY_LIBRARY operator*=(Data times) noexcept {
+			if (times == Data(0))
 			{
 				return;
 			}
-			else if (times < 0)
-			{
-				this->data = !this->data;
-				times = -times;
-			}
-			LongCompute::MultiplyTo(times, this->next);
+			LongCompute::MultiplyTo<OLL*, Data, LinkedListComputeTraits<OLL, Data>>(times, this->next);
 		}
 		//重载
-		/*inline*/OLL MY_LIBRARY operator*(int times)const noexcept {
+		/*inline*/OLL MY_LIBRARY operator*(Data times)const noexcept {
 			OLL Res(*this, true);
 			Res *= times;
 			return Res;
 		}
 		//重载
 		/*inline*/void MY_LIBRARY operator*=(const OLL& b) noexcept {
-			LL::multiply<OLL, Data, Radix>(*this, b);
+			OLL This(*this, true);
+			this->data = ((b.data > 0) ? (this->data) : (!this->data));
+			this->destruct();
+			for (OLL* OprtPtr = b.next; OprtPtr != nullptr; OprtPtr = OprtPtr->next)
+			{
+				OLL temp(This * OprtPtr->data);
+				*this += temp;
+				temp.destruct();
+				This <<= 1;
+			}
+			This.destruct();
 		}
 		//重载
 		/*inline*/OLL MY_LIBRARY operator*(const OLL& b)const noexcept {
@@ -739,27 +744,32 @@ namespace LL {
 		MEMORY_CACHE(20);
 	public:
 		//重载
-		inline void MY_LIBRARY operator*=(int times) noexcept{
-			if (times == 0)
+		inline void MY_LIBRARY operator*=(Data times) noexcept{
+			if (times == Data(0))
 			{
 				return;
-			}
-			else if (times < 0)
-			{
-				this->data = !this->data;
-				times = -times;
 			}
 			LongCompute::MultiplyTo<DLL*, Data, LinkedListComputeTraits<DLL, Data>>(times, this->next);
 		}
 		//重载
-		inline DLL MY_LIBRARY operator*(int times)const noexcept{
+		inline DLL MY_LIBRARY operator*(Data times)const noexcept{
 			DLL Res(*this, true);
 			Res *= times;
 			return Res;
 		}
 		//重载
 		void MY_LIBRARY operator*=(const DLL& b) noexcept{
-			assert(false);
+			DLL This(*this, true);
+			this->data = ((b.data > 0) ? (this->data) : (!this->data));
+			this->destruct();
+			for (DLL* OprtPtr = b.next; OprtPtr != nullptr; OprtPtr = OprtPtr->next)
+			{
+				DLL temp(This * OprtPtr->data);
+				*this += temp;
+				temp.destruct();
+				This <<= 1;
+			}
+			This.destruct();
 		}
 		//重载
 		inline DLL MY_LIBRARY operator*(const DLL& b)const noexcept{
@@ -1699,7 +1709,7 @@ namespace LL {
 		}
 
 		static void MY_LIBRARY assign(node* ptr, size_t sz) { *ptr <<= sz; }
-		static void MY_LIBRARY InsertAfter(node** ptr, Data data) { (*ptr)->insert(data); }
+		static void MY_LIBRARY InsertAfter(node*& ptr, Data data = Data(0)) { ptr->insert(data); }
 	};
 }
 #ifdef LL_LENGTH

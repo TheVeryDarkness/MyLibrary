@@ -23,50 +23,6 @@ namespace LongCompute {
 	//	NullIterator;
 	//NullIterator must have 0 data, and not have an next element.
 
-	template<typename Iterator, typename Data, class _Traits, bool Insert = true>
-	inline bool MY_LIBRARY Iterate(Iterator& That, Iterator& This, Data& CarryBit)noexcept {
-		//Next element
-		Iterator ThatNext = (_Traits::GetNext(That)), ThisNext = (_Traits::GetNext(This));
-		if ((ThatNext != _Traits::NullIterator) && (ThisNext != _Traits::NullIterator))
-		{
-			That = ThatNext;
-			This = ThisNext;
-		}
-		else if ((ThatNext == _Traits::NullIterator) && (ThisNext != _Traits::NullIterator))
-		{
-			That = _Traits::NullIterator;
-			This = ThisNext;
-		}
-		else if ((ThatNext != _Traits::NullIterator) && (ThisNext == _Traits::NullIterator))
-		{
-			if constexpr(!Insert)
-			{
-				return false;
-			}
-			_Traits::InsertAfter(&This, CarryBit);
-			CarryBit = Data(0);
-			This = (_Traits::GetNext(This));
-			That = ThatNext;
-		}
-		else if ((ThatNext == _Traits::NullIterator) && (ThisNext == _Traits::NullIterator))
-		{
-			if constexpr(Insert)
-			{
-				return false;
-			}
-			if (CarryBit == 0) {
-				return false;
-			}
-			else {
-				That = _Traits::NullIterator;
-				_Traits::InsertAfter(&This, CarryBit);
-				CarryBit = Data(0);
-				This = (_Traits::GetNext(This));
-				return false;
-			}
-		}
-		return true;
-	}
 	template<typename Iterator, typename Data, class _Traits>
 	inline bool MY_LIBRARY Iterate(Iterator& This, Data& CarryBit)noexcept {
 		//Next element
@@ -91,7 +47,7 @@ namespace LongCompute {
 	}
 
 
-	template<class ComputeFunction, typename Iterator, typename Data, typename _Traits>
+	template<class ComputeFunction, typename Iterator, typename Data, typename _Traits, bool InsertIfOutOfA = false, bool InsertIfOutOfB = false>
 	class AppositionIterator
 	{
 	public:
@@ -101,13 +57,45 @@ namespace LongCompute {
 		//Notice:
 		//	this function move the iterator to its next place
 		void MY_LIBRARY operator++() noexcept {
-			a = _Traits::GetNext(a);
-			b = _Traits::GetNext(b);
+			if constexpr (InsertIfOutOfA) {
+				Iterator _a = _Traits::GetNext(a);
+				if (_a == _Traits::NullIterator) {
+					_Traits::InsertAfter(a);
+					a = _Traits::GetNext(a);
+				}
+				else a = _a;
+			}
+			else a = _Traits::GetNext(a);
+			if constexpr(InsertIfOutOfB){
+				Iterator _b = _Traits::GetNext(b);
+				if (_b == _Traits::NullIterator) { 
+					_Traits::InsertAfter(b); 
+					b = _Traits::GetNext(b);
+				}
+				else b = _b;
+			}
+			else b = _Traits::GetNext(b);
+
 			Result = c(Result.second, _Traits::GetData(a), _Traits::GetData(b));
 		}
 		//return true if the iterator is still working
 		MY_LIBRARY operator bool()const noexcept {
-			return !(a == _Traits::NullIterator && b == _Traits::NullIterator && Result.second == Data(0));
+			if constexpr (InsertIfOutOfA && InsertIfOutOfB)
+			{
+				return !Result.second == Data(0);
+			}
+			if constexpr(InsertIfOutOfA && !InsertIfOutOfB)
+			{
+				return !(b == _Traits::NullIterator && Result.second == Data(0));
+			}
+			if constexpr(!InsertIfOutOfA && InsertIfOutOfB)
+			{
+				return !(a == _Traits::NullIterator && Result.second == Data(0));
+			}
+			if constexpr(!InsertIfOutOfA && !InsertIfOutOfB)
+			{
+				return !(a == _Traits::NullIterator && b == _Traits::NullIterator && Result.second == Data(0));
+			}
 		}
 		//result;overflow
 		std::pair<Data, Data> Result;
@@ -119,7 +107,7 @@ namespace LongCompute {
 	template<typename Iterator, typename Data, class _Traits>
 	inline void MY_LIBRARY AddTo(Iterator a, Iterator b)noexcept {
 		Data Carry = Data(0);
-		AppositionIterator<_Traits::Add, Iterator, Data, _Traits> add(a, b);
+		AppositionIterator<_Traits::Add, Iterator, Data, _Traits, false, true> add(a, b);
 		while (true)
 		{
 			//This element
@@ -149,21 +137,39 @@ namespace LongCompute {
 		}
 	}
 
-	template<class ComputeFunction, typename Iterator, typename Data, typename _Traits>
-	class LineMultiplyIterator
+	template<class ComputeFunction, typename Iterator, typename Data, typename _Traits, bool InsertIfOutOfB = false>
+	class LineIterator
 	{
 	public:
-		MY_LIBRARY LineMultiplyIterator(Data a, Iterator b)noexcept :a(a), b(b), c(), Result(c(Result.second, a, _Traits::GetData(b))) {}
-		MY_LIBRARY ~LineMultiplyIterator()noexcept{}
+		MY_LIBRARY LineIterator(Data a, Iterator b)noexcept :a(a), b(b), c(), Result(c(Result.second, a, _Traits::GetData(b))) {}
+		MY_LIBRARY ~LineIterator()noexcept{}
 		//Notice:
 		//	this function move the iterator b to its next place
 		void MY_LIBRARY operator++() noexcept{
-			b = _Traits::GetNext(b);
+			if constexpr(InsertIfOutOfB)
+			{
+				Iterator _b = _Traits::GetNext(b);
+				if (_b == _Traits::NullIterator)
+				{
+					if (Result.second!=Data(0))
+					{
+						_Traits::InsertAfter(b, Result.second);
+						Result.second = Data(0);
+					}
+					b = _Traits::GetNext(b);
+				}
+				else b = _b;
+			}
+			else b = _Traits::GetNext(b);
 			Result = c(Result.second, a, _Traits::GetData(b));
 		}
 		//return true if the iterator is still working
 		MY_LIBRARY operator bool()const noexcept {
-			return !(b == _Traits::NullIterator && Result.second == Data(0));
+			if (InsertIfOutOfB)
+			{
+				return !(Result.second == Data(0));
+			}
+			else return !(b == _Traits::NullIterator && Result.second == Data(0));
 		}
 		//result;overflow
 		std::pair<Data, Data> Result;
@@ -175,7 +181,7 @@ namespace LongCompute {
 	template<typename Iterator, typename Data, class _Traits>
 	inline void MY_LIBRARY MultiplyTo(Data a, Iterator b) noexcept {
 		Data Carry = Data(0);
-		LineMultiplyIterator<_Traits::Multiply, Iterator, Data, _Traits> mul(a, b);
+		LineIterator<_Traits::Multiply, Iterator, Data, _Traits, true> mul(a, b);
 		while (true)
 		{
 			//This element
