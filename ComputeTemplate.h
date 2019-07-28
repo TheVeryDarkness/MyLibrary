@@ -153,25 +153,23 @@ namespace LongCompute {
 	class LineMultiplyIterator
 	{
 	public:
-		MY_LIBRARY LineMultiplyIterator(Data a, Iterator b)noexcept :a(a), b(b) {
-			Result = _Traits::ComputeFunction(a, _Traits::GetData(b));
-		}
+		MY_LIBRARY LineMultiplyIterator(Data a, Iterator b)noexcept :a(a), b(b), c(), Result(c(Result.second, a, _Traits::GetData(b))) {}
 		MY_LIBRARY ~LineMultiplyIterator()noexcept{}
 		//Notice:
 		//	this function move the iterator b to its next place
 		void MY_LIBRARY operator++() noexcept{
 			b = _Traits::GetNext(b);
-			Result = _Traits::ComputeFunction(a, _Traits::GetData(b));
+			Result = c(Result.second, a, _Traits::GetData(b));
 		}
 		//return true if the iterator is still working
 		MY_LIBRARY operator bool()const noexcept {
 			return !(b == _Traits::NullIterator && Result.second == Data(0));
 		}
-		//overflow;result
+		//result;overflow
 		std::pair<Data, Data> Result;
-	private:
 		Data a;
-		Iterator b;
+		Iterator b; 
+		ComputeFunction c;
 	};
 
 	template<typename Iterator, typename Data, class _Traits>
@@ -182,7 +180,7 @@ namespace LongCompute {
 		{
 			//This element
 			_Traits::GetData(mul.b) = mul.Result.first;
-			mul++;
+			++mul;
 			if (!mul)
 			{
 				break;
@@ -362,10 +360,9 @@ namespace LongCompute {
 			MY_LIBRARY Multiply()noexcept{}
 			MY_LIBRARY ~Multiply()noexcept{}
 			std::pair<Data, Data> MY_LIBRARY operator()(Data Carry, Data a, Data b)noexcept {
-				if (a>b)
-				{
-					Swap(a, b);
-				}
+				Data temp = b;
+				b = a;
+				a = temp;
 				if (a == Data(0))
 				{
 					return std::pair<Data, Data>(Carry, Data(0));
@@ -373,7 +370,7 @@ namespace LongCompute {
 				Data Res = b;
 				if (Res > Data(~Carry)) Carry = Data(1);
 				else Carry = Data(0);
-				for (Data i = Data(1); i < a; i++)
+				for (Data i = Data(1); i < a; ++i)
 				{
 					if (Res > ~b)
 					{

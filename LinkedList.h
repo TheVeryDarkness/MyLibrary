@@ -100,7 +100,16 @@ namespace LL {
 	public:
 		//重载
 		/*inline*/void MY_LIBRARY operator*=(int times) noexcept {
-			LL::multiply<OLL, Data, Radix>(*this, times);
+			if (times == 0)
+			{
+				return;
+			}
+			else if (times < 0)
+			{
+				this->data = !this->data;
+				times = -times;
+			}
+			LongCompute::MultiplyTo(times, this->next);
 		}
 		//重载
 		/*inline*/OLL MY_LIBRARY operator*(int times)const noexcept {
@@ -731,7 +740,16 @@ namespace LL {
 	public:
 		//重载
 		inline void MY_LIBRARY operator*=(int times) noexcept{
-			
+			if (times == 0)
+			{
+				return;
+			}
+			else if (times < 0)
+			{
+				this->data = !this->data;
+				times = -times;
+			}
+			LongCompute::MultiplyTo<DLL*, Data, LinkedListComputeTraits<DLL, Data>>(times, this->next);
 		}
 		//重载
 		inline DLL MY_LIBRARY operator*(int times)const noexcept{
