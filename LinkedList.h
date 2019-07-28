@@ -5,16 +5,17 @@
 #endif // _DEBUG
 
 
-#include <iostream>
-#include <array>
-#include <iomanip>
-#include <string>
-#include <charconv>
 #include "CustomizedRadixNumber.h"
 #include "Exception.h"
 #include "Statistics.h"
 #include "Bytes.h"
 #include "MemoryCache.h"
+#include <cassert>
+#include <iostream>
+#include <array>
+#include <iomanip>
+#include <string>
+#include <charconv>
 
 
 
@@ -26,18 +27,11 @@
 #define LL_LENGTH(type) const type* OprtPtr=this;size_t s=0;while(OprtPtr!=nullptr){OprtPtr=OprtPtr->next;s++;}return s;
 #define LL_SIMPLIFY(type) {type* Flag = this;type* OprtPtr = this;while (true){if (OprtPtr->data!=Data(0U)){Flag = OprtPtr;}if (OprtPtr->next == nullptr){break;}OprtPtr = OprtPtr->next;}while (Flag->next != nullptr){Flag->cut();}return Flag;}
 
-
-#ifdef max
-#undef max
-#endif // max
-#ifdef min
-#undef min
-#endif // min
 //Use a std::array to cache memory
 #define MEMORY_CACHE(MEMORY_CACHE_SIZE) \
 static inline MemorryCache<MEMORY_CACHE_SIZE> Buffer = {};\
-static void* MY_LIBRARY operator new(size_t size) {return Buffer.pop(size);}\
-static void MY_LIBRARY operator delete(void* _ptr, size_t size) {return Buffer.push(_ptr);}
+static void* MY_LIBRARY operator new(size_t size)noexcept {return Buffer.pop(size);}\
+static void MY_LIBRARY operator delete(void* _ptr, size_t size)noexcept {return Buffer.push(_ptr);}
 
 //#define MEMORY_CACHE(X)
 
@@ -736,21 +730,21 @@ namespace LL {
 		MEMORY_CACHE(20);
 	public:
 		//重载
-		inline void MY_LIBRARY operator*=(int times) {
-			throw;
+		inline void MY_LIBRARY operator*=(int times) noexcept{
+			
 		}
 		//重载
-		inline DLL MY_LIBRARY operator*(int times)const {
+		inline DLL MY_LIBRARY operator*(int times)const noexcept{
 			DLL Res(*this, true);
 			Res *= times;
 			return Res;
 		}
 		//重载
-		void MY_LIBRARY operator*=(const DLL& b) {
-			throw;
+		void MY_LIBRARY operator*=(const DLL& b) noexcept{
+			assert(false);
 		}
 		//重载
-		inline DLL MY_LIBRARY operator*(const DLL& b)const {
+		inline DLL MY_LIBRARY operator*(const DLL& b)const noexcept{
 			DLL Res(*this, true);
 			Res *= b;
 			return Res;

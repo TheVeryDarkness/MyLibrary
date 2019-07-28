@@ -10,8 +10,9 @@ namespace LargeInteger {
 	{
 	public:
 		constexpr const Data& operator()()const noexcept{ return this->data; }
-		constexpr MY_LIBRARY Num(Data init)noexcept :data(init) {
+		constexpr MY_LIBRARY Num(Data init)noexcept:data(init) {
 			static_assert(std::is_integral<Data>::value, "Integral required");
+			static_assert(Data(-1) > Data(0), "Unsigned type required");
 		}
 		explicit constexpr MY_LIBRARY operator const Data&()const noexcept{
 			return data;
@@ -127,6 +128,9 @@ namespace LargeInteger {
 			Num Copy = *this;
 			return (Copy *= that);
 		}
+		static void MY_LIBRARY Swap(Num& a,Num&b)noexcept {
+			a.data ^= b.data; b.data ^= a.data; a.data ^= b.data;
+		}
 		template<class os>
 		friend os& operator<<(os& o, const Num& n) noexcept {
 			return (o << n.data);
@@ -135,8 +139,6 @@ namespace LargeInteger {
 		Data data;
 	};
 }
-#undef max
-#undef min
 template<typename Data, Data Radix>class std::numeric_limits<LargeInteger::Num<Data, Radix>> {
 	constexpr LargeInteger::Num<Data, Radix> max() noexcept { return ~Num<Data, Radix>(0); }
 	constexpr LargeInteger::Num<Data, Radix> min() noexcept { return Num<Data, Radix>(0); }

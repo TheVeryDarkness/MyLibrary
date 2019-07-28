@@ -141,9 +141,9 @@ constexpr unsigned inline __stdcall GetPowerTimes(
 
 //不判断两数相等
 template<typename Data>inline void __stdcall Swap(Data& a, Data& b) {
-	a = a ^ b;
-	b = a ^ b;
-	a = a ^ b;
+	a ^= b;
+	b ^= a;
+	a ^= b;
 }
 
 template<typename Data>constexpr inline bool IsPrime(Data val){

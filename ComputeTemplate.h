@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Shared.h"
+#include "Bytes.h"
 
 namespace LongCompute {
 	constexpr short Larger = 0x1;
@@ -147,30 +148,47 @@ namespace LongCompute {
 			}
 		}
 	}
-	
-	template<typename Iterator,typename Data, typename _Traits>
-	class MultiplyIterator
+
+	template<class ComputeFunction, typename Iterator, typename Data, typename _Traits>
+	class LineMultiplyIterator
 	{
 	public:
-		MY_LIBRARY MultiplyIterator(Iterator a, Iterator b)noexcept :a(a), b(b) {
-			_Traits::Multiply(Over, Res, _Traits::GetData(a), _Traits::GetData(b));
+		MY_LIBRARY LineMultiplyIterator(Data a, Iterator b)noexcept :a(a), b(b) {
+			Result = _Traits::ComputeFunction(a, _Traits::GetData(b));
 		}
-		MY_LIBRARY ~MultiplyIterator()noexcept{}
-		//Notice:
-		//	this function move the iterator a to its next place
-		void MY_LIBRARY operator++() noexcept{
-			a = _Traits::GetNext(a);
-		}
+		MY_LIBRARY ~LineMultiplyIterator()noexcept{}
 		//Notice:
 		//	this function move the iterator b to its next place
-		void MY_LIBRARY operator++(int)noexcept {
+		void MY_LIBRARY operator++() noexcept{
 			b = _Traits::GetNext(b);
+			Result = _Traits::ComputeFunction(a, _Traits::GetData(b));
+		}
+		//return true if the iterator is still working
+		MY_LIBRARY operator bool()const noexcept {
+			return !(b == _Traits::NullIterator && Result.second == Data(0));
 		}
 		//overflow;result
-		Data Over, Res;
+		std::pair<Data, Data> Result;
 	private:
-		Iterator a, b;
+		Data a;
+		Iterator b;
 	};
+
+	template<typename Iterator, typename Data, class _Traits>
+	inline void MY_LIBRARY MultiplyTo(Data a, Iterator b) noexcept {
+		Data Carry = Data(0);
+		LineMultiplyIterator<_Traits::Multiply, Iterator, Data, _Traits> mul(a, b);
+		while (true)
+		{
+			//This element
+			_Traits::GetData(mul.b) = mul.Result.first;
+			mul++;
+			if (!mul)
+			{
+				break;
+			}
+		}
+	}
 
 
 	template<typename SingleAccumulation, typename MultiAccumulation, typename Recursion, typename Iterator, typename Data, class _Traits>
@@ -337,6 +355,36 @@ namespace LongCompute {
 					);
 			}
 		};
+
+		class Multiply
+		{
+		public:
+			MY_LIBRARY Multiply()noexcept{}
+			MY_LIBRARY ~Multiply()noexcept{}
+			std::pair<Data, Data> MY_LIBRARY operator()(Data Carry, Data a, Data b)noexcept {
+				if (a>b)
+				{
+					Swap(a, b);
+				}
+				if (a == Data(0))
+				{
+					return std::pair<Data, Data>(Carry, Data(0));
+				}
+				Data Res = b;
+				if (Res > Data(~Carry)) Carry = Data(1);
+				else Carry = Data(0);
+				for (Data i = Data(1); i < a; i++)
+				{
+					if (Res > ~b)
+					{
+						Carry += Data(1);
+					}
+					Res += b;
+				}
+				return std::pair<Data, Data>(Res, Carry);
+			}
+		};
+
 	private:
 
 	};

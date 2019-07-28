@@ -399,7 +399,6 @@ namespace LargeInteger {
 		constexpr bool MY_LIBRARY operator!=(const BytesIterator& that)const noexcept { return !(*this == that); }
 	};
 
-#undef max
 	template<typename Data, Data _Max = std::numeric_limits<Data>::max()>
 	class SampleTraits
 	{
@@ -507,7 +506,6 @@ namespace LargeInteger {
 	};
 
 };
-#undef min
 template<size_t _Length>class std::numeric_limits<LargeInteger::Bytes<_Length>> {
 	constexpr LargeInteger::Bytes<_Length> max() noexcept { return ~Bytes<_Length>(0); }
 	constexpr LargeInteger::Bytes<_Length> min()noexcept { return Bytes<_Length>(0); }
