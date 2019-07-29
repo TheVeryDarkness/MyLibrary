@@ -142,14 +142,6 @@ namespace LL {
 			res.data = !res.data;
 			return res;
 		}
-		//重载OLL链表加号
-		inline OLL MY_LIBRARY operator+(
-			const OLL& b//操作数
-			)  const noexcept {
-			OLL Result(*this, true);//存储结果
-			Result += b;
-			return Result;
-		}
 		//重载OLL链表+=
 		inline void MY_LIBRARY operator+=(const OLL& that) noexcept {
 			if (that.next == nullptr)
@@ -183,6 +175,14 @@ namespace LL {
 				}
 			}
 			this->Simplify();
+		}
+		//重载OLL链表加号
+		inline OLL MY_LIBRARY operator+(
+			const OLL& b//操作数
+			)  const noexcept {
+			OLL Result(*this, true);//存储结果
+			Result += b;
+			return Result;
 		}
 		//重载OLL链表减号
 		/*inline*/OLL MY_LIBRARY operator-(

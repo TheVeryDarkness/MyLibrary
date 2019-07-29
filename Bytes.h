@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <type_traits>
+#include "Bytes.h"
 #include "ComputeTemplate.h"
 #include "Shared.h"
 
@@ -507,6 +508,6 @@ namespace LargeInteger {
 
 };
 template<size_t _Length>class std::numeric_limits<LargeInteger::Bytes<_Length>> {
-	constexpr LargeInteger::Bytes<_Length> max() noexcept { return ~Bytes<_Length>(0); }
-	constexpr LargeInteger::Bytes<_Length> min()noexcept { return Bytes<_Length>(0); }
+	constexpr LargeInteger::Bytes<_Length> max() noexcept { return LargeInteger::~Bytes<_Length>(0); }
+	constexpr LargeInteger::Bytes<_Length> min()noexcept { return LargeInteger::Bytes<_Length>(0); }
 };

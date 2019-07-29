@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Shared.h"
+#include <cassert>
+#include <limits>
 #include <type_traits>
 
 namespace LargeInteger {
@@ -10,7 +12,8 @@ namespace LargeInteger {
 	{
 	public:
 		constexpr const Data& operator()()const noexcept{ return this->data; }
-		constexpr MY_LIBRARY Num(Data init)noexcept :data(init % Radix) {
+		constexpr MY_LIBRARY Num(Data init)noexcept
+			:data((Radix == Data(0)) ? (init) : (init % Radix)) {
 			static_assert(std::is_integral<Data>::value, "Integral required");
 			static_assert(Data(-1) > Data(0), "Unsigned type required");
 		}
@@ -106,6 +109,7 @@ namespace LargeInteger {
 		bool MY_LIBRARY operator<(const Data& data)const noexcept { return (this->data < data); }
 		bool MY_LIBRARY operator<=(const Data& data)const noexcept { return (this->data <= data); }
 		Num& MY_LIBRARY operator*=(const Num& that) noexcept {
+			assert(false);
 			if (Radix == Data(0))
 			{
 				throw;
@@ -119,7 +123,6 @@ namespace LargeInteger {
 				else
 				{
 					this->data *= that.data;
-					this->data %= Radix;
 					return *this;
 				}
 			}
@@ -140,7 +143,7 @@ namespace LargeInteger {
 	};
 }
 template<typename Data, Data Radix>class std::numeric_limits<LargeInteger::Num<Data, Radix>> {
-	constexpr LargeInteger::Num<Data, Radix> max() noexcept { return ~Num<Data, Radix>(0); }
-	constexpr LargeInteger::Num<Data, Radix> min() noexcept { return Num<Data, Radix>(0); }
+	constexpr LargeInteger::Num<Data, Radix> max() noexcept { return ~LargeInteger::Num<Data, Radix>(0); }
+	constexpr LargeInteger::Num<Data, Radix> min() noexcept { return LargeInteger::Num<Data, Radix>(0); }
 };
 

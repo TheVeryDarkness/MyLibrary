@@ -198,6 +198,76 @@ namespace LongCompute {
 	}
 
 
+	//Compare a to b.
+	template<typename Iterator, typename Data, class _Traits>
+	inline short MY_LIBRARY CompareTo(const Iterator& a, const Iterator& b) noexcept {
+		if ((a == _Traits::NullIterator) && (b == _Traits::NullIterator))
+		{
+			return Equal;
+		}
+		short PreRes = CompareTo<Iterator, Data, _Traits>(_Traits::GetNext(a), _Traits::GetNext(b));
+		if (PreRes != Equal)
+		{
+			return PreRes;
+		}
+		else
+		{
+			return (
+				(_Traits::GetData(a) > _Traits::GetData(b))
+				?
+				Larger
+				:
+				(
+				(_Traits::GetData(a) < _Traits::GetData(b))
+					?
+					Smaller
+					:
+					Equal
+					)
+				);
+		}
+	}
+	//Extension for Compare()
+	template<typename Iterator, typename Data, class _Traits>
+	inline std::pair<Data, short> MY_LIBRARY _CompareTo(const Iterator& a, const Iterator& b) noexcept {
+		if (!((_Traits::GetNext(a) == _Traits::NullIterator) && (_Traits::GetNext(b) == _Traits::NullIterator)))
+		{
+			auto PreRes = _CompareTo<Iterator, Data, _Traits>(_Traits::GetNext(a), _Traits::GetNext(b));
+			if (PreRes.second != Equal)
+			{
+				return PreRes;
+			}
+			return (
+				(_Traits::GetData(a) > _Traits::GetData(b))
+				?
+				std::pair(Data(1), Larger)
+				:
+				(
+				(_Traits::GetData(a) < _Traits::GetData(b))
+					?
+					std::pair(Data(1), Smaller)
+					:
+					std::pair(Data(0), Equal)
+					)
+				);
+		}
+		else
+		{
+			return	(
+				(_Traits::GetData(a) > _Traits::GetData(b))
+				?
+				std::pair(Data(_Traits::GetData(a) / (_Traits::GetData(b) + Data(1))), Larger)
+				:
+				(
+				(_Traits::GetData(a) < _Traits::GetData(b))
+					?
+					std::pair(Data(_Traits::GetData(b) / (_Traits::GetData(a) + Data(1))), Smaller)
+					:
+					std::pair(Data(0), Equal)
+					)
+				);
+		}
+	}
 	template<typename SingleAccumulation, typename MultiAccumulation, typename Recursion, typename Iterator, typename Data, class _Traits>
 	inline void MY_LIBRARY __DivideInto(Iterator _a, Iterator _b, SingleAccumulation SingleAccum, Recursion Move, MultiAccumulation MultiAccum)noexcept {
 		{
@@ -209,7 +279,7 @@ namespace LongCompute {
 				SingleAccum();
 				return;
 			case Smaller:
-				DivideInto<Iterator, Data, _Traits>(_a, _Traits::GetNext(_b));
+				__DivideInto<Iterator, Data, _Traits>(_a, _Traits::GetNext(_b), SingleAccum, MultiAccum);
 				Move();
 				break;
 			default:
@@ -252,76 +322,6 @@ namespace LongCompute {
 		};
 		auto null = []()->void {};
 		__DivideInto<decltype(func), decltype(_func), decltype(null), Iterator, Data, _Traits>(a, b, func, null, _func);
-	}
-	//Compare a to b.
-	template<typename Iterator, typename Data, class _Traits>
-	inline short MY_LIBRARY CompareTo(const Iterator& a, const Iterator& b) noexcept{
-		if ((a == _Traits::NullIterator) && (b == _Traits::NullIterator))
-		{
-			return Equal;
-		}
-		short PreRes = CompareTo<Iterator, Data, _Traits>(_Traits::GetNext(a), _Traits::GetNext(b));
-		if (PreRes != Equal)
-		{
-			return PreRes;
-		}
-		else
-		{
-			return (
-				(_Traits::GetData(a) > _Traits::GetData(b))
-				?
-				Larger
-				:
-				(
-				(_Traits::GetData(a) < _Traits::GetData(b))
-					?
-					Smaller
-					:
-					Equal
-					)
-				);
-		}
-	}
-	//Extension for Compare()
-	template<typename Iterator, typename Data, class _Traits>
-	inline std::pair<Data, short> MY_LIBRARY _CompareTo(const Iterator& a, const Iterator& b) noexcept{
-		if (!((_Traits::GetNext(a) == _Traits::NullIterator) && (_Traits::GetNext(b) == _Traits::NullIterator)))
-		{
-			auto PreRes = _CompareTo<Iterator, Data, _Traits>(_Traits::GetNext(a), _Traits::GetNext(b));
-			if (PreRes.second != Equal)
-			{
-				return PreRes;
-			}
-			return (
-				(_Traits::GetData(a) > _Traits::GetData(b))
-				?
-				std::pair(Data(1), Larger)
-				:
-				(
-				(_Traits::GetData(a) < _Traits::GetData(b))
-					?
-					std::pair(Data(1), Smaller)
-					:
-					std::pair(Data(0), Equal)
-					)
-				);
-		}
-		else
-		{
-			return	(
-				(_Traits::GetData(a) > _Traits::GetData(b))
-				?
-				std::pair(Data(_Traits::GetData(a) / (_Traits::GetData(b) + Data(1))), Larger)
-				:
-				(
-				(_Traits::GetData(a) < _Traits::GetData(b))
-					?
-					std::pair(Data(_Traits::GetData(b) / (_Traits::GetData(a) + Data(1))), Smaller)
-					:
-					std::pair(Data(0), Equal)
-					)
-				);
-		}
 	}
 	template<typename Data>
 	class StandardComputeTraits
