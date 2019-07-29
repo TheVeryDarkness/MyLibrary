@@ -52,7 +52,9 @@ namespace LongCompute {
 	{
 	public:
 		MY_LIBRARY AppositionIterator(Iterator a, Iterator b)noexcept
-			:a(a), b(b), c(), Result(c(Data(0), _Traits::GetData(a), _Traits::GetData(b))) {}
+			:a(a), b(b), c(), Result(c(Data(0), _Traits::GetData(a), _Traits::GetData(b))) {
+			static_assert(std::is_same<Data, std::remove_reference<decltype(_Traits::GetData(b))>::type>::value, "It should be the same type");
+		}
 		MY_LIBRARY ~AppositionIterator()noexcept {}
 		//Notice:
 		//	this function move the iterator to its next place
@@ -141,7 +143,9 @@ namespace LongCompute {
 	class LineIterator
 	{
 	public:
-		MY_LIBRARY LineIterator(Data a, Iterator b)noexcept :a(a), b(b), c(), Result(c(Result.second, a, _Traits::GetData(b))) {}
+		MY_LIBRARY LineIterator(Data a, Iterator b)noexcept :a(a), b(b), c(), Result(c(Result.second, a, _Traits::GetData(b))) {
+			static_assert(std::is_same<Data, std::remove_reference<decltype(_Traits::GetData(b))>::type>::value, "It should be the same type");
+		}
 		MY_LIBRARY ~LineIterator()noexcept{}
 		//Notice:
 		//	this function move the iterator b to its next place
@@ -331,7 +335,7 @@ namespace LongCompute {
 		public:
 			MY_LIBRARY Add()noexcept {}
 			MY_LIBRARY ~Add()noexcept {}
-			std::pair<Data, Data> MY_LIBRARY operator()(Data Carry, Data a, Data b)noexcept{
+			std::pair<Data, Data> MY_LIBRARY operator()(Data Carry, const Data& a, const Data& b)noexcept{
 				return std::pair<Data, Data>(
 					a + b + Carry,
 					Data(
@@ -348,7 +352,7 @@ namespace LongCompute {
 		public:
 			MY_LIBRARY SubtractFrom()noexcept {}
 			MY_LIBRARY ~SubtractFrom()noexcept {}
-			std::pair<Data, Data> MY_LIBRARY operator()(Data Carry, Data a, Data b)noexcept {
+			std::pair<Data, Data> MY_LIBRARY operator()(Data Carry, const Data& a, const Data& b)noexcept {
 				return std::pair<Data, Data>(
 					b - a - Carry,
 					Data(
@@ -366,9 +370,12 @@ namespace LongCompute {
 			MY_LIBRARY Multiply()noexcept{}
 			MY_LIBRARY ~Multiply()noexcept{}
 			std::pair<Data, Data> MY_LIBRARY operator()(Data Carry, Data a, Data b)noexcept {
-				Data temp = b;
-				b = a;
-				a = temp;
+				if (a < b)
+				{
+					Data temp = b;
+					b = a;
+					a = temp;
+				}
 				if (a == Data(0))
 				{
 					return std::pair<Data, Data>(Carry, Data(0));
@@ -378,7 +385,7 @@ namespace LongCompute {
 				else Carry = Data(0);
 				for (Data i = Data(1); i < a; ++i)
 				{
-					if (Res > ~b)
+					if (Res > Data(~b))
 					{
 						Carry += Data(1);
 					}

@@ -10,7 +10,7 @@ namespace LargeInteger {
 	{
 	public:
 		constexpr const Data& operator()()const noexcept{ return this->data; }
-		constexpr MY_LIBRARY Num(Data init)noexcept:data(init) {
+		constexpr MY_LIBRARY Num(Data init)noexcept :data(init % Radix) {
 			static_assert(std::is_integral<Data>::value, "Integral required");
 			static_assert(Data(-1) > Data(0), "Unsigned type required");
 		}
