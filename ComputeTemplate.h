@@ -71,7 +71,7 @@ namespace LongCompute {
 			if constexpr(InsertIfOutOfB){
 				Iterator _b = _Traits::GetNext(b);
 				if (_b == _Traits::NullIterator) { 
-					_Traits::InsertAfter(b); 
+					_Traits::InsertAfter(b);
 					b = _Traits::GetNext(b);
 				}
 				else b = _b;
@@ -84,19 +84,19 @@ namespace LongCompute {
 		MY_LIBRARY operator bool()const noexcept {
 			if constexpr (InsertIfOutOfA && InsertIfOutOfB)
 			{
-				return !(_Traits::GetNext(a) == _Traits::NullIterator && _Traits::GetNext(b) == _Traits::NullIterator && Result.second == Data(0));
+				return !(_Traits::GetNext(a) == _Traits::NullIterator && _Traits::GetNext(b) == _Traits::NullIterator && Result.first == Data(0) && Result.second == Data(0));
 			}
 			if constexpr(InsertIfOutOfA && !InsertIfOutOfB)
 			{
-				return !(_Traits::GetNext(a) == _Traits::NullIterator && b == _Traits::NullIterator && Result.second == Data(0));
+				return !(_Traits::GetNext(a) == _Traits::NullIterator && b == _Traits::NullIterator && Result.first == Data(0) && Result.second == Data(0));
 			}
 			if constexpr(!InsertIfOutOfA && InsertIfOutOfB)
 			{
-				return !(a == _Traits::NullIterator && _Traits::GetNext(b) == _Traits::NullIterator && Result.second == Data(0));
+				return !(a == _Traits::NullIterator && _Traits::GetNext(b) == _Traits::NullIterator && Result.first == Data(0) && Result.second == Data(0));
 			}
 			if constexpr(!InsertIfOutOfA && !InsertIfOutOfB)
 			{
-				return !(a == _Traits::NullIterator && b == _Traits::NullIterator && Result.second == Data(0));
+				return !(a == _Traits::NullIterator && b == _Traits::NullIterator && Result.first == Data(0) && Result.second == Data(0));
 			}
 		}
 		//result;overflow
@@ -155,10 +155,7 @@ namespace LongCompute {
 				Iterator _b = _Traits::GetNext(b);
 				if (_b == _Traits::NullIterator)
 				{
-					if (Result.second != Data(0))
-					{
-						_Traits::InsertAfter(b);
-					}
+					_Traits::InsertAfter(b);
 					b = _Traits::GetNext(b);
 				}
 				else b = _b;
@@ -170,9 +167,9 @@ namespace LongCompute {
 		MY_LIBRARY operator bool()const noexcept {
 			if (InsertIfOutOfB)
 			{
-				return !(Result.second == Data(0));
+				return !(Result.first == Data(0) && Result.second == Data(0));
 			}
-			else return !(b == _Traits::NullIterator && Result.second == Data(0));
+			else return !(b == _Traits::NullIterator && Result.first == Data(0) && Result.second == Data(0));
 		}
 		//result;overflow
 		std::pair<Data, Data> Result;

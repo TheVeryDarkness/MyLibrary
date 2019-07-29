@@ -752,10 +752,16 @@ namespace LL {
 			DLL This(*this, true);
 			this->data = ((b.data > 0) ? (this->data) : (!this->data));
 			this->destruct();
+			if (b.next == nullptr)
+			{
+				This.destruct();
+				return;
+			}
+			this->insert();
 			for (DLL* OprtPtr = b.next; OprtPtr != nullptr; OprtPtr = OprtPtr->next)
 			{
 				DLL temp(This * OprtPtr->data);
-				*this += temp;
+				LongCompute::AddTo<DLL*, Data, LinkedListComputeTraits<DLL, Data>>(temp.next, this->next);
 				temp.destruct();
 				This <<= 1;
 			}
@@ -818,8 +824,8 @@ namespace LL {
 					LongCompute::SubtractFrom<DLL*, Data, LinkedListComputeTraits<DLL, Data>>(this->next, temp.next);
 					*this = temp;
 				}
+				this->Simplify();
 			}
-			this->Simplify();
 		}
 		//重载DLL链表减号
 		inline DLL MY_LIBRARY operator-(
@@ -1679,9 +1685,11 @@ namespace LL {
 		constexpr static inline node* NullIterator = nullptr;
 
 		static Data& MY_LIBRARY GetData(node* ptr) {
+			assert(NullData == Data(0), "Unexpected write has occured!");
 			return ((ptr == nullptr) ? (NullData = Data(0)) : (ptr->data));
 		}
 		static Data MY_LIBRARY GetData(const node* ptr) {
+			assert(NullData == Data(0),"Unexpected write has occured!");
 			return ((ptr == nullptr) ? (NullData = Data(0)) : (ptr->data));
 		}
 
