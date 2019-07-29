@@ -84,15 +84,15 @@ namespace LongCompute {
 		MY_LIBRARY operator bool()const noexcept {
 			if constexpr (InsertIfOutOfA && InsertIfOutOfB)
 			{
-				return !Result.second == Data(0);
+				return !(_Traits::GetNext(a) == _Traits::NullIterator && _Traits::GetNext(b) == _Traits::NullIterator && Result.second == Data(0));
 			}
 			if constexpr(InsertIfOutOfA && !InsertIfOutOfB)
 			{
-				return !(b == _Traits::NullIterator && Result.second == Data(0));
+				return !(_Traits::GetNext(a) == _Traits::NullIterator && b == _Traits::NullIterator && Result.second == Data(0));
 			}
 			if constexpr(!InsertIfOutOfA && InsertIfOutOfB)
 			{
-				return !(a == _Traits::NullIterator && Result.second == Data(0));
+				return !(a == _Traits::NullIterator && _Traits::GetNext(b) == _Traits::NullIterator && Result.second == Data(0));
 			}
 			if constexpr(!InsertIfOutOfA && !InsertIfOutOfB)
 			{
@@ -339,9 +339,9 @@ namespace LongCompute {
 					a + b + Carry,
 					Data(
 					(Carry > 0) ?
-						((a > Data(~b)) ? 1 : 0)
+						(((a > Data(~Data(b + 1))) || (b > Data(~Data(1)))) ? 1 : 0)
 						:
-						((a > Data(~Data(b + 1))) || (b > Data(~Data(1))) ? 1 : 0)
+						((a > Data(~b)) ? 1 : 0)
 					));
 			}
 		};

@@ -569,16 +569,7 @@ namespace LL {
 		}
 		//删除当前位置后的一位
 		inline void MY_LIBRARY cut() noexcept(DEBUG_FLAG) {
-			if (this->next == nullptr)
-			{
-#ifdef _DEBUG
-				DEBUG_OUT;
-				throw std::domain_error("No next node.");
-#else
-				return;
-#endif // _DEBUG
-			}
-			else
+			assert(this->next != nullptr, "No next node.");
 			{
 				OLL* temp = this->next->next;
 				delete this->next;
@@ -1139,16 +1130,7 @@ namespace LL {
 		}
 		//删除当前位置后的一位
 		inline void MY_LIBRARY cut() noexcept(DEBUG_FLAG) {
-			if (this->next == nullptr)
-			{
-#ifdef _DEBUG
-				DEBUG_OUT;
-				throw std::domain_error("No next node.");
-#else
-				return;
-#endif // _DEBUG
-			}
-			else
+			assert(this->next != nullptr, "No next node.");
 			{
 				DLL* temp = this->next->next;
 				delete this->next;
@@ -1708,7 +1690,9 @@ namespace LL {
 		}
 
 		static void MY_LIBRARY assign(node* ptr, size_t sz) { *ptr <<= sz; }
-		static void MY_LIBRARY InsertAfter(node*& ptr, Data data = Data(0)) { ptr->insert(data); }
+		static void MY_LIBRARY InsertAfter(node*& ptr, Data data = Data(0)) { 
+			ptr->insert(data); 
+		}
 	};
 }
 #ifdef LL_LENGTH
