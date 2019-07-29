@@ -132,13 +132,13 @@ namespace LL {
 			this->Numerator = that;
 		}
 
-		void MY_LIBRARY operator+=(long that) {
+		void MY_LIBRARY operator+=(Data that) {
 			Z Product(this->Denominator * that);
 			this->Numerator += Product;
 			Product.destruct();
 			this->Simplify();
 		}
-		void MY_LIBRARY operator-=(long that) {
+		void MY_LIBRARY operator-=(Data that) {
 			Z Product = this->Denominator * that;
 			this->Numerator -= Product;
 			Product.destruct();
@@ -199,7 +199,7 @@ namespace LL {
 			Res /= that;
 			return Res;
 		}
-		bool MY_LIBRARY operator==(long that)const {
+		bool MY_LIBRARY operator==(Data that)const {
 			Z temp = this->Denominator * that;
 			bool ret = (temp == this->Numerator);
 			temp.destruct();

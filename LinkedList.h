@@ -6,7 +6,6 @@
 
 
 #include "CustomizedRadixNumber.h"
-#include "Exception.h"
 #include "Statistics.h"
 #include "Bytes.h"
 #include "MemoryCache.h"

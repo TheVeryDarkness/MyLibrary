@@ -143,7 +143,7 @@ namespace LongCompute {
 	class LineIterator
 	{
 	public:
-		MY_LIBRARY LineIterator(Data a, Iterator b)noexcept :a(a), b(b), c(), Result(c(Result.second, a, _Traits::GetData(b))) {
+		MY_LIBRARY LineIterator(Data a, Iterator b)noexcept :a(a), b(b), c(), Result(c(Data(0), a, _Traits::GetData(b))) {
 			static_assert(std::is_same<Data, std::remove_reference<decltype(_Traits::GetData(b))>::type>::value, "It should be the same type");
 		}
 		MY_LIBRARY ~LineIterator()noexcept{}
@@ -155,10 +155,9 @@ namespace LongCompute {
 				Iterator _b = _Traits::GetNext(b);
 				if (_b == _Traits::NullIterator)
 				{
-					if (Result.second!=Data(0))
+					if (Result.second != Data(0))
 					{
-						_Traits::InsertAfter(b, Result.second);
-						Result.second = Data(0);
+						_Traits::InsertAfter(b);
 					}
 					b = _Traits::GetNext(b);
 				}
@@ -370,7 +369,7 @@ namespace LongCompute {
 			MY_LIBRARY Multiply()noexcept{}
 			MY_LIBRARY ~Multiply()noexcept{}
 			std::pair<Data, Data> MY_LIBRARY operator()(Data Carry, Data a, Data b)noexcept {
-				if (a < b)
+				if (a > b)
 				{
 					Data temp = b;
 					b = a;
@@ -381,7 +380,7 @@ namespace LongCompute {
 					return std::pair<Data, Data>(Carry, Data(0));
 				}
 				Data Res = b;
-				if (Res > Data(~Carry)) Carry = Data(1);
+				if (Res > Data(~Carry)) { Carry = Data(1); }
 				else Carry = Data(0);
 				for (Data i = Data(1); i < a; ++i)
 				{
