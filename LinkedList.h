@@ -769,16 +769,12 @@ namespace LL {
 			Res *= b;
 			return Res;
 		}
-		//重载绝对值
-		inline const DLL MY_LIBRARY abs()const noexcept {
-			return ((this->data > 0) ? *this : (-*this));
-		}
 		//重载正
-		inline bool MY_LIBRARY IsPositive()const noexcept {
+		INLINED bool MY_LIBRARY IsPositive()const noexcept {
 			return (this->data > 0);
 		}
 		//重载负
-		inline void MY_LIBRARY SetToContradict()noexcept {
+		INLINED void MY_LIBRARY SetToContradict()noexcept {
 			this->data = Data((this->data == 0) ? 1 : 0);
 		}
 		//重载DLL链表加号
