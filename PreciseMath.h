@@ -26,7 +26,7 @@ namespace LL {
 			Denominator(that.Denominator, DeepCopy),
 			Numerator(that.Numerator, DeepCopy) {}
 		MY_LIBRARY ~Q();
-		inline void MY_LIBRARY destruct() {
+		INLINED void MY_LIBRARY destruct() {
 			this->Denominator.destruct();
 			this->Numerator.destruct();
 		}
@@ -217,7 +217,7 @@ namespace LL {
 			return q.Print(o);
 		}
 	};
-	inline MY_LIBRARY Q::~Q() {}
+	INLINED MY_LIBRARY Q::~Q() {}
 }
 #ifdef Z_MAX
 #undef Z_MAX

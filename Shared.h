@@ -1,6 +1,5 @@
 #pragma once
 
-template<typename Ptr> inline void PtrDelete(Ptr ptr) { if (ptr != nullptr)delete ptr; }
 
 #ifdef _DEBUG
 #define DEBUG_FLAG 0
@@ -12,6 +11,12 @@ template<typename Ptr> inline void PtrDelete(Ptr ptr) { if (ptr != nullptr)delet
 #ifndef MY_LIBRARY
 #define MY_LIBRARY __stdcall
 #endif // !MY_LIBRARY
+
+#ifndef INLINED
+#define INLINED inline
+#endif
+
+template<typename Ptr> INLINED void PtrDelete(Ptr ptr) { if (ptr != nullptr)delete ptr; }
 
 #ifdef _DEBUG
 #define NOMINMAX

@@ -1,8 +1,9 @@
 #pragma once
 
+#include "Shared.h"
+#include "Statistics.h"
 #include <ostream>
 #include <iomanip>
-#include "Statistics.h"
 
 
 template<unsigned char Radix = 255>//指示该位的最大值
@@ -11,68 +12,68 @@ class Byte {
 private:
 	unsigned char data;
 public:
-	explicit inline Byte(unsigned long that) {
+	explicit INLINED Byte(unsigned long that) {
 		this->data = (unsigned char)that;
 		return;
 	}
-	explicit inline Byte(int that) {
+	explicit INLINED Byte(int that) {
 		this->data = (unsigned char)ABS(that % (Radix + 1));
 		return;
 	}
-	explicit inline Byte(unsigned int that) {
+	explicit INLINED Byte(unsigned int that) {
 		this->data = (unsigned char)(that % (Radix + 1));
 		return;
 	}
-	explicit inline Byte(unsigned char that) {
+	explicit INLINED Byte(unsigned char that) {
 		this->data = that;
 		return;
 	}
-	explicit inline Byte(const bool that = false) {
+	explicit INLINED Byte(const bool that = false) {
 		this->data = (that) ?
 			('\001') : ('\000');
 		return;
 	}
-	explicit inline operator unsigned long()const {
+	explicit INLINED operator unsigned long()const {
 		return (unsigned long)this->data;
 	}
-	explicit inline operator int()const {
+	explicit INLINED operator int()const {
 		return (int)this->data;
 	}
-	explicit inline operator bool()const {
+	explicit INLINED operator bool()const {
 		if (this == nullptr)
 		{
 			return false;
 		}
 		return (this->data > 0) ? true : false;
 	}
-	inline Byte operator*=(int that) {
+	INLINED Byte operator*=(int that) {
 		this->data *= that;
 		return*this;
 	}
-	inline Byte operator*(int that) {
+	INLINED Byte operator*(int that) {
 		Byte Res(this->data);
 		Res.data *= that;
 		return Res;
 	}
-	inline Byte operator=(long that) {
+	INLINED Byte operator=(long that) {
 		this->data = (unsigned char)(that % (Radix + 1));
 		return *this;
 	}
-	inline Byte operator=(int that) {
+	INLINED Byte operator=(int that) {
 		this->data = (unsigned char)(that % (Radix + 1));
 		return *this;
 	}
-	inline Byte operator=(bool that) {
+	INLINED Byte operator=(bool that) {
 		this->data = (that) ? 1 : 0;
 		return *this;
 	}
-	inline bool operator==(bool that) const {
+	INLINED bool operator==(bool that) const {
 		return (
 			((bool)this->data == that) ?
 			true : false
 			);
 	}
-	inline bool operator==(const Byte & that)const {
+	INLINED bool operator==(const Byte & that)const {
 		return (
 			(this->data > 0 && that.data > 0
 				||
@@ -81,7 +82,7 @@ public:
 			true : false
 			);
 	}
-	inline Byte operator+=(Byte that) {
+	INLINED Byte operator+=(Byte that) {
 		if (Radix == 1)
 		{
 			this->data = (that.data > 0) ? (!this->data) : this->data;
@@ -92,7 +93,7 @@ public:
 		}
 		return *this;
 	}
-	inline Byte operator+(Byte that) const {
+	INLINED Byte operator+(Byte that) const {
 		if (Radix == 1)
 		{
 			return (this->data == that.data) ?
@@ -103,13 +104,13 @@ public:
 			return Byte(this->data + that.data);
 		}
 	}
-	inline Byte operator!() const {
+	INLINED Byte operator!() const {
 		return (
 			(this->data > 0) ?
 			Byte(false) : Byte(true))
 			;
 	}
-	inline bool operator>(const Byte & that)const {
+	INLINED bool operator>(const Byte & that)const {
 		if (Radix == 1)
 		{
 			return(this->data > 0 && that.data == 0) ? true : false;
@@ -119,7 +120,7 @@ public:
 			return(this->data > that.data) ? true : false;
 		}
 	}
-	inline bool operator>=(const Byte & that) const {
+	INLINED bool operator>=(const Byte & that) const {
 		if (Radix == 1)
 		{
 			return(this->data > 0) ? true : false;
@@ -130,7 +131,7 @@ public:
 		}
 	}
 	//自动将输出进制复位为10
-	friend inline std::ostream& operator<<(
+	friend INLINED std::ostream& operator<<(
 		std::ostream & out,
 		const Byte & that
 		) {

@@ -6,7 +6,7 @@ namespace LL {
 #define NoNext(a) (a->next==nullptr||a==&NullObject)
 	//жиди
 	template<class Class, typename Data, unsigned long Radix>
-	inline void MY_LIBRARY add(
+	INLINED void MY_LIBRARY add(
 		Class& a, const Class& b
 	) noexcept {
 		Class NullObject(0, nullptr);

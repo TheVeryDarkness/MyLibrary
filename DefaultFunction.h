@@ -58,10 +58,10 @@ namespace LL {
 		std::ostream& MY_LIBRARY Print(std::ostream& o)const {
 			return o << '(' << c << ')' << "*x^(" << i << ')';
 		}
-		inline bool MY_LIBRARY operator==(const power& that)const {
+		INLINED bool MY_LIBRARY operator==(const power& that)const {
 			return (this->c == that.c && this->i == that.i);
 		}
-		inline bool MY_LIBRARY operator!=(const power& that)const {
+		INLINED bool MY_LIBRARY operator!=(const power& that)const {
 			return !(*this == that);
 		}
 		friend std::ostream& MY_LIBRARY operator<<(std::ostream& o, const power& p) {

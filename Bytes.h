@@ -309,7 +309,7 @@ namespace LargeInteger {
 	//***************************************************
 	template<size_t Length>
 	template<size_t OriginLength>
-	constexpr inline MY_LIBRARY Bytes<Length>::Bytes(
+	constexpr INLINED MY_LIBRARY Bytes<Length>::Bytes(
 		const Bytes<OriginLength>& that
 	)noexcept {
 		if constexpr (Length >= OriginLength)
@@ -319,7 +319,7 @@ namespace LargeInteger {
 		return;
 	}
 	template<size_t Length>
-	constexpr inline MY_LIBRARY LargeInteger::Bytes<Length>::Bytes(
+	constexpr INLINED MY_LIBRARY LargeInteger::Bytes<Length>::Bytes(
 		const std::initializer_list<value_type>& that
 	) noexcept {
 		size_t a = 0;
@@ -335,7 +335,7 @@ namespace LargeInteger {
 
 	template<size_t Length>
 	template<typename Data>
-	constexpr inline MY_LIBRARY LargeInteger::Bytes<Length>::Bytes(Data data) noexcept {
+	constexpr INLINED MY_LIBRARY LargeInteger::Bytes<Length>::Bytes(Data data) noexcept {
 		for (size_t i = 0; i < Length; i++)
 		{
 			this->Byte[i] = data & 0xff;
@@ -354,7 +354,7 @@ namespace LargeInteger {
 
 	template<size_t Length>
 	template<typename Data>
-	constexpr inline MY_LIBRARY LargeInteger::Bytes<Length>::operator Data () noexcept {
+	constexpr INLINED MY_LIBRARY LargeInteger::Bytes<Length>::operator Data () noexcept {
 		Data data = {};
 		if constexpr (sizeof(Data) <= Length)
 		{
@@ -380,7 +380,7 @@ namespace LargeInteger {
 	}
 
 	template<typename Data>
-	constexpr inline size_t GetMinLength(Data data) noexcept {
+	constexpr INLINED size_t GetMinLength(Data data) noexcept {
 		static_assert(std::is_integral<Data>::value,"Integral required.");
 		static_assert(Data(-1) > 0, "Unsigned type required.");
 		size_t res = ((static_cast<Data>(~data) == 0) ? 1 : 0);
@@ -406,9 +406,9 @@ namespace LargeInteger {
 	public:
 		SampleTraits() = delete;
 		~SampleTraits() = delete;
-		static constexpr inline size_t length = LargeInteger::GetMinLength(_Max);
-		static constexpr inline LargeInteger::Bytes<length> Max = LargeInteger::Bytes<length>(_Max);
-		static constexpr inline LargeInteger::Bytes<length> Radix = LargeInteger::Bytes<length>(Max + LargeInteger::Bytes<length>(1));
+		static constexpr INLINED size_t length = LargeInteger::GetMinLength(_Max);
+		static constexpr INLINED LargeInteger::Bytes<length> Max = LargeInteger::Bytes<length>(_Max);
+		static constexpr INLINED LargeInteger::Bytes<length> Radix = LargeInteger::Bytes<length>(Max + LargeInteger::Bytes<length>(1));
 
 		static constexpr void Add(Data& Res, Data& Carry, Data a, Data b) noexcept {
 			Bytes<length> Sum = Bytes<length>(a);
@@ -480,8 +480,8 @@ namespace LargeInteger {
 		BytesTraits() = delete;
 		~BytesTraits() = delete;
 
-		constexpr static inline Bytes<Length> NullObject = Bytes<Length>();
-		constexpr static inline BytesIterator<Length> NullIterator = { &NullObject,0 };
+		constexpr static INLINED Bytes<Length> NullObject = Bytes<Length>();
+		constexpr static INLINED BytesIterator<Length> NullIterator = { &NullObject,0 };
 
 		static constexpr void MY_LIBRARY assign(Bytes<Length>* ptr, size_t s) noexcept {
 			*ptr <<= 8;

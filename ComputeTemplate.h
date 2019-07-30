@@ -24,7 +24,7 @@ namespace LongCmpt {
 	//NullIterator must have 0 data, and not have an next element.
 
 	template<typename Iterator, typename Data, class _Traits>
-	inline bool MY_LIBRARY Iterate(Iterator& This, Data& CarryBit)noexcept {
+	INLINED bool MY_LIBRARY Iterate(Iterator& This, Data& CarryBit)noexcept {
 		//Next element
 		Iterator ThisNext = (_Traits::GetNext(This));
 		if ((ThisNext != _Traits::NullIterator))
@@ -84,7 +84,7 @@ namespace LongCmpt {
 	};
 
 	template<typename Compute, typename Iterator, typename Data, class _Traits>
-	inline void MY_LIBRARY AppositionComputeTo(Iterator a, Iterator b)noexcept {
+	INLINED void MY_LIBRARY AppositionComputeTo(Iterator a, Iterator b)noexcept {
 		Data Carry = Data(0);
 		AppositionIterator<Compute, Iterator, Data, _Traits> compute(a, b);
 		while (true)
@@ -143,7 +143,7 @@ namespace LongCmpt {
 	};
 
 	template<typename Iterator, typename Data, class _Traits>
-	inline void MY_LIBRARY MultiplyTo(Data a, Iterator b) noexcept {
+	INLINED void MY_LIBRARY MultiplyTo(Data a, Iterator b) noexcept {
 		Data Carry = Data(0);
 		LineIterator<_Traits::Multiply, Iterator, Data, _Traits> mul(a, b);
 		while (true)
@@ -169,7 +169,7 @@ namespace LongCmpt {
 
 	//Compare a to b.
 	template<typename Iterator, typename Data, class _Traits>
-	inline short MY_LIBRARY CompareTo(const Iterator& a, const Iterator& b) noexcept {
+	INLINED short MY_LIBRARY CompareTo(const Iterator& a, const Iterator& b) noexcept {
 		if ((a == _Traits::NullIterator) && (b == _Traits::NullIterator))
 		{
 			return Equal;
@@ -198,7 +198,7 @@ namespace LongCmpt {
 	}
 	//Extension for Compare()
 	template<typename Iterator, typename Data, class _Traits>
-	inline std::pair<Data, short> MY_LIBRARY _CompareTo(const Iterator& a, const Iterator& b) noexcept {
+	INLINED std::pair<Data, short> MY_LIBRARY _CompareTo(const Iterator& a, const Iterator& b) noexcept {
 		if (!((_Traits::GetNext(a) == _Traits::NullIterator) && (_Traits::GetNext(b) == _Traits::NullIterator)))
 		{
 			auto PreRes = _CompareTo<Iterator, Data, _Traits>(_Traits::GetNext(a), _Traits::GetNext(b));
@@ -238,7 +238,7 @@ namespace LongCmpt {
 		}
 	}
 	template<typename SingleAccumulation, typename MultiAccumulation, typename Recursion, typename Iterator, typename Data, class _Traits>
-	inline void MY_LIBRARY __DivideInto(Iterator _a, Iterator _b, SingleAccumulation SingleAccum, Recursion Move, MultiAccumulation MultiAccum)noexcept {
+	INLINED void MY_LIBRARY __DivideInto(Iterator _a, Iterator _b, SingleAccumulation SingleAccum, Recursion Move, MultiAccumulation MultiAccum)noexcept {
 		{
 			switch (CompareTo<Iterator, Data, _Traits>(_a, _b))
 			{
@@ -271,7 +271,7 @@ namespace LongCmpt {
 		}
 	}
 	template<typename Linear, typename Iterator, typename Data, class _Traits>
-	inline void MY_LIBRARY DivideInto(Linear& Res, Iterator a, Iterator b) noexcept{
+	INLINED void MY_LIBRARY DivideInto(Linear& Res, Iterator a, Iterator b) noexcept{
 		//Regarding of the compatibility, we didn't use any majorization.
 		auto func1 = [&a, &b, &Res]()->void {SubtractFrom<Iterator, Data, _Traits>(a, b); Res++; };
 		auto func3 = [&a, &b, &Res](Data times)->void {for (Data i = 0; i < times; i++) { SubtractFrom<Iterator, Data, _Traits>(a, b); Res++; }};
@@ -279,7 +279,7 @@ namespace LongCmpt {
 		__DivideInto<decltype(func1), decltype(func3), decltype(func2), Iterator, Data, _Traits>(a, b, func1, func2, func3);
 	}
 	template<typename Iterator, typename Data, class _Traits>
-	inline void MY_LIBRARY DivideInto(Iterator a, Iterator b) {
+	INLINED void MY_LIBRARY DivideInto(Iterator a, Iterator b) {
 		//Regarding of the compatibility, we didn't use any majorization.
 		auto func = [&a, &b]()->void {
 			SubtractFrom<Iterator, Data, _Traits>(a, b);
