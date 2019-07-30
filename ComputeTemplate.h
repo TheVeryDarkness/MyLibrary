@@ -3,7 +3,7 @@
 #include "Shared.h"
 #include "Bytes.h"
 
-namespace LongCompute {
+namespace LongCmpt {
 	constexpr short Larger = 0x1;
 	constexpr short Equal = 0x0;
 	constexpr short Smaller = -0x1;
@@ -47,7 +47,7 @@ namespace LongCompute {
 	}
 
 
-	template<class ComputeFunction, typename Iterator, typename Data, typename _Traits, bool InsertIfOutOfA = false, bool InsertIfOutOfB = false>
+	template<class ComputeFunction, typename Iterator, typename Data, typename _Traits>
 	class AppositionIterator
 	{
 	public:
@@ -59,45 +59,22 @@ namespace LongCompute {
 		//Notice:
 		//	this function move the iterator to its next place
 		void MY_LIBRARY operator++() noexcept {
-			if constexpr (InsertIfOutOfA) {
-				Iterator _a = _Traits::GetNext(a);
-				if (_a == _Traits::NullIterator) {
-					_Traits::InsertAfter(a);
-					a = _Traits::GetNext(a);
-				}
-				else a = _a;
-			}
-			else a = _Traits::GetNext(a);
-			if constexpr(InsertIfOutOfB){
-				Iterator _b = _Traits::GetNext(b);
-				if (_b == _Traits::NullIterator) { 
-					_Traits::InsertAfter(b);
-					b = _Traits::GetNext(b);
-				}
-				else b = _b;
-			}
-			else b = _Traits::GetNext(b);
+			a = _Traits::GetNext(a);
+			b = _Traits::GetNext(b);
 
 			Result = c(Result.second, _Traits::GetData(a), _Traits::GetData(b));
 		}
 		//return true if the iterator is still working
 		MY_LIBRARY operator bool()const noexcept {
-			if constexpr (InsertIfOutOfA && InsertIfOutOfB)
-			{
-				return !(_Traits::GetNext(a) == _Traits::NullIterator && _Traits::GetNext(b) == _Traits::NullIterator && Result.first == Data(0) && Result.second == Data(0));
-			}
-			if constexpr(InsertIfOutOfA && !InsertIfOutOfB)
-			{
-				return !(_Traits::GetNext(a) == _Traits::NullIterator && b == _Traits::NullIterator && Result.first == Data(0) && Result.second == Data(0));
-			}
-			if constexpr(!InsertIfOutOfA && InsertIfOutOfB)
-			{
-				return !(a == _Traits::NullIterator && _Traits::GetNext(b) == _Traits::NullIterator && Result.first == Data(0) && Result.second == Data(0));
-			}
-			if constexpr(!InsertIfOutOfA && !InsertIfOutOfB)
-			{
-				return !(a == _Traits::NullIterator && b == _Traits::NullIterator && Result.first == Data(0) && Result.second == Data(0));
-			}
+			return !(
+				a == _Traits::NullIterator 
+				&& 
+				b == _Traits::NullIterator
+				&&
+				Result.first == Data(0) 
+				&&
+				Result.second == Data(0)
+				);
 		}
 		//result;overflow
 		std::pair<Data, Data> Result;
@@ -106,40 +83,40 @@ namespace LongCompute {
 		ComputeFunction c;
 	};
 
-	template<typename Iterator, typename Data, class _Traits>
-	inline void MY_LIBRARY AddTo(Iterator a, Iterator b)noexcept {
+	template<typename Compute, typename Iterator, typename Data, class _Traits>
+	inline void MY_LIBRARY AppositionComputeTo(Iterator a, Iterator b)noexcept {
 		Data Carry = Data(0);
-		AppositionIterator<_Traits::Add, Iterator, Data, _Traits, false, true> add(a, b);
+		AppositionIterator<Compute, Iterator, Data, _Traits> compute(a, b);
 		while (true)
 		{
 			//This element
-			_Traits::GetData(add.b) = add.Result.first;
-			++add;
-			if (!add)
+			_Traits::GetData(compute.b) = compute.Result.first;
+			if (
+				_Traits::GetNext(compute.b) == _Traits::NullIterator
+				)
+			{
+				if (_Traits::GetNext(compute.a) == _Traits::NullIterator)
+				{
+					if (compute.Result.second!=Data(0))
+					{
+						_Traits::InsertAfter(compute.b, compute.Result.second);
+					}
+					break;
+				}
+				else
+				{
+					_Traits::InsertAfter(compute.b);
+				}
+			}
+			++compute;
+			if (!compute)
 			{
 				break;
 			}
 		}
 	}
 
-
-	template<typename Iterator, typename Data, class _Traits>
-	inline void MY_LIBRARY SubtractFrom(Iterator a, Iterator b) noexcept{
-		Data Carry = Data(0);
-		AppositionIterator<_Traits::SubtractFrom, Iterator, Data, _Traits> sub(a, b);
-		while (true)
-		{
-			//This element
-			_Traits::GetData(sub.b) = sub.Result.first;
-			++sub;
-			if (!sub)
-			{
-				break;
-			}
-		}
-	}
-
-	template<class ComputeFunction, typename Iterator, typename Data, typename _Traits, bool InsertIfOutOfB = false>
+	template<class ComputeFunction, typename Iterator, typename Data, typename _Traits>
 	class LineIterator
 	{
 	public:
@@ -150,26 +127,13 @@ namespace LongCompute {
 		//Notice:
 		//	this function move the iterator b to its next place
 		void MY_LIBRARY operator++() noexcept{
-			if constexpr(InsertIfOutOfB)
-			{
-				Iterator _b = _Traits::GetNext(b);
-				if (_b == _Traits::NullIterator)
-				{
-					_Traits::InsertAfter(b);
-					b = _Traits::GetNext(b);
-				}
-				else b = _b;
-			}
-			else b = _Traits::GetNext(b);
+			b = _Traits::GetNext(b);
+
 			Result = c(Result.second, a, _Traits::GetData(b));
 		}
 		//return true if the iterator is still working
 		MY_LIBRARY operator bool()const noexcept {
-			if (InsertIfOutOfB)
-			{
-				return !(Result.first == Data(0) && Result.second == Data(0));
-			}
-			else return !(b == _Traits::NullIterator && Result.first == Data(0) && Result.second == Data(0));
+			return !(b == _Traits::NullIterator && Result.first == Data(0) && Result.second == Data(0));
 		}
 		//result;overflow
 		std::pair<Data, Data> Result;
@@ -181,11 +145,19 @@ namespace LongCompute {
 	template<typename Iterator, typename Data, class _Traits>
 	inline void MY_LIBRARY MultiplyTo(Data a, Iterator b) noexcept {
 		Data Carry = Data(0);
-		LineIterator<_Traits::Multiply, Iterator, Data, _Traits, true> mul(a, b);
+		LineIterator<_Traits::Multiply, Iterator, Data, _Traits> mul(a, b);
 		while (true)
 		{
 			//This element
 			_Traits::GetData(mul.b) = mul.Result.first;
+			if (_Traits::GetNext(mul.b) == _Traits::NullIterator)
+			{
+				if (mul.Result.second != Data(0))
+				{
+					_Traits::InsertAfter(mul.b, mul.Result.second);
+				}
+				break;
+			}
 			++mul;
 			if (!mul)
 			{
@@ -321,11 +293,11 @@ namespace LongCompute {
 		__DivideInto<decltype(func), decltype(_func), decltype(null), Iterator, Data, _Traits>(a, b, func, null, _func);
 	}
 	template<typename Data>
-	class StandardComputeTraits
+	class StdCmptTraits
 	{
 	public:
-		StandardComputeTraits() = delete;
-		~StandardComputeTraits() = delete;
+		StdCmptTraits() = delete;
+		~StdCmptTraits() = delete;
 		class Add
 		{
 		public:

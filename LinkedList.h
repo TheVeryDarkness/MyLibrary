@@ -67,7 +67,7 @@ namespace LL {
 		using Data=LargeInteger::Num<_Data, Radix>;
 
 		template<class node, typename Data>
-		friend class LinkedListComputeTraits;
+		friend class LLComputeTraits;
 		template<typename Type, unsigned long Radix>
 		/*inline*/friend std::ostream& MY_LIBRARY out(
 			std::ostream& out, const Type& b
@@ -103,7 +103,7 @@ namespace LL {
 			{
 				return;
 			}
-			LongCompute::MultiplyTo<OLL*, Data, LinkedListComputeTraits<OLL, Data>>(times, this->next);
+			LongCmpt::MultiplyTo<OLL*, Data, LLComputeTraits<OLL, Data>>(times, this->next);
 		}
 		//重载
 		/*inline*/OLL MY_LIBRARY operator*(Data times)const noexcept {
@@ -155,22 +155,22 @@ namespace LL {
 			}
 			if ((this->data > 0 && that.data > 0) || (this->data == 0 && that.data == 0))
 			{
-				LongCompute::AddTo<OLL*, Data, LinkedListComputeTraits<OLL, Data>>(that.next, this->next);
+				LongCmpt::AppositionComputeTo<LongCmpt::StdCmptTraits::Add, LongCmpt::StdCmptTraits<Data>::Add, OLL*, Data, LLComputeTraits<OLL, Data>>(that.next, this->next);
 			}
 			else {
-				short Cmpr = LongCompute::CompareTo<OLL*, Data, LinkedListComputeTraits<OLL, Data>>(this->next, that.next);
-				if (Cmpr == LongCompute::Equal)
+				short Cmpr = LongCmpt::CompareTo<OLL*, Data, LLComputeTraits<OLL, Data>>(this->next, that.next);
+				if (Cmpr == LongCmpt::Equal)
 				{
 					this->destruct();
 				}
-				if (Cmpr == LongCompute::Larger)
+				if (Cmpr == LongCmpt::Larger)
 				{
-					LongCompute::SubtractFrom<OLL*, Data, LinkedListComputeTraits<OLL, Data>>(that.next, this->next);
+					LongCmpt::AppositionComputeTo<LongCmpt::StdCmptTraits<Data>::SubtractFrom, OLL*, Data, LLComputeTraits<OLL, Data>>(that.next, this->next);
 				}
 				else
 				{
 					OLL temp(that, true);
-					LongCompute::SubtractFrom<OLL*, Data, LinkedListComputeTraits<OLL, Data>>(this->next, temp.next);
+					LongCmpt::AppositionComputeTo<LongCmpt::StdCmptTraits<Data>::SubtractFrom, OLL*, Data, LLComputeTraits<OLL, Data>>(this->next, temp.next);
 					*this = temp;
 				}
 			}
@@ -213,7 +213,7 @@ namespace LL {
 		inline MY_LIBRARY OLL(
 			const OLL& that,
 			bool DeepCopy
-		) noexcept :data(that.data){
+		) noexcept :data(that.data) {
 			this->data = that.data;
 			this->destruct();
 			if (DeepCopy)
@@ -252,7 +252,7 @@ namespace LL {
 		//默认为浅拷贝
 		inline MY_LIBRARY OLL(
 			const OLL& that
-		) noexcept:data(that.data) {
+		) noexcept :data(that.data) {
 			this->destruct();
 			this->next = that.next;
 			return;
@@ -260,7 +260,7 @@ namespace LL {
 		inline MY_LIBRARY OLL(
 			bool positive,
 			Data value
-		) :data(Data(positive)) {
+		) : data(Data(positive)) {
 			this->insert(value);
 		}
 		inline MY_LIBRARY OLL(
@@ -274,7 +274,7 @@ namespace LL {
 		constexpr explicit inline MY_LIBRARY OLL(
 			Data HeadData,
 			OLL* NextPtr = nullptr
-		) noexcept :data(HeadData),next(NextPtr){}
+		) noexcept :data(HeadData), next(NextPtr) {}
 		//释放链表头后对应链节的指针
 		inline void MY_LIBRARY destruct() noexcept {
 			while (this->next != nullptr)
@@ -492,13 +492,13 @@ namespace LL {
 			}
 			if (this->data > 0 && that.data > 0)
 			{
-				if (LongCompute::CompareTo<OLL*, Data, LinkedListComputeTraits<OLL, Data>>(this, &that) == LongCompute::Smaller)
+				if (LongCmpt::CompareTo<OLL*, Data, LLComputeTraits<OLL, Data>>(this, &that) == LongCmpt::Smaller)
 					return true;
 				else return false;
 			}
 			else
 			{
-				if (LongCompute::CompareTo<OLL*, Data, LinkedListComputeTraits<OLL, Data>>(&that, this) == LongCompute::Smaller)
+				if (LongCmpt::CompareTo<OLL*, Data, LLComputeTraits<OLL, Data>>(&that, this) == LongCmpt::Smaller)
 					return true;
 				else return false;
 			}
@@ -514,13 +514,13 @@ namespace LL {
 			}
 			if (this->data > 0 && that.data > 0)
 			{
-				if (LongCompute::CompareTo<OLL*, Data, LinkedListComputeTraits<OLL, Data>>(this, &that) == LongCompute::Larger)
+				if (LongCmpt::CompareTo<OLL*, Data, LLComputeTraits<OLL, Data>>(this, &that) == LongCmpt::Larger)
 					return true;
 				else return false;
 			}
 			else
 			{
-				if (LongCompute::CompareTo<OLL*, Data, LinkedListComputeTraits<OLL, Data>>(&that, this) == LongCompute::Larger)
+				if (LongCmpt::CompareTo<OLL*, Data, LLComputeTraits<OLL, Data>>(&that, this) == LongCmpt::Larger)
 					return true;
 				else return false;
 			}
@@ -534,7 +534,7 @@ namespace LL {
 		void MY_LIBRARY operator%=(const OLL& that)noexcept {
 			if (this->next != nullptr && that.next != nullptr)
 			{
-				LongCompute::DivideInto<OLL*, Data, LinkedListComputeTraits<OLL, Data>>(that.next, this->next);
+				LongCmpt::DivideInto<OLL*, Data, LLComputeTraits<OLL, Data>>(that.next, this->next);
 			}
 			else return;
 			this->Simplify();
@@ -543,7 +543,7 @@ namespace LL {
 			if (this->next != nullptr && that.next != nullptr)
 			{
 				OLL Res(this->data);
-				LongCompute::DivideInto<OLL, OLL*, Data, LinkedListComputeTraits<OLL, Data, Radix - (Data)1>>(Res, that.next, this->next);
+				LongCmpt::DivideInto<OLL, OLL*, Data, LLComputeTraits<OLL, Data, Radix - (Data)1>>(Res, that.next, this->next);
 				*this = Res;
 			}
 			else return;
@@ -569,7 +569,7 @@ namespace LL {
 		}
 		//删除当前位置后的一位
 		inline void MY_LIBRARY cut() noexcept(DEBUG_FLAG) {
-			assert(this->next != nullptr, "No next node.");
+			MY_ASSERT(this->next != nullptr, "No next node.");
 			{
 				OLL* temp = this->next->next;
 				delete this->next;
@@ -700,7 +700,7 @@ namespace LL {
 		using Data=LargeInteger::Num<_Data, Radix>;
 
 		template<class node, typename Data>
-		friend class LinkedListComputeTraits;
+		friend class LLComputeTraits;
 		//友元函数声明
 
 		template<typename Type, unsigned long Radix>
@@ -734,41 +734,37 @@ namespace LL {
 		MEMORY_CACHE(20);
 	public:
 		//重载
-		inline void MY_LIBRARY operator*=(Data times) noexcept{
+		inline void MY_LIBRARY operator*=(Data times) noexcept {
 			if (times == Data(0))
 			{
 				return;
 			}
-			LongCompute::MultiplyTo<DLL*, Data, LinkedListComputeTraits<DLL, Data>>(times, this->next);
+			LongCmpt::MultiplyTo<DLL*, Data, LLComputeTraits<DLL, Data>>(times, this->next);
 		}
 		//重载
-		inline DLL MY_LIBRARY operator*(Data times)const noexcept{
+		inline DLL MY_LIBRARY operator*(Data times)const noexcept {
 			DLL Res(*this, true);
 			Res *= times;
 			return Res;
 		}
 		//重载
-		void MY_LIBRARY operator*=(const DLL& b) noexcept{
+		void MY_LIBRARY operator*=(const DLL& b) noexcept {
+			if (b.next == nullptr) { return; }
 			DLL This(*this, true);
 			this->data = ((b.data > 0) ? (this->data) : (!this->data));
 			this->destruct();
-			if (b.next == nullptr)
-			{
-				This.destruct();
-				return;
-			}
 			this->insert();
 			for (DLL* OprtPtr = b.next; OprtPtr != nullptr; OprtPtr = OprtPtr->next)
 			{
 				DLL temp(This * OprtPtr->data);
-				LongCompute::AddTo<DLL*, Data, LinkedListComputeTraits<DLL, Data>>(temp.next, this->next);
+				LongCmpt::AppositionComputeTo<LongCmpt::StdCmptTraits<Data>::Add, DLL*, Data, LLComputeTraits<DLL, Data>>(temp.next, this->next);
 				temp.destruct();
 				This <<= 1;
 			}
 			This.destruct();
 		}
 		//重载
-		inline DLL MY_LIBRARY operator*(const DLL& b)const noexcept{
+		inline DLL MY_LIBRARY operator*(const DLL& b)const noexcept {
 			DLL Res(*this, true);
 			Res *= b;
 			return Res;
@@ -806,22 +802,22 @@ namespace LL {
 			}
 			if ((this->data > 0 && that.data > 0) || (this->data == 0 && that.data == 0))
 			{
-				LongCompute::AddTo<DLL*, Data, LinkedListComputeTraits<DLL, Data>>(that.next, this->next);
+				LongCmpt::AppositionComputeTo<LongCmpt::StdCmptTraits<Data>::Add, DLL*, Data, LLComputeTraits<DLL, Data>>(that.next, this->next);
 			}
 			else {
-				short Cmpr = LongCompute::CompareTo<DLL*, Data, LinkedListComputeTraits<DLL, Data>>(this->next, that.next);
-				if (Cmpr == LongCompute::Equal)
+				short Cmpr = LongCmpt::CompareTo<DLL*, Data, LLComputeTraits<DLL, Data>>(this->next, that.next);
+				if (Cmpr == LongCmpt::Equal)
 				{
 					this->destruct();
 				}
-				if (Cmpr == LongCompute::Larger)
+				if (Cmpr == LongCmpt::Larger)
 				{
-					LongCompute::SubtractFrom<DLL*, Data, LinkedListComputeTraits<DLL, Data>>(that.next, this->next);
+					LongCmpt::AppositionComputeTo<LongCmpt::StdCmptTraits<Data>::SubtractFrom, DLL*, Data, LLComputeTraits<DLL, Data>>(that.next, this->next);
 				}
 				else
 				{
 					DLL temp(that, true);
-					LongCompute::SubtractFrom<DLL*, Data, LinkedListComputeTraits<DLL, Data>>(this->next, temp.next);
+					LongCmpt::AppositionComputeTo<LongCmpt::StdCmptTraits<Data>::SubtractFrom, DLL*, Data, LLComputeTraits<DLL, Data>>(this->next, temp.next);
 					*this = temp;
 				}
 				this->Simplify();
@@ -1136,7 +1132,7 @@ namespace LL {
 		}
 		//删除当前位置后的一位
 		inline void MY_LIBRARY cut() noexcept(DEBUG_FLAG) {
-			assert(this->next != nullptr, "No next node.");
+			MY_ASSERT(this->next != nullptr, "No next node.");
 			{
 				DLL* temp = this->next->next;
 				delete this->next;
@@ -1676,20 +1672,20 @@ namespace LL {
 		return Result;
 	}
 	template<class node, typename Data>
-	class LinkedListComputeTraits :public LongCompute::StandardComputeTraits<Data>
+	class LLComputeTraits :public LongCmpt::StdCmptTraits<Data>
 	{
 	public:
-		MY_LIBRARY LinkedListComputeTraits() = delete;
-		MY_LIBRARY ~LinkedListComputeTraits() = delete;
+		MY_LIBRARY LLComputeTraits() = delete;
+		MY_LIBRARY ~LLComputeTraits() = delete;
 		static inline Data NullData = Data(0);
 		constexpr static inline node* NullIterator = nullptr;
 
 		static Data& MY_LIBRARY GetData(node* ptr) {
-			assert(NullData == Data(0), "Unexpected write has occured!");
+			MY_ASSERT(NullData == Data(0), "Unexpected write has occured!");
 			return ((ptr == nullptr) ? (NullData = Data(0)) : (ptr->data));
 		}
 		static Data MY_LIBRARY GetData(const node* ptr) {
-			assert(NullData == Data(0),"Unexpected write has occured!");
+			MY_ASSERT(NullData == Data(0), "Unexpected write has occured!");
 			return ((ptr == nullptr) ? (NullData = Data(0)) : (ptr->data));
 		}
 
@@ -1698,8 +1694,8 @@ namespace LL {
 		}
 
 		static void MY_LIBRARY assign(node* ptr, size_t sz) { *ptr <<= sz; }
-		static void MY_LIBRARY InsertAfter(node*& ptr, Data data = Data(0)) { 
-			ptr->insert(data); 
+		static void MY_LIBRARY InsertAfter(node*& ptr, Data data = Data(0)) {
+			ptr->insert(data);
 		}
 	};
 }

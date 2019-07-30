@@ -13,3 +13,11 @@
 #define OutputDebugStringW(x)
 #define OutputDebugString(x)
 #endif // _DEBUG
+
+
+#include <cassert>
+#ifdef _DEBUG
+#define MY_ASSERT(x,y); if(!(x))OutputDebugStringA(y);assert(x);
+#else
+#define MY_ASSERT(x,y); 
+#endif

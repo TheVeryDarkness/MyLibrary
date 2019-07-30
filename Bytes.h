@@ -133,7 +133,7 @@ namespace LargeInteger {
 		}
 		constexpr Bytes& MY_LIBRARY operator/=(const Bytes& that) noexcept {
 			Bytes Res;
-			LongCompute::DivideInto<Bytes, BytesIterator<Length>, value_type, BytesTraits<Length>>(Res, &that, this);
+			LongCmpt::DivideInto<Bytes, BytesIterator<Length>, value_type, BytesTraits<Length>>(Res, &that, this);
 			*this = Res;
 			return *this;
 		}
@@ -142,7 +142,7 @@ namespace LargeInteger {
 			return (Ret /= that);
 		}
 		constexpr Bytes& MY_LIBRARY operator%=(const Bytes& that) noexcept {
-			LongCompute::DivideInto<BytesIterator<Length>, value_type, BytesTraits<Length>>(&that, this);
+			LongCmpt::DivideInto<BytesIterator<Length>, value_type, BytesTraits<Length>>(&that, this);
 			return *this;
 		}
 		constexpr Bytes MY_LIBRARY operator%(const Bytes& that)const noexcept {
