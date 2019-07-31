@@ -81,7 +81,6 @@ namespace LL {
 							a.destruct(); b.destruct();
 							return;
 						}
-
 						if (_a)
 						{
 							this->Numerator /= b;
