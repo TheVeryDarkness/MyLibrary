@@ -66,7 +66,7 @@ namespace LL {
 
 		template<class node, typename Data>
 		friend class LLComputeTraits;
-		template<typename Type, unsigned long Radix>
+		template<typename Type>
 		INLINED friend std::ostream& MY_LIBRARY out(
 			std::ostream& out, const Type& b
 		)noexcept;
@@ -1699,7 +1699,9 @@ namespace LL {
 			return ((ptr == nullptr) ? nullptr : (ptr->next));
 		}
 
-		static void MY_LIBRARY assign(node* ptr, unsigned sz) { *ptr <<= sz; }
+		static void MY_LIBRARY assign(node* ptr, unsigned sz = 1) {
+			*ptr <<= sz; 
+		}
 		static void MY_LIBRARY InsertAfter(node*& ptr, Data data = Data(0)) {
 			ptr->insert(data);
 		}

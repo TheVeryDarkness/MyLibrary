@@ -246,7 +246,7 @@ namespace LongCmpt {
 			case Compare::Larger:
 				return;
 			case Compare::Equal:
-				Accum(Data(1));
+				Accum(_a, _b, Data(1));
 				return;
 			case Compare::Smaller:
 				__DivideInto<Accumulation, Recursion, Iterator, Data, _Traits>(_a, _Traits::GetNext(_b), Move, Accum);
@@ -268,7 +268,7 @@ namespace LongCmpt {
 				{
 					res = Data(1);
 				}
-				Accum(res);
+				Accum(_a, _b, res);
 				//return;
 			}
 		}
@@ -276,7 +276,7 @@ namespace LongCmpt {
 	template<typename Linear, typename Iterator, typename Data, class _Traits>
 	INLINED void MY_LIBRARY DivideInto(Linear& Res, Iterator a, Iterator b) noexcept{
 		//Regarding of the compatibility, we didn't use any majorization.
-		auto func1 = [&a, &b, &Res](Data times)->void {
+		auto func1 = [&Res](Iterator  a, Iterator b, Data times)->void {
 			for (Data i = 0; i < times; ++i) {
 				AppositionComputeTo<_Traits::SubtractFrom, Iterator, Data, _Traits>(a, b);
 				++Res; 
@@ -288,7 +288,7 @@ namespace LongCmpt {
 	template<typename Iterator, typename Data, class _Traits>
 	INLINED void MY_LIBRARY DivideInto(Iterator a, Iterator b) {
 		//Regarding of the compatibility, we didn't use any majorization.
-		auto func = [&a, &b](Data times)->void {
+		auto func = [](Iterator a, Iterator b, Data times)->void {
 			for (Data i = Data(0); i < times; ++i) {
 				AppositionComputeTo<_Traits::SubtractFrom, Iterator, Data, _Traits>(a, b);
 			} 
