@@ -122,6 +122,10 @@ constexpr unsigned inline __stdcall GetPowerTimes(
 	unsigned long long val,
 	const unsigned int base
 ) {
+	if (val == 0)
+	{
+		return 0;
+	}
 	unsigned times = 0;
 	while (true)
 	{

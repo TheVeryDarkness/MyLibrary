@@ -6,7 +6,7 @@
 
 namespace LL {
 
-	typedef DLL<unsigned short, Z_MAX> Z;
+	typedef OLL<unsigned short, Z_MAX> Z;
 
 	//ÓÐÀíÊý
 	//Rational Number
@@ -52,25 +52,19 @@ namespace LL {
 				}
 				else break;
 			}
-			long long difference = 0;
-
 			if (Numerator == Denominator)
 			{
 				Numerator = 1;
 				Denominator = 1;
 			}
-			else if (Numerator == 0)
+			else if (Numerator == Z(0))
 			{
 				Denominator = 1;
 			}
-			else if (Denominator == 0)
+			else if (Denominator == Z(0))
 			{
-#ifdef _DEBUG
-				DEBUG_OUT;
-				throw std::out_of_range("Denominator can't be 0.(from LL::Q::Simplify())");
-#else
+				MY_ASSERT(false,0/0);
 				Numerator = 1;
-#endif // _DEBUG
 			}
 			else
 			{
@@ -80,17 +74,12 @@ namespace LL {
 				while (true)
 				{
 					{
-						bool _a = (a == 0), _b = (b == 0);
+						bool _a = (a.next == nullptr), _b = (b.next == nullptr);
 						if (_a && _b)
 						{
-#ifdef _DEBUG
-							a.destruct(); b.destruct();
-							DEBUG_OUT;
-							throw std::out_of_range("Computation error");
-#else
+							MY_ASSERT(false, Unknown error);
 							a.destruct(); b.destruct();
 							return;
-#endif // _DEBUG
 						}
 
 						if (_a)
@@ -117,7 +106,6 @@ namespace LL {
 						return;
 					}
 					{
-						difference = static_cast<long long>(a.RawLength()) - b.RawLength();
 						if (a < b)
 						{
 							b %= a;
@@ -209,7 +197,7 @@ namespace LL {
 			return ((this->Numerator == that.Numerator) && (this->Denominator == that.Denominator));
 		}
 		std::ostream& Print(std::ostream& o)const {
-			if (this->Denominator == 1)
+			if (this->Denominator == Z(1))
 				return Numerator.Print();
 			return Denominator.Print((Numerator.Print(o) << '/'));
 		}

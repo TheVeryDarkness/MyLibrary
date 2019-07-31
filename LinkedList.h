@@ -1,8 +1,6 @@
 ﻿#pragma once
 
-#ifdef _DEBUG
 #include "VisualStudioDebug.h"
-#endif // _DEBUG
 
 
 #include "CustomizedRadixNumber.h"
@@ -94,12 +92,18 @@ namespace LL {
 				const SubData& (MY_LIBRARY* GetFunction)(const Data&),
 				const Type& that
 			)noexcept;
+		friend class Q;
 
 		MEMORY_CACHE(20);
 	public:
 		//重载
 		INLINED void MY_LIBRARY operator*=(Data times) noexcept {
 			if (times == Data(0))
+			{
+				this->destruct();
+				return;
+			}
+			else if (times == Data(1))
 			{
 				return;
 			}
@@ -113,13 +117,14 @@ namespace LL {
 		}
 		//重载
 		/*INLINED*/void MY_LIBRARY operator*=(const OLL& b) noexcept {
-			OLL This(*this, true);
+			if (b.next == nullptr) { return; }
 			this->data = ((b.data > 0) ? (this->data) : (!this->data));
+			OLL This(*this, true);
 			this->destruct();
-			for (OLL* OprtPtr = b.next; OprtPtr != nullptr; OprtPtr = OprtPtr->next)
-			{
-				OLL temp(This * OprtPtr->data);
-				*this += temp;
+			this->insert();
+			for (const OLL* OprtPtr = b.next; OprtPtr != nullptr; OprtPtr = OprtPtr->next) {
+				OLL temp(This * OprtPtr->data, false);
+				LongCmpt::AppositionComputeTo<LongCmpt::StdCmptTraits<Data>::Add, OLL*, Data, LLComputeTraits<OLL, Data>>(temp.next, this->next);
 				temp.destruct();
 				This <<= 1;
 			}
@@ -155,15 +160,15 @@ namespace LL {
 			}
 			if ((this->data > 0 && that.data > 0) || (this->data == 0 && that.data == 0))
 			{
-				LongCmpt::AppositionComputeTo<LongCmpt::StdCmptTraits::Add, LongCmpt::StdCmptTraits<Data>::Add, OLL*, Data, LLComputeTraits<OLL, Data>>(that.next, this->next);
+				LongCmpt::AppositionComputeTo<LongCmpt::StdCmptTraits<Data>::Add, OLL*, Data, LLComputeTraits<OLL, Data>>(that.next, this->next);
 			}
 			else {
-				short Cmpr = LongCmpt::CompareTo<OLL*, Data, LLComputeTraits<OLL, Data>>(this->next, that.next);
-				if (Cmpr == LongCmpt::Equal)
+				LongCmpt::Compare Cmpr = LongCmpt::CompareTo<OLL*, Data, LLComputeTraits<OLL, Data>>(this->next, that.next);
+				if (Cmpr == LongCmpt::Compare::Equal)
 				{
 					this->destruct();
 				}
-				if (Cmpr == LongCmpt::Larger)
+				if (Cmpr == LongCmpt::Compare::Larger)
 				{
 					LongCmpt::AppositionComputeTo<LongCmpt::StdCmptTraits<Data>::SubtractFrom, OLL*, Data, LLComputeTraits<OLL, Data>>(that.next, this->next);
 				}
@@ -194,6 +199,14 @@ namespace LL {
 			OLL temp(true, 1);
 			*this += temp;
 			temp.destruct();
+		}
+		//重载正
+		INLINED bool MY_LIBRARY IsPositive()const noexcept {
+			return (this->data > 0);
+		}
+		//重载负
+		INLINED void MY_LIBRARY SetToContradict()noexcept {
+			this->data = Data((this->data == 0) ? 1 : 0);
 		}
 		INLINED MY_LIBRARY ~OLL() {
 			this->next = nullptr;
@@ -448,7 +461,7 @@ namespace LL {
 		/*INLINED*/bool MY_LIBRARY operator==(
 			const OLL& that
 			)const noexcept {
-			OLL* OprtPtr = this, * PreOprtPtr = &that;
+			const OLL* OprtPtr = this, * PreOprtPtr = &that;
 			while (true)
 			{
 				if (OprtPtr == nullptr
@@ -463,7 +476,7 @@ namespace LL {
 				{
 					return false;
 				}
-				if (OprtPtr.data != PreOprtPtr.data)
+				if (OprtPtr->data != PreOprtPtr->data)
 				{
 					return false;
 				}
@@ -492,13 +505,13 @@ namespace LL {
 			}
 			if (this->data > 0 && that.data > 0)
 			{
-				if (LongCmpt::CompareTo<OLL*, Data, LLComputeTraits<OLL, Data>>(this, &that) == LongCmpt::Smaller)
+				if (LongCmpt::CompareTo<OLL*, Data, LLComputeTraits<OLL, Data>>(this->next, that.next) == LongCmpt::Compare::Smaller)
 					return true;
 				else return false;
 			}
 			else
 			{
-				if (LongCmpt::CompareTo<OLL*, Data, LLComputeTraits<OLL, Data>>(&that, this) == LongCmpt::Smaller)
+				if (LongCmpt::CompareTo<OLL*, Data, LLComputeTraits<OLL, Data>>(that.next, this->next) == LongCmpt::Compare::Smaller)
 					return true;
 				else return false;
 			}
@@ -514,13 +527,13 @@ namespace LL {
 			}
 			if (this->data > 0 && that.data > 0)
 			{
-				if (LongCmpt::CompareTo<OLL*, Data, LLComputeTraits<OLL, Data>>(this, &that) == LongCmpt::Larger)
+				if (LongCmpt::CompareTo<OLL*, Data, LLComputeTraits<OLL, Data>>(this->next, that.next) == LongCmpt::Larger)
 					return true;
 				else return false;
 			}
 			else
 			{
-				if (LongCmpt::CompareTo<OLL*, Data, LLComputeTraits<OLL, Data>>(&that, this) == LongCmpt::Larger)
+				if (LongCmpt::CompareTo<OLL*, Data, LLComputeTraits<OLL, Data>>(that.next, this->next) == LongCmpt::Larger)
 					return true;
 				else return false;
 			}
@@ -543,7 +556,7 @@ namespace LL {
 			if (this->next != nullptr && that.next != nullptr)
 			{
 				OLL Res(this->data);
-				LongCmpt::DivideInto<OLL, OLL*, Data, LLComputeTraits<OLL, Data, Radix - (Data)1>>(Res, that.next, this->next);
+				LongCmpt::DivideInto<OLL, OLL*, Data, LLComputeTraits<OLL, Data>>(Res, that.next, this->next);
 				*this = Res;
 			}
 			else return;
@@ -607,8 +620,12 @@ namespace LL {
 						return *this;
 					}
 					if constexpr (Radix == 0) {
-						OprtPtr->insert((Data)(value));
-						value >>= (Array::BitsPerByte * sizeof(Data));
+						OprtPtr->insert(static_cast<Data>(value));
+						if (sizeof(Data) >= sizeof(value))
+						{
+							return *this;
+						}
+						value >>= (LargeInteger::BitsPerByte * sizeof(Data));
 					}
 					else {
 						OprtPtr->insert((Data)(value % Radix));
@@ -737,6 +754,11 @@ namespace LL {
 		INLINED void MY_LIBRARY operator*=(Data times) noexcept {
 			if (times == Data(0))
 			{
+				this->destruct();
+				return;
+			}
+			else if (times == Data(1))
+			{
 				return;
 			}
 			LongCmpt::MultiplyTo<DLL*, Data, LLComputeTraits<DLL, Data>>(times, this->next);
@@ -750,8 +772,8 @@ namespace LL {
 		//重载
 		void MY_LIBRARY operator*=(const DLL& b) noexcept {
 			if (b.next == nullptr) { return; }
-			DLL This(*this, true);
 			this->data = ((b.data > 0) ? (this->data) : (!this->data));
+			DLL This(*this, true);
 			this->destruct();
 			this->insert();
 			for (DLL* OprtPtr = b.next; OprtPtr != nullptr; OprtPtr = OprtPtr->next)
@@ -1150,22 +1172,17 @@ namespace LL {
 		//保证指向正确
 		//返回末尾指针
 		INLINED DLL* MY_LIBRARY Fresh() noexcept {
-#ifdef _DEBUG
 			DLL* OprtPtr = this;
 			while (OprtPtr->next != nullptr) {
 				if (OprtPtr->next->last != OprtPtr)
 				{
-					DEBUG_OUT;
-					throw std::out_of_range("Unexpected");
+					assert(false);
 				}
 				OprtPtr->next->last = OprtPtr;
 				OprtPtr = OprtPtr->next;
 			}
 			this->last = nullptr;
 			return OprtPtr;
-#else
-			return this;
-#endif // _DEBUG
 		}
 		INLINED DLL* MY_LIBRARY GetEnd()const noexcept {
 			if (this->next == nullptr)
@@ -1258,12 +1275,8 @@ namespace LL {
 			) noexcept {
 			if (that == 0)
 			{
-#ifdef _DEBUG
-				DEBUG_OUT;
-				throw std::out_of_range("Denominator can't be 0.(from operator%=(const DLL&))");
-#else
+				MY_ASSERT(false,"Denominator can't be 0.(from operator%=(const DLL&))");
 				return;
-#endif // _DEBUG
 			}
 			if (this->next == nullptr)
 			{
@@ -1310,12 +1323,8 @@ namespace LL {
 		INLINED void MY_LIBRARY operator%=(unsigned long that) noexcept {
 			if (that == 0)
 			{
-#ifdef _DEBUG
-				DEBUG_OUT;
-				throw std::out_of_range("Denominator can't be 0.(from operator%=(const DLL&))");
-#else
+				MY_ASSERT(false,"Denominator can't be 0.(from operator%=(const DLL&))");
 				return;
-#endif // _DEBUG
 			}
 			if (this->next == nullptr)
 			{
@@ -1361,12 +1370,8 @@ namespace LL {
 		INLINED void MY_LIBRARY operator%=(const DLL& that) noexcept(DEBUG_FLAG) {
 			if (that == 0)
 			{
-#ifdef _DEBUG
-				DEBUG_OUT;
-				throw std::out_of_range("Denominator can't be 0.(from operator%=(const DLL&))");
-#else
+				MY_ASSERT(false,"Denominator can't be 0.(from operator%=(const DLL&))");
 				return;
-#endif // _DEBUG
 			}
 			bool ThisSign = (_Data(this->data) > 0);
 			this->data = Data(1);
@@ -1422,12 +1427,8 @@ namespace LL {
 		INLINED void MY_LIBRARY operator/=(const DLL& that) noexcept(DEBUG_FLAG) {
 			if (that == 0)
 			{
-#ifdef _DEBUG
-				DEBUG_OUT;
-				throw std::out_of_range("Denominator can't be 0.(from operator%=(const DLL&))");
-#else
+				MY_ASSERT(false,"Denominator can't be 0.(from operator%=(const DLL&))");
 				return;
-#endif // _DEBUG
 			}
 			size_t l1 = this->RawLength(), l2 = that.RawLength();
 			if (l1 < l2)
@@ -1586,52 +1587,61 @@ namespace LL {
 		{
 			out << "-";
 		}
-		bool temp = false;
-		unsigned int MinLength = 0;
-		MinLength = GetPowerTimes(Radix, 10);
-		unsigned OutBase = 0;
-		if (MinLength == 0)
+		if (Radix == static_cast<decltype(Radix)>(0))
 		{
-			MinLength = GetPowerTimes(Radix, 16);
-			if (MinLength == 0)
-			{
-				MinLength = GetPowerTimes(Radix, 8);
-				if (MinLength == 0)
-				{
-					MinLength = GetPowerTimes(Radix, 2);
-					if (MinLength == 0)
-					{
-						MinLength = 1;
-						OutBase = Radix;
-						out << "(Base:"
-							<< Radix
-							<< ")";
-						temp = true;
-					}
-					else
-					{
-						OutBase = 2;
-						out << "0b" << std::setbase(2);
-					}
-				}
-				else
-				{
-					OutBase = 8;
-					out << "0" << std::setbase(8);
-				}
-			}
-			else {
-				OutBase = 16;
-				out << "0x"
-					<< std::setbase(16);
-			}
+			out << "0x"
+				<< std::setbase(16);
+			SinglePrint<Type>(*(that.next), out, false, 2 * sizeof(Radix), 16);
 		}
 		else
 		{
-			OutBase = 10;
+			bool temp = false;
+			unsigned int Length = 0;
+			Length = GetPowerTimes(Radix, 10);
+			unsigned OutBase = 0;
+			if (Length == 0)
+			{
+				Length = GetPowerTimes(Radix, 16);
+				if (Length == 0)
+				{
+					Length = GetPowerTimes(Radix, 8);
+					if (Length == 0)
+					{
+						Length = GetPowerTimes(Radix, 2);
+						if (Length == 0)
+						{
+							Length = 1;
+							OutBase = Radix;
+							out << "(Base:"
+								<< Radix
+								<< ")";
+							temp = true;
+						}
+						else
+						{
+							OutBase = 2;
+							out << "0b" << std::setbase(2);
+						}
+					}
+					else
+					{
+						OutBase = 8;
+						out << "0" << std::setbase(8);
+					}
+				}
+				else {
+					OutBase = 16;
+					out << "0x"
+						<< std::setbase(16);
+				}
+			}
+			else
+			{
+				OutBase = 10;
+			}
+			SinglePrint<Type>(*(that.next), out, temp, Length, OutBase);
 		}
 
-		SinglePrint<Type>(*(that.next), out, temp, MinLength, OutBase);
 		out << std::setbase(10);
 		return out;
 	}
@@ -1689,7 +1699,7 @@ namespace LL {
 			return ((ptr == nullptr) ? nullptr : (ptr->next));
 		}
 
-		static void MY_LIBRARY assign(node* ptr, size_t sz) { *ptr <<= sz; }
+		static void MY_LIBRARY assign(node* ptr, unsigned sz) { *ptr <<= sz; }
 		static void MY_LIBRARY InsertAfter(node*& ptr, Data data = Data(0)) {
 			ptr->insert(data);
 		}

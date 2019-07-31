@@ -19,7 +19,6 @@ namespace LL {
 #ifdef _DEBUG
 				DEBUG_OUT;
 #endif // _DEBUG
-
 				throw std::invalid_argument("Denominator can't be 0.");
 			}
 			this->simplify();

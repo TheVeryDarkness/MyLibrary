@@ -47,5 +47,5 @@ public:
 	}
 
 private:
-	std::array<void*, CacheSize> Cache;
+	std::array<void*, CacheSize> Cache = {};
 };
