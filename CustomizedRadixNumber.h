@@ -81,10 +81,12 @@ namespace LargeInteger {
 			return (Copy -= that);
 		}
 		Num& MY_LIBRARY operator/=(const Num& that)noexcept {
+			assert(that.data != 0);
 			this->data /= that.data;
 			return *this;
 		}
 		Num& MY_LIBRARY operator%=(const Num& that) noexcept {
+			assert(that.data != 0);
 			this->data %= that.data;
 			return *this;
 		}

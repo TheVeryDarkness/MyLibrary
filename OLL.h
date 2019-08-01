@@ -151,6 +151,41 @@ namespace LL {
 			*this += temp;
 			temp.destruct();
 		}
+
+
+		INLINED void MY_LIBRARY operator+=(const Data& that)noexcept {
+			OLL temp(that, nullptr);
+			if (this->data == 0)
+			{
+				LongCmpt::AppositionComputeTo<LongCmpt::StdCmptTraits<Data>::SubtractFrom, OLL*, Data, LLComputeTraits<OLL, Data>>(&temp, this->next);
+			}
+			else
+			{
+
+				LongCmpt::AppositionComputeTo<LongCmpt::StdCmptTraits<Data>::Add, OLL*, Data, LLComputeTraits<OLL, Data>>(&temp, this->next);
+			}
+		}
+		INLINED void MY_LIBRARY operator-=(const Data& that)noexcept {
+			OLL temp(that, nullptr);
+			if (this->data > 0)
+			{
+				LongCmpt::AppositionComputeTo<LongCmpt::StdCmptTraits<Data>::SubtractFrom, OLL*, Data, LLComputeTraits<OLL, Data>>(&temp, this->next);
+			}
+			else
+			{
+
+				LongCmpt::AppositionComputeTo<LongCmpt::StdCmptTraits<Data>::Add, OLL*, Data, LLComputeTraits<OLL, Data>>(&temp, this->next);
+			}
+		}
+		INLINED void MY_LIBRARY operator+(const Data& that)const noexcept {
+			OLL res(*this, true);
+			return (res += that);
+		}
+		INLINED void MY_LIBRARY operator-(const Data& that)const noexcept {
+			OLL res(*this, true);
+			return (res -= that);
+		}
+
 		//жидие§
 		INLINED bool MY_LIBRARY IsPositive()const noexcept {
 			return (this->data > 0);

@@ -18,8 +18,12 @@
 #define NOMINMAX
 #include <crtdbg.h>
 #ifndef DBG_NEW
-#define DBG_NEW /*new*/::new ( _NORMAL_BLOCK , __FILE__ , __LINE__ )
-#endif 
+#if 1
+#define DBG_NEW ::new ( _NORMAL_BLOCK , __FILE__ , __LINE__ )
+#else
+#define DBG_NEW new
+#endif //1
+#endif  //DBG_NEW
 #else
 #ifndef DBG_NEW
 #define DBG_NEW new

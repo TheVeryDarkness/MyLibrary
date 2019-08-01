@@ -279,8 +279,8 @@ namespace LongCmpt {
 		auto func1 = [&Res](Iterator  a, Iterator b, Data times)->void {
 			for (Data i = 0; i < times; ++i) {
 				AppositionComputeTo<_Traits::SubtractFrom, Iterator, Data, _Traits>(a, b);
-				++Res; 
 			}
+			Res += times;
 		};
 		auto func2 = [&Res]()->void {_Traits::assign(&Res, 1); };
 		__DivideInto<decltype(func1), decltype(func2), Iterator, Data, _Traits>(a, b, func2, func1);

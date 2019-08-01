@@ -34,20 +34,6 @@ static void MY_LIBRARY operator delete(void* _ptr, size_t size)noexcept {return 
 //#define MEMORY_CACHE(X)
 
 namespace LL {
-	//前向声明
-	template <typename _Data, _Data Radix>
-	class OLL;
-	template<typename _Data, _Data Radix>
-	class DLL;
-	template<
-		typename Data,
-		typename SubData,
-		typename Type,
-		typename SubType>
-		SubType GetSubList(
-			const SubData& (MY_LIBRARY* GetFunction)(const Data&),
-			const Type& that
-		)noexcept;
 
 
 	//定义

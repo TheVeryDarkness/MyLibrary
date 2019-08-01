@@ -115,12 +115,12 @@ namespace LL {
 				LongCmpt::AppositionComputeTo<LongCmpt::StdCmptTraits<Data>::Add, DLL*, Data, LLComputeTraits<DLL, Data>>(that.next, this->next);
 			}
 			else {
-				short Cmpr = LongCmpt::CompareTo<DLL*, Data, LLComputeTraits<DLL, Data>>(this->next, that.next);
-				if (Cmpr == LongCmpt::Equal)
+				LongCmpt::Compare Cmpr = LongCmpt::CompareTo<DLL*, Data, LLComputeTraits<DLL, Data>>(this->next, that.next);
+				if (Cmpr == LongCmpt::Compare::Equal)
 				{
 					this->destruct();
 				}
-				if (Cmpr == LongCmpt::Larger)
+				if (Cmpr == LongCmpt::Compare::Larger)
 				{
 					LongCmpt::AppositionComputeTo<LongCmpt::StdCmptTraits<Data>::SubtractFrom, DLL*, Data, LLComputeTraits<DLL, Data>>(that.next, this->next);
 				}
@@ -578,6 +578,7 @@ namespace LL {
 			{
 				return *this;
 			}
+			assert(Radix != 0);
 			if (that % Radix == 0) {
 				return ((*this >>= 1) /= (that / Radix));
 			}
