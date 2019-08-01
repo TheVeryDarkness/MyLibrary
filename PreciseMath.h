@@ -1,6 +1,8 @@
 #pragma once
 
 #include "LinkedList.h"
+#include "OLL.h"
+#include "DLL.h"
 
 #define Z_MAX 10000
 

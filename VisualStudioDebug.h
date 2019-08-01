@@ -14,6 +14,18 @@
 #define OutputDebugString(x)
 #endif // _DEBUG
 
+#ifdef _DEBUG
+#define NOMINMAX
+#include <crtdbg.h>
+#ifndef DBG_NEW
+#define DBG_NEW /*new*/::new ( _NORMAL_BLOCK , __FILE__ , __LINE__ )
+#endif 
+#else
+#ifndef DBG_NEW
+#define DBG_NEW new
+#endif // !DBG_NEW
+#endif  // _DEBUG
+
 
 #include <cassert>
 #ifdef _DEBUG

@@ -17,22 +17,3 @@
 #endif
 
 template<typename Ptr> INLINED void PtrDelete(Ptr ptr) { if (ptr != nullptr)delete ptr; }
-
-#ifdef _DEBUG
-#define NOMINMAX
-#include <crtdbg.h>
-#ifdef max
-#undef max
-#endif // max
-#ifdef min
-#undef min
-#endif // min
-#ifndef DBG_NEW
-#define DBG_NEW new
-//::new ( _NORMAL_BLOCK , __FILE__ , __LINE__ )
-#endif 
-#else
-#ifndef DBG_NEW
-#define DBG_NEW new
-#endif // !DBG_NEW
-#endif  // _DEBUG
