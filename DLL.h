@@ -741,7 +741,7 @@ namespace LL {
 				if (*this > That)
 				{
 					DLL* _a = this->GetEnd(), * _b = that.GetEnd();
-					if ((_a->data) / (_b->data + Data(1)) >= Data(2))
+					if ((_a->data > _b->data) && (_a->data) / (_b->data + Data(1)) >= Data(2))
 					{
 						Data Ratio((_a->data) / (_b->data + Data(1)) - Data(1));
 						DLL temp(That * _Data(Ratio), false);
