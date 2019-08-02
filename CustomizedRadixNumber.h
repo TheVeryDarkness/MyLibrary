@@ -146,4 +146,3 @@ template<typename Data, Data Radix>class std::numeric_limits<LargeInteger::Num<D
 	constexpr LargeInteger::Num<Data, Radix> max() noexcept { return ~LargeInteger::Num<Data, Radix>(0); }
 	constexpr LargeInteger::Num<Data, Radix> min() noexcept { return LargeInteger::Num<Data, Radix>(0); }
 };
-
