@@ -220,14 +220,6 @@ namespace LongCmpt {
 					break;
 				}
 			}
-			if (_Traits::GetNext(_a) != _Traits::NullIterator)
-			{
-				temp = Compare::Larger;
-			}
-			else if (_Traits::GetNext(_b) != _Traits::NullIterator)
-			{
-				temp = Compare::Smaller;
-			}
 			{
 				if (temp == Compare::Larger) {
 					if (_Traits::GetData(_a) > (_Traits::GetData(_b))) {
@@ -246,7 +238,6 @@ namespace LongCmpt {
 				}
 			}
 		}
-		assert(false);
 	}
 	template<typename Accumulation, typename Recursion, typename Iterator, typename Data, class _Traits>
 	INLINED void MY_LIBRARY __DivideInto(Iterator _a, Iterator _b, Recursion Move, Accumulation Accum)noexcept {
