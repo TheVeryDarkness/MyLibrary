@@ -200,43 +200,53 @@ namespace LongCmpt {
 	//Extension for Compare()
 	template<typename Iterator, typename Data, class _Traits>
 	INLINED std::pair<Data, Compare> MY_LIBRARY _CompareTo(const Iterator& a, const Iterator& b) noexcept {
-		if (!((_Traits::GetNext(a) == _Traits::NullIterator) && (_Traits::GetNext(b) == _Traits::NullIterator)))
 		{
-			auto PreRes = _CompareTo<Iterator, Data, _Traits>(_Traits::GetNext(a), _Traits::GetNext(b));
-			if (PreRes.second != Compare::Equal)
-			{
-				return PreRes;
+			Compare temp = Compare::Equal;
+			Iterator _a = a, _b = b;
+			for (;
+				;
+				_a = _Traits::GetNext(_a), _b = _Traits::GetNext(_b)
+				) {
+				if (_Traits::GetData(_a) > _Traits::GetData(_b))
+				{
+					temp = Compare::Larger;
+				}
+				else if (_Traits::GetData(_a) < _Traits::GetData(_b))
+				{
+					temp = Compare::Smaller;
+				}
+				if ((_Traits::GetNext(_a) == _Traits::NullIterator) && (_Traits::GetNext(_b) == _Traits::NullIterator))
+				{
+					break;
+				}
 			}
-			return (
-				(_Traits::GetData(a) > _Traits::GetData(b))
-				?
-				std::pair(Data(1), Compare::Larger)
-				:
-				(
-				(_Traits::GetData(a) < _Traits::GetData(b))
-					?
-					std::pair(Data(1), Compare::Smaller)
-					:
-					std::pair(Data(0), Compare::Equal)
-					)
-				);
+			if (_Traits::GetNext(_a) != _Traits::NullIterator)
+			{
+				temp = Compare::Larger;
+			}
+			else if (_Traits::GetNext(_b) != _Traits::NullIterator)
+			{
+				temp = Compare::Smaller;
+			}
+			{
+				if (temp == Compare::Larger) {
+					if (_Traits::GetData(_a) > (_Traits::GetData(_b))) {
+						//return std::pair<Data, Compare>(Data(_Traits::GetData(_a) / (_Traits::GetData(_b) + Data(1))), Compare::Larger);
+					}
+					return std::pair<Data, Compare>(Data(1), Compare::Larger);
+				}
+				else if (temp == Compare::Smaller) {
+					if (_Traits::GetData(_a) < (_Traits::GetData(_b))) {
+					//	return std::pair<Data, Compare>(Data(_Traits::GetData(_b) / (_Traits::GetData(_a) + Data(1))), Compare::Smaller);
+					}
+					return std::pair<Data, Compare>(Data(1), Compare::Smaller);
+				}
+				else {
+					return std::pair<Data, Compare>(Data(1), Compare::Equal);
+				}
+			}
 		}
-		else
-		{
-			return	(
-				(_Traits::GetData(a) > _Traits::GetData(b))
-				?
-				std::pair(Data(_Traits::GetData(a) / (_Traits::GetData(b) + Data(1))), Compare::Larger)
-				:
-				(
-				(_Traits::GetData(a) < _Traits::GetData(b))
-					?
-					std::pair(Data(_Traits::GetData(b) / (_Traits::GetData(a) + Data(1))), Compare::Smaller)
-					:
-					std::pair(Data(0), Compare::Equal)
-					)
-				);
-		}
+		assert(false);
 	}
 	template<typename Accumulation, typename Recursion, typename Iterator, typename Data, class _Traits>
 	INLINED void MY_LIBRARY __DivideInto(Iterator _a, Iterator _b, Recursion Move, Accumulation Accum)noexcept {
@@ -264,7 +274,7 @@ namespace LongCmpt {
 				return;
 			}
 			else{
-				if (cmpr==Compare::Equal)
+				if (cmpr == Compare::Equal)
 				{
 					res = Data(1);
 				}
