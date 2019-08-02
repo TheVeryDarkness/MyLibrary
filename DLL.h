@@ -689,7 +689,7 @@ namespace LL {
 				DLL* OprtPtr = this->GetEnd(), * PreOprtPtr = That.GetEnd();
 				if (*this >= That)
 				{
-					if (((OprtPtr->data) / (PreOprtPtr->data + Data(1))) >= Data(2))
+					if ((OprtPtr->data > PreOprtPtr->data) && ((OprtPtr->data) / (PreOprtPtr->data + Data(1))) >= Data(2))
 					{
 						DLL temp(That, true);
 						temp *= _Data((OprtPtr->data) / (PreOprtPtr->data + Data(1)));
