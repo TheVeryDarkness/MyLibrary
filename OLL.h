@@ -155,6 +155,12 @@ namespace LL {
 
 		INLINED void MY_LIBRARY operator+=(const Data& that)noexcept {
 			OLL temp(that, nullptr);
+			if (that != Data(0) && this->next == nullptr)
+			{
+				this->data = Data(1);
+				this->insert(that);
+				return;
+			}
 			if (this->data == 0)
 			{
 				LongCmpt::AppositionComputeTo<LongCmpt::StdCmptTraits<Data>::SubtractFrom, OLL*, Data, LLComputeTraits<OLL, Data>>(&temp, this->next);
@@ -167,6 +173,12 @@ namespace LL {
 		}
 		INLINED void MY_LIBRARY operator-=(const Data& that)noexcept {
 			OLL temp(that, nullptr);
+			if (that != Data(0) && this->next == nullptr)
+			{
+				this->data = Data(0);
+				this->insert(that);
+				return;
+			}
 			if (this->data > 0)
 			{
 				LongCmpt::AppositionComputeTo<LongCmpt::StdCmptTraits<Data>::SubtractFrom, OLL*, Data, LLComputeTraits<OLL, Data>>(&temp, this->next);
@@ -650,7 +662,7 @@ namespace LL {
 				if (OprtPtr->next != nullptr)
 				{
 					OprtPtr = OprtPtr->next;
-					value += ((unsigned long long)(OprtPtr->data)) * (unsigned long long)pow(Radix, n);
+					value += ((unsigned long long)(OprtPtr->data())) * (unsigned long long)pow(Radix, n);
 					n++;
 				}
 				else

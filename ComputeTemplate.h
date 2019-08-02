@@ -223,13 +223,13 @@ namespace LongCmpt {
 			{
 				if (temp == Compare::Larger) {
 					if (_Traits::GetData(_a) > (_Traits::GetData(_b))) {
-						//return std::pair<Data, Compare>(Data(_Traits::GetData(_a) / (_Traits::GetData(_b) + Data(1))), Compare::Larger);
+						return std::pair<Data, Compare>(Data(_Traits::GetData(_a) / (_Traits::GetData(_b) + Data(1))), Compare::Larger);
 					}
 					return std::pair<Data, Compare>(Data(1), Compare::Larger);
 				}
 				else if (temp == Compare::Smaller) {
 					if (_Traits::GetData(_a) < (_Traits::GetData(_b))) {
-					//	return std::pair<Data, Compare>(Data(_Traits::GetData(_b) / (_Traits::GetData(_a) + Data(1))), Compare::Smaller);
+						return std::pair<Data, Compare>(Data(_Traits::GetData(_b) / (_Traits::GetData(_a) + Data(1))), Compare::Smaller);
 					}
 					return std::pair<Data, Compare>(Data(1), Compare::Smaller);
 				}
@@ -277,7 +277,7 @@ namespace LongCmpt {
 	template<typename Linear, typename Iterator, typename Data, class _Traits>
 	INLINED void MY_LIBRARY DivideInto(Linear& Res, Iterator a, Iterator b) noexcept{
 		//Regarding of the compatibility, we didn't use any majorization.
-		auto func1 = [&Res](Iterator  a, Iterator b, Data times)->void {
+		auto func1 = [&Res](const Iterator& a, const Iterator& b, Data times)->void {
 			for (Data i = 0; i < times; ++i) {
 				AppositionComputeTo<_Traits::SubtractFrom, Iterator, Data, _Traits>(a, b);
 			}
@@ -289,7 +289,7 @@ namespace LongCmpt {
 	template<typename Iterator, typename Data, class _Traits>
 	INLINED void MY_LIBRARY DivideInto(Iterator a, Iterator b) {
 		//Regarding of the compatibility, we didn't use any majorization.
-		auto func = [](Iterator a, Iterator b, Data times)->void {
+		auto func = [](const Iterator& a, const Iterator& b, Data times)->void {
 			for (Data i = Data(0); i < times; ++i) {
 				AppositionComputeTo<_Traits::SubtractFrom, Iterator, Data, _Traits>(a, b);
 			} 
