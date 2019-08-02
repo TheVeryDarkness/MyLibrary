@@ -36,23 +36,23 @@ namespace LargeInteger {
 				return Num(~this->data + Data(1));
 			}
 		}
-		Num MY_LIBRARY operator~() const noexcept {
+		constexpr Num MY_LIBRARY operator~() const noexcept {
 			if constexpr (Radix == Data(0))
 			{
 				return Num(~data);
 			}
 			else return Num((Radix - (Data(1))) - data);
 		}
-		bool MY_LIBRARY OverFlowInAdding(const Num& that)const noexcept { return (this->data > (~that).data); }
-		bool MY_LIBRARY UnderFlowInSubtracting(const Num& that)const noexcept { return (this->data < that.data); }
-		bool MY_LIBRARY operator!()const noexcept {
+		constexpr bool MY_LIBRARY OverFlowInAdding(const Num& that)const noexcept { return (this->data > (~that).data); }
+		constexpr bool MY_LIBRARY UnderFlowInSubtracting(const Num& that)const noexcept { return (this->data < that.data); }
+		constexpr bool MY_LIBRARY operator!()const noexcept {
 			return (this->data == 0);
 		}
-		bool MY_LIBRARY operator==(const Num& that)const noexcept { return (this->data == that.data); }
-		bool MY_LIBRARY operator!=(const Num& that)const noexcept { return (this->data != that.data); }
-		bool MY_LIBRARY operator==(const Data& data)const noexcept { return (this->data == data); }
-		Num& MY_LIBRARY operator=(const Num& that)noexcept { this->data = that.data; return*this; }
-		Num& MY_LIBRARY operator+=(const Num& that) noexcept {
+		constexpr bool MY_LIBRARY operator==(const Num& that)const noexcept { return (this->data == that.data); }
+		constexpr bool MY_LIBRARY operator!=(const Num& that)const noexcept { return (this->data != that.data); }
+		constexpr bool MY_LIBRARY operator==(const Data& data)const noexcept { return (this->data == data); }
+		constexpr Num& MY_LIBRARY operator=(const Num& that)noexcept { this->data = that.data; return*this; }
+		constexpr Num& MY_LIBRARY operator+=(const Num& that) noexcept {
 			if (OverFlowInAdding(that))
 			{
 				return (*this -= that.ComplementCodeAsMinus());
@@ -62,11 +62,11 @@ namespace LargeInteger {
 				return *this;
 			}
 		}
-		Num MY_LIBRARY operator+(const Num& that)const noexcept {
+		constexpr Num MY_LIBRARY operator+(const Num& that)const noexcept {
 			Num Copy = *this;
 			return (Copy += that);
 		}
-		Num& MY_LIBRARY operator-=(const Num& that) noexcept {
+		constexpr Num& MY_LIBRARY operator-=(const Num& that) noexcept {
 			if (this->UnderFlowInSubtracting(that))
 			{
 				return (*this += that.ComplementCodeAsMinus());
@@ -76,41 +76,39 @@ namespace LargeInteger {
 				return *this;
 			}
 		}
-		Num MY_LIBRARY operator-(const Num& that)const noexcept {
+		constexpr Num MY_LIBRARY operator-(const Num& that)const noexcept {
 			Num Copy = *this;
 			return (Copy -= that);
 		}
-		Num& MY_LIBRARY operator/=(const Num& that)noexcept {
-			assert(that.data != 0);
+		constexpr Num& MY_LIBRARY operator/=(const Num& that)noexcept {
 			this->data /= that.data;
 			return *this;
 		}
-		Num& MY_LIBRARY operator%=(const Num& that) noexcept {
-			assert(that.data != 0);
+		constexpr Num& MY_LIBRARY operator%=(const Num& that) noexcept {
 			this->data %= that.data;
 			return *this;
 		}
-		Num MY_LIBRARY operator/(const Num& that) noexcept {
+		constexpr Num MY_LIBRARY operator/(const Num& that) noexcept {
 			Num Copy(*this);
 			return (Copy /= that);
 		}
-		Num MY_LIBRARY operator%(const Num& that) noexcept {
+		constexpr Num MY_LIBRARY operator%(const Num& that) noexcept {
 			Num Copy(*this);
 			return (Copy %= that);
 		}
 		//Be careful when using as it never checks flow
-		Num& MY_LIBRARY operator--() { this->data--; return*this; }
+		constexpr Num& MY_LIBRARY operator--() { this->data--; return*this; }
 		//Be careful when using as it never checks flow
-		Num& MY_LIBRARY operator++() { this->data++; return*this; }
-		bool MY_LIBRARY operator>(const Num& that)const noexcept { return (this->data > that.data); }
-		bool MY_LIBRARY operator>=(const Num& that)const noexcept { return (this->data >= that.data); }
-		bool MY_LIBRARY operator<(const Num& that)const noexcept { return (this->data < that.data); }
-		bool MY_LIBRARY operator<=(const Num& that)const noexcept { return (this->data <= that.data); }
-		bool MY_LIBRARY operator>(const Data& data)const noexcept { return (this->data > data); }
-		bool MY_LIBRARY operator>=(const Data& data)const noexcept { return (this->data >= data); }
-		bool MY_LIBRARY operator<(const Data& data)const noexcept { return (this->data < data); }
-		bool MY_LIBRARY operator<=(const Data& data)const noexcept { return (this->data <= data); }
-		Num& MY_LIBRARY operator*=(const Num& that) noexcept {
+		constexpr Num& MY_LIBRARY operator++() { this->data++; return*this; }
+		constexpr bool MY_LIBRARY operator>(const Num& that)const noexcept { return (this->data > that.data); }
+		constexpr bool MY_LIBRARY operator>=(const Num& that)const noexcept { return (this->data >= that.data); }
+		constexpr bool MY_LIBRARY operator<(const Num& that)const noexcept { return (this->data < that.data); }
+		constexpr bool MY_LIBRARY operator<=(const Num& that)const noexcept { return (this->data <= that.data); }
+		constexpr bool MY_LIBRARY operator>(const Data& data)const noexcept { return (this->data > data); }
+		constexpr bool MY_LIBRARY operator>=(const Data& data)const noexcept { return (this->data >= data); }
+		constexpr bool MY_LIBRARY operator<(const Data& data)const noexcept { return (this->data < data); }
+		constexpr bool MY_LIBRARY operator<=(const Data& data)const noexcept { return (this->data <= data); }
+		constexpr Num& MY_LIBRARY operator*=(const Num& that) noexcept {
 			assert(false);
 			if (Radix == Data(0))
 			{
@@ -129,11 +127,11 @@ namespace LargeInteger {
 				}
 			}
 		}
-		Num MY_LIBRARY operator*(const Num& that)const noexcept {
+		constexpr Num MY_LIBRARY operator*(const Num& that)const noexcept {
 			Num Copy = *this;
 			return (Copy *= that);
 		}
-		static void MY_LIBRARY Swap(Num& a,Num&b)noexcept {
+		constexpr static void MY_LIBRARY Swap(Num& a,Num&b)noexcept {
 			a.data ^= b.data; b.data ^= a.data; a.data ^= b.data;
 		}
 		template<class os>

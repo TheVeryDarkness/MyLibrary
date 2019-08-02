@@ -353,9 +353,10 @@ namespace LongCmpt {
 				{
 					return std::pair<Data, Data>(Carry, Data(0));
 				}
-				Data Res = Carry;
-				Carry = Data(0);
-				for (Data i = Data(0); i < a; ++i)
+				Data Res = b;
+				if (Res > Data(~Carry)) { Carry = Data(1); }
+				else Carry = Data(0);
+				for (Data i = Data(1); i < a; ++i)
 				{
 					if (Res > Data(~b))
 					{

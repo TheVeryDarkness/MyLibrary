@@ -543,6 +543,7 @@ namespace LL {
 			{
 				OLL Res(true);
 				LongCmpt::DivideInto<OLL, OLL*, Data, LLComputeTraits<OLL, Data>>(Res, that.next, this->next);
+				this->destruct();
 				this->next = Res.next;
 			}
 			else return;
