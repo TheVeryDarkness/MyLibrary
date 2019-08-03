@@ -196,32 +196,36 @@ namespace LL {
 		}
 		return Result;
 	}
-	template<class node, typename Data>
-	class LLComputeTraits :public LongCmpt::StdCmptTraits<Data>
+
+	template<class node, typename _Data, _Data Radix>
+	class LLComputeTraits :public LongCmpt::StdCmptTraits<LargeInteger::Num<_Data, Radix>>
 	{
 	public:
+		using Data=LargeInteger::Num<_Data, Radix>;
 		MY_LIBRARY LLComputeTraits() = delete;
 		MY_LIBRARY ~LLComputeTraits() = delete;
 		static INLINED Data NullData = Data(0);
 		constexpr static INLINED node* NullIterator = nullptr;
 
-		static Data& MY_LIBRARY GetData(node* ptr) {
+		using Multiply=typename Data::Multiply;
+
+		static constexpr Data& MY_LIBRARY GetData(node* ptr) {
 			MY_ASSERT(NullData == Data(0), "Unexpected write has occured!");
 			return ((ptr == nullptr) ? (NullData = Data(0)) : (ptr->data));
 		}
-		static Data MY_LIBRARY GetData(const node* ptr) {
+		static constexpr Data MY_LIBRARY GetData(const node* ptr) {
 			MY_ASSERT(NullData == Data(0), "Unexpected write has occured!");
 			return ((ptr == nullptr) ? (NullData = Data(0)) : (ptr->data));
 		}
 
-		static node* MY_LIBRARY GetNext(node* ptr) {
+		static constexpr node* MY_LIBRARY GetNext(node* ptr) {
 			return ((ptr == nullptr) ? nullptr : (ptr->next));
 		}
 
-		static void MY_LIBRARY assign(node* ptr, unsigned sz = 1) {
+		static constexpr void MY_LIBRARY assign(node* ptr, unsigned sz = 1) {
 			*ptr <<= sz; 
 		}
-		static void MY_LIBRARY InsertAfter(node*& ptr, Data data = Data(0)) {
+		static constexpr void MY_LIBRARY InsertAfter(node*& ptr, Data data = Data(0)) {
 			ptr->insert(data);
 		}
 	};

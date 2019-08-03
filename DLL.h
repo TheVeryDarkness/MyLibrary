@@ -8,7 +8,7 @@ namespace LL {
 	{
 		using Data=LargeInteger::Num<_Data, Radix>;
 
-		template<class node, typename Data>
+		template<class node, typename _Data, _Data Radix>
 		friend class LLComputeTraits;
 		//友元函数声明
 
@@ -53,7 +53,7 @@ namespace LL {
 			{
 				return;
 			}
-			LongCmpt::MultiplyTo<DLL*, Data, LLComputeTraits<DLL, Data>>(times, this->next);
+			LongCmpt::MultiplyTo<DLL*, Data, LLComputeTraits<DLL, _Data, Radix>>(times, this->next);
 		}
 		//重载
 		INLINED DLL MY_LIBRARY operator*(Data times)const noexcept {
@@ -71,7 +71,7 @@ namespace LL {
 			for (DLL* OprtPtr = b.next; OprtPtr != nullptr; OprtPtr = OprtPtr->next)
 			{
 				DLL temp(This * OprtPtr->data);
-				LongCmpt::AppositionComputeTo<LongCmpt::StdCmptTraits<Data>::Add, DLL*, Data, LLComputeTraits<DLL, Data>>(temp.next, this->next);
+				LongCmpt::AppositionComputeTo<LongCmpt::StdCmptTraits<Data>::Add, DLL*, Data, LLComputeTraits<DLL, _Data, Radix>>(temp.next, this->next);
 				temp.destruct();
 				This <<= 1;
 			}
@@ -112,22 +112,22 @@ namespace LL {
 			}
 			if ((this->data > 0 && that.data > 0) || (this->data == 0 && that.data == 0))
 			{
-				LongCmpt::AppositionComputeTo<LongCmpt::StdCmptTraits<Data>::Add, DLL*, Data, LLComputeTraits<DLL, Data>>(that.next, this->next);
+				LongCmpt::AppositionComputeTo<LongCmpt::StdCmptTraits<Data>::Add, DLL*, Data, LLComputeTraits<DLL, _Data, Radix>>(that.next, this->next);
 			}
 			else {
-				LongCmpt::Compare Cmpr = LongCmpt::CompareTo<DLL*, Data, LLComputeTraits<DLL, Data>>(this->next, that.next);
+				LongCmpt::Compare Cmpr = LongCmpt::CompareTo<DLL*, Data, LLComputeTraits<DLL, _Data, Radix>>(this->next, that.next);
 				if (Cmpr == LongCmpt::Compare::Equal)
 				{
 					this->destruct();
 				}
 				if (Cmpr == LongCmpt::Compare::Larger)
 				{
-					LongCmpt::AppositionComputeTo<LongCmpt::StdCmptTraits<Data>::SubtractFrom, DLL*, Data, LLComputeTraits<DLL, Data>>(that.next, this->next);
+					LongCmpt::AppositionComputeTo<LongCmpt::StdCmptTraits<Data>::SubtractFrom, DLL*, Data, LLComputeTraits<DLL, _Data, Radix>>(that.next, this->next);
 				}
 				else
 				{
 					DLL temp(that, true);
-					LongCmpt::AppositionComputeTo<LongCmpt::StdCmptTraits<Data>::SubtractFrom, DLL*, Data, LLComputeTraits<DLL, Data>>(this->next, temp.next);
+					LongCmpt::AppositionComputeTo<LongCmpt::StdCmptTraits<Data>::SubtractFrom, DLL*, Data, LLComputeTraits<DLL, _Data, Radix>>(this->next, temp.next);
 					*this = temp;
 				}
 				this->Simplify();

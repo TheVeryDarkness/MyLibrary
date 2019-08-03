@@ -2,7 +2,6 @@
 
 #include <memory>
 #include <type_traits>
-#include "Bytes.h"
 #include "ComputeTemplate.h"
 #include "Shared.h"
 
@@ -19,8 +18,6 @@ namespace LargeInteger {
 	struct BytesIterator;
 	template<size_t Length>
 	class BytesTraits;
-	template<typename Data, Data _Max>
-	class SampleTraits;
 
 	using value_type=unsigned char;
 	//***************************************************
@@ -41,9 +38,11 @@ namespace LargeInteger {
 	public:
 		constexpr explicit MY_LIBRARY Bytes()noexcept {}
 		template<size_t OriginLength> constexpr explicit MY_LIBRARY Bytes(const Bytes<OriginLength>&)noexcept;
-		template<typename Data>constexpr explicit  MY_LIBRARY Bytes(const Data data)noexcept;
+		template<typename Data>constexpr explicit MY_LIBRARY Bytes(const Data data)noexcept;
 		template<typename Data>constexpr MY_LIBRARY operator Data()noexcept;
 		constexpr size_t MY_LIBRARY GetLength()const noexcept;
+
+		constexpr MY_LIBRARY Bytes(const value_type data) noexcept :Byte{ data } {}
 		constexpr Bytes& MY_LIBRARY operator=(unsigned char Value) noexcept {
 			if constexpr (Length != 0)
 			{
@@ -122,6 +121,24 @@ namespace LargeInteger {
 		}
 		constexpr Bytes& MY_LIBRARY operator--() noexcept {
 			return (*this -= Bytes(1));
+		}
+		constexpr Bytes& MY_LIBRARY operator*=(const Bytes& that)noexcept {
+			for (size_t i = 0; i < Length; i++)
+			{
+				value_type temp = that.Byte[i];
+				for (size_t j = 0; j < BitsPerByte; j++)
+				{
+					if ((temp & 0x1) > 0) {
+						*this += that << (j + i * BitsPerByte);
+					}
+					temp >>= 1;
+				}
+			}
+			return *this;
+		}
+		constexpr Bytes MY_LIBRARY operator*(const Bytes& that) const noexcept {
+			Bytes Ret = *this;
+			return (Ret *= that);
 		}
 		constexpr Bytes MY_LIBRARY operator~ ()const noexcept {
 			Bytes ret;
@@ -400,81 +417,8 @@ namespace LargeInteger {
 		constexpr bool MY_LIBRARY operator!=(const BytesIterator& that)const noexcept { return !(*this == that); }
 	};
 
-	template<typename Data, Data _Max = std::numeric_limits<Data>::max()>
-	class SampleTraits
-	{
-	public:
-		SampleTraits() = delete;
-		~SampleTraits() = delete;
-		static constexpr INLINED size_t length = LargeInteger::GetMinLength(_Max);
-		static constexpr INLINED LargeInteger::Bytes<length> Max = LargeInteger::Bytes<length>(_Max);
-		static constexpr INLINED LargeInteger::Bytes<length> Radix = LargeInteger::Bytes<length>(Max + LargeInteger::Bytes<length>(1));
-
-		static constexpr void Add(Data& Res, Data& Carry, Data a, Data b) noexcept {
-			Bytes<length> Sum = Bytes<length>(a);
-			if (Carry > 0)
-			{
-				if (Sum >= Radix - Bytes<length>(1))
-				{
-					Carry = 1;
-					Sum = 0;
-				}
-				else
-				{
-					Carry = 0;
-					Sum += Bytes<length>(1);
-				}
-			}
-			if (Sum >= Radix - Bytes<length>(b))
-			{
-				Carry = 1;
-				Sum -= (Radix - Bytes<length>(b));
-			}
-			else
-			{
-				Sum += Bytes<length>(b);
-			}
-			Res = Data(Sum);
-		}
-		static constexpr void SubTractFrom(Data& Res, Data& Carry, Data a, Data b) noexcept {
-			Bytes<length> Dif = Bytes<length>(b);
-			if (Carry > 0)
-			{
-				if (Dif == Bytes<length>(0))
-				{
-					Carry = 1;
-					Dif = Max;
-				}
-				else
-				{
-					Carry = 0;
-					Dif -= Bytes<length>(1);
-				}
-			}
-			if (Dif < Bytes<length>(a))
-			{
-				Carry = 1;
-				Dif += (Radix - Bytes<length>(a));
-			}
-			else
-			{
-				Dif -= Bytes<length>(a);
-			}
-			Res = Data(Dif);
-		}
-		static constexpr void Multiply(Data& Res, Data& Carry, Data a, Data b) noexcept {
-			static_assert(!(Radix.Byte[length - 1] >> (BitsPerByte - 1) == 1),"Overflow in multiply");
-			constexpr size_t _length = 2 * length;
-			Bytes<_length> Prod = Bytes<_length>(a);
-			Prod *= Bytes<_length>(b);
-			Prod += Bytes<_length>(Carry);
-			Carry = Data(Prod / Bytes<_length>(Radix));
-			Res = Data(Prod % Bytes<_length>(Radix));
-		}
-	};
-
 	template<size_t Length>
-	class BytesTraits :public Bytes<Length>, public SampleTraits<value_type>
+	class BytesTraits :public Bytes<Length>,public LongCmpt::StdCmptTraits<Bytes<Length>>
 	{
 	public:
 		BytesTraits() = delete;
@@ -498,16 +442,17 @@ namespace LargeInteger {
 			else return NullIterator;
 		}
 
-		static constexpr value_type& MY_LIBRARY GetData(BytesIterator<Length> ptr) noexcept {
+		static constexpr value_type& MY_LIBRARY GetData(const BytesIterator<Length>& ptr) noexcept {
 			return const_cast<value_type*>(ptr.Head->Byte)[ptr.Index];
 		}
-		static constexpr void MY_LIBRARY InsertAfter(const BytesIterator<Length>* ptr, value_type data) noexcept {}
+		static constexpr void MY_LIBRARY InsertAfter(const BytesIterator<Length>& ptr, value_type data = 0) noexcept {}
 	private:
 
 	};
 
 };
 template<size_t _Length>class std::numeric_limits<LargeInteger::Bytes<_Length>> {
-	constexpr LargeInteger::Bytes<_Length> max() noexcept { return LargeInteger::~Bytes<_Length>(0); }
-	constexpr LargeInteger::Bytes<_Length> min()noexcept { return LargeInteger::Bytes<_Length>(0); }
+public:
+	static constexpr LargeInteger::Bytes<_Length> max() noexcept { return LargeInteger::~Bytes<_Length>(0); }
+	static constexpr LargeInteger::Bytes<_Length> min()noexcept { return LargeInteger::Bytes<_Length>(0); }
 };

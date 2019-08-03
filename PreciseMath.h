@@ -8,7 +8,7 @@
 
 namespace LL {
 
-	typedef OLL<unsigned short, Z_MAX> Z;
+	typedef DLL<unsigned short, Z_MAX> Z;
 
 	//ÓĞÀíÊı
 	//Rational Number

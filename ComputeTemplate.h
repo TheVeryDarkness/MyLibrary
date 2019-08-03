@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Shared.h"
-#include "Bytes.h"
 
 namespace LongCmpt {
 	enum class Compare :short

@@ -17,3 +17,15 @@
 #endif
 
 template<typename Ptr> INLINED void PtrDelete(Ptr ptr) { if (ptr != nullptr)delete ptr; }
+
+
+template<typename type>
+class Depack
+{
+public:
+	Depack() = delete;
+	~Depack() = delete;
+	using TRUE_TYPE=type;
+private:
+
+};

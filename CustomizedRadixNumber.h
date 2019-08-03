@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Shared.h"
+#include "Bytes.h"
 #include <cassert>
 #include <limits>
 #include <type_traits>
@@ -109,16 +110,21 @@ namespace LargeInteger {
 		constexpr bool MY_LIBRARY operator<(const Data& data)const noexcept { return (this->data < data); }
 		constexpr bool MY_LIBRARY operator<=(const Data& data)const noexcept { return (this->data <= data); }
 		constexpr Num& MY_LIBRARY operator*=(const Num& that) noexcept {
-			assert(false);
-			if (Radix == Data(0))
+			if constexpr(Radix == Data(0))
 			{
-				throw;
+				Bytes<sizeof(Data) * 2> This = *this, That = that;
+				This *= that;
+				this->data = Data(This);
+				return *this;
 			}
 			else
 			{
-				if (Radix > std::numeric_limits<Data>::max() / Radix)
+				if constexpr(Radix > std::numeric_limits<Data>::max() / Radix)
 				{
-					throw;
+					Bytes<sizeof(Data) * 2> This = *this, That = that;
+					This *= that;
+					this->data = Data(This % Bytes<sizeof(Data) * 2>(Radix));
+					return *this;
 				}
 				else
 				{
@@ -131,6 +137,42 @@ namespace LargeInteger {
 			Num Copy = *this;
 			return (Copy *= that);
 		}
+		class Multiply
+		{
+		public:
+			Multiply() = default;
+			~Multiply() = default;
+
+			std::pair<Num, Num> MY_LIBRARY operator()(Num Carry, Num a, Num b)const noexcept {
+				if constexpr (Radix == Data(0))
+				{
+					Bytes<sizeof(Num) * 2> This(a()), That(b());
+					This *= That;
+					return std::pair<Num, Num>(Num(This), Num(This >> BitsPerByte * sizeof(Num)));
+				}
+				else
+				{
+					if constexpr (Radix > std::numeric_limits<Data>::max() / Radix)
+					{
+						Bytes<sizeof(Num) * 2> This(a()), That(b());
+						This *= That;
+						return std::pair<Num, Num>(
+							Num(Data(This % Bytes<sizeof(Num) * 2>(Radix))),
+							Num(Data(This / Bytes<sizeof(Num) * 2>(Radix)))
+							);
+					}
+					else
+					{
+						a *= b;
+						return std::pair<Num, Num>(Num(a% Radix), Num(a / Radix));
+					}
+				}
+			}
+
+		private:
+
+		};
+
 		constexpr static void MY_LIBRARY Swap(Num& a,Num&b)noexcept {
 			a.data ^= b.data; b.data ^= a.data; a.data ^= b.data;
 		}
@@ -141,8 +183,20 @@ namespace LargeInteger {
 	private:
 		Data data;
 	};
+
 }
 template<typename Data, Data Radix>class std::numeric_limits<LargeInteger::Num<Data, Radix>> {
-	constexpr LargeInteger::Num<Data, Radix> max() noexcept { return ~LargeInteger::Num<Data, Radix>(0); }
-	constexpr LargeInteger::Num<Data, Radix> min() noexcept { return LargeInteger::Num<Data, Radix>(0); }
+public:
+	static constexpr Data max() noexcept { return (~LargeInteger::Num<Data, Radix>(0))(); }
+	static constexpr Data min() noexcept { return (LargeInteger::Num<Data, Radix>(0))(); }
+};
+template<auto Radix>
+class Depack<LargeInteger::Num<decltype(Radix), Radix>>
+{
+public:
+	Depack() = delete;
+	~Depack() = delete;
+	using TRUE_TYPE=decltype(Radix);
+private:
+
 };
