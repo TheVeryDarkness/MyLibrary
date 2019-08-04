@@ -129,6 +129,7 @@ namespace LargeInteger {
 				else
 				{
 					this->data *= that.data;
+					this->data %= Radix;
 					return *this;
 				}
 			}
@@ -146,16 +147,18 @@ namespace LargeInteger {
 			std::pair<Num, Num> MY_LIBRARY operator()(Num Carry, Num a, Num b)const noexcept {
 				if constexpr (Radix == Data(0))
 				{
-					Bytes<sizeof(Num) * 2> This(a()), That(b());
-					This *= That;
-					return std::pair<Num, Num>(Num(This), Num(This >> BitsPerByte * sizeof(Num)));
+					Bytes<sizeof(Num) * 2> This(a());
+					This *= Bytes<sizeof(Num) * 2>(b());
+					This += Bytes<sizeof(Num) * 2>(Carry());
+					return std::pair<Num, Num>(Num(Data(This)), Num(Data(This >> BitsPerByte * sizeof(Num))));
 				}
 				else
 				{
 					if constexpr (Radix > std::numeric_limits<Data>::max() / Radix)
 					{
-						Bytes<sizeof(Num) * 2> This(a()), That(b());
-						This *= That;
+						Bytes<sizeof(Num) * 2> This(a());
+						This *= Bytes<sizeof(Num) * 2>(b());
+						This += Bytes<sizeof(Num) * 2>(Carry());
 						return std::pair<Num, Num>(
 							Num(Data(This % Bytes<sizeof(Num) * 2>(Radix))),
 							Num(Data(This / Bytes<sizeof(Num) * 2>(Radix)))
@@ -163,8 +166,9 @@ namespace LargeInteger {
 					}
 					else
 					{
-						a *= b;
-						return std::pair<Num, Num>(Num(a% Radix), Num(a / Radix));
+						a.data *= b.data;
+						a.data += Carry.data;
+						return std::pair<Num, Num>(Num(a() % Radix), Num(a() / Radix));
 					}
 				}
 			}

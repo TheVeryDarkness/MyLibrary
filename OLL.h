@@ -49,8 +49,12 @@ namespace LL {
 
 		MEMORY_CACHE(20);
 	public:
-		OLL*const& begin = this;
-		constexpr static inline OLL* end = nullptr;
+		constexpr inline OLL* begin()const noexcept {
+			return this;
+		}
+		constexpr static inline OLL* end() noexcept {
+			return nullptr;
+		}
 
 		//жиди
 		INLINED void MY_LIBRARY operator*=(Data times) noexcept {
