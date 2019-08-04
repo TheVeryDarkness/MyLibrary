@@ -38,6 +38,8 @@ namespace LL {
 				const SubData& (MY_LIBRARY* GetFunction)(const Data&),
 				const Type& that
 			)noexcept;
+		template<class inNode, class outNode, auto inRadix, auto outRadix>
+		friend outNode MY_LIBRARY Transform(inNode& in)noexcept;
 		friend class Q;
 
 		MEMORY_CACHE(20);

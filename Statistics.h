@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Shared.h"
 #include <forward_list>
 
 #define Posi(a) (((a)>0)?(a):0)//取正值
@@ -14,7 +15,7 @@ inline long __stdcall Average(long[], long);
 inline long __cdecl Max(long, long, ...);
 inline long __cdecl Min(long, long, ...);
 inline long __cdecl Average(long, long, ...);
-constexpr inline unsigned __stdcall GetPowerTimes(unsigned long long,unsigned int);
+constexpr inline unsigned MY_LIBRARY GetPowerTimes(unsigned long long,const unsigned int&);
 template<typename Data>inline void __stdcall Swap(Data& a,Data& b);
 template<typename Data>constexpr inline bool IsPrime(Data val); 
 template<typename Data>inline std::forward_list<Data> PrimeList(Data Max);
@@ -118,9 +119,9 @@ inline SubData* __stdcall GetSubArray(
 
 
 //0 for not.
-constexpr unsigned inline __stdcall GetPowerTimes(
+constexpr unsigned inline MY_LIBRARY GetPowerTimes(
 	unsigned long long val,
-	const unsigned int base
+	const unsigned int& base
 ) {
 	if (val == 0)
 	{
@@ -141,6 +142,17 @@ constexpr unsigned inline __stdcall GetPowerTimes(
 		else return 0;
 	}
 	return 0;
+}
+
+template<typename Data>
+constexpr Data Power(Data in,size_t times) noexcept{
+	if (times == 0)return Data(1);
+	Data In = in;
+	for (size_t i = 1; i < times; i++)
+	{
+		in *= In;
+	}
+	return in;
 }
 
 //不判断两数相等

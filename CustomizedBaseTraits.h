@@ -1,6 +1,7 @@
 #pragma once
 
 #include <istream>
+#include <stack>
 
 namespace LargeInteger {
 
@@ -80,8 +81,8 @@ namespace LargeInteger {
 		~OddStream() = default;
 
 		template<typename target>
-		OddStream& MY_LIBRARY operator>>()noexcept {
-
+		OddStream& MY_LIBRARY operator>>(target& t)noexcept {
+			return *this;
 		}
 
 

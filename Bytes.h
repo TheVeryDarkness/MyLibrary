@@ -249,6 +249,7 @@ namespace LargeInteger {
 				if (Bits >= BitsPerByte)
 				{
 					memcpy(this->Byte + Bits / BitsPerByte, this->Byte, Length - Bits / BitsPerByte);
+					memset(this->Byte, 0, Bits / BitsPerByte);
 				}
 				if ((Bits % BitsPerByte) != 0)
 				{
@@ -274,6 +275,7 @@ namespace LargeInteger {
 				if (Bits >= BitsPerByte)
 				{
 					memcpy(this->Byte, this->Byte + Bits / BitsPerByte, Length - Bits / BitsPerByte);
+					memset(this->Byte + Bits / BitsPerByte + 1, 0, Bits / BitsPerByte);
 				}
 				if ((Bits % BitsPerByte) != 0)
 				{

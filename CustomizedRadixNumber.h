@@ -12,9 +12,22 @@ namespace LargeInteger {
 	class Num
 	{
 	public:
-		constexpr const Data& operator()()const noexcept{ return this->data; }
+		template<Data _Radix>
+		constexpr MY_LIBRARY Num(const Num<Data, _Radix>& that) noexcept{
+			if constexpr(Radix >= _Radix)
+			{
+				this->data = that();
+			}
+			else
+			{
+				this->data = that() % Radix;
+				static_assert(Radix >= _Radix, "Target base should be bigger that origin.");
+			}
+		}
+		constexpr const Data& MY_LIBRARY operator()()const noexcept{ return this->data; }
 		constexpr MY_LIBRARY Num(Data init)noexcept
 			:data((Radix == Data(0)) ? (init) : (init % Radix)) {
+			assert(init < Radix);
 			static_assert(std::is_integral<Data>::value, "Integral required");
 			static_assert(Data(-1) > Data(0), "Unsigned type required");
 		}
@@ -112,7 +125,7 @@ namespace LargeInteger {
 		constexpr Num& MY_LIBRARY operator*=(const Num& that) noexcept {
 			if constexpr(Radix == Data(0))
 			{
-				Bytes<sizeof(Data) * 2> This = *this, That = that;
+				Bytes<sizeof(Data) * 2> This = *this(), That = that();
 				This *= that;
 				this->data = Data(This);
 				return *this;
@@ -121,8 +134,8 @@ namespace LargeInteger {
 			{
 				if constexpr(Radix > std::numeric_limits<Data>::max() / Radix)
 				{
-					Bytes<sizeof(Data) * 2> This = *this, That = that;
-					This *= that;
+					Bytes<sizeof(Data) * 2> This = Bytes<sizeof(Data) * 2>(this->data);
+					This *= Bytes<sizeof(Data) * 2>(that.data);
 					this->data = Data(This % Bytes<sizeof(Data) * 2>(Radix));
 					return *this;
 				}

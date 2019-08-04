@@ -7,6 +7,7 @@
 #include "Statistics.h"
 #include "Bytes.h"
 #include "MemoryCache.h"
+#include <type_traits>
 #include <cassert>
 #include <iostream>
 #include <array>
@@ -195,6 +196,32 @@ namespace LL {
 			OprtPtr = OprtPtr->next;
 		}
 		return Result;
+	}
+
+	template<class inNode,class outNode,auto inRadix,auto outRadix>
+	outNode MY_LIBRARY Transform(inNode& in)noexcept {
+		static_assert(GetPowerTimes(outRadix, inRadix) != 0);
+		constexpr auto times = GetPowerTimes(outRadix, inRadix);
+		outNode out(in.data);
+		while (true)
+		{
+			decltype(out.data) temp = 0;
+			for (typename std::remove_const<decltype(times)>::type i = 0; i < times; i++)
+			{
+				if (in.next != nullptr)
+				{
+					temp += static_cast<decltype(temp)>(in.next->data) * Power(inRadix, i);
+					in.cut();
+				}
+				else break;
+			}
+			out.insert(temp);
+			if (in.next==nullptr)
+			{
+				out = out.invert(out);
+				return out;
+			}
+		}
 	}
 
 	template<class node, typename _Data, _Data Radix>
