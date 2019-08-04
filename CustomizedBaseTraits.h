@@ -72,7 +72,7 @@ namespace LargeInteger {
 
 	};
 	
-	template<typename _Elem>
+	template<typename _Elem,typename _Traits>
 	class OddStream
 	{
 	public:
@@ -80,14 +80,16 @@ namespace LargeInteger {
 
 		~OddStream() = default;
 
-		template<typename target>
-		OddStream& MY_LIBRARY operator>>(target& t)noexcept {
+
+		OddStream& MY_LIBRARY operator>>(std::basic_string<_Elem,_Traits> str)noexcept {
+			std::basic_string<_Elem, _Traits> temp;
+			is >> temp;
 			return *this;
 		}
 
 
 	private:
-		std::basic_istream<_Elem> i;
+		std::basic_istream<_Elem> is;
 	};
 
 }

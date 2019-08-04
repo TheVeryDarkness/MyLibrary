@@ -228,7 +228,7 @@ namespace LL {
 		}
 		else
 		{
-			assert(false);
+			static_assert(Destroy);
 		}
 	}
 
