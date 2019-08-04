@@ -198,29 +198,37 @@ namespace LL {
 		return Result;
 	}
 
-	template<class inNode,class outNode,auto inRadix,auto outRadix>
-	outNode MY_LIBRARY Transform(inNode& in)noexcept {
+
+	template<class inNode, class outNode, auto inRadix, auto outRadix, bool Destroy = true>
+	outNode MY_LIBRARY Transform(inNode & in)noexcept {
 		static_assert(GetPowerTimes(outRadix, inRadix) != 0);
 		constexpr auto times = GetPowerTimes(outRadix, inRadix);
-		outNode out(in.data);
-		while (true)
+		if constexpr (Destroy)
 		{
-			decltype(out.data) temp = 0;
-			for (typename std::remove_const<decltype(times)>::type i = 0; i < times; i++)
+			outNode out(in.data);
+			while (true)
 			{
-				if (in.next != nullptr)
+				decltype(out.data) temp = 0;
+				for (typename std::remove_const<decltype(times)>::type i = 0; i < times; i++)
 				{
-					temp += static_cast<decltype(temp)>(in.next->data) * Power(inRadix, i);
-					in.cut();
+					if (in.next != nullptr)
+					{
+						temp += static_cast<decltype(temp)>(in.next->data) * Power(inRadix, i);
+						in.cut();
+					}
+					else break;
 				}
-				else break;
+				out.insert(temp);
+				if (in.next == nullptr)
+				{
+					out = out.invert(out);
+					return out;
+				}
 			}
-			out.insert(temp);
-			if (in.next==nullptr)
-			{
-				out = out.invert(out);
-				return out;
-			}
+		}
+		else
+		{
+			assert(false);
 		}
 	}
 
@@ -250,7 +258,7 @@ namespace LL {
 		}
 
 		static constexpr void MY_LIBRARY assign(node* ptr, unsigned sz = 1) {
-			*ptr <<= sz; 
+			*ptr <<= sz;
 		}
 		static constexpr void MY_LIBRARY InsertAfter(node*& ptr, Data data = Data(0)) {
 			ptr->insert(data);
