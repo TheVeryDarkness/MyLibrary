@@ -169,12 +169,18 @@ namespace LargeInteger {
 				{
 					if constexpr (Radix > std::numeric_limits<Data>::max() / Radix)
 					{
-						Bytes<sizeof(Num) * 2> This(a());
-						This *= Bytes<sizeof(Num) * 2>(b());
-						This += Bytes<sizeof(Num) * 2>(Carry());
+						Bytes<GetMinLength(Radix) * 2> This(a());
+						This *= Bytes<GetMinLength(Radix) * 2>(b());
+						This += Bytes<GetMinLength(Radix) * 2>(Carry());
+						Bytes<GetMinLength(Radix) * 2> Res(0);
+						LongCmpt::DivideInto<Bytes<GetMinLength(Radix) * 2>, BytesIterator<GetMinLength(Radix) * 2>, value_type, BytesTraits<GetMinLength(Radix) * 2>>(
+							Res,
+							BytesIterator<GetMinLength(Radix) * 2>(&Bytes<GetMinLength(Radix) * 2>(Radix), 0),
+							BytesIterator<GetMinLength(Radix) * 2>(&This, 0)
+							);
 						return std::pair<Num, Num>(
-							Num(Data(This % Bytes<sizeof(Num) * 2>(Radix))),
-							Num(Data(This / Bytes<sizeof(Num) * 2>(Radix)))
+							Num(Data(This)),
+							Num(Data(Res))
 							);
 					}
 					else

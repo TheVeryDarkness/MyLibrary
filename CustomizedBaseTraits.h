@@ -22,7 +22,7 @@ namespace LargeInteger {
 		constexpr static char_type MY_LIBRARY to_char_type(int_type Int)noexcept {
 			return char_type('?');
 		}
-		constexpr static size_t MY_LIBRARY getRadix()noexcept {
+		constexpr static int_type MY_LIBRARY getRadix()noexcept {
 			return BeginIndex;
 		}
 	private:
@@ -58,7 +58,7 @@ namespace LargeInteger {
 				return BaseSet<char_type, int_type, BeginIndex + 1, Remained>::to_char_type(Int);
 			}
 		}
-		constexpr static size_t MY_LIBRARY getRadix()noexcept {
+		constexpr static int_type MY_LIBRARY getRadix()noexcept {
 			return BaseSet<char_type, int_type, BeginIndex + 1, Remained...>::getRadix();
 		}
 	private:
@@ -80,13 +80,11 @@ namespace LargeInteger {
 
 
 		template<typename Iter>
-		OddStream& MY_LIBRARY operator>>(Iter str)noexcept {
+		static void MY_LIBRARY store(const std::basic_string<_Elem>& temp, Iter str)noexcept {
 			static_assert(GetPowerTimes(Iter::getRadix(), charset::getRadix()) != 0 || Iter::getRadix() == charset::getRadix());
 			if constexpr (Iter::getRadix() == charset::getRadix())
 			{
-				std::basic_string<_Elem> temp;
-				is >> temp;
-				for (auto i = temp.rbegin(); i != temp.rend(); i++) {
+				for (auto i = temp.crbegin(); i != temp.crend(); ++i) {
 					auto c = charset::to_int_type(*i);
 					if (c != '?')
 					{
@@ -94,23 +92,21 @@ namespace LargeInteger {
 						*str = c;
 					}
 				}
-				return *this;
+				return;
 			}
 			else
 			{
-				std::basic_string<_Elem> temp;
-				is >> temp;
-				for (auto i = temp.rbegin(); i != temp.rend();) {
+				for (auto i = temp.crbegin(); i != temp.crend();) {
 					typename std::remove_reference<decltype(*str)>::type sum = std::remove_reference<decltype(*str)>::type(0);
 					for (decltype(GetPowerTimes(Iter::getRadix(), charset::getRadix())) j = 0; j < GetPowerTimes(Iter::getRadix(), charset::getRadix()); j++) {
 						auto c = charset::to_int_type(*i);
 						if (c != charset::IntType('?'))
 						{
-							sum += c * Power(charset::getRadix(), j);
+							sum += c * static_cast<decltype(Iter::getRadix())>(Power(static_cast<decltype(Iter::getRadix())>(charset::getRadix()), j));
 						}
 						else --j;
 						i++;
-						if (i == temp.rend())
+						if (i == temp.crend())
 						{
 							break;
 						}
@@ -121,7 +117,7 @@ namespace LargeInteger {
 						*str = sum;
 					}
 				}
-				return *this;
+				return;
 			}
 		}
 

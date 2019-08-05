@@ -54,7 +54,7 @@ namespace LL {
 		}
 		return out;
 	}
-	template<typename Type>
+	template<typename Type, typename BaseType>
 	//简单输出到控制台窗口
 	//需要用户补换行
 	INLINED void MY_LIBRARY SinglePrint(
@@ -62,13 +62,14 @@ namespace LL {
 		std::ostream& out = std::cout,
 		bool ShowComma = true,
 		unsigned MinLength = 0,
-		unsigned base = 10
+		BaseType base = 10
 	) noexcept {
 		if (that.next != nullptr)
 		{
 			SinglePrint(*that.next, out, ShowComma, MinLength, base);
 			out << ((ShowComma) ? "," : "");
 			char* c = DBG_NEW char[MinLength + 1ULL]();
+			assert(base < BaseType(INT_MAX));
 			std::to_chars_result rs = std::to_chars(c, &(c[MinLength]), that.data(), base);
 
 			std::string str = c;
@@ -118,7 +119,7 @@ namespace LL {
 			bool temp = false;
 			unsigned int Length = 0;
 			Length = GetPowerTimes(Radix, 10);
-			unsigned OutBase = 0;
+			decltype(Radix) OutBase = 0;
 			if (Length == 0)
 			{
 				Length = GetPowerTimes(Radix, 16);
