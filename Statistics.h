@@ -119,15 +119,16 @@ inline SubData* __stdcall GetSubArray(
 
 
 //0 for not.
+template<typename VAL,typename BASE>
 constexpr unsigned inline MY_LIBRARY GetPowerTimes(
-	unsigned long long val,
-	const unsigned int& base
+	VAL val,
+	const BASE& base
 ) {
 	if (val == 0)
 	{
 		return 0;
 	}
-	unsigned times = 0;
+	BASE times = 0;
 	while (true)
 	{
 		if (val % base == 0)

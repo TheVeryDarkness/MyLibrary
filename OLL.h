@@ -3,6 +3,9 @@
 #include "LinkedList.h"
 
 namespace LL {
+	template <typename _Data, _Data Radix>class OLL;
+	template<typename node, bool insert>class OLLIterator;
+
 	//Data为数据类型，勿将其置为指针
 	template <
 		typename _Data, _Data Radix
@@ -17,8 +20,10 @@ namespace LL {
 
 		template<class node, typename _Data, _Data Radix>
 		friend class LLComputeTraits;
-		template<typename _Data, _Data Radix>
-		class OLLIterator;
+
+		friend class OLLIterator<OLL,true>;
+		friend class OLLIterator<OLL,false>;
+
 		template<typename Type>
 		INLINED friend std::ostream& MY_LIBRARY out(
 			std::ostream& out, const Type& b
@@ -51,10 +56,13 @@ namespace LL {
 
 		MEMORY_CACHE(20);
 	public:
-		constexpr inline OLL* begin()const noexcept {
+		static constexpr INLINED auto getRadix() noexcept {
+			return Radix;
+		}
+		constexpr INLINED OLL* begin()const noexcept {
 			return this;
 		}
-		constexpr static inline OLL* end() noexcept {
+		constexpr INLINED OLL* end()const noexcept {
 			return nullptr;
 		}
 
@@ -720,36 +728,42 @@ namespace LL {
 
 
 
-	template<typename _Data, _Data Radix>
+	template<typename in,bool insert>
 	class OLLIterator
 	{
-		using LL=OLL<_Data, Radix>;
 	public:
-		constexpr MY_LIBRARY OLLIterator(LL* _ptr)noexcept :ptr(_ptr) {}
+		static constexpr auto MY_LIBRARY getRadix()noexcept { return in::getRadix(); }
+		static constexpr in* MY_LIBRARY NEXT(in& i)noexcept { if (i.next == nullptr)i.insert(); return i.next; }
+		constexpr MY_LIBRARY OLLIterator(in* _ptr)noexcept :ptr(_ptr) {}
 
 		MY_LIBRARY ~OLLIterator()noexcept = default;
 
 		constexpr OLLIterator& MY_LIBRARY operator++()noexcept {
-			this->ptr = ptr->next;
+			if (this->ptr != nullptr)
+			{
+				if constexpr (insert)
+				{
+					if (this->ptr->next == nullptr)
+					{
+						this->ptr->insert();
+					}
+				}
+				this->ptr = ptr->next;
+			}
 			return *this;
 		}
 
-		constexpr LargeInteger::Num<_Data, Radix>& MY_LIBRARY operator*()noexcept {
+		constexpr LargeInteger::Num<decltype(in::getRadix()), in::getRadix()>& MY_LIBRARY operator*()noexcept {
 			if (this->ptr != nullptr){
 				return this->ptr->data;
 			}
 			else {
-				assert((LLComputeTraits<LL, _Data, Radix>::NullData == 0));
-				return (LLComputeTraits<LL, _Data, Radix>::NullData = 0);
+				assert((LLComputeTraits<in, decltype(in::getRadix()), in::getRadix()>::NullData == 0));
+				return (LLComputeTraits<in, decltype(in::getRadix()), in::getRadix()>::NullData = 0);
 			}
 		}
 
 	private:
-		LL* ptr;
+		in* ptr;
 	};
 }
-
-template<typename _Data, _Data Radix>
-class std::iterator_traits<LL::OLLIterator<_Data, Radix>> {
-
-};

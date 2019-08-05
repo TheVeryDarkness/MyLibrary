@@ -14,14 +14,15 @@ namespace LargeInteger {
 	public:
 		MY_LIBRARY BaseSet() = delete;
 		MY_LIBRARY ~BaseSet() = delete;
-
-		static int_type MY_LIBRARY to_int_type(char_type Char)noexcept {
+		using CharType=char_type;
+		using IntType=int_type;
+		constexpr static int_type MY_LIBRARY to_int_type(char_type Char)noexcept {
 			return int_type('?');
 		}
-		static char_type MY_LIBRARY to_char_type(int_type Int)noexcept {
+		constexpr static char_type MY_LIBRARY to_char_type(int_type Int)noexcept {
 			return char_type('?');
 		}
-		static size_t MY_LIBRARY getRadix()noexcept {
+		constexpr static size_t MY_LIBRARY getRadix()noexcept {
 			return BeginIndex;
 		}
 	private:
@@ -35,18 +36,20 @@ namespace LargeInteger {
 	public:
 		MY_LIBRARY BaseSet() = delete;
 		MY_LIBRARY ~BaseSet() = delete;
-		static int_type MY_LIBRARY to_int_type(char_type Char)noexcept {
-			if constexpr (Char == Head)
+		using CharType=char_type;
+		using IntType=int_type;
+		constexpr static int_type MY_LIBRARY to_int_type(char_type Char)noexcept {
+			if (Char == Head)
 			{
 				return int_type(BeginIndex);
 			}
 			else
 			{
-				return BaseSet<char_type, int_type, BeginIndex + 1, Remained>::to_int_type(Char);
+				return BaseSet<char_type, int_type, BeginIndex + 1, Remained...>::to_int_type(Char);
 			}
 		}
-		static char_type MY_LIBRARY to_char_type(int_type Int)noexcept {
-			if constexpr (Int == BeginIndex)
+		constexpr static char_type MY_LIBRARY to_char_type(int_type Int)noexcept {
+			if (Int == BeginIndex)
 			{
 				return char_type(Head);
 			}
@@ -55,7 +58,7 @@ namespace LargeInteger {
 				return BaseSet<char_type, int_type, BeginIndex + 1, Remained>::to_char_type(Int);
 			}
 		}
-		static size_t MY_LIBRARY getRadix()noexcept {
+		constexpr static size_t MY_LIBRARY getRadix()noexcept {
 			return BaseSet<char_type, int_type, BeginIndex + 1, Remained...>::getRadix();
 		}
 	private:
@@ -71,24 +74,55 @@ namespace LargeInteger {
 	class OddStream
 	{
 	public:
-		OddStream(std::basic_istream<_Elem> i)noexcept :i(i) {}
+		OddStream(std::basic_istream<_Elem>& i)noexcept :is(i) {}
 
 		~OddStream() = default;
 
 
 		template<typename Iter>
 		OddStream& MY_LIBRARY operator>>(Iter str)noexcept {
-			std::basic_string<_Elem> temp;
-			is >> temp;
-			for (auto& i : temp)
+			static_assert(GetPowerTimes(Iter::getRadix(), charset::getRadix()) != 0 || Iter::getRadix() == charset::getRadix());
+			if constexpr (Iter::getRadix() == charset::getRadix())
 			{
-				str = charset::to_int_type(i);
-				++str;
+				std::basic_string<_Elem> temp;
+				is >> temp;
+				for (auto i = temp.rbegin(); i != temp.rend(); i++) {
+					auto c = charset::to_int_type(*i);
+					if (c != '?')
+					{
+						++str;
+						*str = c;
+					}
+				}
+				return *this;
 			}
-			return *this;
+			else
+			{
+				std::basic_string<_Elem> temp;
+				is >> temp;
+				for (auto i = temp.rbegin(); i != temp.rend();) {
+					typename std::remove_reference<decltype(*str)>::type sum = std::remove_reference<decltype(*str)>::type(0);
+					for (decltype(GetPowerTimes(Iter::getRadix(), charset::getRadix())) j = 0; j < GetPowerTimes(Iter::getRadix(), charset::getRadix()); j++) {
+						auto c = charset::to_int_type(*i);
+						if (c != charset::IntType('?'))
+						{
+							sum += c * Power(charset::getRadix(), j);
+						}
+						else --j;
+						i++;
+						if (i == temp.rend())
+						{
+							break;
+						}
+					}
+					++str;
+					*str = sum;
+				}
+				return *this;
+			}
 		}
 
 	private:
-		std::basic_istream<_Elem> is;
+		std::basic_istream<_Elem>& is;
 	};
 };

@@ -195,7 +195,11 @@ namespace LargeInteger {
 		}
 		template<class os>
 		friend os& operator<<(os& o, const Num& n) noexcept {
-			return (o << n.data);
+			if constexpr (sizeof(Data) <= 1)
+			{
+				return (o << (unsigned short)n.data);
+			}
+			else return (o << n.data);
 		}
 	private:
 		Data data;

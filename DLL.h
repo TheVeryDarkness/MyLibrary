@@ -44,6 +44,18 @@ namespace LL {
 
 		MEMORY_CACHE(20);
 	public:
+		static constexpr INLINED auto getRadix() noexcept {
+			return Radix;
+		}
+		constexpr INLINED DLL* begin()const noexcept {
+			return this;
+		}
+		constexpr INLINED DLL* end()const noexcept {
+			return nullptr;
+		}
+
+
+
 		//жиди
 		INLINED void MY_LIBRARY operator*=(Data times) noexcept {
 			if (times == Data(0))
@@ -795,7 +807,7 @@ namespace LL {
 				}
 			}
 		}
-		INLINED friend std::ostream& MY_LIBRARY operator<<=(
+		INLINED friend std::ostream& MY_LIBRARY operator<<(
 			std::ostream& out, const DLL& that
 			) noexcept {
 			return LL::out<DLL>(out, that);
