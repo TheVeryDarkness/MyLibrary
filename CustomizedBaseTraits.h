@@ -65,18 +65,33 @@ namespace LargeInteger {
 
 	};
 
+
 	typedef BaseSet < char, unsigned char, 0, '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'> Set16;
 	typedef BaseSet < char, unsigned char, 0, '0', '1', '2', '3', '4', '5', '6', '7', '8'> Set8;
 	typedef BaseSet < char, unsigned char, 0, '0', '1'> Set2;
 	typedef BaseSet < char, unsigned char, 0, '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'> Set10;
 
-	template<typename _Elem, typename charset>
-	class OddStream
+	template<auto Radix>
+	class Set
 	{
 	public:
-		OddStream(std::basic_istream<_Elem>& i)noexcept :is(i) {}
+		Set() = delete;
+		~Set() = delete;
+	};
 
-		~OddStream() = default;
+	template<>class Set<2> :public Set2 { public:	Set() = delete;	~Set() = delete; };
+	template<>class Set<8> :public Set8{ public:	Set() = delete;	~Set() = delete; };
+	template<>class Set<10> :public Set10{ public:	Set() = delete;	~Set() = delete; };
+	template<>class Set<16> :public Set16{ public:	Set() = delete;	~Set() = delete; };
+
+	template<typename _Elem, typename char_type, typename int_type, size_t BeginIndex, char_type... set>
+	class std::basic_istream<_Elem, BaseSet<char_type, int_type, BeginIndex, set...>>
+	{
+		using charset=LargeInteger::BaseSet<char_type, int_type, BeginIndex, set...>;
+	public:
+		basic_istream(std::basic_istream<_Elem>& i)noexcept :is(i) {}
+
+		~basic_istream() = default;
 
 
 		template<typename Iter>

@@ -4,7 +4,7 @@
 
 namespace LL {
 	template <typename _Data, _Data Radix>class OLL;
-	template<typename node, bool insert>class OLLIterator;
+	template<typename in, bool insert>class OLLIterator;
 
 	//Data为数据类型，勿将其置为指针
 	template <
@@ -691,6 +691,11 @@ namespace LL {
 			std::ostream& out, const OLL& that) noexcept {
 			return LL::out<OLL>(out, that);
 		}
+		INLINED friend std::ostream& MY_LIBRARY operator>>(
+			std::istream& in, OLL& that) noexcept {
+			
+		}
+
 		void MY_LIBRARY SinglePrint(
 			std::ostream& out = std::cout,
 			bool Comma = true
