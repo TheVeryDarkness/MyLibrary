@@ -115,8 +115,11 @@ namespace LargeInteger {
 							break;
 						}
 					}
-					++str;
-					*str = sum;
+					if (sum != static_cast<decltype(sum)>(0))
+					{
+						++str;
+						*str = sum;
+					}
 				}
 				return *this;
 			}
