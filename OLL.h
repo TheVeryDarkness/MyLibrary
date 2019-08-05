@@ -663,7 +663,7 @@ namespace LL {
 		}
 		//获取存储的值
 		//可能溢出
-		/*INLINED*/long long  MY_LIBRARY GetValue()const noexcept {
+		/*INLINED*/long long MY_LIBRARY GetValue()const noexcept {
 			bool sign = (this->data > 0) ? true : false;
 			long long value = 0;
 			long n = 0;
@@ -677,7 +677,7 @@ namespace LL {
 				if (OprtPtr->next != nullptr)
 				{
 					OprtPtr = OprtPtr->next;
-					value += ((unsigned long long)(OprtPtr->data())) * (unsigned long long)pow(Radix, n);
+					value += ((unsigned long long)(OprtPtr->data())) * Power((unsigned long long)Radix, n);
 					n++;
 				}
 				else

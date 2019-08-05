@@ -170,30 +170,29 @@ namespace LongCmpt {
 	//Compare a to b.
 	template<typename Iterator, typename Data, class _Traits>
 	INLINED Compare MY_LIBRARY CompareTo(const Iterator& a, const Iterator& b) noexcept {
-		if ((a == _Traits::NullIterator) && (b == _Traits::NullIterator))
 		{
-			return Compare::Equal;
-		}
-		Compare PreRes = CompareTo<Iterator, Data, _Traits>(_Traits::GetNext(a), _Traits::GetNext(b));
-		if (PreRes != Compare::Equal)
-		{
-			return PreRes;
-		}
-		else
-		{
-			return (
-				(_Traits::GetData(a) > _Traits::GetData(b))
-				?
-				Compare::Larger
-				:
-				(
-				(_Traits::GetData(a) < _Traits::GetData(b))
-					?
-					Compare::Smaller
-					:
-					Compare::Equal
-					)
-				);
+			Compare temp = Compare::Equal;
+			Iterator _a = a, _b = b;
+			for (;
+				;
+				_a = _Traits::GetNext(_a), _b = _Traits::GetNext(_b)
+				) {
+				if (_Traits::GetData(_a) > _Traits::GetData(_b))
+				{
+					temp = Compare::Larger;
+				}
+				else if (_Traits::GetData(_a) < _Traits::GetData(_b))
+				{
+					temp = Compare::Smaller;
+				}
+				if ((_Traits::GetNext(_a) == _Traits::NullIterator) && (_Traits::GetNext(_b) == _Traits::NullIterator))
+				{
+					break;
+				}
+			}
+			{
+				return temp;
+			}
 		}
 	}
 	//Extension for Compare()
