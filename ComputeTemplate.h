@@ -23,13 +23,37 @@ namespace LongCmpt {
 	//	NullIterator;
 	//NullIterator must have 0 data, and not have an next element.
 
+	template<typename Iterator, typename Data, class _Traits>
+	INLINED bool MY_LIBRARY Iterate(Iterator& This, Data& CarryBit)noexcept {
+		//Next element
+		Iterator ThisNext = (_Traits::GetNext(This));
+		if ((ThisNext != _Traits::NullIterator))
+		{
+			This = ThisNext;
+		}
+		else if ((ThisNext == _Traits::NullIterator))
+		{
+			if (CarryBit == 0) {
+				return false;
+			}
+			else {
+				_Traits::InsertAfter(&This, CarryBit);
+				CarryBit = 0;
+				This = (_Traits::GetNext(This));
+				return false;
+			}
+		}
+		return true;
+	}
+
+
 	template<class ComputeFunction, typename Iterator, typename Data, typename _Traits>
 	class AppositionIterator
 	{
 	public:
 		MY_LIBRARY AppositionIterator(Iterator a, Iterator b)noexcept
-			:a(a), b(b), c(), Result(c(Data(0), *a, *b)) {
-			static_assert(std::is_same<Data, std::remove_reference<decltype(*b)>::type>::value, "It should be the same type");
+			:a(a), b(b), c(), Result(c(Data(0), _Traits::GetData(a), _Traits::GetData(b))) {
+			static_assert(std::is_same<Data, std::remove_reference<decltype(_Traits::GetData(b))>::type>::value, "It should be the same type");
 		}
 		MY_LIBRARY ~AppositionIterator()noexcept {}
 		//Notice:
@@ -38,7 +62,7 @@ namespace LongCmpt {
 			a = _Traits::GetNext(a);
 			b = _Traits::GetNext(b);
 
-			Result = c(Result.second, *a, *b);
+			Result = c(Result.second, _Traits::GetData(a), _Traits::GetData(b));
 		}
 		//return true if the iterator is still working
 		MY_LIBRARY operator bool()const noexcept {
@@ -66,7 +90,7 @@ namespace LongCmpt {
 		while (true)
 		{
 			//This element
-			*(compute.b) = compute.Result.first;
+			_Traits::GetData(compute.b) = compute.Result.first;
 			if (
 				_Traits::GetNext(compute.b) == _Traits::NullIterator
 				)
@@ -96,8 +120,8 @@ namespace LongCmpt {
 	class LineIterator
 	{
 	public:
-		MY_LIBRARY LineIterator(Data a, Iterator b)noexcept :a(a), b(b), c(), Result(c(Data(0), a, *b)) {
-			static_assert(std::is_same<Data, std::remove_reference<decltype(*b)>::type>::value, "It should be the same type");
+		MY_LIBRARY LineIterator(Data a, Iterator b)noexcept :a(a), b(b), c(), Result(c(Data(0), a, _Traits::GetData(b))) {
+			static_assert(std::is_same<Data, std::remove_reference<decltype(_Traits::GetData(b))>::type>::value, "It should be the same type");
 		}
 		MY_LIBRARY ~LineIterator()noexcept{}
 		//Notice:
@@ -105,7 +129,7 @@ namespace LongCmpt {
 		void MY_LIBRARY operator++() noexcept{
 			b = _Traits::GetNext(b);
 
-			Result = c(Result.second, a, *b);
+			Result = c(Result.second, a, _Traits::GetData(b));
 		}
 		//return true if the iterator is still working
 		MY_LIBRARY operator bool()const noexcept {
@@ -125,7 +149,7 @@ namespace LongCmpt {
 		while (true)
 		{
 			//This element
-			*(mul.b) = mul.Result.first;
+			_Traits::GetData(mul.b) = mul.Result.first;
 			if (_Traits::GetNext(mul.b) == _Traits::NullIterator)
 			{
 				if (mul.Result.second != Data(0))
@@ -153,11 +177,11 @@ namespace LongCmpt {
 				;
 				_a = _Traits::GetNext(_a), _b = _Traits::GetNext(_b)
 				) {
-				if (*_a > *_b)
+				if (_Traits::GetData(_a) > _Traits::GetData(_b))
 				{
 					temp = Compare::Larger;
 				}
-				else if (*_a < *_b)
+				else if (_Traits::GetData(_a) < _Traits::GetData(_b))
 				{
 					temp = Compare::Smaller;
 				}
@@ -179,13 +203,13 @@ namespace LongCmpt {
 			Iterator _a = a, _b = b;
 			for (;
 				;
-				++_a, ++_b
+				_a = _Traits::GetNext(_a), _b = _Traits::GetNext(_b)
 				) {
-				if (*_a > *_b)
+				if (_Traits::GetData(_a) > _Traits::GetData(_b))
 				{
 					temp = Compare::Larger;
 				}
-				else if (*_a < *_b)
+				else if (_Traits::GetData(_a) < _Traits::GetData(_b))
 				{
 					temp = Compare::Smaller;
 				}
@@ -196,14 +220,14 @@ namespace LongCmpt {
 			}
 			{
 				if (temp == Compare::Larger) {
-					if (*_a > (*_b)) {
-						return std::pair<Data, Compare>(Data(*_a / (*_b + Data(1))), Compare::Larger);
+					if (_Traits::GetData(_a) > (_Traits::GetData(_b))) {
+						return std::pair<Data, Compare>(Data(_Traits::GetData(_a) / (_Traits::GetData(_b) + Data(1))), Compare::Larger);
 					}
 					return std::pair<Data, Compare>(Data(1), Compare::Larger);
 				}
 				else if (temp == Compare::Smaller) {
-					if (*_a < *_b) {
-						return std::pair<Data, Compare>(Data(*_b / (*_a + Data(1))), Compare::Smaller);
+					if (_Traits::GetData(_a) < (_Traits::GetData(_b))) {
+						return std::pair<Data, Compare>(Data(_Traits::GetData(_b) / (_Traits::GetData(_a) + Data(1))), Compare::Smaller);
 					}
 					return std::pair<Data, Compare>(Data(1), Compare::Smaller);
 				}
