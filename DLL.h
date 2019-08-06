@@ -2,9 +2,6 @@
 
 #include "LinkedList.h"
 namespace LL {
-	template<typename _Data, _Data Radix>class DLL;
-	template<typename in, bool insert>class DLLIterator;
-
 
 	template<typename _Data, _Data Radix>
 	class DLL
@@ -45,10 +42,6 @@ namespace LL {
 		friend outNode MY_LIBRARY Transform(inNode& in)noexcept;
 		friend class Q;
 
-
-		friend class DLLIterator<DLL,true>;
-		friend class DLLIterator<DLL,false>;
-
 		MEMORY_CACHE(20);
 	public:
 		static constexpr INLINED auto getRadix() noexcept {
@@ -74,7 +67,7 @@ namespace LL {
 			{
 				return;
 			}
-			LongCmpt::MultiplyTo<DLLIterator<DLL,true>, Data, LLComputeTraits<DLL, _Data, Radix>>(times, this->next);
+			LongCmpt::MultiplyTo<DLL*, Data, LLComputeTraits<DLL, _Data, Radix>>(times, this->next);
 		}
 		//жиди
 		INLINED DLL MY_LIBRARY operator*(Data times)const noexcept {
@@ -92,7 +85,7 @@ namespace LL {
 			for (DLL* OprtPtr = b.next; OprtPtr != nullptr; OprtPtr = OprtPtr->next)
 			{
 				DLL temp(This * OprtPtr->data);
-				LongCmpt::AppositionComputeTo<LongCmpt::StdCmptTraits<Data>::Add, DLLIterator<DLL, false>, DLLIterator<DLL, true>, Data, LLComputeTraits<DLL, _Data, Radix>>(temp.next, this->next);
+				LongCmpt::AppositionComputeTo<LongCmpt::StdCmptTraits<Data>::Add, DLL*, Data, LLComputeTraits<DLL, _Data, Radix>>(temp.next, this->next);
 				temp.destruct();
 				This <<= 1;
 			}
@@ -133,22 +126,22 @@ namespace LL {
 			}
 			if ((this->data > 0 && that.data > 0) || (this->data == 0 && that.data == 0))
 			{
-				LongCmpt::AppositionComputeTo<LongCmpt::StdCmptTraits<Data>::Add, DLLIterator<DLL, false>, DLLIterator<DLL, true>, Data, LLComputeTraits<DLL, _Data, Radix>>(DLLIterator<DLL, false>(that.next), DLLIterator<DLL, true>(this->next));
+				LongCmpt::AppositionComputeTo<LongCmpt::StdCmptTraits<Data>::Add, DLL*, Data, LLComputeTraits<DLL, _Data, Radix>>(that.next, this->next);
 			}
 			else {
-				LongCmpt::Compare Cmpr = LongCmpt::CompareTo<DLLIterator<DLL, false>, DLLIterator<DLL, false>, Data, LLComputeTraits<DLL, _Data, Radix>>(DLLIterator<DLL, false>(this->next), DLLIterator<DLL, false>(that.next));
+				LongCmpt::Compare Cmpr = LongCmpt::CompareTo<DLL*, Data, LLComputeTraits<DLL, _Data, Radix>>(this->next, that.next);
 				if (Cmpr == LongCmpt::Compare::Equal)
 				{
 					this->destruct();
 				}
 				if (Cmpr == LongCmpt::Compare::Larger)
 				{
-					LongCmpt::AppositionComputeTo<LongCmpt::StdCmptTraits<Data>::SubtractFrom, DLLIterator<DLL, false>, DLLIterator<DLL, true>, Data, LLComputeTraits<DLL, _Data, Radix>>(DLLIterator<DLL, false>(that.next), DLLIterator<DLL, true>(this->next));
+					LongCmpt::AppositionComputeTo<LongCmpt::StdCmptTraits<Data>::SubtractFrom, DLL*, Data, LLComputeTraits<DLL, _Data, Radix>>(that.next, this->next);
 				}
 				else
 				{
 					DLL temp(that, true);
-					LongCmpt::AppositionComputeTo<LongCmpt::StdCmptTraits<Data>::SubtractFrom, DLLIterator<DLL, false>, DLLIterator<DLL, true>, Data, LLComputeTraits<DLL, _Data, Radix>>(DLLIterator<DLL, false>(this->next), DLLIterator<DLL, true>(temp.next));
+					LongCmpt::AppositionComputeTo<LongCmpt::StdCmptTraits<Data>::SubtractFrom, DLL*, Data, LLComputeTraits<DLL, _Data, Radix>>(this->next, temp.next);
 					*this = temp;
 				}
 				this->Simplify();
@@ -833,117 +826,4 @@ namespace LL {
 		}
 	};
 
-
-
-	template<typename in>
-	class DLLIterator<in, true>
-	{
-	public:
-		static constexpr auto MY_LIBRARY getRadix()noexcept { return in::getRadix(); }
-		constexpr MY_LIBRARY DLLIterator(in*const _ptr)noexcept :ptr(_ptr) {}
-		constexpr in*& MY_LIBRARY operator()()noexcept { return this->ptr; }
-		constexpr bool MY_LIBRARY operator==(in* that)const noexcept { return this->ptr == that; }
-
-		MY_LIBRARY ~DLLIterator()noexcept = default;
-
-		constexpr DLLIterator& MY_LIBRARY operator++()noexcept {
-			if (this->ptr != nullptr)
-			{
-				if (this->ptr->next == nullptr)
-				{
-					this->ptr->insert();
-				}
-				this->ptr = ptr->next;
-			}
-			return *this;
-		}
-
-		constexpr DLLIterator& MY_LIBRARY operator+(size_t sz)noexcept {
-			for (size_t i = 0; i < sz; i++)
-			{
-				if (this->ptr != nullptr)
-				{
-					if (this->ptr->next == nullptr)
-					{
-						this->ptr->insert();
-					}
-					this->ptr = ptr->next;
-				}
-				else
-				{
-					break;
-				}
-			}
-			return *this;
-		}
-
-		constexpr LargeInteger::Num<decltype(in::getRadix()), in::getRadix()>& MY_LIBRARY operator*()noexcept {
-			if (this->ptr != nullptr) {
-				return this->ptr->data;
-			}
-			else {
-				assert((LLComputeTraits<in, decltype(in::getRadix()), in::getRadix()>::NullData == 0));
-				return (LLComputeTraits<in, decltype(in::getRadix()), in::getRadix()>::NullData = 0);
-			}
-		}
-
-		constexpr in*& operator->() noexcept {
-			return this->ptr;
-		}
-
-	private:
-		in* ptr;
-	};
-	template<typename in>
-	class DLLIterator<in, false>
-	{
-	public:
-		static constexpr auto MY_LIBRARY getRadix()noexcept { return in::getRadix(); }
-		constexpr MY_LIBRARY DLLIterator(const in*const _ptr)noexcept :ptr(_ptr) {}
-		constexpr const in*& MY_LIBRARY operator()()const noexcept { return this->ptr; }
-		constexpr bool MY_LIBRARY operator==(in* that)const noexcept { return this->ptr == that; }
-
-		MY_LIBRARY ~DLLIterator()noexcept = default;
-
-		constexpr const DLLIterator& MY_LIBRARY operator++() noexcept {
-			if (this->ptr != nullptr)
-			{
-				this->ptr = ptr->next;
-			}
-			return *this;
-		}
-
-		constexpr DLLIterator MY_LIBRARY operator+(size_t sz)const noexcept {
-			DLLIterator it(this->ptr);
-			for (size_t i = 0; i < sz; i++)
-			{
-				if (it.ptr != nullptr)
-				{
-					it.ptr = it.ptr->next;
-				}
-				else
-				{
-					break;
-				}
-			}
-			return it;
-		}
-
-		constexpr const LargeInteger::Num<decltype(in::getRadix()), in::getRadix()>& MY_LIBRARY operator*()const noexcept {
-			if (this->ptr != nullptr) {
-				return this->ptr->data;
-			}
-			else {
-				assert((LLComputeTraits<in, decltype(in::getRadix()), in::getRadix()>::NullData == 0));
-				return (LLComputeTraits<in, decltype(in::getRadix()), in::getRadix()>::NullData = 0);
-			}
-		}
-
-		constexpr const in*& operator->() noexcept {
-			return this->ptr;
-		}
-
-	private:
-		const in* ptr;
-	};
 }

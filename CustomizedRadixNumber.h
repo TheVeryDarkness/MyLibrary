@@ -174,10 +174,10 @@ namespace LargeInteger {
 						This += Bytes<GetMinLength(Radix) * 2>(Carry());
 						Bytes<GetMinLength(Radix) * 2> Res(0);
 						Bytes<GetMinLength(Radix) * 2> radix(Radix);
-						LongCmpt::DivideInto<Bytes<GetMinLength(Radix) * 2>, BytesIterator<GetMinLength(Radix) * 2 ,true>, BytesIterator<GetMinLength(Radix) * 2, false>, value_type, BytesTraits<GetMinLength(Radix) * 2>>(
+						LongCmpt::DivideInto<Bytes<GetMinLength(Radix) * 2>, BytesIterator<GetMinLength(Radix) * 2>, value_type, BytesTraits<GetMinLength(Radix) * 2>>(
 							Res,
-							BytesIterator<GetMinLength(Radix) * 2, true>(&radix, 0),
-							BytesIterator<GetMinLength(Radix) * 2, false>(&This, 0)
+							BytesIterator<GetMinLength(Radix) * 2>(&radix, 0),
+							BytesIterator<GetMinLength(Radix) * 2>(&This, 0)
 							);
 						return std::pair<Num, Num>(
 							Num(Data(This)),
