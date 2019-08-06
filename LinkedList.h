@@ -252,14 +252,16 @@ namespace LL {
 			return ((ptr == nullptr) ? (NullData = Data(0)) : (ptr->data));
 		}
 
-		static constexpr node* MY_LIBRARY GetNext(node* ptr) {
-			return ((ptr == nullptr) ? nullptr : (ptr->next));
+		template<typename Iter>
+		static constexpr node* MY_LIBRARY GetNext(Iter ptr) {
+			return ((ptr == Iter(nullptr)) ? nullptr : (ptr->next));
 		}
 
 		static constexpr void MY_LIBRARY assign(node* ptr, unsigned sz = 1) {
 			*ptr <<= sz;
 		}
-		static constexpr void MY_LIBRARY InsertAfter(node*& ptr, Data data = Data(0)) {
+		template<typename Iter>
+		static constexpr void MY_LIBRARY InsertAfter(Iter ptr, Data data = Data(0)) {
 			ptr->insert(data);
 		}
 	};
