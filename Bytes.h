@@ -40,7 +40,7 @@ namespace LargeInteger {
 		friend struct BytesIterator;
 		value_type Byte[Length] = {};
 	public:
-		constexpr explicit MY_LIBRARY Bytes()noexcept { static_assert(Length != 0); }
+		constexpr explicit MY_LIBRARY Bytes()noexcept {}
 		template<size_t OriginLength> constexpr explicit MY_LIBRARY Bytes(const Bytes<OriginLength>&)noexcept;
 		template<typename Data>constexpr explicit MY_LIBRARY Bytes(const Data data)noexcept;
 		template<typename Data>constexpr MY_LIBRARY operator Data()noexcept;
@@ -48,38 +48,68 @@ namespace LargeInteger {
 
 		constexpr MY_LIBRARY Bytes(const value_type data) noexcept :Byte{ data } {}
 		constexpr Bytes& MY_LIBRARY operator=(unsigned char Value) noexcept {
-			memset(this->Byte, 0, Length);
-			this->Byte[0] = Value;
+			if constexpr (Length != 0)
+			{
+				memset(this->Byte, 0, Length);
+				this->Byte[0] = Value;
+			}
 			return *this;
 		}
 		constexpr Bytes& MY_LIBRARY operator+=(const Bytes& that)noexcept {
-			add_s(that);
+			if constexpr (Length != 0)
+			{
+				value_type Carry = 0;
+				for (size_t i = 0; i < Length; i++)
+				{
+					//If (a + b) overflows, then a > ~b.
+					if (Carry > 0)
+					{
+						if (Byte[i] > static_cast<value_type>(~Carry))
+						{
+							Byte[i] = 0;
+							Carry = 1;
+						}
+						else
+						{
+							Byte[i] += 1;
+							Carry = 0;
+						}
+					}
+					if (Byte[i] > static_cast<value_type>(~that.Byte[i]))
+					{
+						Carry = 1;
+					}
+					Byte[i] += that.Byte[i];
+				}
+			}
 			return *this;
 		}
 		constexpr value_type MY_LIBRARY add_s(const Bytes& that) noexcept {
-			\
-				value_type Carry = 0;
-			for (size_t i = 0; i < Length; i++)
+			value_type Carry = 0;
+			if constexpr (Length != 0)
 			{
-				//If (a + b) overflows, then a > ~b.
-				if (Carry > 0)
+				for (size_t i = 0; i < Length; i++)
 				{
-					if (Byte[i] > static_cast<value_type>(~Carry))
+					//If (a + b) overflows, then a > ~b.
+					if (Carry > 0)
 					{
-						Byte[i] = 0;
+						if (Byte[i] > static_cast<value_type>(~Carry))
+						{
+							Byte[i] = 0;
+							Carry = 1;
+						}
+						else
+						{
+							Byte[i] += 1;
+							Carry = 0;
+						}
+					}
+					if (Byte[i] > static_cast<value_type>(~that.Byte[i]))
+					{
 						Carry = 1;
 					}
-					else
-					{
-						Byte[i] += 1;
-						Carry = 0;
-					}
+					Byte[i] += that.Byte[i];
 				}
-				if (Byte[i] > static_cast<value_type>(~that.Byte[i]))
-				{
-					Carry = 1;
-				}
-				Byte[i] += that.Byte[i];
 			}
 			return Carry;
 		}
@@ -317,7 +347,6 @@ namespace LargeInteger {
 	constexpr INLINED MY_LIBRARY Bytes<Length>::Bytes(
 		const Bytes<OriginLength>& that
 	)noexcept {
-		static_assert(Length != 0);
 		if constexpr (Length >= OriginLength)
 			memcpy(&this->Byte, &that.Byte, OriginLength);
 		else
@@ -342,7 +371,6 @@ namespace LargeInteger {
 	template<size_t Length>
 	template<typename Data>
 	constexpr INLINED MY_LIBRARY LargeInteger::Bytes<Length>::Bytes(Data data) noexcept {
-		static_assert(Length != 0);
 		for (size_t i = 0; i < Length; i++)
 		{
 			this->Byte[i] = data & 0xff;
