@@ -432,10 +432,9 @@ namespace LargeInteger {
 		size_t Index;
 		constexpr MY_LIBRARY BytesIterator(Bytes<Length>* Head, const size_t index = 0)noexcept :Head(Head), Index(index) {}
 		constexpr bool MY_LIBRARY operator==(const BytesIterator& that)const noexcept { return ((this->Head == that.Head) && (this->Index == that.Index)); }
-		constexpr bool MY_LIBRARY operator==(void* that)const noexcept { return (this->Head == that); }
 		constexpr bool MY_LIBRARY operator!=(const BytesIterator& that)const noexcept { return !(*this == that); }
 		constexpr value_type& MY_LIBRARY operator*()const noexcept {
-			if (Index >= Length || Head == nullptr)
+			if (Index >= Length)
 			{
 				return BytesTraits<Length>::NullObject.Byte[0];
 			}
@@ -446,23 +445,18 @@ namespace LargeInteger {
 			{
 				this->Index++;
 			}
-			else
-			{
-				this->Head = nullptr;
-			}
 			return *this;
 		}
-		constexpr BytesIterator MY_LIBRARY operator+(size_t sz)const noexcept {
-			BytesIterator it(*this);
+		constexpr BytesIterator& MY_LIBRARY operator+(size_t sz)noexcept {
 			for (size_t i = 0; i < sz; i++)
 			{
-				++it;
-				if (it.Index >= Length)
+				++(*this);
+				if (Index>=Length)
 				{
 					break;
 				}
 			}
-			return it;
+			return *this;
 		}
 	};
 	template<size_t Length>
@@ -475,7 +469,7 @@ namespace LargeInteger {
 		constexpr bool MY_LIBRARY operator==(void* that)const noexcept { return this->Head == that; }
 		constexpr bool MY_LIBRARY operator!=(const BytesIterator& that)const noexcept { return !(*this == that); }
 		constexpr value_type& MY_LIBRARY operator*()const noexcept {
-			if (Index >= Length || Head == nullptr)
+			if (Index >= Length)
 			{
 				return BytesTraits<Length>::NullObject.Byte[0];
 			}
@@ -485,10 +479,6 @@ namespace LargeInteger {
 			if (this->Index < Length - 1)
 			{
 				this->Index++;
-			}
-			else
-			{
-				this->Head = nullptr;
 			}
 			return *this;
 		}

@@ -115,7 +115,7 @@ namespace LL {
 		//重载DLL链表加号
 		INLINED DLL MY_LIBRARY operator+(
 			const DLL& b//操作数
-			) const noexcept {
+			)  const noexcept {
 			DLL Result(*this, true);//存储结果
 			Result += b;
 			return Result;
@@ -858,24 +858,23 @@ namespace LL {
 			return *this;
 		}
 
-		constexpr DLLIterator MY_LIBRARY operator+(size_t sz)const noexcept {
-			DLLIterator it(*this);
+		constexpr DLLIterator& MY_LIBRARY operator+(size_t sz)noexcept {
 			for (size_t i = 0; i < sz; i++)
 			{
-				if (it.ptr != nullptr)
+				if (this->ptr != nullptr)
 				{
-					if (it.ptr->next == nullptr)
+					if (this->ptr->next == nullptr)
 					{
-						it.ptr->insert();
+						this->ptr->insert();
 					}
-					it.ptr = ptr->next;
+					this->ptr = ptr->next;
 				}
 				else
 				{
 					break;
 				}
 			}
-			return it;
+			return *this;
 		}
 
 		constexpr LargeInteger::Num<decltype(in::getRadix()), in::getRadix()>& MY_LIBRARY operator*()noexcept {

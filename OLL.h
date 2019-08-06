@@ -154,7 +154,7 @@ namespace LL {
 		//重载OLL链表加号
 		INLINED OLL MY_LIBRARY operator+(
 			const OLL& b//操作数
-			) const noexcept {
+			)  const noexcept {
 			OLL Result(*this, true);//存储结果
 			Result += b;
 			return Result;
