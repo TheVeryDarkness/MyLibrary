@@ -1,7 +1,6 @@
 #pragma once
 
 #include <istream>
-#include <iterator>
 
 namespace LargeInteger {
 

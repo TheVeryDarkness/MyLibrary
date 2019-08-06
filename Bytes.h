@@ -432,7 +432,7 @@ namespace LargeInteger {
 	};
 
 	template<size_t Length>
-	class BytesTraits :public Bytes<Length>,public LongCmpt::StdCmptTraits<value_type>
+	class BytesTraits :public LongCmpt::StdCmptTraits<value_type>
 	{
 	public:
 		BytesTraits() = delete;
