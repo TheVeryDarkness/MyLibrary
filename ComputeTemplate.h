@@ -23,29 +23,30 @@ namespace LongCmpt {
 	//	NullIterator;
 	//NullIterator must have 0 data, and not have an next element.
 
-	template<class ComputeFunction, typename Iterator, typename Data, typename _Traits>
+	template<class ComputeFunction, typename Iterator1,typename Iterator2, typename Data, typename _Traits>
 	class AppositionIterator
 	{
 	public:
-		MY_LIBRARY AppositionIterator(Iterator a, Iterator b)noexcept
+		MY_LIBRARY AppositionIterator(Iterator1 a, Iterator2 b)noexcept
 			:a(a), b(b), c(), Result(c(Data(0), *a, *b)) {
-			static_assert(std::is_same<Data, std::remove_reference<decltype(*b)>::type>::value, "It should be the same type");
+			static_assert(std::is_same<Data, std::remove_cv<std::remove_reference<decltype(*a)>::type>::type>::value, "It should be the same type");
+			static_assert(std::is_same<Data, std::remove_cv<std::remove_reference<decltype(*b)>::type>::type>::value, "It should be the same type");
 		}
 		MY_LIBRARY ~AppositionIterator()noexcept {}
 		//Notice:
 		//	this function move the iterator to its next place
 		void MY_LIBRARY operator++() noexcept {
-			a = _Traits::GetNext(a);
-			b = _Traits::GetNext(b);
+			++a;
+			++b;
 
 			Result = c(Result.second, *a, *b);
 		}
 		//return true if the iterator is still working
 		MY_LIBRARY operator bool()const noexcept {
 			return !(
-				a == _Traits::NullIterator 
+				a == nullptr
 				&& 
-				b == _Traits::NullIterator
+				b == nullptr
 				&&
 				Result.first == Data(0) 
 				&&
@@ -54,24 +55,27 @@ namespace LongCmpt {
 		}
 		//result;overflow
 		std::pair<Data, Data> Result;
-		Iterator a, b;
+		Iterator1 a;
+		Iterator2 b;
 	private:
 		ComputeFunction c;
 	};
 
-	template<typename Compute, typename Iterator, typename Data, class _Traits>
-	INLINED void MY_LIBRARY AppositionComputeTo(Iterator a, Iterator b)noexcept {
+	template<typename Compute, typename Iterator1,typename Iterator2, typename Data, class _Traits>
+	INLINED void MY_LIBRARY AppositionComputeTo(Iterator1 a, Iterator2 b)noexcept {
+		static_assert(std::is_same<std::remove_cv<std::remove_reference<decltype(*a)>::type>::type, Data>::value, "??");
+		static_assert(std::is_same<std::remove_cv<std::remove_reference<decltype(*b)>::type>::type, Data>::value, "???");
 		Data Carry = Data(0);
-		AppositionIterator<Compute, Iterator, Data, _Traits> compute(a, b);
+		AppositionIterator<Compute, Iterator1, Iterator2, Data, _Traits> compute(a, b);
 		while (true)
 		{
 			//This element
 			*(compute.b) = compute.Result.first;
 			if (
-				_Traits::GetNext(compute.b) == _Traits::NullIterator
+				(compute.b + 1) == nullptr
 				)
 			{
-				if (_Traits::GetNext(compute.a) == _Traits::NullIterator)
+				if ((compute.a) + 1 == nullptr)
 				{
 					if (compute.Result.second!=Data(0))
 					{
@@ -109,7 +113,7 @@ namespace LongCmpt {
 		}
 		//return true if the iterator is still working
 		MY_LIBRARY operator bool()const noexcept {
-			return !(b == _Traits::NullIterator && Result.first == Data(0) && Result.second == Data(0));
+			return !(b == nullptr && Result.first == Data(0) && Result.second == Data(0));
 		}
 		//result;overflow
 		std::pair<Data, Data> Result;
@@ -144,39 +148,13 @@ namespace LongCmpt {
 
 
 	//Compare a to b.
-	template<typename Iterator, typename Data, class _Traits>
-	INLINED Compare MY_LIBRARY CompareTo(const Iterator& a, const Iterator& b) noexcept {
+	template<typename Iterator1, typename Iterator2, typename Data, class _Traits>
+	INLINED Compare MY_LIBRARY CompareTo(const Iterator1& a, const Iterator2& b) noexcept {
+		static_assert(std::is_same<decltype(*a), decltype(*b)>::value);
 		{
 			Compare temp = Compare::Equal;
-			Iterator _a = a, _b = b;
-			for (;
-				;
-				_a = _Traits::GetNext(_a), _b = _Traits::GetNext(_b)
-				) {
-				if (*_a > *_b)
-				{
-					temp = Compare::Larger;
-				}
-				else if (*_a < *_b)
-				{
-					temp = Compare::Smaller;
-				}
-				if ((_Traits::GetNext(_a) == _Traits::NullIterator) && (_Traits::GetNext(_b) == _Traits::NullIterator))
-				{
-					break;
-				}
-			}
-			{
-				return temp;
-			}
-		}
-	}
-	//Extension for Compare()
-	template<typename Iterator, typename Data, class _Traits>
-	INLINED std::pair<Data, Compare> MY_LIBRARY _CompareTo(const Iterator& a, const Iterator& b) noexcept {
-		{
-			Compare temp = Compare::Equal;
-			Iterator _a = a, _b = b;
+			Iterator1 _a = a;
+			Iterator2 _b = b;
 			for (;
 				;
 				++_a, ++_b
@@ -189,7 +167,36 @@ namespace LongCmpt {
 				{
 					temp = Compare::Smaller;
 				}
-				if ((_Traits::GetNext(_a) == _Traits::NullIterator) && (_Traits::GetNext(_b) == _Traits::NullIterator))
+				if ((_a + 1 == nullptr) && (_b + 1 == nullptr))
+				{
+					break;
+				}
+			}
+			{
+				return temp;
+			}
+		}
+	}
+	//Extension for Compare()
+	template<typename Iterator1, typename Iterator2, typename Data, class _Traits>
+	INLINED std::pair<Data, Compare> MY_LIBRARY _CompareTo(const Iterator1& a, const Iterator2& b) noexcept {
+		{
+			Compare temp = Compare::Equal;
+			Iterator1 _a = a;
+			Iterator2 _b = b;
+			for (;
+				;
+				++_a, ++_b
+				) {
+				if (*_a > *_b)
+				{
+					temp = Compare::Larger;
+				}
+				else if (*_a < *_b)
+				{
+					temp = Compare::Smaller;
+				}
+				if ((_a + 1 == nullptr) && (_b + 1 == nullptr))
 				{
 					break;
 				}
@@ -213,10 +220,10 @@ namespace LongCmpt {
 			}
 		}
 	}
-	template<typename Accumulation, typename Recursion, typename Iterator, typename Data, class _Traits>
-	INLINED void MY_LIBRARY __DivideInto(Iterator _a, Iterator _b, Recursion Move, Accumulation Accum)noexcept {
+	template<typename Accumulation, typename Recursion, typename Iterator1, typename Iterator2, typename Data, class _Traits>
+	INLINED void MY_LIBRARY __DivideInto(Iterator1 _a, Iterator2 _b, Recursion Move, Accumulation Accum)noexcept {
 		{
-			switch (CompareTo<Iterator, Data, _Traits>(_a, _b))
+			switch (CompareTo<Iterator1, Iterator2, Data, _Traits>(_a, _b))
 			{
 			case Compare::Larger:
 				return;
@@ -224,7 +231,7 @@ namespace LongCmpt {
 				Accum(_a, _b, Data(1));
 				return;
 			case Compare::Smaller:
-				__DivideInto<Accumulation, Recursion, Iterator, Data, _Traits>(_a, _Traits::GetNext(_b), Move, Accum);
+				__DivideInto<Accumulation, Recursion, Iterator1, Iterator2, Data, _Traits>(_a, _b + 1, Move, Accum);
 				Move();
 				break;
 			default:
@@ -233,7 +240,7 @@ namespace LongCmpt {
 		}
 		while (true)
 		{
-			auto [res, cmpr] = _CompareTo<Iterator, Data, _Traits>(_b, _a);
+			auto [res, cmpr] = _CompareTo<Iterator2, Iterator1, Data, _Traits>(_b, _a);
 			if (cmpr == Compare::Smaller)
 			{
 				return;
@@ -248,28 +255,28 @@ namespace LongCmpt {
 			}
 		}
 	}
-	template<typename Linear, typename Iterator, typename Data, class _Traits>
-	INLINED void MY_LIBRARY DivideInto(Linear& Res, Iterator a, Iterator b) noexcept{
+	template<typename Linear, typename Iterator1, typename Iterator2, typename Data, class _Traits>
+	INLINED void MY_LIBRARY DivideInto(Linear& Res, Iterator1 a, Iterator2 b) noexcept{
 		//Regarding of the compatibility, we didn't use any majorization.
-		auto func1 = [&Res](const Iterator& a, const Iterator& b, Data times)->void {
+		auto func1 = [&Res](const Iterator1& a, const Iterator2& b, Data times)->void {
 			for (Data i = 0; i < times; ++i) {
-				AppositionComputeTo<_Traits::SubtractFrom, Iterator, Data, _Traits>(a, b);
+				AppositionComputeTo<_Traits::SubtractFrom, Iterator1, Iterator2, Data, _Traits>(a, b);
 			}
 			Res += times;
 		};
 		auto func2 = [&Res]()->void {_Traits::assign(&Res, 1); };
-		__DivideInto<decltype(func1), decltype(func2), Iterator, Data, _Traits>(a, b, func2, func1);
+		__DivideInto<decltype(func1), decltype(func2), Iterator1, Iterator2, Data, _Traits>(a, b, func2, func1);
 	}
-	template<typename Iterator, typename Data, class _Traits>
-	INLINED void MY_LIBRARY DivideInto(Iterator a, Iterator b) {
+	template<typename Iterator1, typename Iterator2, typename Data, class _Traits>
+	INLINED void MY_LIBRARY DivideInto(Iterator1 a, Iterator2 b) {
 		//Regarding of the compatibility, we didn't use any majorization.
-		auto func = [](const Iterator& a, const Iterator& b, Data times)->void {
+		auto func = [](const Iterator1& a, const Iterator2& b, Data times)->void {
 			for (Data i = Data(0); i < times; ++i) {
-				AppositionComputeTo<_Traits::SubtractFrom, Iterator, Data, _Traits>(a, b);
+				AppositionComputeTo<_Traits::SubtractFrom, Iterator1, Iterator2, Data, _Traits>(a, b);
 			} 
 		};
 		auto null = []()->void {};
-		__DivideInto<decltype(func), decltype(null), Iterator, Data, _Traits>(a, b, null, func);
+		__DivideInto<decltype(func), decltype(null), Iterator1, Iterator2, Data, _Traits>(a, b, null, func);
 	}
 	template<typename Data>
 	class StdCmptTraits

@@ -77,7 +77,7 @@ namespace LL {
 			{
 				return;
 			}
-			LongCmpt::MultiplyTo<OLLIterator<OLL,false>, Data, LLComputeTraits<OLL, _Data, Radix>>(times, this->next);
+			LongCmpt::MultiplyTo<OLLIterator<OLL,true>, Data, LLComputeTraits<OLL, _Data, Radix>>(times, this->next);
 		}
 		//жиди
 		/*INLINED*/OLL MY_LIBRARY operator*(Data times)const noexcept {
@@ -94,7 +94,7 @@ namespace LL {
 			this->insert();
 			for (const OLL* OprtPtr = b.next; OprtPtr != nullptr; OprtPtr = OprtPtr->next) {
 				OLL temp(This * OprtPtr->data, false);
-				LongCmpt::AppositionComputeTo<LongCmpt::StdCmptTraits<Data>::Add, OLLIterator<OLL, false>, Data, LLComputeTraits<OLL, _Data, Radix>>(temp.next, this->next);
+				LongCmpt::AppositionComputeTo<LongCmpt::StdCmptTraits<Data>::Add, OLLIterator<OLL, false>,OLLIterator<OLL, true>, Data, LLComputeTraits<OLL, _Data, Radix>>(temp.next, this->next);
 				temp.destruct();
 				This <<= 1;
 			}
@@ -130,22 +130,22 @@ namespace LL {
 			}
 			if ((this->data > 0 && that.data > 0) || (this->data == 0 && that.data == 0))
 			{
-				LongCmpt::AppositionComputeTo<LongCmpt::StdCmptTraits<Data>::Add, OLLIterator<OLL, false>, Data, LLComputeTraits<OLL, _Data, Radix>>(that.next, this->next);
+				LongCmpt::AppositionComputeTo<LongCmpt::StdCmptTraits<Data>::Add, OLLIterator<OLL, false>, OLLIterator<OLL, true>, Data, LLComputeTraits<OLL, _Data, Radix>>(that.next, this->next);
 			}
 			else {
-				LongCmpt::Compare Cmpr = LongCmpt::CompareTo<OLLIterator<OLL, false>, Data, LLComputeTraits<OLL, _Data, Radix>>(this->next, that.next);
+				LongCmpt::Compare Cmpr = LongCmpt::CompareTo<OLLIterator<OLL, false>,OLLIterator<OLL, true>, Data, LLComputeTraits<OLL, _Data, Radix>>(this->next, that.next);
 				if (Cmpr == LongCmpt::Compare::Equal)
 				{
 					this->destruct();
 				}
 				if (Cmpr == LongCmpt::Compare::Larger)
 				{
-					LongCmpt::AppositionComputeTo<LongCmpt::StdCmptTraits<Data>::SubtractFrom, OLLIterator<OLL, false>, Data, LLComputeTraits<OLL, _Data, Radix>>(that.next, this->next);
+					LongCmpt::AppositionComputeTo<LongCmpt::StdCmptTraits<Data>::SubtractFrom, OLLIterator<OLL, false>, OLLIterator<OLL, true>, Data, LLComputeTraits<OLL, _Data, Radix>>(that.next, this->next);
 				}
 				else
 				{
 					OLL temp(that, true);
-					LongCmpt::AppositionComputeTo<LongCmpt::StdCmptTraits<Data>::SubtractFrom, OLLIterator<OLL, false>, Data, LLComputeTraits<OLL, _Data, Radix>>(this->next, temp.next);
+					LongCmpt::AppositionComputeTo<LongCmpt::StdCmptTraits<Data>::SubtractFrom, OLLIterator<OLL, false>, OLLIterator<OLL, true>, Data, LLComputeTraits<OLL, _Data, Radix>>(this->next, temp.next);
 					*this = temp;
 				}
 			}
@@ -740,6 +740,8 @@ namespace LL {
 		static constexpr auto MY_LIBRARY getRadix()noexcept { return in::getRadix(); }
 		static constexpr in* MY_LIBRARY NEXT(in& i)noexcept { if (i.next == nullptr)i.insert(); return i.next; }
 		constexpr MY_LIBRARY OLLIterator(in* _ptr)noexcept :ptr(_ptr) {}
+		constexpr in*& MY_LIBRARY operator()()noexcept { return this->ptr; }
+		constexpr bool MY_LIBRARY operator==(in* that)const noexcept { return this->ptr == that; }
 
 		MY_LIBRARY ~OLLIterator()noexcept = default;
 
@@ -756,6 +758,22 @@ namespace LL {
 				this->ptr = ptr->next;
 			}
 			return *this;
+		}
+		
+		constexpr OLLIterator MY_LIBRARY operator+(size_t sz)const noexcept {
+			OLLIterator it(this->ptr);
+			for (size_t i = 0; i < sz; i++)
+			{
+				if (it.ptr != nullptr)
+				{
+					++it;
+				}
+				else
+				{
+					break;
+				}
+			}
+			return it;
 		}
 
 		constexpr LargeInteger::Num<decltype(in::getRadix()), in::getRadix()>& MY_LIBRARY operator*()noexcept {

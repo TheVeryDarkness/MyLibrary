@@ -14,7 +14,7 @@ namespace LargeInteger {
 	template<typename Data>
 	constexpr size_t GetMinLength(Data data)noexcept;
 
-	template<size_t Length>
+	template<size_t Length, bool isConst>
 	struct BytesIterator;
 	template<size_t Length>
 	class BytesTraits;
@@ -33,7 +33,11 @@ namespace LargeInteger {
 	class Bytes
 	{
 	private:
-		friend class BytesTraits<Length>;
+
+		template<size_t Length>
+		friend class BytesTraits;
+		template<size_t Length, bool isConst>
+		friend struct BytesIterator;
 		value_type Byte[Length] = {};
 	public:
 		constexpr explicit MY_LIBRARY Bytes()noexcept {}
@@ -166,9 +170,9 @@ namespace LargeInteger {
 			return (Ret /= that);
 		}
 		constexpr Bytes& MY_LIBRARY operator%=(const Bytes& that) noexcept {
-			LongCmpt::DivideInto<BytesIterator<Length>, value_type, BytesTraits<Length>>(
-				BytesIterator<Length>(&that, 0),
-				BytesIterator<Length>(this, 0)
+			LongCmpt::DivideInto<BytesIterator<Length, true>, BytesIterator<Length, false>, value_type, BytesTraits<Length>>(
+				BytesIterator<Length, true>(&that, 0),
+				BytesIterator<Length, false>(this, 0)
 				);
 			return *this;
 		}
@@ -422,13 +426,74 @@ namespace LargeInteger {
 	}
 
 	template<size_t Length>
-	struct BytesIterator
+	struct BytesIterator<Length, false>
+	{
+		Bytes<Length>* Head;
+		size_t Index;
+		constexpr MY_LIBRARY BytesIterator(Bytes<Length>* Head, const size_t index = 0)noexcept :Head(Head), Index(index) {}
+		constexpr bool MY_LIBRARY operator==(const BytesIterator& that)const noexcept { return ((this->Head == that.Head) && (this->Index == that.Index)); }
+		constexpr bool MY_LIBRARY operator!=(const BytesIterator& that)const noexcept { return !(*this == that); }
+		constexpr value_type& MY_LIBRARY operator*()const noexcept {
+			if (Index >= Length)
+			{
+				return BytesTraits<Length>::NullObject.Byte[0];
+			}
+			else return const_cast<value_type*>(this->Head->Byte)[this->Index];
+		}
+		constexpr BytesIterator& MY_LIBRARY operator++()noexcept {
+			if (this->Index < Length - 1)
+			{
+				this->Index++;
+			}
+			return *this;
+		}
+		constexpr BytesIterator& MY_LIBRARY operator+(size_t sz)noexcept {
+			for (size_t i = 0; i < sz; i++)
+			{
+				++(*this);
+				if (Index>=Length)
+				{
+					break;
+				}
+			}
+			return *this;
+		}
+	};
+	template<size_t Length>
+	struct BytesIterator<Length, true>
 	{
 		const Bytes<Length>* Head;
 		size_t Index;
 		constexpr MY_LIBRARY BytesIterator(const Bytes<Length>* Head, const size_t index = 0)noexcept :Head(Head), Index(index) {}
 		constexpr bool MY_LIBRARY operator==(const BytesIterator& that)const noexcept { return ((this->Head == that.Head) && (this->Index == that.Index)); }
+		constexpr bool MY_LIBRARY operator==(void* that)const noexcept { return this->Head == that; }
 		constexpr bool MY_LIBRARY operator!=(const BytesIterator& that)const noexcept { return !(*this == that); }
+		constexpr value_type& MY_LIBRARY operator*()const noexcept {
+			if (Index >= Length)
+			{
+				return BytesTraits<Length>::NullObject.Byte[0];
+			}
+			else return const_cast<value_type*>(this->Head->Byte)[this->Index];
+		}
+		constexpr BytesIterator& MY_LIBRARY operator++()noexcept {
+			if (this->Index < Length - 1)
+			{
+				this->Index++;
+			}
+			return *this;
+		}
+		constexpr BytesIterator MY_LIBRARY operator+(size_t sz)const noexcept {
+			BytesIterator it(*this);
+			for (size_t i = 0; i < sz; i++)
+			{
+				++it;
+				if (it.Index >= Length)
+				{
+					break;
+				}
+			}
+			return it;
+		}
 	};
 
 	template<size_t Length>
@@ -438,28 +503,14 @@ namespace LargeInteger {
 		BytesTraits() = delete;
 		~BytesTraits() = delete;
 
-		const static INLINED Bytes<Length> NullObject = Bytes<Length>();
-		constexpr static INLINED BytesIterator<Length> NullIterator = { &NullObject,0 };
+		static INLINED Bytes<Length> NullObject = Bytes<Length>();
+		constexpr static INLINED BytesIterator<Length,false> NullIterator = { &NullObject,0 };
 
 		static constexpr void MY_LIBRARY assign(Bytes<Length>* ptr, size_t s) noexcept {
 			*ptr <<= 8;
 		}
-		static constexpr BytesIterator<Length> MY_LIBRARY GetNext(const BytesIterator<Length>& ptr) noexcept {
-			if (ptr.Head != nullptr && ptr.Head != &NullObject)
-			{
-				if (ptr.Index >= Length - 1)
-				{
-					return NullIterator;
-				}
-				else return BytesIterator<Length>(ptr.Head, ptr.Index + 1);
-			}
-			else return NullIterator;
-		}
-
-		static constexpr value_type& MY_LIBRARY GetData(const BytesIterator<Length>& ptr) noexcept {
-			return const_cast<value_type*>(ptr.Head->Byte)[ptr.Index];
-		}
-		static constexpr void MY_LIBRARY InsertAfter(const BytesIterator<Length>& ptr, value_type data = 0) noexcept {}
+		template<bool isConst>
+		static constexpr void MY_LIBRARY InsertAfter(const BytesIterator<Length, isConst>& ptr, value_type data = 0) noexcept {}
 	private:
 
 	};
