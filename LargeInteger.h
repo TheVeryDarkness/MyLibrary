@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Shared.h"
+#include "Statistics.h"
+#include <cassert>
 
 namespace LargeInteger {
 	template<typename LL, auto radix>
@@ -10,11 +12,15 @@ namespace LargeInteger {
 	public:
 		template<typename val>
 		LargeUnsigned(val Val)noexcept	{
-			for (auto i:LinkedList)
+			for (auto& i = LinkedList.begin();; ++i)
 			{
 				i = Val % radix;
-				Val /= radix;
+				if ((Val /= radix) == static_cast<val>(0)) {
+					break;
+				}
 			}
+			assert(Val == static_cast<val>(0));
+			return;
 		}
 
 		~LargeUnsigned(){
@@ -27,16 +33,16 @@ namespace LargeInteger {
 	class LargeSigned:private LargeUnsigned<LL, radix>
 	{
 	public:
-		LargeSigned()
-		{
-		}
+		template<typename val>
+		LargeSigned(val Val)noexcept
+			:PosSign(Val > 0), LargeUnsigned<LL, radix>(ABS(val)) {}
 
 		~LargeSigned()
 		{
 		}
 
 	private:
-		bool Sign;
+		bool PosSign;
 	};
 
 }
