@@ -167,7 +167,7 @@ namespace LargeInteger {
 			return (Ret /= that);
 		}
 		constexpr Bytes& MY_LIBRARY operator%=(const Bytes& that) noexcept {
-			LongCmpt::DivideInto<BytesIterator<Length>, value_type, BytesTraits<Length>>(
+			LargeInteger::LongCmpt<BytesTraits<Length>>::DivideInto<BytesIterator<Length>, value_type>(
 				BytesIterator<Length>(&that, 0),
 				BytesIterator<Length>(this, 0)
 				);
@@ -433,7 +433,7 @@ namespace LargeInteger {
 	};
 
 	template<size_t Length>
-	class BytesTraits :public LongCmpt::StdCmptTraits<value_type>
+	class BytesTraits :public StdCmptTraits<value_type>
 	{
 	public:
 		BytesTraits() = delete;

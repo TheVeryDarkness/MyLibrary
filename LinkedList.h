@@ -234,7 +234,7 @@ namespace LL {
 	}
 
 	template<class node, typename _Data, _Data Radix>
-	class LLComputeTraits :public LongCmpt::StdCmptTraits<LargeInteger::Num<_Data, Radix>>
+	class LLComputeTraits :public LargeInteger::StdCmptTraits<LargeInteger::Num<_Data, Radix>>
 	{
 	public:
 		using Data=LargeInteger::Num<_Data, Radix>;

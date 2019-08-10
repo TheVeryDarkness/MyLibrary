@@ -77,7 +77,7 @@ namespace LL {
 			{
 				return;
 			}
-			LongCmpt::MultiplyTo<OLL*, Data, LLComputeTraits<OLL, _Data, Radix>>(times, this->next);
+			LargeInteger::LongCmpt<LLComputeTraits<OLL, _Data, Radix>>::MultiplyTo<OLL*, Data>(times, this->next);
 		}
 		//жиди
 		/*INLINED*/OLL MY_LIBRARY operator*(Data times)const noexcept {
@@ -94,7 +94,7 @@ namespace LL {
 			this->insert();
 			for (const OLL* OprtPtr = b.next; OprtPtr != nullptr; OprtPtr = OprtPtr->next) {
 				OLL temp(This * OprtPtr->data, false);
-				LongCmpt::AppositionComputeTo<typename LongCmpt::StdCmptTraits<Data>::Add, OLL*, Data, LLComputeTraits<OLL, _Data, Radix>>(temp.next, this->next);
+				LargeInteger::LongCmpt<typename LL::LLComputeTraits<OLL, _Data, Radix>>::AppositionComputeTo<typename LargeInteger::StdCmptTraits<Data>::Add, OLL*, Data>(temp.next, this->next);
 				temp.destruct();
 				This <<= 1;
 			}
@@ -130,22 +130,22 @@ namespace LL {
 			}
 			if ((this->data > 0 && that.data > 0) || (this->data == 0 && that.data == 0))
 			{
-				LongCmpt::AppositionComputeTo<typename LongCmpt::StdCmptTraits<Data>::Add, OLL*, Data, LLComputeTraits<OLL, _Data, Radix>>(that.next, this->next);
+				LargeInteger::LongCmpt::AppositionComputeTo<typename LargeInteger::LongCmpt::StdCmptTraits<Data>::Add, OLL*, Data, LLComputeTraits<OLL, _Data, Radix>>(that.next, this->next);
 			}
 			else {
-				LongCmpt::Compare Cmpr = LongCmpt::CompareTo<OLL*, Data, LLComputeTraits<OLL, _Data, Radix>>(this->next, that.next);
-				if (Cmpr == LongCmpt::Compare::Equal)
+				LargeInteger::Compare Cmpr = LargeInteger::LongCmpt::CompareTo<OLL*, Data, LLComputeTraits<OLL, _Data, Radix>>(this->next, that.next);
+				if (Cmpr == LargeInteger::Compare::Equal)
 				{
 					this->destruct();
 				}
-				if (Cmpr == LongCmpt::Compare::Larger)
+				if (Cmpr == LargeInteger::Compare::Larger)
 				{
-					LongCmpt::AppositionComputeTo<typename LongCmpt::StdCmptTraits<Data>::SubtractFrom, OLL*, Data, LLComputeTraits<OLL, _Data, Radix>>(that.next, this->next);
+					LargeInteger::LongCmpt::AppositionComputeTo<typename LargeInteger::StdCmptTraits<Data>::SubtractFrom, OLL*, Data, LLComputeTraits<OLL, _Data, Radix>>(that.next, this->next);
 				}
 				else
 				{
 					OLL temp(that, true);
-					LongCmpt::AppositionComputeTo<typename LongCmpt::StdCmptTraits<Data>::SubtractFrom, OLL*, Data, LLComputeTraits<OLL, _Data, Radix>>(this->next, temp.next);
+					LargeInteger::LongCmpt::AppositionComputeTo<typename LargeInteger::StdCmptTraits<Data>::SubtractFrom, OLL*, Data, LLComputeTraits<OLL, _Data, Radix>>(this->next, temp.next);
 					*this = temp;
 				}
 			}
@@ -182,12 +182,12 @@ namespace LL {
 			}
 			if (this->data == 0)
 			{
-				LongCmpt::AppositionComputeTo<typename LongCmpt::StdCmptTraits<Data>::SubtractFrom, OLL*, Data, LLComputeTraits<OLL, _Data, Radix>>(&temp, this->next);
+				LargeInteger::LongCmpt::AppositionComputeTo<typename StdCmptTraits<Data>::SubtractFrom, OLL*, Data, LLComputeTraits<OLL, _Data, Radix>>(&temp, this->next);
 			}
 			else
 			{
 
-				LongCmpt::AppositionComputeTo<typename LongCmpt::StdCmptTraits<Data>::Add, OLL*, Data, LLComputeTraits<OLL, _Data, Radix>>(&temp, this->next);
+				LargeInteger::LongCmpt::AppositionComputeTo<typename StdCmptTraits<Data>::Add, OLL*, Data, LLComputeTraits<OLL, _Data, Radix>>(&temp, this->next);
 			}
 		}
 		INLINED void MY_LIBRARY operator-=(const Data& that)noexcept {
@@ -200,12 +200,12 @@ namespace LL {
 			}
 			if (this->data > 0)
 			{
-				LongCmpt::AppositionComputeTo<typename LongCmpt::StdCmptTraits<Data>::SubtractFrom, OLL*, Data, LLComputeTraits<OLL, _Data, Radix>>(&temp, this->next);
+				LargeInteger::LongCmpt::AppositionComputeTo<typename LargeInteger::StdCmptTraits<Data>::SubtractFrom, OLL*, Data, LLComputeTraits<OLL, _Data, Radix>>(&temp, this->next);
 			}
 			else
 			{
 
-				LongCmpt::AppositionComputeTo<typename LongCmpt::StdCmptTraits<Data>::Add, OLL*, Data, LLComputeTraits<OLL, _Data, Radix>>(&temp, this->next);
+				LargeInteger::LongCmpt::AppositionComputeTo<typename LargeInteger::StdCmptTraits<Data>::Add, OLL*, Data, LLComputeTraits<OLL, _Data, Radix>>(&temp, this->next);
 			}
 		}
 		INLINED void MY_LIBRARY operator+(const Data& that)const noexcept {
@@ -518,13 +518,13 @@ namespace LL {
 			}
 			if (this->data > 0 && that.data > 0)
 			{
-				if (LongCmpt::CompareTo<OLL*, Data, LLComputeTraits<OLL, _Data, Radix>>(this->next, that.next) == LongCmpt::Compare::Smaller)
+				if (LargeInteger::LongCmpt::CompareTo<OLL*, Data, LLComputeTraits<OLL, _Data, Radix>>(this->next, that.next) == LongCmpt::Compare::Smaller)
 					return true;
 				else return false;
 			}
 			else
 			{
-				if (LongCmpt::CompareTo<OLL*, Data, LLComputeTraits<OLL, _Data, Radix>>(that.next, this->next) == LongCmpt::Compare::Smaller)
+				if (LargeInteger::LongCmpt::CompareTo<OLL*, Data, LLComputeTraits<OLL, _Data, Radix>>(that.next, this->next) == LongCmpt::Compare::Smaller)
 					return true;
 				else return false;
 			}
@@ -540,13 +540,13 @@ namespace LL {
 			}
 			if (this->data > 0 && that.data > 0)
 			{
-				if (LongCmpt::CompareTo<OLL*, Data, LLComputeTraits<OLL, _Data, Radix>>(this->next, that.next) == LongCmpt::Larger)
+				if (LargeInteger::LongCmpt::CompareTo<OLL*, Data, LLComputeTraits<OLL, _Data, Radix>>(this->next, that.next) == LongCmpt::Larger)
 					return true;
 				else return false;
 			}
 			else
 			{
-				if (LongCmpt::CompareTo<OLL*, Data, LLComputeTraits<OLL, _Data, Radix>>(that.next, this->next) == LongCmpt::Larger)
+				if (LargeInteger::LongCmpt::CompareTo<OLL*, Data, LLComputeTraits<OLL, _Data, Radix>>(that.next, this->next) == LongCmpt::Larger)
 					return true;
 				else return false;
 			}
@@ -560,7 +560,7 @@ namespace LL {
 		void MY_LIBRARY operator%=(const OLL& that)noexcept {
 			if (this->next != nullptr && that.next != nullptr)
 			{
-				LongCmpt::DivideInto<OLL*, Data, LLComputeTraits<OLL, _Data, Radix>>(that.next, this->next);
+				LargeInteger::LongCmpt::DivideInto<OLL*, Data, LLComputeTraits<OLL, _Data, Radix>>(that.next, this->next);
 			}
 			else return;
 			this->Simplify();
@@ -569,7 +569,7 @@ namespace LL {
 			if (this->next != nullptr && that.next != nullptr)
 			{
 				OLL Res(true);
-				LongCmpt::DivideInto<OLL, OLL*, Data, LLComputeTraits<OLL, _Data, Radix>>(Res, that.next, this->next);
+				LargeInteger::LongCmpt::DivideInto<OLL, OLL*, Data, LLComputeTraits<OLL, _Data, Radix>>(Res, that.next, this->next);
 				this->destruct();
 				this->next = Res.next;
 			}
