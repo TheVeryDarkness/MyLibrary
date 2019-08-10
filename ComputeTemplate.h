@@ -22,31 +22,6 @@ namespace LongCmpt {
 	//The _Traits must give these definition:
 	//	NullIterator;
 	//NullIterator must have 0 data, and not have an next element.
-
-	template<typename Iterator, typename Data, class _Traits>
-	INLINED bool MY_LIBRARY Iterate(Iterator& This, Data& CarryBit)noexcept {
-		//Next element
-		Iterator ThisNext = (_Traits::GetNext(This));
-		if ((ThisNext != _Traits::NullIterator))
-		{
-			This = ThisNext;
-		}
-		else if ((ThisNext == _Traits::NullIterator))
-		{
-			if (CarryBit == 0) {
-				return false;
-			}
-			else {
-				_Traits::InsertAfter(&This, CarryBit);
-				CarryBit = 0;
-				This = (_Traits::GetNext(This));
-				return false;
-			}
-		}
-		return true;
-	}
-
-
 	template<class ComputeFunction, typename Iterator, typename Data, typename _Traits>
 	class AppositionIterator
 	{
