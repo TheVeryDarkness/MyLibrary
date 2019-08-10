@@ -8,11 +8,12 @@ namespace LargeInteger {
 	{
 		using radix_t=decltype(radix);
 	public:
+		template<typename val>
 		LargeUnsigned(val Val)noexcept	{
 			for (auto i:LinkedList)
 			{
 				i = Val % radix;
-				i /= radix;
+				Val /= radix;
 			}
 		}
 
