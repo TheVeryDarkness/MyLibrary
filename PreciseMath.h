@@ -1,6 +1,7 @@
 #pragma once
 
 #include "LinkedList.h"
+#include "LargeInteger.h"
 #include "OLL.h"
 #include "DLL.h"
 
