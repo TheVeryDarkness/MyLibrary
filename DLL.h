@@ -85,7 +85,7 @@ namespace LL {
 			for (DLL* OprtPtr = b.next; OprtPtr != nullptr; OprtPtr = OprtPtr->next)
 			{
 				DLL temp(This * OprtPtr->data);
-				LongCmpt::AppositionComputeTo<LongCmpt::StdCmptTraits<Data>::Add, DLL*, Data, LLComputeTraits<DLL, _Data, Radix>>(temp.next, this->next);
+				LongCmpt::AppositionComputeTo<typename LongCmpt::StdCmptTraits<Data>::Add, DLL*, Data, LLComputeTraits<DLL, _Data, Radix>>(temp.next, this->next);
 				temp.destruct();
 				This <<= 1;
 			}
@@ -126,7 +126,7 @@ namespace LL {
 			}
 			if ((this->data > 0 && that.data > 0) || (this->data == 0 && that.data == 0))
 			{
-				LongCmpt::AppositionComputeTo<LongCmpt::StdCmptTraits<Data>::Add, DLL*, Data, LLComputeTraits<DLL, _Data, Radix>>(that.next, this->next);
+				LongCmpt::AppositionComputeTo<typename LongCmpt::StdCmptTraits<Data>::Add, DLL*, Data, LLComputeTraits<DLL, _Data, Radix>>(that.next, this->next);
 			}
 			else {
 				LongCmpt::Compare Cmpr = LongCmpt::CompareTo<DLL*, Data, LLComputeTraits<DLL, _Data, Radix>>(this->next, that.next);
@@ -136,12 +136,12 @@ namespace LL {
 				}
 				if (Cmpr == LongCmpt::Compare::Larger)
 				{
-					LongCmpt::AppositionComputeTo<LongCmpt::StdCmptTraits<Data>::SubtractFrom, DLL*, Data, LLComputeTraits<DLL, _Data, Radix>>(that.next, this->next);
+					LongCmpt::AppositionComputeTo<typename LongCmpt::StdCmptTraits<Data>::SubtractFrom, DLL*, Data, LLComputeTraits<DLL, _Data, Radix>>(that.next, this->next);
 				}
 				else
 				{
 					DLL temp(that, true);
-					LongCmpt::AppositionComputeTo<LongCmpt::StdCmptTraits<Data>::SubtractFrom, DLL*, Data, LLComputeTraits<DLL, _Data, Radix>>(this->next, temp.next);
+					LongCmpt::AppositionComputeTo<typename LongCmpt::StdCmptTraits<Data>::SubtractFrom, DLL*, Data, LLComputeTraits<DLL, _Data, Radix>>(this->next, temp.next);
 					*this = temp;
 				}
 				this->Simplify();
@@ -178,7 +178,7 @@ namespace LL {
 			*this += temp;
 			temp.destruct();
 		}
-		INLINED _stdcall ~DLL() {
+		INLINED MY_LIBRARY ~DLL() {
 			this->next = nullptr;
 			this->last = nullptr;
 		}

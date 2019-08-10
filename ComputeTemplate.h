@@ -145,7 +145,7 @@ namespace LongCmpt {
 	template<typename Iterator, typename Data, class _Traits>
 	INLINED void MY_LIBRARY MultiplyTo(Data a, Iterator b) noexcept {
 		Data Carry = Data(0);
-		LineIterator<_Traits::Multiply, Iterator, Data, _Traits> mul(a, b);
+		LineIterator<typename _Traits::Multiply, Iterator, Data, _Traits> mul(a, b);
 		while (true)
 		{
 			//This element
@@ -277,7 +277,7 @@ namespace LongCmpt {
 		//Regarding of the compatibility, we didn't use any majorization.
 		auto func1 = [&Res](const Iterator& a, const Iterator& b, Data times)->void {
 			for (Data i = 0; i < times; ++i) {
-				AppositionComputeTo<_Traits::SubtractFrom, Iterator, Data, _Traits>(a, b);
+				AppositionComputeTo<typename _Traits::SubtractFrom, Iterator, Data, _Traits>(a, b);
 			}
 			Res += times;
 		};
@@ -289,7 +289,7 @@ namespace LongCmpt {
 		//Regarding of the compatibility, we didn't use any majorization.
 		auto func = [](const Iterator& a, const Iterator& b, Data times)->void {
 			for (Data i = Data(0); i < times; ++i) {
-				AppositionComputeTo<_Traits::SubtractFrom, Iterator, Data, _Traits>(a, b);
+				AppositionComputeTo<typename _Traits::SubtractFrom, Iterator, Data, _Traits>(a, b);
 			} 
 		};
 		auto null = []()->void {};

@@ -94,7 +94,7 @@ namespace LL {
 			this->insert();
 			for (const OLL* OprtPtr = b.next; OprtPtr != nullptr; OprtPtr = OprtPtr->next) {
 				OLL temp(This * OprtPtr->data, false);
-				LongCmpt::AppositionComputeTo<LongCmpt::StdCmptTraits<Data>::Add, OLL*, Data, LLComputeTraits<OLL, _Data, Radix>>(temp.next, this->next);
+				LongCmpt::AppositionComputeTo<typename LongCmpt::StdCmptTraits<Data>::Add, OLL*, Data, LLComputeTraits<OLL, _Data, Radix>>(temp.next, this->next);
 				temp.destruct();
 				This <<= 1;
 			}
@@ -130,7 +130,7 @@ namespace LL {
 			}
 			if ((this->data > 0 && that.data > 0) || (this->data == 0 && that.data == 0))
 			{
-				LongCmpt::AppositionComputeTo<LongCmpt::StdCmptTraits<Data>::Add, OLL*, Data, LLComputeTraits<OLL, _Data, Radix>>(that.next, this->next);
+				LongCmpt::AppositionComputeTo<typename LongCmpt::StdCmptTraits<Data>::Add, OLL*, Data, LLComputeTraits<OLL, _Data, Radix>>(that.next, this->next);
 			}
 			else {
 				LongCmpt::Compare Cmpr = LongCmpt::CompareTo<OLL*, Data, LLComputeTraits<OLL, _Data, Radix>>(this->next, that.next);
@@ -140,12 +140,12 @@ namespace LL {
 				}
 				if (Cmpr == LongCmpt::Compare::Larger)
 				{
-					LongCmpt::AppositionComputeTo<LongCmpt::StdCmptTraits<Data>::SubtractFrom, OLL*, Data, LLComputeTraits<OLL, _Data, Radix>>(that.next, this->next);
+					LongCmpt::AppositionComputeTo<typename LongCmpt::StdCmptTraits<Data>::SubtractFrom, OLL*, Data, LLComputeTraits<OLL, _Data, Radix>>(that.next, this->next);
 				}
 				else
 				{
 					OLL temp(that, true);
-					LongCmpt::AppositionComputeTo<LongCmpt::StdCmptTraits<Data>::SubtractFrom, OLL*, Data, LLComputeTraits<OLL, _Data, Radix>>(this->next, temp.next);
+					LongCmpt::AppositionComputeTo<typename LongCmpt::StdCmptTraits<Data>::SubtractFrom, OLL*, Data, LLComputeTraits<OLL, _Data, Radix>>(this->next, temp.next);
 					*this = temp;
 				}
 			}
@@ -182,12 +182,12 @@ namespace LL {
 			}
 			if (this->data == 0)
 			{
-				LongCmpt::AppositionComputeTo<LongCmpt::StdCmptTraits<Data>::SubtractFrom, OLL*, Data, LLComputeTraits<OLL, _Data, Radix>>(&temp, this->next);
+				LongCmpt::AppositionComputeTo<typename LongCmpt::StdCmptTraits<Data>::SubtractFrom, OLL*, Data, LLComputeTraits<OLL, _Data, Radix>>(&temp, this->next);
 			}
 			else
 			{
 
-				LongCmpt::AppositionComputeTo<LongCmpt::StdCmptTraits<Data>::Add, OLL*, Data, LLComputeTraits<OLL, _Data, Radix>>(&temp, this->next);
+				LongCmpt::AppositionComputeTo<typename LongCmpt::StdCmptTraits<Data>::Add, OLL*, Data, LLComputeTraits<OLL, _Data, Radix>>(&temp, this->next);
 			}
 		}
 		INLINED void MY_LIBRARY operator-=(const Data& that)noexcept {
@@ -200,12 +200,12 @@ namespace LL {
 			}
 			if (this->data > 0)
 			{
-				LongCmpt::AppositionComputeTo<LongCmpt::StdCmptTraits<Data>::SubtractFrom, OLL*, Data, LLComputeTraits<OLL, _Data, Radix>>(&temp, this->next);
+				LongCmpt::AppositionComputeTo<typename LongCmpt::StdCmptTraits<Data>::SubtractFrom, OLL*, Data, LLComputeTraits<OLL, _Data, Radix>>(&temp, this->next);
 			}
 			else
 			{
 
-				LongCmpt::AppositionComputeTo<LongCmpt::StdCmptTraits<Data>::Add, OLL*, Data, LLComputeTraits<OLL, _Data, Radix>>(&temp, this->next);
+				LongCmpt::AppositionComputeTo<typename LongCmpt::StdCmptTraits<Data>::Add, OLL*, Data, LLComputeTraits<OLL, _Data, Radix>>(&temp, this->next);
 			}
 		}
 		INLINED void MY_LIBRARY operator+(const Data& that)const noexcept {

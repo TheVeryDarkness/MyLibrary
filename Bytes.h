@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <cstring>
 #include <type_traits>
 #include "ComputeTemplate.h"
 #include "Shared.h"
@@ -405,7 +406,7 @@ namespace LargeInteger {
 		while (This != 0)
 		{
 			This >>= 1;
-			Res++;
+			++Res;
 		}
 		return Res;
 	}
@@ -416,7 +417,7 @@ namespace LargeInteger {
 		static_assert(Data(-1) > 0, "Unsigned type required.");
 		size_t res = ((static_cast<Data>(~data) == 0) ? 1 : 0);
 		do {
-			res++;
+			++res;
 		} while ((data >>= 8) != 0);
 		return res;
 	}

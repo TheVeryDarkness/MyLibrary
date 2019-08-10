@@ -6,6 +6,8 @@
 #include "CustomizedRadixNumber.h"
 #include "Statistics.h"
 #include "MemoryCache.h"
+#include <limits>
+#include <climits>
 #include <type_traits>
 #include <cassert>
 #include <iostream>
