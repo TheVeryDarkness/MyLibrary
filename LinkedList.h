@@ -158,4 +158,38 @@ namespace LL {
 			static_assert(Destroy);
 		}
 	}
+
+
+	template<class node, typename _Data, _Data Radix>
+	class LLComputeTraits :public LargeInteger::StdCmptTraits<LargeInteger::Num<_Data, Radix>>
+	{
+	public:
+		using Data=LargeInteger::Num<_Data, Radix>;
+		MY_LIBRARY LLComputeTraits() = delete;
+		MY_LIBRARY ~LLComputeTraits() = delete;
+		static INLINED Data NullData = Data(0);
+		constexpr static INLINED node* NullIterator = nullptr;
+
+		using Multiply=typename Data::Multiply;
+
+		static constexpr Data& MY_LIBRARY GetData(node* ptr) {
+			MY_ASSERT(NullData == Data(0), "Unexpected write has occured!");
+			return ((ptr == nullptr) ? (NullData = Data(0)) : (ptr->data));
+		}
+		static constexpr Data MY_LIBRARY GetData(const node* ptr) {
+			MY_ASSERT(NullData == Data(0), "Unexpected write has occured!");
+			return ((ptr == nullptr) ? (NullData = Data(0)) : (ptr->data));
+		}
+
+		static constexpr node* MY_LIBRARY GetNext(node* ptr) {
+			return ((ptr == nullptr) ? nullptr : (ptr->next));
+		}
+
+		static constexpr void MY_LIBRARY assign(node* ptr, unsigned sz = 1) {
+			*ptr <<= sz;
+		}
+		static constexpr void MY_LIBRARY InsertAfter(node*& ptr, Data data = Data(0)) {
+			ptr->insert(data);
+		}
+	};
 }

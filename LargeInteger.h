@@ -7,39 +7,6 @@
 
 namespace LargeInteger {
 
-	template<class node, typename _Data, _Data Radix>
-	class LLComputeTraits :public LargeInteger::StdCmptTraits<LargeInteger::Num<_Data, Radix>>
-	{
-	public:
-		using Data=LargeInteger::Num<_Data, Radix>;
-		MY_LIBRARY LLComputeTraits() = delete;
-		MY_LIBRARY ~LLComputeTraits() = delete;
-		static INLINED Data NullData = Data(0);
-		constexpr static INLINED node* NullIterator = nullptr;
-
-		using Multiply=typename Data::Multiply;
-
-		static constexpr Data& MY_LIBRARY GetData(node* ptr) {
-			MY_ASSERT(NullData == Data(0), "Unexpected write has occured!");
-			return ((ptr == nullptr) ? (NullData = Data(0)) : (ptr->data));
-		}
-		static constexpr Data MY_LIBRARY GetData(const node* ptr) {
-			MY_ASSERT(NullData == Data(0), "Unexpected write has occured!");
-			return ((ptr == nullptr) ? (NullData = Data(0)) : (ptr->data));
-		}
-
-		static constexpr node* MY_LIBRARY GetNext(node* ptr) {
-			return ((ptr == nullptr) ? nullptr : (ptr->next));
-		}
-
-		static constexpr void MY_LIBRARY assign(node* ptr, unsigned sz = 1) {
-			*ptr <<= sz;
-		}
-		static constexpr void MY_LIBRARY InsertAfter(node*& ptr, Data data = Data(0)) {
-			ptr->insert(data);
-		}
-	};
-
 
 	template<typename LL, auto radix>
 	class LargeUnsigned
@@ -50,7 +17,7 @@ namespace LargeInteger {
 		using Data=Num<radix_t, radix>;
 	public:
 		template<typename val>
-		LargeUnsigned(val Val)noexcept	{
+		MY_LIBRARY LargeUnsigned(val Val)noexcept {
 			LargeInteger::LongCmpt<StdCmptTraits<Num<radix_t, radix>>>::LayerIterator<StdCmptTraits<Num<radix_t, radix>>::Devide> it;
 			for (auto& i = LinkedList.begin();; ++i)
 			{
@@ -61,6 +28,21 @@ namespace LargeInteger {
 			}
 			assert(Val == static_cast<val>(0));
 			return;
+		}
+
+		MY_LIBRARY LargeUnsigned(const LargeUnsigned& that,bool DeepCopy)noexcept {
+			if constexpr(DeepCopy)
+			{
+				for (auto& i : that) {
+					auto& j = this->LinkedList.begin();
+					*j = *i;
+				}
+				return;
+			}
+			else
+			{
+				this->LinkedList = that.LinkedList;
+			}
 		}
 
 		//二进制输出到控制台窗口
@@ -166,18 +148,13 @@ namespace LargeInteger {
 		}
 		//重载
 		/*INLINED*/void MY_LIBRARY operator*=(const LargeUnsigned& b) noexcept {
-			if (b.next == nullptr) { return; }
-			this->data = ((b.data > 0) ? (this->data) : (!this->data));
-			LL This(*this, true);
-			this->destruct();
-			this->insert();
-			for (const LinkedList* OprtPtr = b.next; OprtPtr != nullptr; OprtPtr = OprtPtr->next) {
-				LinkedList temp(This * OprtPtr->data, false);
-				LargeInteger::LongCmpt<typename LL::LLComputeTraits<LinkedList, radix_t, Radix>>::AppositionComputeTo<typename LargeInteger::StdCmptTraits<Data>::Add, LinkedList*, Data>(temp.next, this->next);
-				temp.destruct();
+			LargeUnsigned This(*this, true);
+			this->~LargeUnsigned();
+			for (auto& OprtPtr = b.LinkedList.begin(); OprtPtr != nullptr; ++OprtPtr) {
+				LargeInteger::LongCmpt<typename LargeInteger::StdCmptTraits<Data>>::LineIterator<typename LargeInteger::StdCmptTraits<Data>::Multiply, decltype(this->LinkedList.begin()), Data> temp(*OprtPtr, This.LinkedList.begin());
+				LargeInteger::LongCmpt<typename LargeInteger::StdCmptTraits<Data>>::AppositionComputeTo<typename LargeInteger::StdCmptTraits<Data>::Add, decltype(this->LinkedList.begin()), Data>(temp, this->LinkedList.begin());
 				This <<= 1;
 			}
-			This.destruct();
 		}
 		//重载
 		/*INLINED*/LargeUnsigned MY_LIBRARY operator*(const LargeUnsigned& b)const noexcept {
@@ -498,17 +475,16 @@ namespace LargeInteger {
 		/*INLINED*/long long MY_LIBRARY GetValue()const noexcept {
 			long long value = 0;
 			long n = 0;
-			const LL* OprtPtr = &this->LinkedList;
+			auto OprtPtr = this->LinkedList.begin();
 			if (OprtPtr == nullptr)
 			{
 				return 0;
 			}
 			while (true)
 			{
-				if (OprtPtr->next != nullptr)
-				{
-					OprtPtr = OprtPtr->next;
-					value += ((unsigned long long)(OprtPtr->data())) * Power((unsigned long long)Radix, n);
+				if (OprtPtr + 1 != nullptr) {
+					++OprtPtr;
+					value += ((unsigned long long)((*OprtPtr)())) * Power(radix, n);
 					n++;
 				}
 				else

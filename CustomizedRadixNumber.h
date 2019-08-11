@@ -12,6 +12,9 @@ namespace LargeInteger {
 	class Num
 	{
 	public:
+		constexpr static inline Data getRadix()noexcept {
+			return Radix;
+		}
 		template<Data _Radix>
 		constexpr MY_LIBRARY Num(const Num<Data, _Radix>& that) noexcept{
 			if constexpr(Radix >= _Radix)

@@ -53,11 +53,13 @@ namespace LL {
 
 		MEMORY_CACHE(20);
 	public:
-		constexpr INLINED OLL* begin()const noexcept {
-			return this;
+		template<bool ins = false>
+		constexpr INLINED OLLIterator<OLL,ins> begin()const noexcept {
+			return OLLIterator<OLL, ins>(this);
 		}
-		constexpr INLINED OLL* end()const noexcept {
-			return nullptr;
+		template<bool ins = false>
+		constexpr INLINED OLLIterator<OLL, ins> end()const noexcept {
+			return OLLIterator<OLL, ins>(nullptr);
 		}
 	protected:
 
@@ -332,9 +334,11 @@ namespace LL {
 	class OLLIterator
 	{
 	public:
-		static constexpr auto MY_LIBRARY getRadix()noexcept { return in::getRadix(); }
+		static constexpr auto MY_LIBRARY getRadix()noexcept { return decltype(ptr->data)::getRadix(); }
 		static constexpr in* MY_LIBRARY NEXT(in& i)noexcept { if (i.next == nullptr)i.insert(); return i.next; }
 		constexpr MY_LIBRARY OLLIterator(in* _ptr)noexcept :ptr(_ptr) {}
+
+		constexpr bool MY_LIBRARY operator==(in* _ptr)const noexcept { return this->ptr == _ptr; }
 
 		MY_LIBRARY ~OLLIterator()noexcept = default;
 
@@ -353,13 +357,27 @@ namespace LL {
 			return *this;
 		}
 
+		constexpr OLLIterator& MY_LIBRARY operator+=(size_t sz)noexcept {
+			for (size_t i = 0; i < sz && this->ptr != nullptr; i++)
+			{
+				++(*this);
+			}
+			return *this;
+		}
+		
+		constexpr OLLIterator& MY_LIBRARY operator+(size_t sz)const noexcept {
+			OLLIterator it(*this);
+			it += sz;
+			return it;
+		}
+
 		constexpr auto& MY_LIBRARY operator*()noexcept {
 			if (this->ptr != nullptr){
 				return this->ptr->data;
 			}
 			else {
-				assert((LLComputeTraits<in, decltype(in::getRadix()), in::getRadix()>::NullData == 0));
-				return (LLComputeTraits<in, decltype(in::getRadix()), in::getRadix()>::NullData = 0);
+				assert((LLComputeTraits<in, decltype(getRadix()), getRadix()>::NullData == 0));
+				return (LLComputeTraits<in, decltype(getRadix()), getRadix()>::NullData = 0);
 			}
 		}
 

@@ -35,7 +35,9 @@ namespace LargeInteger {
 	{
 	private:
 		friend class BytesTraits<Length>;
-		value_type Byte[Length] = {};
+		unsigned __int32 Byte2[Length / sizeof(unsigned __int32)];
+		//unsigned __int16 Byte1[(Length % sizeof(unsigned __int32)) / sizeof(unsigned __int16)];
+		value_type Byte[Length % sizeof(unsigned __int32)];
 	public:
 		constexpr explicit MY_LIBRARY Bytes()noexcept {}
 		template<size_t OriginLength> constexpr explicit MY_LIBRARY Bytes(const Bytes<OriginLength>&)noexcept;
