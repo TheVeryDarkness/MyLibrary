@@ -27,6 +27,8 @@ namespace LL {
 		MY_LIBRARY Q(const Q& that) noexcept :
 			Denominator(that.Denominator),
 			Numerator(that.Numerator) {}
+		Q MY_LIBRARY Copy(const Q& that)noexcept{
+
 		MY_LIBRARY ~Q();
 		INLINED void MY_LIBRARY destruct() {
 			this->Denominator.destruct();
@@ -70,7 +72,7 @@ namespace LL {
 			}
 			else
 			{
-				Z a(Numerator, true), b(Denominator, true);
+				Z a(Z::Copy(Numerator)), b(Z::Copy(Denominator));
 				a.data = Data(1);
 				b.data = Data(1);
 				while (true)
@@ -134,7 +136,7 @@ namespace LL {
 			this->Simplify();
 		}
 		Q MY_LIBRARY operator-(const Q& that)const {
-			Q Res(*this, true);
+			Q Res = Copy(*this);
 			Res -= that;
 			return Res;
 		}

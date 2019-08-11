@@ -49,7 +49,7 @@ namespace LargeInteger {
 	template<typename LL, auto radix>
 	class LargeUnsigned:public LL
 	{
-	private:
+	protected:
 		using radix_t=decltype(radix);
 		using Data=Num<radix_t, radix>;
 	public:
@@ -581,6 +581,15 @@ namespace LargeInteger {
 			return *this;
 		}
 		LargeSigned MY_LIBRARY operator*(const LargeSigned& that) const noexcept {
+			LargeSigned temp = Copy(*this);
+			temp *= that;
+			return temp;
+		}
+		LargeSigned& MY_LIBRARY operator*=(const Data& that) noexcept {
+			LargeUnsigned<LL, radix>::operator*=(that);
+			return *this;
+		}
+		LargeSigned MY_LIBRARY operator*(const Data& that) const noexcept {
 			LargeSigned temp = Copy(*this);
 			temp *= that;
 			return temp;
