@@ -9,17 +9,16 @@ namespace LargeInteger {
 
 
 	template<typename LL, auto radix>
-	class LargeUnsigned
+	class LargeUnsigned:public LL
 	{
 	private:
-		LL LinkedList;
 		using radix_t=decltype(radix);
 		using Data=Num<radix_t, radix>;
 	public:
 		template<typename val>
 		MY_LIBRARY LargeUnsigned(val Val)noexcept {
 			LargeInteger::LongCmpt<StdCmptTraits<Num<radix_t, radix>>>::LayerIterator<StdCmptTraits<Num<radix_t, radix>>::Devide> it;
-			for (auto& i = LinkedList.begin();; ++i)
+			for (auto& i = this->begin();; ++i)
 			{
 				i = Val % radix;
 				if ((Val /= radix) == static_cast<val>(0)) {
@@ -30,19 +29,13 @@ namespace LargeInteger {
 			return;
 		}
 
-		MY_LIBRARY LargeUnsigned(const LargeUnsigned& that,bool DeepCopy)noexcept {
-			if constexpr(DeepCopy)
-			{
-				for (auto& i : that) {
-					auto& j = this->LinkedList.begin();
-					*j = *i;
-				}
-				return;
+		constexpr MY_LIBRARY LargeUnsigned(const LargeUnsigned& that) = default;
+		constexpr void MY_LIBRARY Copy(const LargeUnsigned& that)noexcept {
+			for (auto& i : that) {
+				auto& j = this->begin();
+				*j = i;
 			}
-			else
-			{
-				this->LinkedList = that.LinkedList;
-			}
+			return;
 		}
 
 		//二进制输出到控制台窗口
@@ -55,7 +48,7 @@ namespace LargeInteger {
 		template<typename Type, auto Radix = 0>
 		//二进制输出到控制台窗口
 		//不再自动换行
-		/*INLINED*/std::ostream & MY_LIBRARY _Print(
+		static /*INLINED*/std::ostream & MY_LIBRARY _Print(
 			const Type & that,
 			std::ostream & out = std::cout
 		) noexcept {
@@ -148,13 +141,14 @@ namespace LargeInteger {
 		}
 		//重载
 		/*INLINED*/void MY_LIBRARY operator*=(const LargeUnsigned& b) noexcept {
-			LargeUnsigned This(*this, true);
+			LargeUnsigned This(b);
 			this->~LargeUnsigned();
-			for (auto& OprtPtr = b.LinkedList.begin(); OprtPtr != nullptr; ++OprtPtr) {
-				LargeInteger::LongCmpt<typename LargeInteger::StdCmptTraits<Data>>::LineIterator<typename LargeInteger::StdCmptTraits<Data>::Multiply, decltype(this->LinkedList.begin()), Data> temp(*OprtPtr, This.LinkedList.begin());
-				LargeInteger::LongCmpt<typename LargeInteger::StdCmptTraits<Data>>::AddTo(temp, this->LinkedList.begin());
+			for (auto& OprtPtr = b.begin(); OprtPtr != nullptr; ++OprtPtr) {
+				LargeInteger::LongCmpt<typename LargeInteger::StdCmptTraits<Data>>::LineIterator<typename LargeInteger::StdCmptTraits<Data>::Multiply, decltype(this->begin()), Data> temp(*OprtPtr, This.begin());
+				LargeInteger::LongCmpt<typename LargeInteger::StdCmptTraits<Data>>::AddTo(temp, this->begin());
 				This <<= 1;
 			}
+			
 		}
 		//重载
 		/*INLINED*/LargeUnsigned MY_LIBRARY operator*(const LargeUnsigned& b)const noexcept {
@@ -475,7 +469,7 @@ namespace LargeInteger {
 		/*INLINED*/long long MY_LIBRARY GetValue()const noexcept {
 			long long value = 0;
 			long n = 0;
-			auto OprtPtr = this->LinkedList.begin();
+			auto OprtPtr = this->begin();
 			if (OprtPtr == nullptr)
 			{
 				return 0;
@@ -507,7 +501,7 @@ namespace LargeInteger {
 
 		template<typename val>LargeSigned(bool Pos, val Val)noexcept
 			:PosSign(Pos), LargeUnsigned<LL, radix>(Val) {
-			static_assert(Val >= 0);
+			assert(Val >= 0);
 		}
 
 		~LargeSigned()

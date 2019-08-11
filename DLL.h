@@ -85,7 +85,7 @@ namespace LL {
 			for (DLL* OprtPtr = b.next; OprtPtr != nullptr; OprtPtr = OprtPtr->next)
 			{
 				DLL temp(This * OprtPtr->data);
-				LargeInteger::LongCmpt<LLComputeTraits<DLL, _Data, Radix>>::AppositionComputeTo<typename LargeInteger::StdCmptTraits<Data>::Add, DLL*, Data>(temp.next, this->next);
+				LargeInteger::LongCmpt<LLComputeTraits<DLL, _Data, Radix>>::AddTo(temp.next, this->next);
 				temp.destruct();
 				This <<= 1;
 			}
@@ -126,7 +126,7 @@ namespace LL {
 			}
 			if ((this->data > 0 && that.data > 0) || (this->data == 0 && that.data == 0))
 			{
-				LargeInteger::LongCmpt<LLComputeTraits<DLL, _Data, Radix>>::AppositionComputeTo<typename LargeInteger::StdCmptTraits<Data>::Add, DLL*, Data>(that.next, this->next);
+				LargeInteger::LongCmpt<LLComputeTraits<DLL, _Data, Radix>>::AddTo(that.next, this->next);
 			}
 			else {
 				LargeInteger::Compare Cmpr = LargeInteger::LongCmpt<LLComputeTraits<DLL, _Data, Radix>>::CompareTo<DLL*, Data>(this->next, that.next);
@@ -136,12 +136,12 @@ namespace LL {
 				}
 				if (Cmpr == LargeInteger::Compare::Larger)
 				{
-					LargeInteger::LongCmpt<LLComputeTraits<DLL, _Data, Radix>>::AppositionComputeTo<typename LargeInteger::StdCmptTraits<Data>::SubtractFrom, DLL*, Data>(that.next, this->next);
+					LargeInteger::LongCmpt<LLComputeTraits<DLL, _Data, Radix>>::SubtractFrom(that.next, this->next);
 				}
 				else
 				{
 					DLL temp(that, true);
-					LargeInteger::LongCmpt<LLComputeTraits<DLL, _Data, Radix>>::AppositionComputeTo<typename LargeInteger::StdCmptTraits<Data>::SubtractFrom, DLL*, Data>(this->next, temp.next);
+					LargeInteger::LongCmpt<LLComputeTraits<DLL, _Data, Radix>>::SubtractFrom(this->next, temp.next);
 					*this = temp;
 				}
 				this->Simplify();

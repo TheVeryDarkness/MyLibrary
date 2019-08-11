@@ -15,8 +15,6 @@
 #include <string>
 #include <charconv>
 
-
-
 //根据规范（当然是我自己胡诌的规范），
 //Simplify()操作应在加减乘除操作完成后返回时主动调用
 //以避免冗余

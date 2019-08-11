@@ -1,10 +1,17 @@
 #pragma once
 
+#ifndef _SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING
+#define _SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING
+#endif // !_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING
+
 #include "LinkedList.h"
+
+#ifndef _SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING
+#define _SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING
+#endif // !_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING
 
 namespace LL {
 	template <typename Data>class OLL;
-	template<typename in, bool insert>class OLLIterator;
 
 	//Data为数据类型，勿将其置为指针
 	template <typename Data>
@@ -17,9 +24,6 @@ namespace LL {
 
 		template<class node, typename _Data, _Data Radix>
 		friend class LLComputeTraits;
-
-		friend class OLLIterator<OLL,true>;
-		friend class OLLIterator<OLL,false>;
 
 		template<typename Type>
 		INLINED friend std::ostream& MY_LIBRARY out(
@@ -54,12 +58,12 @@ namespace LL {
 		MEMORY_CACHE(20);
 	public:
 		template<bool ins = false>
-		constexpr INLINED OLLIterator<OLL,ins> begin()const noexcept {
-			return OLLIterator<OLL, ins>(this);
+		constexpr INLINED std::iterator<std::forward_iterator_tag, OLL> begin()const noexcept {
+			return std::iterator<std::forward_iterator_tag, OLL>(this);
 		}
 		template<bool ins = false>
-		constexpr INLINED OLLIterator<OLL, ins> end()const noexcept {
-			return OLLIterator<OLL, ins>(nullptr);
+		constexpr INLINED std::iterator<std::forward_iterator_tag,OLL> end()const noexcept {
+			return std::iterator<std::forward_iterator_tag, OLL>(nullptr);
 		}
 	protected:
 
@@ -327,61 +331,61 @@ namespace LL {
 				that->next);
 		}
 	};
-
-
-
-	template<typename in,bool insert>
-	class OLLIterator
-	{
-	public:
-		static constexpr auto MY_LIBRARY getRadix()noexcept { return decltype(ptr->data)::getRadix(); }
-		static constexpr in* MY_LIBRARY NEXT(in& i)noexcept { if (i.next == nullptr)i.insert(); return i.next; }
-		constexpr MY_LIBRARY OLLIterator(in* _ptr)noexcept :ptr(_ptr) {}
-
-		constexpr bool MY_LIBRARY operator==(in* _ptr)const noexcept { return this->ptr == _ptr; }
-
-		MY_LIBRARY ~OLLIterator()noexcept = default;
-
-		constexpr OLLIterator& MY_LIBRARY operator++()noexcept {
-			if (this->ptr != nullptr)
-			{
-				if constexpr (insert)
-				{
-					if (this->ptr->next == nullptr)
-					{
-						this->ptr->insert();
-					}
-				}
-				this->ptr = ptr->next;
-			}
-			return *this;
-		}
-
-		constexpr OLLIterator& MY_LIBRARY operator+=(size_t sz)noexcept {
-			for (size_t i = 0; i < sz && this->ptr != nullptr; i++)
-			{
-				++(*this);
-			}
-			return *this;
-		}
-		
-		constexpr OLLIterator& MY_LIBRARY operator+(size_t sz)const noexcept {
-			OLLIterator it(*this);
-			it += sz;
-			return it;
-		}
-
-		constexpr auto& MY_LIBRARY operator*()noexcept {
-			if (this->ptr != nullptr){
-				return this->ptr->data;
-			}
-			else {
-				assert((LLComputeTraits<in, decltype(getRadix()), getRadix()>::NullData == 0));
-				return (LLComputeTraits<in, decltype(getRadix()), getRadix()>::NullData = 0);
-			}
-		}
-
-	private:
-		in* ptr;
-	};
 }
+
+template<typename Data>
+class std::iterator<std::forward_iterator_tag, LL::OLL<Data>>
+{
+	using in=LL::OLL<Data>;
+public:
+	static constexpr auto MY_LIBRARY getRadix()noexcept { return decltype(ptr->data)::getRadix(); }
+	static constexpr in* MY_LIBRARY NEXT(in& i)noexcept { if (i.next == nullptr)i.insert(); return i.next; }
+	constexpr MY_LIBRARY iterator(in* _ptr)noexcept :ptr(_ptr) {}
+
+	constexpr bool MY_LIBRARY operator==(const in* _ptr)const noexcept { return this->ptr == _ptr; }
+	constexpr bool MY_LIBRARY operator==(const iterator _ptr)const noexcept { return this->ptr == _ptr.ptr; }
+
+	MY_LIBRARY ~iterator()noexcept = default;
+
+	constexpr iterator& MY_LIBRARY operator++()noexcept {
+		if (this->ptr != nullptr)
+		{
+			if constexpr (insert)
+			{
+				if (this->ptr->next == nullptr)
+				{
+					this->ptr->insert();
+				}
+			}
+			this->ptr = ptr->next;
+		}
+		return *this;
+	}
+
+	constexpr iterator& MY_LIBRARY operator+=(size_t sz)noexcept {
+		for (size_t i = 0; i < sz && this->ptr != nullptr; i++)
+		{
+			++(*this);
+		}
+		return *this;
+	}
+
+	constexpr iterator MY_LIBRARY operator+(size_t sz)const noexcept {
+		OLLIterator it(*this);
+		it += sz;
+		return it;
+	}
+
+	constexpr auto& MY_LIBRARY operator*()noexcept {
+		if (this->ptr != nullptr) {
+			return this->ptr->data;
+		}
+		else {
+			assert((LLComputeTraits<in, decltype(getRadix()), getRadix()>::NullData == 0));
+			return (LLComputeTraits<in, decltype(getRadix()), getRadix()>::NullData = 0);
+		}
+	}
+
+private:
+	in* ptr;
+};

@@ -25,11 +25,11 @@ namespace LargeInteger{
 	template<typename _Traits>
 	class LongCmpt {
 	public:
-		template<class ComputeFunction, typename Iterator, typename Data>
+		template<class ComputeFunction, typename Iterator1, typename Iterator2, typename Data>
 		class AppositionIterator
 		{
 		public:
-			MY_LIBRARY AppositionIterator(Iterator a, Iterator b)noexcept
+			MY_LIBRARY AppositionIterator(Iterator1 a, Iterator2 b)noexcept
 				:a(a), b(b), c(), Result(c(Data(0), _Traits::GetData(a), _Traits::GetData(b))) {
 				static_assert(std::is_same<Data, std::remove_reference<decltype(_Traits::GetData(b))>::type>::value, "It should be the same type");
 			}
@@ -56,7 +56,8 @@ namespace LargeInteger{
 			}
 			//result;overflow
 			std::pair<Data, Data> Result;
-			Iterator a, b;
+			Iterator1 a;
+			Iterator2 b;
 		private:
 			ComputeFunction c;
 		};
@@ -65,8 +66,8 @@ namespace LargeInteger{
 		class LineIterator
 		{
 		public:
-			MY_LIBRARY LineIterator(Data a, Iterator b)noexcept :a(a), b(b), c(), Result(c(Data(0), a, _Traits::GetData(b))) {
-				static_assert(std::is_same<Data, std::remove_reference<decltype(_Traits::GetData(b))>::type>::value, "It should be the same type");
+			MY_LIBRARY LineIterator(Data a, Iterator b)noexcept :a(a), b(b), c(), Result(c(Data(0), a, *b)) {
+				static_assert(std::is_same<Data, std::remove_reference<decltype(*b)>::type>::value, "It should be the same type");
 			}
 			MY_LIBRARY ~LineIterator()noexcept {}
 			//Notice:
@@ -106,10 +107,10 @@ namespace LargeInteger{
 		};
 
 
-		template<typename Compute, typename Iterator, typename Data>
-		static constexpr INLINED void MY_LIBRARY AppositionComputeTo(Iterator a, Iterator b)noexcept {
+		template<typename Compute, typename Iterator1, typename Iterator2, typename Data>
+		static constexpr INLINED void MY_LIBRARY AppositionComputeTo(Iterator1 a, Iterator2 b)noexcept {
 			Data Carry = Data(0);
-			AppositionIterator<Compute, Iterator, Data> compute(a, b);
+			AppositionIterator<Compute, Iterator1, Iterator2, Data> compute(a, b);
 			while (true)
 			{
 				//This element
@@ -139,14 +140,15 @@ namespace LargeInteger{
 			}
 		}
 
-		template<typename Iterator>
-		static constexpr INLINED void MY_LIBRARY AddTo(Iterator a, Iterator b)noexcept {
-			return AppositionComputeTo<typename _Traits::Add, Iterator, decltype(*a)>(a, b);
+		template<typename Iterator1, typename Iterator2>
+		static constexpr INLINED void MY_LIBRARY AddTo(Iterator1 a, Iterator2 b)noexcept {
+			static_assert(std::is_same<std::remove_cvref<*a>::type, std::remove_cvref<*b>::type>);
+			return AppositionComputeTo<typename _Traits::Add, Iterator1, Iterator2, decltype(*a)>(a, b);
 		}
 		
 		template<typename Iterator>
 		static constexpr INLINED void MY_LIBRARY SubtractFrom(Iterator a, Iterator b)noexcept {
-			return AppositionComputeTo<typename _Traits::Add, Iterator, decltype(*a)>(a, b);
+			return AppositionComputeTo<typename _Traits::SubtractFrom, Iterator, decltype(*a)>(a, b);
 		}
 
 		template<typename Iterator, typename Data>
