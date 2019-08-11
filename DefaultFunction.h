@@ -25,11 +25,11 @@ namespace LL {
 	class power:public Function
 	{
 	public:
-		MY_LIBRARY power(const Q& Coefficient, const Q& Index)noexcept
+		explicit MY_LIBRARY power(const Q& Coefficient, const Q& Index)noexcept
 			:c(Coefficient, true), i(Index, true) {
 			this->simplify();
 		}
-		MY_LIBRARY power(
+		explicit MY_LIBRARY power(
 			long Coefficient1, unsigned short Coefficient2,
 			unsigned short Index1, unsigned short Index2
 		)noexcept 

@@ -54,7 +54,7 @@ namespace LargeInteger {
 		using Data=Num<radix_t, radix>;
 	public:
 		template<typename val>
-		MY_LIBRARY LargeUnsigned(val Val)noexcept {
+		explicit MY_LIBRARY LargeUnsigned(val Val)noexcept {
 			LargeInteger::LongCmpt<StdCmptTraits<Num<radix_t, radix>>>::LayerIterator<StdCmptTraits<Num<radix_t, radix>>::Devide> it;
 			for (auto& i = this->begin();; ++i)
 			{
@@ -66,14 +66,13 @@ namespace LargeInteger {
 			assert(Val == static_cast<val>(0));
 			return;
 		}
-
-		constexpr MY_LIBRARY LargeUnsigned(const LargeUnsigned& that) = default;
-		constexpr void MY_LIBRARY Copy(const LargeUnsigned& that)noexcept {
+		static constexpr LargeUnsigned MY_LIBRARY Copy(const LargeUnsigned& that)noexcept {
+			LargeUnsigned This(that);
 			for (auto& i : that) {
-				auto& j = this->begin();
+				auto& j = This.begin();
 				*j = i;
 			}
-			return;
+			return This;
 		}
 
 		//二进制输出到控制台窗口
@@ -169,11 +168,11 @@ namespace LargeInteger {
 			{
 				return;
 			}
-			LargeInteger::LongCmpt<LargeInteger::StdCmptTraits<radix_t>>::MultiplyTo<LinkedList*, Data>(times, this->next);
+			LargeInteger::LongCmpt<typename LargeInteger::StdCmptTraits<typename radix_t>>::MultiplyTo(times, this->next);
 		}
 		//重载
-		/*INLINED*/LL MY_LIBRARY operator*(Data times)const noexcept {
-			LL Res(*this, true);
+		/*INLINED*/LargeUnsigned MY_LIBRARY operator*(Data times)const noexcept {
+			LargeUnsigned Res(*this, true);
 			Res *= times;
 			return Res;
 		}
@@ -534,12 +533,75 @@ namespace LargeInteger {
 	class LargeSigned:public LargeUnsigned<LL, radix>
 	{
 	public:
-		template<typename val>LargeSigned(val Val)noexcept
+		template<typename val> explicit LargeSigned(val Val)noexcept
 			:PosSign(Val > 0), LargeUnsigned<LL, radix>(ABS(val)) {}
 
-		template<typename val>LargeSigned(bool Pos, val Val)noexcept
+		template<typename val> explicit LargeSigned(bool Pos, val Val)noexcept
 			:PosSign(Pos), LargeUnsigned<LL, radix>(Val) {
 			assert(Val >= 0);
+		}
+		static constexpr LargeUnsigned MY_LIBRARY Copy(const LargeUnsigned& that)noexcept {
+			LargeUnsigned This(that);
+			for (auto& i : that) {
+				auto& j = This.begin();
+				*j = i;
+			}
+			return This;
+		}
+
+		bool MY_LIBRARY operator==(const LargeSigned& that)const noexcept {
+			return (LargeUnsigned<LL, radix>::operator==(that) && (this->PosSign == that.PosSign));
+		}
+
+		template<typename Val >
+		LargeSigned& MY_LIBRARY operator=(Val val) noexcept {
+			LargeUnsigned<LL, radix>::operator=(val);
+			return *this;
+		}
+		LargeSigned& MY_LIBRARY operator+=(const LargeSigned& that) noexcept {
+			LargeUnsigned<LL, radix>::operator+=(that);
+			return *this;
+		}
+		LargeSigned MY_LIBRARY operator+(const LargeSigned& that) const noexcept {
+			LargeSigned temp = Copy(*this);
+			temp += thst;
+			return temp;
+		}
+		LargeSigned& MY_LIBRARY operator-=(const LargeSigned& that) noexcept {
+			LargeUnsigned<LL, radix>::operator-=(that);
+			return *this;
+		}
+		LargeSigned MY_LIBRARY operator-(const LargeSigned& that) const noexcept {
+			LargeSigned temp = Copy(*this);
+			temp -= thst;
+			return temp;
+		}
+		LargeSigned& MY_LIBRARY operator*=(const LargeSigned& that) noexcept {
+			LargeUnsigned<LL, radix>::operator*=(that);
+			return *this;
+		}
+		LargeSigned MY_LIBRARY operator*(const LargeSigned& that) const noexcept {
+			LargeSigned temp = Copy(*this);
+			temp *= that;
+			return temp;
+		}
+		LargeSigned& MY_LIBRARY operator%=(const LargeSigned& that) noexcept {
+			LargeUnsigned<LL, radix>::operator%=(that);
+			return *this;
+		}
+		LargeSigned MY_LIBRARY operator%(const LargeSigned& that) const noexcept {
+			LargeSigned temp = Copy(*this);
+			temp %= that;
+			return temp;
+		}
+		LargeSigned& MY_LIBRARY operator/=(const LargeSigned& that) noexcept {
+			LargeUnsigned<LL, radix>::operator/=(that);
+			return *this;
+		}
+		LargeSigned MY_LIBRARY operator/(const LargeSigned& that) const noexcept {
+			LargeSigned temp = Copy(*this);
+			temp /= that;
+			return temp;
 		}
 
 		~LargeSigned()

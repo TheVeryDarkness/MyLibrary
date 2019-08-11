@@ -4,12 +4,11 @@
 #include "LargeInteger.h"
 #include "OLL.h"
 #include "DLL.h"
-
-#define Z_MAX 10000
+constexpr unsigned int Z_MAX = 1000000000U;
 
 namespace LL {
 
-	typedef LargeInteger::LargeSigned<DLL<unsigned int>,1000000000U> Z;
+	typedef LargeInteger::LargeSigned<DLL<LargeInteger::Num<unsigned int, Z_MAX>>, Z_MAX> Z;
 
 	//有理数
 	//Rational Number
@@ -17,7 +16,7 @@ namespace LL {
 	class Q
 	{
 	protected:
-		using Data=LargeInteger::Num<unsigned short, Z_MAX>;
+		using Data=LargeInteger::Num<unsigned int, Z_MAX>;
 		Z Numerator;//分子
 		Z Denominator;//分母
 	public:
@@ -25,9 +24,9 @@ namespace LL {
 		explicit MY_LIBRARY Q(long n, unsigned short d = 1)noexcept :
 			Numerator(((n > 0) ? 1 : 0), static_cast<unsigned long>(abs(n))),
 			Denominator(true, static_cast<unsigned long>(d)) {}
-		MY_LIBRARY Q(const Q& that, bool DeepCopy) noexcept :
-			Denominator(that.Denominator, DeepCopy),
-			Numerator(that.Numerator, DeepCopy) {}
+		MY_LIBRARY Q(const Q& that) noexcept :
+			Denominator(that.Denominator),
+			Numerator(that.Numerator) {}
 		MY_LIBRARY ~Q();
 		INLINED void MY_LIBRARY destruct() {
 			this->Denominator.destruct();

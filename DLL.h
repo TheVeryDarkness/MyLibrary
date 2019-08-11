@@ -47,10 +47,10 @@ namespace LL {
 		static constexpr INLINED auto getRadix() noexcept {
 			return Radix;
 		}
-		constexpr INLINED DLL* begin()const noexcept {
+		constexpr INLINED std::iterator<std::bidirectional_iterator_tag, const DLL> begin()const noexcept {
 			return this;
 		}
-		constexpr INLINED DLL* end()const noexcept {
+		constexpr INLINED std::iterator<std::bidirectional_iterator_tag, const DLL> end()const noexcept {
 			return nullptr;
 		}
 		//重载正
@@ -61,7 +61,7 @@ namespace LL {
 		INLINED void MY_LIBRARY SetToContradict()noexcept {
 			this->data = Data((this->data == 0) ? 1 : 0);
 		}
-		_Data data;
+		Data data;
 		DLL* next = nullptr;
 		DLL* last = nullptr;
 		//深拷贝与浅拷贝由参数DeepCopy指定
@@ -632,3 +632,111 @@ namespace LL {
 	};
 
 }
+
+
+
+template<typename Data>
+class std::iterator<std::output_iterator_tag, LL::DLL<Data>>
+{
+	using in=LL::DLL<Data>;
+public:
+	static constexpr auto MY_LIBRARY getRadix()noexcept { return decltype(ptr->data)::getRadix(); }
+	static constexpr in* MY_LIBRARY NEXT(in& i)noexcept { if (i.next == nullptr)i.insert(); return i.next; }
+	constexpr MY_LIBRARY iterator(in* _ptr)noexcept :ptr(_ptr) {}
+
+	constexpr bool MY_LIBRARY operator==(const in* _ptr)const noexcept { return this->ptr == _ptr; }
+	constexpr bool MY_LIBRARY operator==(const iterator _ptr)const noexcept { return this->ptr == _ptr.ptr; }
+
+	MY_LIBRARY ~iterator()noexcept = default;
+
+	constexpr iterator& MY_LIBRARY operator++()noexcept {
+		if (this->ptr != nullptr)
+		{
+			if (this->ptr->next == nullptr)
+			{
+				this->ptr->insert();
+			}
+			this->ptr = ptr->next;
+		}
+		return *this;
+	}
+
+	constexpr iterator& MY_LIBRARY operator+=(size_t sz)noexcept {
+		for (size_t i = 0; i < sz && this->ptr != nullptr; i++)
+		{
+			++(*this);
+		}
+		return *this;
+	}
+
+	constexpr iterator MY_LIBRARY operator+(size_t sz)const noexcept {
+		iterator it(*this);
+		it += sz;
+		return it;
+	}
+
+	constexpr auto& MY_LIBRARY operator*()noexcept {
+		if (this->ptr != nullptr) {
+			return this->ptr->data;
+		}
+		else {
+			assert((NullData == 0));
+			return (NullData = 0);
+		}
+	}
+
+private:
+	in* ptr;
+	friend struct std::iterator<std::output_iterator_tag, const LL::DLL<Data>>;
+	static inline Data NullData = 0;
+};
+
+template<typename Data>
+struct std::iterator<std::output_iterator_tag, const LL::DLL<Data>>
+{
+	using in=const LL::DLL<Data>;
+public:
+	static constexpr auto MY_LIBRARY getRadix()noexcept { return decltype(ptr->data)::getRadix(); }
+	static constexpr in* MY_LIBRARY NEXT(in& i)noexcept { if (i.next == nullptr)i.insert(); return i.next; }
+	constexpr MY_LIBRARY iterator(const in* _ptr)noexcept :ptr(_ptr) {}
+
+	constexpr bool MY_LIBRARY operator==(const in* _ptr)const noexcept { return this->ptr == _ptr; }
+	constexpr bool MY_LIBRARY operator==(const iterator _ptr)const noexcept { return this->ptr == _ptr.ptr; }
+
+	MY_LIBRARY ~iterator()noexcept = default;
+
+	constexpr iterator& MY_LIBRARY operator++()noexcept {
+		if (this->ptr != nullptr)
+		{
+			this->ptr = ptr->next;
+		}
+		return *this;
+	}
+
+	constexpr iterator& MY_LIBRARY operator+=(size_t sz)noexcept {
+		for (size_t i = 0; i < sz && this->ptr != nullptr; i++)
+		{
+			++(*this);
+		}
+		return *this;
+	}
+
+	constexpr iterator MY_LIBRARY operator+(size_t sz)const noexcept {
+		iterator it(*this);
+		it += sz;
+		return it;
+	}
+
+	constexpr auto& MY_LIBRARY operator*()noexcept {
+		if (this->ptr != nullptr) {
+			return this->ptr->data;
+		}
+		else {
+			assert((std::iterator<std::output_iterator_tag, LL::DLL<Data>>::NullData == 0));
+			return static_cast<const Data&>(std::iterator<std::output_iterator_tag, LL::DLL<Data>>::NullData = 0);
+		}
+	}
+
+private:
+	in* ptr;
+};
