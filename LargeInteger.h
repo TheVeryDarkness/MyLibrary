@@ -131,7 +131,7 @@ namespace LargeInteger {
 			{
 				return;
 			}
-			LargeInteger::LongCmpt<LLComputeTraits<LinkedList, radix_t, Radix>>::MultiplyTo<LinkedList*, Data>(times, this->next);
+			LargeInteger::LongCmpt<LargeInteger::StdCmptTraits<radix_t>>::MultiplyTo<LinkedList*, Data>(times, this->next);
 		}
 		//жиди
 		/*INLINED*/LL MY_LIBRARY operator*(Data times)const noexcept {
@@ -180,7 +180,7 @@ namespace LargeInteger {
 			}
 			if ((this->data > 0 && that.data > 0) || (this->data == 0 && that.data == 0))
 			{
-				LargeInteger::LongCmpt::AppositionComputeTo<typename LargeInteger::LongCmpt::StdCmptTraits<Data>::Add, LinkedList*, Data, LLComputeTraits<LinkedList, radix_t, Radix>>(that.next, this->next);
+				LargeInteger::LongCmpt::AppositionComputeTo<typename LargeInteger::LongCmpt::StdCmptTraits<Data>::Add, LinkedList*, Data, LargeInteger::StdCmptTraits<radix_t>>(that.next, this->next);
 			}
 			else {
 				LargeInteger::Compare Cmpr = LargeInteger::LongCmpt::CompareTo<LinkedList*, Data, LLComputeTraits<LinkedList, radix_t, Radix>>(this->next, that.next);

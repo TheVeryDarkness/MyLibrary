@@ -159,11 +159,11 @@ namespace LargeInteger{
 			{
 				//This element
 				*mul.b = mul.Result.first;
-				if (mul.b + 1 == _Traits::NullIterator)
+				if (mul.b + 1 == nullptr)
 				{
 					if (mul.Result.second != Data(0))
 					{
-						_Traits::InsertAfter(mul.b, mul.Result.second);
+						mul.b.insert(mul.b, mul.Result.second)
 					}
 					break;
 				}
@@ -194,7 +194,7 @@ namespace LargeInteger{
 					{
 						temp = Compare::Smaller;
 					}
-					if ((_a + 1 == _Traits::NullIterator) && (_b + 1 == _Traits::NullIterator))
+					if ((_a + 1 == nullptr) && (_b + 1 == nullptr))
 					{
 						break;
 					}

@@ -23,9 +23,9 @@ namespace LL {
 		//however, the other sections should be in the heap.
 		class OLL
 	{
-
+			/*
 		template<class node, typename _Data, _Data Radix>
-		friend class LLComputeTraits;
+		friend class LLComputeTraits;*/
 
 		template<typename Type>
 		INLINED friend std::ostream& MY_LIBRARY out(

@@ -8,8 +8,9 @@ namespace LL {
 	{
 		using Data=LargeInteger::Num<_Data, Radix>;
 
+		/*
 		template<class node, typename _Data, _Data Radix>
-		friend class LLComputeTraits;
+		friend class LLComputeTraits;*/
 		//友元函数声明
 
 		template<typename Type, unsigned long Radix>
@@ -67,7 +68,7 @@ namespace LL {
 			{
 				return;
 			}
-			LargeInteger::LongCmpt<LLComputeTraits<DLL, _Data, Radix>>::MultiplyTo<DLL*, Data>(times, this->next);
+			LargeInteger::LongCmpt<LargeInteger::StdCmptTraits<_Data>>::MultiplyTo<DLL*, Data>(times, this->next);
 		}
 		//重载
 		INLINED DLL MY_LIBRARY operator*(Data times)const noexcept {
@@ -85,7 +86,7 @@ namespace LL {
 			for (DLL* OprtPtr = b.next; OprtPtr != nullptr; OprtPtr = OprtPtr->next)
 			{
 				DLL temp(This * OprtPtr->data);
-				LargeInteger::LongCmpt<LLComputeTraits<DLL, _Data, Radix>>::AddTo(temp.next, this->next);
+				LargeInteger::LongCmpt<LargeInteger::StdCmptTraits<_Data>>::AddTo(temp.next, this->next);
 				temp.destruct();
 				This <<= 1;
 			}
@@ -126,22 +127,22 @@ namespace LL {
 			}
 			if ((this->data > 0 && that.data > 0) || (this->data == 0 && that.data == 0))
 			{
-				LargeInteger::LongCmpt<LLComputeTraits<DLL, _Data, Radix>>::AddTo(that.next, this->next);
+				LargeInteger::LongCmpt<LargeInteger::StdCmptTraits<_Data>>::AddTo(that.next, this->next);
 			}
 			else {
-				LargeInteger::Compare Cmpr = LargeInteger::LongCmpt<LLComputeTraits<DLL, _Data, Radix>>::CompareTo<DLL*, Data>(this->next, that.next);
+				LargeInteger::Compare Cmpr = LargeInteger::LongCmpt<LargeInteger::StdCmptTraits<_Data>>::CompareTo<DLL*, Data>(this->next, that.next);
 				if (Cmpr == LargeInteger::Compare::Equal)
 				{
 					this->destruct();
 				}
 				if (Cmpr == LargeInteger::Compare::Larger)
 				{
-					LargeInteger::LongCmpt<LLComputeTraits<DLL, _Data, Radix>>::SubtractFrom(that.next, this->next);
+					LargeInteger::LongCmpt<LargeInteger::StdCmptTraits<_Data>>::SubtractFrom(that.next, this->next);
 				}
 				else
 				{
 					DLL temp(that, true);
-					LargeInteger::LongCmpt<LLComputeTraits<DLL, _Data, Radix>>::SubtractFrom(this->next, temp.next);
+					LargeInteger::LongCmpt<LargeInteger::StdCmptTraits<_Data>>::SubtractFrom(this->next, temp.next);
 					*this = temp;
 				}
 				this->Simplify();
