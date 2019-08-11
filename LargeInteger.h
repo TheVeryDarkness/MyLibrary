@@ -152,7 +152,7 @@ namespace LargeInteger {
 			this->~LargeUnsigned();
 			for (auto& OprtPtr = b.LinkedList.begin(); OprtPtr != nullptr; ++OprtPtr) {
 				LargeInteger::LongCmpt<typename LargeInteger::StdCmptTraits<Data>>::LineIterator<typename LargeInteger::StdCmptTraits<Data>::Multiply, decltype(this->LinkedList.begin()), Data> temp(*OprtPtr, This.LinkedList.begin());
-				LargeInteger::LongCmpt<typename LargeInteger::StdCmptTraits<Data>>::AppositionComputeTo<typename LargeInteger::StdCmptTraits<Data>::Add, decltype(this->LinkedList.begin()), Data>(temp, this->LinkedList.begin());
+				LargeInteger::LongCmpt<typename LargeInteger::StdCmptTraits<Data>>::AddTo(temp, this->LinkedList.begin());
 				This <<= 1;
 			}
 		}

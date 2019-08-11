@@ -139,6 +139,11 @@ namespace LargeInteger{
 			}
 		}
 
+		template<typename Iterator>
+		static constexpr INLINED void MY_LIBRARY AddTo(Iterator a, Iterator b)noexcept {
+			return AppositionComputeTo<typename _Traits::Add, Iterator, decltype(*a)>(a, b);
+		}
+
 		template<typename Iterator, typename Data>
 		static INLINED void MY_LIBRARY MultiplyTo(Data a, Iterator b) noexcept {
 			Data Carry = Data(0);
