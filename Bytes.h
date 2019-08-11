@@ -3,7 +3,6 @@
 #include <memory>
 #include <cstring>
 #include <type_traits>
-#include "ComputeTemplate.h"
 #include "Shared.h"
 
 namespace LargeInteger {

@@ -159,7 +159,7 @@ namespace LargeInteger{
 			{
 				//This element
 				*mul.b = mul.Result.first;
-				if (_Traits::GetNext(mul.b) == _Traits::NullIterator)
+				if (mul.b + 1 == _Traits::NullIterator)
 				{
 					if (mul.Result.second != Data(0))
 					{
@@ -194,7 +194,7 @@ namespace LargeInteger{
 					{
 						temp = Compare::Smaller;
 					}
-					if (_a + 1 == _Traits::NullIterator) && _b + 1 == _Traits::NullIterator))
+					if ((_a + 1 == _Traits::NullIterator) && (_b + 1 == _Traits::NullIterator))
 					{
 						break;
 					}
@@ -205,14 +205,17 @@ namespace LargeInteger{
 			}
 		}
 		//Extension for Compare()
-		template<typename Iterator, typename Data>
-		static INLINED std::pair<Data, Compare> MY_LIBRARY _CompareTo(const Iterator& a, const Iterator& b) noexcept {
+		template<typename Iterator1, typename Iterator2>
+		static INLINED std::pair<typename std::remove_cvref<decltype(*a)>::type, Compare> MY_LIBRARY _CompareTo(const Iterator1& a, const Iterator2& b) noexcept {
+			using Data=std::remove_cvref<decltype(*a)>::type;
+			static_assert(std::is_same<std::remove_cvref<decltype(*a)>::type, std::remove_cvref<decltype(*b)>::type>);
 			{
 				Compare temp = Compare::Equal;
-				Iterator _a = a, _b = b;
+				Iterator1 _a = a;
+				Iterator2 _b = b;
 				for (;
 					;
-					_a = _Traits::GetNext(_a), _b = _Traits::GetNext(_b)
+					++_a, ++_b
 					) {
 					if (*_a > *_b)
 					{
@@ -222,15 +225,15 @@ namespace LargeInteger{
 					{
 						temp = Compare::Smaller;
 					}
-					if ((_Traits::GetNext(_a) == _Traits::NullIterator) && (_Traits::GetNext(_b) == _Traits::NullIterator))
+					if ((_a + 1 == _Traits::NullIterator) && (_b + 1 == _Traits::NullIterator))
 					{
 						break;
 					}
 				}
 				{
 					if (temp == Compare::Larger) {
-						if (_Traits::GetData(_a) > (_Traits::GetData(_b))) {
-							return std::pair<Data, Compare>(Data(_Traits::GetData(_a) / (_Traits::GetData(_b) + Data(1))), Compare::Larger);
+						if (*_a > *_b) {
+							return std::pair<Data, Compare>(Data(*_a / (*_b + Data(1))), Compare::Larger);
 						}
 						return std::pair<Data, Compare>(Data(1), Compare::Larger);
 					}
