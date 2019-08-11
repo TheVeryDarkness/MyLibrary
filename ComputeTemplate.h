@@ -61,6 +61,32 @@ namespace LargeInteger{
 			ComputeFunction c;
 		};
 
+		template<class ComputeFunction, typename Iterator, typename Data>
+		class LineIterator
+		{
+		public:
+			MY_LIBRARY LineIterator(Data a, Iterator b)noexcept :a(a), b(b), c(), Result(c(Data(0), a, _Traits::GetData(b))) {
+				static_assert(std::is_same<Data, std::remove_reference<decltype(_Traits::GetData(b))>::type>::value, "It should be the same type");
+			}
+			MY_LIBRARY ~LineIterator()noexcept {}
+			//Notice:
+			//	this function move the iterator b to its next place
+			void MY_LIBRARY operator++() noexcept {
+				b = _Traits::GetNext(b);
+
+				Result = c(Result.second, a, _Traits::GetData(b));
+			}
+			//return true if the iterator is still working
+			MY_LIBRARY operator bool()const noexcept {
+				return !(b == _Traits::NullIterator && Result.first == Data(0) && Result.second == Data(0));
+			}
+			//result;overflow
+			std::pair<Data, Data> Result;
+			Data a;
+			Iterator b;
+			ComputeFunction c;
+		};
+
 		template<typename Compute, typename Iterator, typename Data>
 		static constexpr INLINED void MY_LIBRARY AppositionComputeTo(Iterator a, Iterator b)noexcept {
 			Data Carry = Data(0);
@@ -93,32 +119,6 @@ namespace LargeInteger{
 				}
 			}
 		}
-
-		template<class ComputeFunction, typename Iterator, typename Data>
-		class LineIterator
-		{
-		public:
-			MY_LIBRARY LineIterator(Data a, Iterator b)noexcept :a(a), b(b), c(), Result(c(Data(0), a, _Traits::GetData(b))) {
-				static_assert(std::is_same<Data, std::remove_reference<decltype(_Traits::GetData(b))>::type>::value, "It should be the same type");
-			}
-			MY_LIBRARY ~LineIterator()noexcept {}
-			//Notice:
-			//	this function move the iterator b to its next place
-			void MY_LIBRARY operator++() noexcept {
-				b = _Traits::GetNext(b);
-
-				Result = c(Result.second, a, _Traits::GetData(b));
-			}
-			//return true if the iterator is still working
-			MY_LIBRARY operator bool()const noexcept {
-				return !(b == _Traits::NullIterator && Result.first == Data(0) && Result.second == Data(0));
-			}
-			//result;overflow
-			std::pair<Data, Data> Result;
-			Data a;
-			Iterator b;
-			ComputeFunction c;
-		};
 
 		template<typename Iterator, typename Data>
 		static INLINED void MY_LIBRARY MultiplyTo(Data a, Iterator b) noexcept {

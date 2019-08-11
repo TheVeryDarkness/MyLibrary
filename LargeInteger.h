@@ -409,9 +409,13 @@ namespace LargeInteger {
 	class LargeSigned:private LargeUnsigned<LL, radix>
 	{
 	public:
-		template<typename val>
-		LargeSigned(val Val)noexcept
+		template<typename val>LargeSigned(val Val)noexcept
 			:PosSign(Val > 0), LargeUnsigned<LL, radix>(ABS(val)) {}
+
+		template<typename val>LargeSigned(bool Pos, val Val)noexcept
+			:PosSign(Pos), LargeUnsigned<LL, radix>(Val) {
+			static_assert(Val >= 0);
+		}
 
 		~LargeSigned()
 		{
