@@ -3,20 +3,17 @@
 #include "LinkedList.h"
 
 namespace LL {
-	template <typename _Data, _Data Radix>class OLL;
+	template <typename Data>class OLL;
 	template<typename in, bool insert>class OLLIterator;
 
 	//Data为数据类型，勿将其置为指针
-	template <
-		typename _Data, _Data Radix
-	>
+	template <typename Data>
 		//单向（oneway）链表（linked list）（基类）
 		//Notice:
 		//The head of the linked list should be in the stack or heap,
 		//however, the other sections should be in the heap.
 		class OLL
 	{
-		using Data=LargeInteger::Num<_Data, Radix>;
 
 		template<class node, typename _Data, _Data Radix>
 		friend class LLComputeTraits;
@@ -56,9 +53,6 @@ namespace LL {
 
 		MEMORY_CACHE(20);
 	public:
-		static constexpr INLINED auto getRadix() noexcept {
-			return Radix;
-		}
 		constexpr INLINED OLL* begin()const noexcept {
 			return this;
 		}
@@ -70,7 +64,7 @@ namespace LL {
 		//指向下一节的指针
 		OLL* next = nullptr;
 		//数据
-		LargeInteger::Num<_Data, Radix> data;
+		Data data;
 		//复制构造函数
 		//默认为深拷贝
 		INLINED MY_LIBRARY OLL(
@@ -309,12 +303,6 @@ namespace LL {
 		)const noexcept {
 			return LL::SinglePrint<OLL>(*this, out);
 		}
-		//二进制输出到控制台窗口
-		/*INLINED*/std::ostream& MY_LIBRARY Print(
-			std::ostream& out = std::cout
-		) const noexcept {
-			return LL::_Print<OLL, Radix>(*this, out);
-		}
 	protected:
 		//获取that链节存储的数据
 		//若使用缺省参数，表示获取当前链节存储的数据
@@ -365,7 +353,7 @@ namespace LL {
 			return *this;
 		}
 
-		constexpr LargeInteger::Num<decltype(in::getRadix()), in::getRadix()>& MY_LIBRARY operator*()noexcept {
+		constexpr auto& MY_LIBRARY operator*()noexcept {
 			if (this->ptr != nullptr){
 				return this->ptr->data;
 			}

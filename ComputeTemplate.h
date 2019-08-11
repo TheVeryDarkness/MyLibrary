@@ -7,24 +7,24 @@ namespace LargeInteger{
 	{
 		Larger = 0x1, Equal = 0x0, Smaller = -0x1
 	};
+
+
+
+	//The _Traits must give these functions:
+	//	Iterator GetNext(Iterator);
+	//	Data& GetData(Iterator);
+	//	void Add(Data&, bool, Data, Data);
+	//	void Subtract(Data&, bool, Data, Data);
+	//	void assign(Linear*, size_t);
+	//	void InsertAfter(Iterator*, Data);//However, it doen't need to insert an element after it
+	//When an element doesn't a next element, GetNext(Iterator) should return NullIterator.
+	//
+	//The _Traits must give these definition:
+	//	NullIterator;
+	//NullIterator must have 0 data, and not have an next element.
 	template<typename _Traits>
 	class LongCmpt {
 	public:
-
-
-
-		//The _Traits must give these functions:
-		//	Iterator GetNext(Iterator);
-		//	Data& GetData(Iterator);
-		//	void Add(Data&, bool, Data, Data);
-		//	void Subtract(Data&, bool, Data, Data);
-		//	void assign(Linear*, size_t);
-		//	void InsertAfter(Iterator*, Data);//However, it doen't need to insert an element after it
-		//When an element doesn't a next element, GetNext(Iterator) should return NullIterator.
-		//
-		//The _Traits must give these definition:
-		//	NullIterator;
-		//NullIterator must have 0 data, and not have an next element.
 		template<class ComputeFunction, typename Iterator, typename Data>
 		class AppositionIterator
 		{
@@ -365,6 +365,17 @@ namespace LargeInteger{
 				return std::pair<Data, Data>(Res, Carry);
 			}
 		};
+
+		class Divide
+		{
+		public:
+			MY_LIBRARY Divide()noexcept{}
+			MY_LIBRARY ~Divide()noexcept{}
+
+		private:
+
+		};
+
 
 	private:
 

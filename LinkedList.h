@@ -92,80 +92,6 @@ namespace LL {
 		}
 		return;
 	}
-	template<typename Type, auto Radix = 0>
-	//二进制输出到控制台窗口
-	//不再自动换行
-	/*INLINED*/std::ostream & MY_LIBRARY _Print(
-		const Type & that,
-		std::ostream & out = std::cout
-	) noexcept {
-		if (that.next == nullptr)
-		{
-			out << "0";
-			return out;
-		}
-		if (!that.data)
-		{
-			out << "-";
-		}
-		if (Radix == static_cast<decltype(Radix)>(0))
-		{
-			out << "0x"
-				<< std::setbase(16);
-			SinglePrint<Type>(*(that.next), out, false, 2 * sizeof(Radix), 16);
-		}
-		else
-		{
-			bool temp = false;
-			unsigned int Length = 0;
-			Length = GetPowerTimes(Radix, 10);
-			decltype(Radix) OutBase = 0;
-			if (Length == 0)
-			{
-				Length = GetPowerTimes(Radix, 16);
-				if (Length == 0)
-				{
-					Length = GetPowerTimes(Radix, 8);
-					if (Length == 0)
-					{
-						Length = GetPowerTimes(Radix, 2);
-						if (Length == 0)
-						{
-							Length = 1;
-							OutBase = Radix;
-							out << "(Base:"
-								<< Radix
-								<< ")";
-							temp = true;
-						}
-						else
-						{
-							OutBase = 2;
-							out << "0b" << std::setbase(2);
-						}
-					}
-					else
-					{
-						OutBase = 8;
-						out << "0" << std::setbase(8);
-					}
-				}
-				else {
-					OutBase = 16;
-					out << "0x"
-						<< std::setbase(16);
-				}
-			}
-			else
-			{
-				OutBase = 10;
-			}
-			SinglePrint<Type>(*(that.next), out, temp, Length, OutBase);
-		}
-
-		out << std::setbase(10);
-		return out;
-	}
 	//回调接口
 	//Data为源链表链节中数据源的类型
 	//SubData为取出的数据的类型
@@ -232,37 +158,4 @@ namespace LL {
 			static_assert(Destroy);
 		}
 	}
-
-	template<class node, typename _Data, _Data Radix>
-	class LLComputeTraits :public LargeInteger::StdCmptTraits<LargeInteger::Num<_Data, Radix>>
-	{
-	public:
-		using Data=LargeInteger::Num<_Data, Radix>;
-		MY_LIBRARY LLComputeTraits() = delete;
-		MY_LIBRARY ~LLComputeTraits() = delete;
-		static INLINED Data NullData = Data(0);
-		constexpr static INLINED node* NullIterator = nullptr;
-
-		using Multiply=typename Data::Multiply;
-
-		static constexpr Data& MY_LIBRARY GetData(node* ptr) {
-			MY_ASSERT(NullData == Data(0), "Unexpected write has occured!");
-			return ((ptr == nullptr) ? (NullData = Data(0)) : (ptr->data));
-		}
-		static constexpr Data MY_LIBRARY GetData(const node* ptr) {
-			MY_ASSERT(NullData == Data(0), "Unexpected write has occured!");
-			return ((ptr == nullptr) ? (NullData = Data(0)) : (ptr->data));
-		}
-
-		static constexpr node* MY_LIBRARY GetNext(node* ptr) {
-			return ((ptr == nullptr) ? nullptr : (ptr->next));
-		}
-
-		static constexpr void MY_LIBRARY assign(node* ptr, unsigned sz = 1) {
-			*ptr <<= sz;
-		}
-		static constexpr void MY_LIBRARY InsertAfter(node*& ptr, Data data = Data(0)) {
-			ptr->insert(data);
-		}
-	};
 }
