@@ -87,6 +87,25 @@ namespace LargeInteger{
 			ComputeFunction c;
 		};
 
+
+		template<class ComputeFunction, typename Iterator, typename Data>
+		class LayerIterator
+		{
+		public:
+			template<typename Val>
+			LayerIterator(Val val) noexcept :c(), Result(c(val)) {}
+			~LayerIterator()noexcept {}
+			void MY_LIBRARY operator++() noexcept {
+				Result = c(Result);
+			}
+
+		private:
+			//Remained, Quotient
+			std::pair<Data, Data> Result;
+			ComputeFunction c;
+		};
+
+
 		template<typename Compute, typename Iterator, typename Data>
 		static constexpr INLINED void MY_LIBRARY AppositionComputeTo(Iterator a, Iterator b)noexcept {
 			Data Carry = Data(0);
