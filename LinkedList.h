@@ -157,10 +157,11 @@ namespace LL {
 		}
 	}
 
-
-	template<class node, typename _Data, _Data Radix>
+	/*
+	template<class _node, typename _Data, _Data Radix>
 	class LLComputeTraits :public LargeInteger::StdCmptTraits<LargeInteger::Num<_Data, Radix>>
 	{
+		using node=std::remove_const<_node>::type;
 	public:
 		using Data=LargeInteger::Num<_Data, Radix>;
 		MY_LIBRARY LLComputeTraits() = delete;
@@ -190,4 +191,5 @@ namespace LL {
 			ptr->insert(data);
 		}
 	};
+	*/
 }

@@ -6,6 +6,8 @@
 
 #include "LinkedList.h"
 
+#pragma warning(disable : 4996)
+
 #ifndef _SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING
 #define _SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING
 #endif // !_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING
@@ -55,15 +57,24 @@ namespace LL {
 		friend outNode MY_LIBRARY Transform(inNode& in)noexcept;
 		friend class Q;
 
+
+		friend struct std::iterator<std::output_iterator_tag, OLL>;
+		friend struct std::iterator<std::output_iterator_tag, const OLL>;
+
 		MEMORY_CACHE(20);
 	public:
 		template<bool ins = false>
-		constexpr INLINED std::iterator<std::forward_iterator_tag, OLL> begin()const noexcept {
-			return std::iterator<std::forward_iterator_tag, OLL>(this);
+		constexpr INLINED std:: iterator<std::output_iterator_tag, const OLL> begin()const noexcept {
+			return std::iterator<std::output_iterator_tag, const OLL>(this);
 		}
-		template<bool ins = false>
-		constexpr INLINED std::iterator<std::forward_iterator_tag,OLL> end()const noexcept {
-			return std::iterator<std::forward_iterator_tag, OLL>(nullptr);
+		constexpr INLINED std:: iterator<std::output_iterator_tag, OLL> begin() noexcept {
+			return std::iterator<std::output_iterator_tag, OLL>(this);
+		}
+		constexpr INLINED std::iterator<std::output_iterator_tag,OLL> end()const noexcept {
+			return std::iterator<std::output_iterator_tag, OLL>(nullptr);
+		}
+		constexpr INLINED std::iterator<std::output_iterator_tag,const OLL> end() noexcept {
+			return std::iterator<std::output_iterator_tag, const OLL>(nullptr);
 		}
 	protected:
 
@@ -334,7 +345,7 @@ namespace LL {
 }
 
 template<typename Data>
-class std::iterator<std::forward_iterator_tag, LL::OLL<Data>>
+class std::iterator<std::output_iterator_tag, LL::OLL<Data>>
 {
 	using in=LL::OLL<Data>;
 public:
@@ -350,12 +361,9 @@ public:
 	constexpr iterator& MY_LIBRARY operator++()noexcept {
 		if (this->ptr != nullptr)
 		{
-			if constexpr (insert)
+			if (this->ptr->next == nullptr)
 			{
-				if (this->ptr->next == nullptr)
-				{
-					this->ptr->insert();
-				}
+				this->ptr->insert();
 			}
 			this->ptr = ptr->next;
 		}
@@ -371,7 +379,7 @@ public:
 	}
 
 	constexpr iterator MY_LIBRARY operator+(size_t sz)const noexcept {
-		OLLIterator it(*this);
+		iterator it(*this);
 		it += sz;
 		return it;
 	}
@@ -381,8 +389,60 @@ public:
 			return this->ptr->data;
 		}
 		else {
-			assert((LLComputeTraits<in, decltype(getRadix()), getRadix()>::NullData == 0));
-			return (LLComputeTraits<in, decltype(getRadix()), getRadix()>::NullData = 0);
+			assert((NullData == 0));
+			return (NullData = 0);
+		}
+	}
+
+private:
+	in* ptr;
+	friend struct std::iterator<std::output_iterator_tag, const LL::OLL<Data>>;
+	static inline Data NullData = 0;
+};
+
+template<typename Data>
+class std::iterator<std::output_iterator_tag, const LL::OLL<Data>>
+{
+	using in=const LL::OLL<Data>;
+public:
+	static constexpr auto MY_LIBRARY getRadix()noexcept { return decltype(ptr->data)::getRadix(); }
+	static constexpr in* MY_LIBRARY NEXT(in& i)noexcept { if (i.next == nullptr)i.insert(); return i.next; }
+	constexpr MY_LIBRARY iterator(const in* _ptr)noexcept :ptr(_ptr) {}
+
+	constexpr bool MY_LIBRARY operator==(const in* _ptr)const noexcept { return this->ptr == _ptr; }
+	constexpr bool MY_LIBRARY operator==(const iterator _ptr)const noexcept { return this->ptr == _ptr.ptr; }
+
+	MY_LIBRARY ~iterator()noexcept = default;
+
+	constexpr iterator& MY_LIBRARY operator++()noexcept {
+		if (this->ptr != nullptr)
+		{
+			this->ptr = ptr->next;
+		}
+		return *this;
+	}
+
+	constexpr iterator& MY_LIBRARY operator+=(size_t sz)noexcept {
+		for (size_t i = 0; i < sz && this->ptr != nullptr; i++)
+		{
+			++(*this);
+		}
+		return *this;
+	}
+
+	constexpr iterator MY_LIBRARY operator+(size_t sz)const noexcept {
+		iterator it(*this);
+		it += sz;
+		return it;
+	}
+
+	constexpr auto& MY_LIBRARY operator*()noexcept {
+		if (this->ptr != nullptr) {
+			return this->ptr->data;
+		}
+		else {
+			assert((std::iterator<std::output_iterator_tag, LL::OLL<Data>>::NullData == 0));
+			return static_cast<const Data&>(std::iterator<std::output_iterator_tag, LL::OLL<Data>>::NullData = 0);
 		}
 	}
 

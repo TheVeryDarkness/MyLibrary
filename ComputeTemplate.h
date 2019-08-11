@@ -142,7 +142,7 @@ namespace LargeInteger{
 
 		template<typename Iterator1, typename Iterator2>
 		static constexpr INLINED void MY_LIBRARY AddTo(Iterator1 a, Iterator2 b)noexcept {
-			static_assert(std::is_same<std::remove_cvref<*a>::type, std::remove_cvref<*b>::type>);
+			static_assert(std::is_same<std::remove_cvref<decltype(*a)>::type, std::remove_cvref<decltype(*b)>::type>);
 			return AppositionComputeTo<typename _Traits::Add, Iterator1, Iterator2, decltype(*a)>(a, b);
 		}
 		
