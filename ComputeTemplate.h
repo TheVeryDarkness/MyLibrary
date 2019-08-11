@@ -42,6 +42,9 @@ namespace LargeInteger{
 
 				Result = c(Result.second, _Traits::GetData(a), _Traits::GetData(b));
 			}
+			const Data& operator*()const noexcept {
+				return Result.first;
+			}
 			//return true if the iterator is still working
 			MY_LIBRARY operator bool()const noexcept {
 				return !(
@@ -77,6 +80,9 @@ namespace LargeInteger{
 
 				Result = c(Result.second, a, _Traits::GetData(b));
 			}
+			const Data& operator*()const noexcept {
+				return Result.first;
+			}
 			//return true if the iterator is still working
 			MY_LIBRARY operator bool()const noexcept {
 				return !(b == _Traits::NullIterator && Result.first == Data(0) && Result.second == Data(0));
@@ -96,6 +102,9 @@ namespace LargeInteger{
 			template<typename Val>
 			LayerIterator(Val val) noexcept :c(), Result(c(val)) {}
 			~LayerIterator()noexcept {}
+			const Data& operator*()const noexcept {
+				return Result.first;
+			}
 			void MY_LIBRARY operator++() noexcept {
 				Result = c(Result);
 			}
@@ -142,7 +151,7 @@ namespace LargeInteger{
 
 		template<typename Iterator1, typename Iterator2>
 		static constexpr INLINED void MY_LIBRARY AddTo(Iterator1 a, Iterator2 b)noexcept {
-			static_assert(std::is_same<std::remove_cvref<decltype(*a)>::type, std::remove_cvref<decltype(*b)>::type>);
+			static_assert(std::is_same<typename std::remove_cvref<decltype(*a)>::type, typename std::remove_cvref<decltype(*b)>::type>::value);
 			return AppositionComputeTo<typename _Traits::Add, Iterator1, Iterator2, decltype(*a)>(a, b);
 		}
 		
@@ -158,12 +167,12 @@ namespace LargeInteger{
 			while (true)
 			{
 				//This element
-				*mul.b = mul.Result.first;
+				*(mul.b) = mul.Result.first;
 				if (mul.b + 1 == nullptr)
 				{
 					if (mul.Result.second != Data(0))
 					{
-						mul.b.insert(mul.b, mul.Result.second)
+						mul.b.insert(mul.b, mul.Result.second);
 					}
 					break;
 				}
