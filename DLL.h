@@ -3,10 +3,9 @@
 #include "LinkedList.h"
 namespace LL {
 
-	template<typename _Data, _Data Radix>
+	template<typename Data>
 	class DLL
 	{
-		using Data=LargeInteger::Num<_Data, Radix>;
 
 		/*
 		template<class node, typename _Data, _Data Radix>
@@ -54,50 +53,6 @@ namespace LL {
 		constexpr INLINED DLL* end()const noexcept {
 			return nullptr;
 		}
-
-
-
-		//重载
-		INLINED void MY_LIBRARY operator*=(Data times) noexcept {
-			if (times == Data(0))
-			{
-				this->destruct();
-				return;
-			}
-			else if (times == Data(1))
-			{
-				return;
-			}
-			LargeInteger::LongCmpt<LargeInteger::StdCmptTraits<_Data>>::MultiplyTo<DLL*, Data>(times, this->next);
-		}
-		//重载
-		INLINED DLL MY_LIBRARY operator*(Data times)const noexcept {
-			DLL Res(*this, true);
-			Res *= times;
-			return Res;
-		}
-		//重载
-		void MY_LIBRARY operator*=(const DLL& b) noexcept {
-			if (b.next == nullptr) { return; }
-			this->data = ((b.data > 0) ? (this->data) : (!this->data));
-			DLL This(*this, true);
-			this->destruct();
-			this->insert();
-			for (DLL* OprtPtr = b.next; OprtPtr != nullptr; OprtPtr = OprtPtr->next)
-			{
-				DLL temp(This * OprtPtr->data);
-				LargeInteger::LongCmpt<LargeInteger::StdCmptTraits<_Data>>::AddTo(temp.next, this->next);
-				temp.destruct();
-				This <<= 1;
-			}
-			This.destruct();
-		}
-		//重载
-		INLINED DLL MY_LIBRARY operator*(const DLL& b)const noexcept {
-			DLL Res(*this, true);
-			Res *= b;
-			return Res;
-		}
 		//重载正
 		INLINED bool MY_LIBRARY IsPositive()const noexcept {
 			return (this->data > 0);
@@ -106,89 +61,7 @@ namespace LL {
 		INLINED void MY_LIBRARY SetToContradict()noexcept {
 			this->data = Data((this->data == 0) ? 1 : 0);
 		}
-		//重载DLL链表加号
-		INLINED DLL MY_LIBRARY operator+(
-			const DLL& b//操作数
-			)  const noexcept {
-			DLL Result(*this, true);//存储结果
-			Result += b;
-			return Result;
-		}
-		//重载DLL链表+=
-		INLINED void MY_LIBRARY operator+=(const DLL& that)noexcept {
-			if (that.next == nullptr)
-			{
-				return;
-			}
-			if (this->next == nullptr)
-			{
-				*this = DLL(that, true);
-				return;
-			}
-			if ((this->data > 0 && that.data > 0) || (this->data == 0 && that.data == 0))
-			{
-				LargeInteger::LongCmpt<LargeInteger::StdCmptTraits<_Data>>::AddTo(that.next, this->next);
-			}
-			else {
-				LargeInteger::Compare Cmpr = LargeInteger::LongCmpt<LargeInteger::StdCmptTraits<_Data>>::CompareTo<DLL*, Data>(this->next, that.next);
-				if (Cmpr == LargeInteger::Compare::Equal)
-				{
-					this->destruct();
-				}
-				if (Cmpr == LargeInteger::Compare::Larger)
-				{
-					LargeInteger::LongCmpt<LargeInteger::StdCmptTraits<_Data>>::SubtractFrom(that.next, this->next);
-				}
-				else
-				{
-					DLL temp(that, true);
-					LargeInteger::LongCmpt<LargeInteger::StdCmptTraits<_Data>>::SubtractFrom(this->next, temp.next);
-					*this = temp;
-				}
-				this->Simplify();
-			}
-		}
-		//重载DLL链表减号
-		INLINED DLL MY_LIBRARY operator-(
-			const DLL& b//操作数
-			)const noexcept {
-			return (*this + (-b));
-		}
-		//重载
-		INLINED void MY_LIBRARY operator-=(const DLL& b)noexcept {
-			DLL _b = -b;
-			*this += _b;
-			_b.destruct();
-		}
-		//重载
-		INLINED void MY_LIBRARY operator-=(DLL& b)noexcept {
-			Data Orig = b.data;
-			b.data = Data(!b.data);
-			*this += b;
-			b.data = Orig;
-		}
-		//重载DLL链表负号
-		INLINED DLL MY_LIBRARY operator-(
-			)const noexcept {
-			DLL res(*this, true);
-			res.data = Data(!res.data);
-			return res;
-		}
-		void MY_LIBRARY operator++() {
-			DLL temp(true, 1);
-			*this += temp;
-			temp.destruct();
-		}
-		INLINED MY_LIBRARY ~DLL() {
-			this->next = nullptr;
-			this->last = nullptr;
-		}
-#ifdef _DEBUG
-	public:
-#else
-	protected:
-#endif // _DEBUG
-		LargeInteger::Num<_Data, Radix> data;
+		_Data data;
 		DLL* next = nullptr;
 		DLL* last = nullptr;
 		//深拷贝与浅拷贝由参数DeepCopy指定
@@ -506,75 +379,6 @@ namespace LL {
 		//Head included
 		INLINED size_t MY_LIBRARY RawLength()const noexcept {
 			LL_LENGTH(DLL);
-		}
-		explicit INLINED MY_LIBRARY DLL(
-			bool positive,
-			unsigned long value
-		) noexcept :
-			data(static_cast<Data>(positive)) {
-			static_assert(Radix != 1, "Not supported constructor for the radix.");
-			{
-				this->destruct();
-				DLL* OprtPtr = this;//操作当前对象
-				while (true)
-				{
-					if (value == 0)
-					{
-						break;
-					}
-					if (OprtPtr->next == nullptr)
-					{
-						if constexpr (Radix == 0)
-						{
-							OprtPtr->insert((Data)value);
-							value >>= (LargeInteger::BitsPerByte * sizeof(Data));
-						}
-						else
-						{
-							OprtPtr->insert(
-								(Data)(value % Radix)
-							);
-							value /= Radix;
-						}
-						OprtPtr = OprtPtr->next;
-					}
-				}
-			}
-		}
-		//浅拷贝
-		//覆盖赋值
-		INLINED DLL& MY_LIBRARY operator=(
-			long value
-			) noexcept {
-			this->destruct();
-			*this = DLL(((value >= 0) ? 1 : 0), std::abs(value));
-			return *this;
-		}
-		//位移运算
-		//保留符号位
-		//按独立进制而非二进制
-		//左移时用默认值补齐
-		INLINED DLL& operator<<=(
-			size_t bits
-			) noexcept {
-			for (size_t i = 0; i < bits; i++)
-			{
-				this->insert();
-			}
-			return *this;
-		}
-		//位移运算
-		//保留符号位
-		//按独立进制而非二进制
-		//右移时第一位销毁
-		INLINED DLL& operator>>=(
-			size_t bits
-			) noexcept {
-			for (size_t i = 0; i < bits; i++)
-			{
-				this->cut();
-			}
-			return *this;
 		}
 		//重载
 		INLINED void MY_LIBRARY operator/=(

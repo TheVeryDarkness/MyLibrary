@@ -9,7 +9,7 @@
 
 namespace LL {
 
-	typedef DLL<unsigned short, Z_MAX> Z;
+	typedef LargeInteger::LargeSigned<DLL<unsigned int>,1000000000U> Z;
 
 	//ÓĞÀíÊı
 	//Rational Number

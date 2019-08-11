@@ -7,6 +7,44 @@
 
 namespace LargeInteger {
 
+	template<typename Type, typename BaseType>
+	//简单输出到控制台窗口
+	//需要用户补换行
+	INLINED void MY_LIBRARY SinglePrint(
+		const Type& that,
+		std::ostream& out = std::cout,
+		bool ShowComma = true,
+		unsigned MinLength = 0,
+		BaseType base = 10
+	) noexcept {
+		if (that.next != nullptr)
+		{
+			SinglePrint(*that.next, out, ShowComma, MinLength, base);
+			out << ((ShowComma) ? "," : "");
+			char* c = DBG_NEW char[MinLength + 1ULL]();
+			assert(base < BaseType(INT_MAX));
+			std::to_chars_result rs = std::to_chars(c, &(c[MinLength]), that.data(), base);
+
+			std::string str = c;
+			delete[] c;
+			if (str.length() < MinLength)
+			{
+				std::string nStr;
+				for (size_t i = MinLength - str.length(); i > 0; i--)
+				{
+					nStr.push_back('0');
+				}
+				nStr += str;
+				out << nStr;
+			}
+			else out << str;
+		}
+		else
+		{
+			out << that.data;
+		}
+		return;
+	}
 
 	template<typename LL, auto radix>
 	class LargeUnsigned:public LL
@@ -65,7 +103,7 @@ namespace LargeInteger {
 			{
 				out << "0x"
 					<< std::setbase(16);
-				SinglePrint<Type>(*(that.next), out, false, 2 * sizeof(Radix), 16);
+				LargeInteger::SinglePrint(*(that.next), out, false, 2 * sizeof(Radix), 16);
 			}
 			else
 			{
@@ -113,7 +151,7 @@ namespace LargeInteger {
 				{
 					OutBase = 10;
 				}
-				SinglePrint<Type>(*(that.next), out, temp, Length, OutBase);
+				LargeInteger::SinglePrint(*(that.next), out, temp, Length, OutBase);
 			}
 
 			out << std::setbase(10);
