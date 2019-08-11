@@ -146,9 +146,9 @@ namespace LargeInteger{
 			return AppositionComputeTo<typename _Traits::Add, Iterator1, Iterator2, decltype(*a)>(a, b);
 		}
 		
-		template<typename Iterator>
-		static constexpr INLINED void MY_LIBRARY SubtractFrom(Iterator a, Iterator b)noexcept {
-			return AppositionComputeTo<typename _Traits::SubtractFrom, Iterator, decltype(*a)>(a, b);
+		template<typename Iterator1, typename Iterator2>
+		static constexpr INLINED void MY_LIBRARY SubtractFrom(Iterator1 a, Iterator2 b)noexcept {
+			return AppositionComputeTo<typename _Traits::SubtractFrom, Iterator1, Iterator2, decltype(*a)>(a, b);
 		}
 
 		template<typename Iterator, typename Data>
@@ -158,7 +158,7 @@ namespace LargeInteger{
 			while (true)
 			{
 				//This element
-				_Traits::GetData(mul.b) = mul.Result.first;
+				*mul.b = mul.Result.first;
 				if (_Traits::GetNext(mul.b) == _Traits::NullIterator)
 				{
 					if (mul.Result.second != Data(0))
@@ -184,17 +184,17 @@ namespace LargeInteger{
 				Iterator _a = a, _b = b;
 				for (;
 					;
-					_a = _Traits::GetNext(_a), _b = _Traits::GetNext(_b)
+					++_a, ++_b
 					) {
-					if (_Traits::GetData(_a) > _Traits::GetData(_b))
+					if (*_a > *_b)
 					{
 						temp = Compare::Larger;
 					}
-					else if (_Traits::GetData(_a) < _Traits::GetData(_b))
+					else if (*_a < *_b)
 					{
 						temp = Compare::Smaller;
 					}
-					if ((_Traits::GetNext(_a) == _Traits::NullIterator) && (_Traits::GetNext(_b) == _Traits::NullIterator))
+					if (_a + 1 == _Traits::NullIterator) && _b + 1 == _Traits::NullIterator))
 					{
 						break;
 					}
@@ -214,11 +214,11 @@ namespace LargeInteger{
 					;
 					_a = _Traits::GetNext(_a), _b = _Traits::GetNext(_b)
 					) {
-					if (_Traits::GetData(_a) > _Traits::GetData(_b))
+					if (*_a > *_b)
 					{
 						temp = Compare::Larger;
 					}
-					else if (_Traits::GetData(_a) < _Traits::GetData(_b))
+					else if (*_a < *_b)
 					{
 						temp = Compare::Smaller;
 					}
