@@ -146,14 +146,42 @@ namespace LargeInteger {
 			}
 			return ret;
 		}
+		constexpr size_t MY_LIBRARY GetBits()const noexcept {
+			Bytes temp(*this);
+			size_t i = 0;
+			for (; i < Length * BitsPerByte && temp != 0; ++i)
+			{
+				temp >>= 1;
+			}
+			return i;
+		}
+		//return the quotient
+		constexpr Bytes MY_LIBRARY Divide(const Bytes& that)noexcept {
+			if (*this < that) {
+				return Bytes(0);
+			}
+			else if (*this == that) {
+				memset(this, 0, Length);
+				return Bytes(1);
+			}
+			else {
+				Bytes Quo(0),temp(that);
+				size_t diff = this->GetBits() - that.GetBits();
+				temp <<= diff;
+				for (size_t i = 0; i < diff; i++)
+				{
+					if (*this > temp) {
+						*this -= temp;
+						Quo &= Bytes(1);
+					}
+					temp >>= 1;
+					Quo <<= 1;
+				}
+				return Quo;
+			}
+		}
 		constexpr Bytes& MY_LIBRARY operator/=(const Bytes& that) noexcept {
-			Bytes Res;
-			LongCmpt::DivideInto<Bytes, BytesIterator<Length>, value_type, BytesTraits<Length>>(
-				Res,
-				BytesIterator<Length>(&that, 0),
-				BytesIterator<Length>(this, 0)
-				);
-			*this = Res;
+			*this = Divide(that);
 			return *this;
 		}
 		constexpr Bytes MY_LIBRARY operator/(const Bytes& that)const noexcept {
@@ -161,7 +189,7 @@ namespace LargeInteger {
 			return (Ret /= that);
 		}
 		constexpr Bytes& MY_LIBRARY operator%=(const Bytes& that) noexcept {
-
+			Divide(that);
 			return *this;
 		}
 		constexpr Bytes MY_LIBRARY operator%(const Bytes& that)const noexcept {
