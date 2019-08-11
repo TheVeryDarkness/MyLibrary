@@ -15,11 +15,6 @@ namespace LargeInteger {
 	template<typename Data>
 	constexpr size_t GetMinLength(Data data)noexcept;
 
-	template<size_t Length>
-	struct BytesIterator;
-	template<size_t Length>
-	class BytesTraits;
-
 	using value_type=unsigned char;
 	//***************************************************
 	//***************************************************
@@ -34,10 +29,7 @@ namespace LargeInteger {
 	class Bytes
 	{
 	private:
-		friend class BytesTraits<Length>;
-		unsigned __int32 Byte2[Length / sizeof(unsigned __int32)];
-		//unsigned __int16 Byte1[(Length % sizeof(unsigned __int32)) / sizeof(unsigned __int16)];
-		value_type Byte[Length % sizeof(unsigned __int32)];
+		value_type Byte[Length];
 	public:
 		constexpr explicit MY_LIBRARY Bytes()noexcept {}
 		template<size_t OriginLength> constexpr explicit MY_LIBRARY Bytes(const Bytes<OriginLength>&)noexcept;
@@ -169,10 +161,7 @@ namespace LargeInteger {
 			return (Ret /= that);
 		}
 		constexpr Bytes& MY_LIBRARY operator%=(const Bytes& that) noexcept {
-			LargeInteger::LongCmpt<BytesTraits<Length>>::DivideInto<BytesIterator<Length>, value_type>(
-				BytesIterator<Length>(&that, 0),
-				BytesIterator<Length>(this, 0)
-				);
+
 			return *this;
 		}
 		constexpr Bytes MY_LIBRARY operator%(const Bytes& that)const noexcept {
@@ -423,7 +412,7 @@ namespace LargeInteger {
 		} while ((data >>= 8) != 0);
 		return res;
 	}
-
+	/*
 	template<size_t Length>
 	struct BytesIterator
 	{
@@ -432,8 +421,9 @@ namespace LargeInteger {
 		constexpr MY_LIBRARY BytesIterator(const Bytes<Length>* Head, const size_t index = 0)noexcept :Head(Head), Index(index) {}
 		constexpr bool MY_LIBRARY operator==(const BytesIterator& that)const noexcept { return ((this->Head == that.Head) && (this->Index == that.Index)); }
 		constexpr bool MY_LIBRARY operator!=(const BytesIterator& that)const noexcept { return !(*this == that); }
-	};
+	};*/
 
+	/*
 	template<size_t Length>
 	class BytesTraits :public StdCmptTraits<value_type>
 	{
@@ -465,7 +455,7 @@ namespace LargeInteger {
 		static constexpr void MY_LIBRARY InsertAfter(const BytesIterator<Length>& ptr, value_type data = 0) noexcept {}
 	private:
 
-	};
+	};*/
 
 };
 template<size_t _Length>class std::numeric_limits<LargeInteger::Bytes<_Length>> {

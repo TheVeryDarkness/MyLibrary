@@ -401,7 +401,7 @@ private:
 };
 
 template<typename Data>
-class std::iterator<std::output_iterator_tag, const LL::OLL<Data>>
+struct std::iterator<std::output_iterator_tag, const LL::OLL<Data>>
 {
 	using in=const LL::OLL<Data>;
 public:
