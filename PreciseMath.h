@@ -27,8 +27,12 @@ namespace LL {
 		MY_LIBRARY Q(const Q& that) noexcept :
 			Denominator(that.Denominator),
 			Numerator(that.Numerator) {}
-		Q MY_LIBRARY Copy(const Q& that)noexcept{
-
+		MY_LIBRARY Q(const Z&& Denominator, const Z& Numerator) noexcept :
+			Denominator(Denominator),
+			Numerator(Numerator) {}
+		static Q MY_LIBRARY Copy(const Q& that)noexcept {
+			Q temp = Q(Z::Copy(that.Denominator), Z::Copy(that.Denominator));
+		}
 		MY_LIBRARY ~Q();
 		INLINED void MY_LIBRARY destruct() {
 			this->Denominator.destruct();

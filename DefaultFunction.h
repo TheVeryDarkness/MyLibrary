@@ -26,7 +26,7 @@ namespace LL {
 	{
 	public:
 		explicit MY_LIBRARY power(const Q& Coefficient, const Q& Index)noexcept
-			:c(Coefficient, true), i(Index, true) {
+			:c(Q::Copy(Coefficient)), i(Q::Copy(Index)) {
 			this->simplify();
 		}
 		explicit MY_LIBRARY power(
