@@ -427,13 +427,13 @@ namespace LargeInteger {
 			}
 			if (this->data > 0 && that.data > 0)
 			{
-				if (LargeInteger::LongCmpt::CompareTo<LinkedList*, Data, LLComputeTraits<LinkedList, radix_t, Radix>>(this->next, that.next) == LongCmpt::Larger)
+				if (LargeInteger::LongCmpt<StdCmptTraits<Data>>::CompareTo(this->next, that.next) == Compare::Larger)
 					return true;
 				else return false;
 			}
 			else
 			{
-				if (LargeInteger::LongCmpt::CompareTo<LinkedList*, Data, LLComputeTraits<LinkedList, radix_t, Radix>>(that.next, this->next) == LongCmpt::Larger)
+				if (LargeInteger::LongCmpt<StdCmptTraits<Data>>::CompareTo(that.next, this->next) == Compare::Larger)
 					return true;
 				else return false;
 			}
@@ -571,7 +571,7 @@ namespace LargeInteger {
 		friend class Q;
 	public:
 		template<typename val> explicit MY_LIBRARY LargeSigned(val Val)noexcept
-			:PosSign(Val > 0), LargeUnsigned<LL, radix>(ABS(val)) {}
+			:PosSign(Val > 0), LargeUnsigned<LL, radix>(ABS(Val)) {}
 		template<typename val> explicit MY_LIBRARY LargeSigned(bool Pos, val Val)noexcept
 			:PosSign(Pos), LargeUnsigned<LL, radix>(Val) {
 			assert(Val >= 0);
