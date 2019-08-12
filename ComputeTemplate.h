@@ -76,9 +76,9 @@ namespace LargeInteger{
 			//Notice:
 			//	this function move the iterator b to its next place
 			void MY_LIBRARY operator++() noexcept {
-				b = _Traits::GetNext(b);
+				++b;
 
-				Result = c(Result.second, a, _Traits::GetData(b));
+				Result = c(Result.second, a, *b);
 			}
 			const Data& operator*()const noexcept {
 				return Result.first;
