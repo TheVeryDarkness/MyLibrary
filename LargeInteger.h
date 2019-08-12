@@ -19,7 +19,7 @@ namespace LargeInteger {
 	) noexcept {
 		if (that.next != nullptr)
 		{
-			SinglePrint(*that.next, out, ShowComma, MinLength, base);
+			SinglePrint(that, out, ShowComma, MinLength, base);
 			out << ((ShowComma) ? "," : "");
 			char* c = DBG_NEW char[MinLength + 1ULL]();
 			assert(base < BaseType(INT_MAX));
@@ -55,10 +55,11 @@ namespace LargeInteger {
 	public:
 		template<typename val>
 		explicit MY_LIBRARY LargeUnsigned(val Val)noexcept {
-			LargeInteger::LongCmpt<StdCmptTraits<Data>>::LayerIterator<StdCmptTraits<Data>::Devide> it;
+			static_assert(!std::is_same<val, bool>::value, "Never use bool type");
+			LargeInteger::LongCmpt<StdCmptTraits<Data>>::LayerIterator<StdCmptTraits<Data>::Divide, Data> it(Val);
 			for (auto& i = this->begin();; ++i)
 			{
-				i = Val % radix;
+				*i = Val % radix;
 				if ((Val /= radix) == static_cast<val>(0)) {
 					break;
 				}
@@ -150,7 +151,7 @@ namespace LargeInteger {
 				{
 					OutBase = 10;
 				}
-				LargeInteger::SinglePrint(*(that.next), out, temp, Length, OutBase);
+				LargeInteger::SinglePrint(that, out, temp, Length, OutBase);
 			}
 
 			out << std::setbase(10);
@@ -171,7 +172,7 @@ namespace LargeInteger {
 			{
 				return;
 			}
-			LargeInteger::LongCmpt<typename LargeInteger::StdCmptTraits<typename radix_t>>::MultiplyTo(times, this->next);
+			LargeInteger::LongCmpt<typename LargeInteger::StdCmptTraits<typename radix_t>>::MultiplyTo(times, this->begin());
 		}
 		//重载
 		/*INLINED*/LargeUnsigned MY_LIBRARY operator*(Data times)const noexcept {
@@ -220,22 +221,22 @@ namespace LargeInteger {
 			}
 			if ((this->data > 0 && that.data > 0) || (this->data == 0 && that.data == 0))
 			{
-				LargeInteger::LongCmpt<StdCmptTraits<Data>>::AddTo(that.next, this->next);
+				LargeInteger::LongCmpt<StdCmptTraits<Data>>::AddTo(that.begin(), this->begin());
 			}
 			else {
-				LargeInteger::Compare Cmpr = LargeInteger::LongCmpt<StdCmptTraits<Data>>::CompareTo(this->next, that.next);
+				LargeInteger::Compare Cmpr = LargeInteger::LongCmpt<StdCmptTraits<Data>>::CompareTo(this->begin(), that.begin());
 				if (Cmpr == LargeInteger::Compare::Equal)
 				{
 					this->destruct();
 				}
 				if (Cmpr == LargeInteger::Compare::Larger)
 				{
-					LargeInteger::LongCmpt<StdCmptTraits<Data>>::SubtractFrom(that.next, this->next);
+					LargeInteger::LongCmpt<StdCmptTraits<Data>>::SubtractFrom(that.begin(), this->begin());
 				}
 				else
 				{
 					LargeUnsigned temp =Copy(that);
-					LargeInteger::LongCmpt<StdCmptTraits<Data>>::SubtractFrom(this->next, temp.next);
+					LargeInteger::LongCmpt<StdCmptTraits<Data>>::SubtractFrom(this->begin(), temp.begin());
 					*this = temp;
 				}
 			}
@@ -272,12 +273,12 @@ namespace LargeInteger {
 			}
 			if (this->data == 0)
 			{
-				LargeInteger::LongCmpt::AppositionComputeTo<typename StdCmptTraits<Data>::SubtractFrom, LinkedList*, Data, LLComputeTraits<LinkedList, radix_t, Radix>>(&temp, this->next);
+				LargeInteger::LongCmpt::AppositionComputeTo<typename StdCmptTraits<Data>::SubtractFrom, LinkedList*, Data, LLComputeTraits<LinkedList, radix_t, Radix>>(&temp, this->begin());
 			}
 			else
 			{
 
-				LargeInteger::LongCmpt::AppositionComputeTo<typename StdCmptTraits<Data>::Add, LinkedList*, Data, LLComputeTraits<LinkedList, radix_t, Radix>>(&temp, this->next);
+				LargeInteger::LongCmpt::AppositionComputeTo<typename StdCmptTraits<Data>::Add, LinkedList*, Data, LLComputeTraits<LinkedList, radix_t, Radix>>(&temp, this->begin());
 			}
 		}
 		INLINED void MY_LIBRARY operator-=(const Data& that)noexcept {
@@ -290,12 +291,12 @@ namespace LargeInteger {
 			}
 			if (this->data > 0)
 			{
-				LargeInteger::LongCmpt::AppositionComputeTo<typename LargeInteger::StdCmptTraits<Data>::SubtractFrom, LinkedList*, Data, LLComputeTraits<LinkedList, radix_t, Radix>>(&temp, this->next);
+				LargeInteger::LongCmpt::AppositionComputeTo<typename LargeInteger::StdCmptTraits<Data>::SubtractFrom, LinkedList*, Data, LLComputeTraits<LinkedList, radix_t, Radix>>(&temp, this->begin());
 			}
 			else
 			{
 
-				LargeInteger::LongCmpt::AppositionComputeTo<typename LargeInteger::StdCmptTraits<Data>::Add, LinkedList*, Data, LLComputeTraits<LinkedList, radix_t, Radix>>(&temp, this->next);
+				LargeInteger::LongCmpt::AppositionComputeTo<typename LargeInteger::StdCmptTraits<Data>::Add, LinkedList*, Data, LLComputeTraits<LinkedList, radix_t, Radix>>(&temp, this->begin());
 			}
 		}
 		INLINED void MY_LIBRARY operator+(const Data& that)const noexcept {
@@ -313,7 +314,7 @@ namespace LargeInteger {
 		/*INLINED*/void MY_LIBRARY SetValue(
 			long num, const Data* data
 		) noexcept {
-			LinkedList* OprtPtr = this;//操作当前对象
+			auto& OprtPtr = this->begin();//操作当前对象
 			OprtPtr->data = data;
 			long count = 1;
 			while (true)
@@ -330,7 +331,7 @@ namespace LargeInteger {
 				{
 					break;
 				}
-				OprtPtr = OprtPtr->next;
+				++OprtPtr
 				OprtPtr->data = &data[count - 1];
 				count++;
 			}
@@ -401,13 +402,13 @@ namespace LargeInteger {
 			}
 			if (this->data > 0 && that.data > 0)
 			{
-				if (LargeInteger::LongCmpt<StdCmptTraits<Data>>::CompareTo(this->next, that.next) == LargeInteger::Compare::Smaller)
+				if (LargeInteger::LongCmpt<StdCmptTraits<Data>>::CompareTo(this->begin(), that.begin()) == LargeInteger::Compare::Smaller)
 					return true;
 				else return false;
 			}
 			else
 			{
-				if (LargeInteger::LongCmpt<StdCmptTraits<Data>>::CompareTo(that.next, this->next) == LargeInteger::Compare::Smaller)
+				if (LargeInteger::LongCmpt<StdCmptTraits<Data>>::CompareTo(that.begin(), this->begin()) == LargeInteger::Compare::Smaller)
 					return true;
 				else return false;
 			}
@@ -423,13 +424,13 @@ namespace LargeInteger {
 			}
 			if (this->data > 0 && that.data > 0)
 			{
-				if (LargeInteger::LongCmpt<StdCmptTraits<Data>>::CompareTo(this->next, that.next) == Compare::Larger)
+				if (LargeInteger::LongCmpt<StdCmptTraits<Data>>::CompareTo(this->begin(), that.begin()) == Compare::Larger)
 					return true;
 				else return false;
 			}
 			else
 			{
-				if (LargeInteger::LongCmpt<StdCmptTraits<Data>>::CompareTo(that.next, this->next) == Compare::Larger)
+				if (LargeInteger::LongCmpt<StdCmptTraits<Data>>::CompareTo(that.begin(), this->begin()) == Compare::Larger)
 					return true;
 				else return false;
 			}
@@ -459,7 +460,7 @@ namespace LargeInteger {
 		void MY_LIBRARY operator%=(const LargeUnsigned& that)noexcept {
 			if (this->next != nullptr && that.next != nullptr)
 			{
-				LargeInteger::LongCmpt<StdCmptTraits<Data>>::DivideInto(that.next, this->next);
+				LargeInteger::LongCmpt<StdCmptTraits<Data>>::DivideInto(that.begin(), this->begin());
 			}
 			else return;
 			this->Simplify();
@@ -467,8 +468,8 @@ namespace LargeInteger {
 		void MY_LIBRARY operator/=(const LargeUnsigned& that)noexcept {
 			if (this->next != nullptr && that.next != nullptr)
 			{
-				LargeUnsigned Res(true);
-				LargeInteger::LongCmpt<StdCmptTraits<Data>>::DivideInto(Res, that.next, this->next);
+				LargeUnsigned Res(Data(0));
+				LargeInteger::LongCmpt<StdCmptTraits<Data>>::DivideInto(Res, that.begin(), this->begin());
 				this->destruct();
 				this->next = Res.next;
 			}

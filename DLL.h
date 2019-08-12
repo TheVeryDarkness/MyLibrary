@@ -374,6 +374,7 @@ namespace LL {
 		INLINED size_t MY_LIBRARY RawLength()const noexcept {
 			LL_LENGTH(DLL);
 		}
+		/*
 		//жиди
 		INLINED void MY_LIBRARY operator/=(
 			unsigned long that
@@ -605,7 +606,7 @@ namespace LL {
 					}
 				}
 			}
-		}
+		}*/
 		INLINED friend std::ostream& MY_LIBRARY operator<<(
 			std::ostream& out, const DLL& that
 			) noexcept {
@@ -680,6 +681,20 @@ public:
 			return (NullData = 0);
 		}
 	}
+	constexpr auto MY_LIBRARY operator*()const noexcept {
+		if (this->ptr != nullptr) {
+			return this->ptr->data;
+		}
+		else {
+			assert((NullData == 0));
+			return static_cast<Data>(NullData = 0);
+		}
+	}
+
+
+	constexpr void insert(iterator& it, Data d) {
+		it.ptr->insert(d);
+	}
 
 private:
 	in* ptr;
@@ -727,6 +742,15 @@ public:
 	}
 
 	constexpr auto& MY_LIBRARY operator*()noexcept {
+		if (this->ptr != nullptr) {
+			return this->ptr->data;
+		}
+		else {
+			assert((std::iterator<std::bidirectional_iterator_tag, LL::DLL<Data>>::NullData == 0));
+			return static_cast<const Data&>(std::iterator<std::bidirectional_iterator_tag, LL::DLL<Data>>::NullData = 0);
+		}
+	}
+	constexpr auto MY_LIBRARY operator*()const noexcept {
 		if (this->ptr != nullptr) {
 			return this->ptr->data;
 		}

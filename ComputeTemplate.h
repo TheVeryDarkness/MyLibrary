@@ -85,7 +85,7 @@ namespace LargeInteger{
 			}
 			//return true if the iterator is still working
 			MY_LIBRARY operator bool()const noexcept {
-				return !(b == _Traits::NullIterator && Result.first == Data(0) && Result.second == Data(0));
+				return !(b == nullptr && Result.first == Data(0) && Result.second == Data(0));
 			}
 			//result;overflow
 			std::pair<Data, Data> Result;
@@ -95,7 +95,7 @@ namespace LargeInteger{
 		};
 
 
-		template<class ComputeFunction, typename Iterator, typename Data>
+		template<class ComputeFunction, typename Data>
 		class LayerIterator
 		{
 		public:
@@ -260,10 +260,10 @@ namespace LargeInteger{
 				}
 			}
 		}
-		template<typename Accumulation, typename Recursion, typename Iterator, typename Data>
-		static INLINED void MY_LIBRARY __DivideInto(Iterator _a, Iterator _b, Recursion Move, Accumulation Accum)noexcept {
+		template<typename Accumulation, typename Recursion, typename Iterator1, typename Iterator2, typename Data>
+		static INLINED void MY_LIBRARY __DivideInto(Iterator1 _a, Iterator2 _b, Recursion Move, Accumulation Accum)noexcept {
 			{
-				switch (CompareTo<Iterator, Data>(_a, _b))
+				switch (CompareTo<Iterator1, Iterator2, Data>(_a, _b))
 				{
 				case Compare::Larger:
 					return;
@@ -271,7 +271,7 @@ namespace LargeInteger{
 					Accum(_a, _b, Data(1));
 					return;
 				case Compare::Smaller:
-					__DivideInto<Accumulation, Recursion, Iterator, Data>(_a, _Traits::GetNext(_b), Move, Accum);
+					__DivideInto<Accumulation, Recursion, Iterator1, Iterator2, Data>(_a, _b + 1, Move, Accum);
 					Move();
 					break;
 				default:
@@ -295,19 +295,19 @@ namespace LargeInteger{
 				}
 			}
 		}
-		template<typename Linear, typename Iterator>
-		static INLINED void MY_LIBRARY DivideInto(Linear& Res, Iterator a, Iterator b) noexcept {
+		template<typename Linear, typename Iterator1, typename Iterator2>
+		static INLINED void MY_LIBRARY DivideInto(Linear& Res, Iterator1 a, Iterator2 b) noexcept {
 			static_assert(std::is_same< std::remove_cvref<decltype(*a)>::type, std::remove_cvref<decltype(*b)>::type>::value);
 			using Data=std::remove_cvref<decltype(*a)>::type;
 			//Regarding of the compatibility, we didn't use any majorization.
-			auto func1 = [&Res](const Iterator& a, const Iterator& b, Data times)->void {
-				for (Data i = 0; i < times; ++i) {
-					AppositionComputeTo<typename _Traits::SubtractFrom, Iterator, Data>(a, b);
+			auto func1 = [&Res](const Iterator1& a, const Iterator2& b, Data times)->void {
+				for (Data i = Data(0); i < times; ++i) {
+					AppositionComputeTo<typename _Traits::SubtractFrom, Iterator1, Iterator2, Data>(a, b);
 				}
 				Res += times;
 			};
 			auto func2 = [&Res]()->void {Res <<= 1; };
-			__DivideInto<decltype(func1), decltype(func2), Iterator, Data>(a, b, func2, func1);
+			__DivideInto<decltype(func1), decltype(func2), Iterator1, Iterator2, Data>(a, b, func2, func1);
 		}
 		template<typename Iterator1, typename Iterator2>
 		static INLINED void MY_LIBRARY DivideInto(Iterator1 a, Iterator2 b) {
