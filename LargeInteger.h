@@ -55,7 +55,7 @@ namespace LargeInteger {
 	public:
 		template<typename val>
 		explicit MY_LIBRARY LargeUnsigned(val Val)noexcept {
-			LargeInteger::LongCmpt<StdCmptTraits<Num<radix_t, radix>>>::LayerIterator<StdCmptTraits<Num<radix_t, radix>>::Devide> it;
+			LargeInteger::LongCmpt<StdCmptTraits<Data>>::LayerIterator<StdCmptTraits<Data>::Devide> it;
 			for (auto& i = this->begin();; ++i)
 			{
 				i = Val % radix;
@@ -93,20 +93,16 @@ namespace LargeInteger {
 			const Type & that,
 			std::ostream & out = std::cout
 		) noexcept {
-			if (that.next == nullptr)
+			if (that == 0)
 			{
 				out << "0";
 				return out;
-			}
-			if (!that.data)
-			{
-				out << "-";
 			}
 			if (Radix == static_cast<decltype(Radix)>(0))
 			{
 				out << "0x"
 					<< std::setbase(16);
-				LargeInteger::SinglePrint(*(that.next), out, false, 2 * sizeof(Radix), 16);
+				LargeInteger::SinglePrint(that, out, false, 2 * sizeof(Radix), 16);
 			}
 			else
 			{
@@ -703,6 +699,10 @@ namespace LargeInteger {
 		}
 
 		INLINED std::ostream& MY_LIBRARY Print(std::ostream& o = std::cout) const noexcept {
+			if (!this->PosSign)
+			{
+				o << "-";
+			}
 			return _Print<LL, radix>(static_cast<LL>(*this), o);
 		}
 
