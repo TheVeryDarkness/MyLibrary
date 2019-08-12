@@ -24,6 +24,7 @@ namespace LL {
 
 	class power:public Function
 	{
+		using Q=LargeInteger::Q;
 	public:
 		explicit MY_LIBRARY power(const Q& Coefficient, const Q& Index)noexcept
 			:c(Q::Copy(Coefficient)), i(Q::Copy(Index)) {

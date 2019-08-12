@@ -55,7 +55,6 @@ namespace LL {
 			)noexcept; 
 		template<class inNode, class outNode, auto inRadix, auto outRadix, bool Destroy>
 		friend outNode MY_LIBRARY Transform(inNode& in)noexcept;
-		friend class Q;
 
 
 		friend struct std::iterator<std::output_iterator_tag, OLL>;

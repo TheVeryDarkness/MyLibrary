@@ -40,7 +40,6 @@ namespace LL {
 			)noexcept;
 		template<class inNode, class outNode, auto inRadix, auto outRadix, bool Destroy>
 		friend outNode MY_LIBRARY Transform(inNode& in)noexcept;
-		friend class Q;
 
 		MEMORY_CACHE(20);
 	public:
@@ -49,14 +48,6 @@ namespace LL {
 		}
 		constexpr INLINED std::iterator<std::bidirectional_iterator_tag, const DLL> end()const noexcept {
 			return nullptr;
-		}
-		//重载正
-		INLINED bool MY_LIBRARY IsPositive()const noexcept {
-			return (this->data > 0);
-		}
-		//重载负
-		INLINED void MY_LIBRARY SetToContradict()noexcept {
-			this->data = Data((this->data == 0) ? 1 : 0);
 		}
 		Data data;
 		DLL* next = nullptr;

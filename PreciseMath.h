@@ -6,9 +6,9 @@
 #include "DLL.h"
 constexpr unsigned int Z_MAX = 1000000000U;
 
-namespace LL {
+namespace LargeInteger {
 
-	typedef LargeInteger::LargeSigned<DLL<LargeInteger::Num<unsigned int, Z_MAX>>, Z_MAX> Z;
+	typedef LargeInteger::LargeSigned<LL::DLL<LargeInteger::Num<unsigned int, Z_MAX>>, Z_MAX> Z;
 
 	//ÓÐÀíÊý
 	//Rational Number
@@ -43,23 +43,14 @@ namespace LL {
 		void MY_LIBRARY Simplify() {
 			while (true)
 			{
-				if (this->Denominator.next == nullptr && this->Numerator.next == nullptr)
+				if (this->Denominator == 0 && this->Numerator == 0)
 				{
 					return;
 				}
-				if (this->Denominator.next == nullptr || this->Numerator.next == nullptr)
+				if (this->Denominator == 0 || this->Numerator == 0)
 				{
 					break;
 				}
-				if (
-					(this->Denominator.next->data == Data(0))
-					&&
-					(this->Numerator.next->data == Data(0)))
-				{
-					this->Denominator >>= 1;
-					this->Numerator >>= 1;
-				}
-				else break;
 			}
 			if (Numerator == Denominator)
 			{
@@ -78,26 +69,19 @@ namespace LL {
 			else
 			{
 				Z a(Z::Copy(Numerator)), b(Z::Copy(Denominator));
-				a.data = Data(1);
-				b.data = Data(1);
+				a.PosSign = true;
+				b.PosSign = true;
 				while (true)
 				{
 					{
-						bool _a = (a.next == nullptr), _b = (b.next == nullptr);
-						if (_a && _b)
-						{
-							MY_ASSERT(false, Unknown error);
-							a.destruct(); b.destruct();
-							return;
-						}
-						if (_a)
+						if (a == 0)
 						{
 							this->Numerator /= b;
 							this->Denominator /= b;
 							a.destruct(); b.destruct();
 							return;
 						}
-						if (_b)
+						if (b == 0)
 						{
 							this->Numerator /= a;
 							this->Denominator /= a;
@@ -179,7 +163,7 @@ namespace LL {
 			this->Denominator *= that.Numerator;
 			this->Numerator *= that.Denominator;
 			this->Simplify();
-			if (this->Numerator.IsPositive() && (!this->Denominator.IsPositive()))
+			if (this->Numerator > 0 && !(this->Denominator > 0))
 			{
 				this->Numerator.SetToContradict();
 				this->Denominator.SetToContradict();
