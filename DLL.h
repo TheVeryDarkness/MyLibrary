@@ -44,9 +44,6 @@ namespace LL {
 
 		MEMORY_CACHE(20);
 	public:
-		static constexpr INLINED auto getRadix() noexcept {
-			return Radix;
-		}
 		constexpr INLINED std::iterator<std::bidirectional_iterator_tag, const DLL> begin()const noexcept {
 			return this;
 		}

@@ -487,6 +487,6 @@ namespace LargeInteger {
 };
 template<size_t _Length>class std::numeric_limits<LargeInteger::Bytes<_Length>> {
 public:
-	static constexpr LargeInteger::Bytes<_Length> max() noexcept { return LargeInteger::~Bytes<_Length>(0); }
+	static constexpr LargeInteger::Bytes<_Length> max() noexcept { return ~LargeInteger::Bytes<_Length>(0); }
 	static constexpr LargeInteger::Bytes<_Length> min()noexcept { return LargeInteger::Bytes<_Length>(0); }
 };

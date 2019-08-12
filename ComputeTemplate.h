@@ -216,7 +216,7 @@ namespace LargeInteger{
 		//Extension for Compare()
 		template<typename Iterator1, typename Iterator2>
 		static INLINED std::pair<typename std::remove_cvref<decltype(*a)>::type, Compare> MY_LIBRARY _CompareTo(const Iterator1& a, const Iterator2& b) noexcept {
-			using Data=std::remove_cvref<decltype(*a)>::type;
+			using Data=typename std::remove_cvref<decltype(*a)>::type;
 			static_assert(std::is_same<std::remove_cvref<decltype(*a)>::type, std::remove_cvref<decltype(*b)>::type>);
 			{
 				Compare temp = Compare::Equal;

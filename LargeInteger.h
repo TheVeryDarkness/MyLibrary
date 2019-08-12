@@ -47,7 +47,7 @@ namespace LargeInteger {
 	}
 
 	template<typename LL, auto radix>
-	class LargeUnsigned:public LL
+	class LargeUnsigned:protected LL
 	{
 	protected:
 		using radix_t=decltype(radix);
@@ -73,6 +73,10 @@ namespace LargeInteger {
 				*j = i;
 			}
 			return This;
+		}
+
+		constexpr void MY_LIBRARY destruct()noexcept {
+			this->destruct();
 		}
 
 		//二进制输出到控制台窗口
@@ -530,22 +534,22 @@ namespace LargeInteger {
 		}
 	};
 	template<typename LL, auto radix>
-	class LargeSigned:public LargeUnsigned<LL, radix>
+	class LargeSigned:protected LargeUnsigned<LL, radix>
 	{
 	public:
-		template<typename val> explicit LargeSigned(val Val)noexcept
+		template<typename val> explicit MY_LIBRARY LargeSigned(val Val)noexcept
 			:PosSign(Val > 0), LargeUnsigned<LL, radix>(ABS(val)) {}
-
-		template<typename val> explicit LargeSigned(bool Pos, val Val)noexcept
+		template<typename val> explicit MY_LIBRARY LargeSigned(bool Pos, val Val)noexcept
 			:PosSign(Pos), LargeUnsigned<LL, radix>(Val) {
 			assert(Val >= 0);
 		}
-		static constexpr LargeUnsigned MY_LIBRARY Copy(const LargeUnsigned& that)noexcept {
-			LargeUnsigned This(that);
-			for (auto& i : that) {
-				auto& j = This.begin();
-				*j = i;
-			}
+		explicit MY_LIBRARY LargeSigned(bool sign, LargeUnsigned<LL,radix> uns)noexcept
+			:PosSign(sign), LargeUnsigned<LL, radix>(uns) {
+			assert(Val >= 0);
+		}
+
+		static constexpr LargeSigned MY_LIBRARY Copy(const LargeSigned& that)noexcept {
+			LargeSigned This(that.PosSign, LargeUnsigned<LL, radix>::Copy(that));
 			return This;
 		}
 
