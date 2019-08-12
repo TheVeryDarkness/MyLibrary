@@ -405,13 +405,13 @@ namespace LargeInteger {
 			}
 			if (this->data > 0 && that.data > 0)
 			{
-				if (LargeInteger::LongCmpt::CompareTo<LinkedList*, Data, LLComputeTraits<LinkedList, radix_t, Radix>>(this->next, that.next) == LargeInteger::Compare::Smaller)
+				if (LargeInteger::LongCmpt<StdCmptTraits<Data>>::(this->next, that.next) == LargeInteger::Compare::Smaller)
 					return true;
 				else return false;
 			}
 			else
 			{
-				if (LargeInteger::LongCmpt::CompareTo<LinkedList*, Data, LLComputeTraits<LinkedList, radix_t, Radix>>(that.next, this->next) == LargeInteger::Compare::Smaller)
+				if (LargeInteger::LongCmpt<StdCmptTraits<Data>>::CompareTo(that.next, this->next) == LargeInteger::Compare::Smaller)
 					return true;
 				else return false;
 			}
