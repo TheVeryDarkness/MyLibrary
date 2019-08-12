@@ -624,7 +624,7 @@ namespace LL {
 
 
 template<typename Data>
-class std::iterator<std::output_iterator_tag, LL::DLL<Data>>
+class std::iterator<std::bidirectional_iterator_tag, LL::DLL<Data>>
 {
 	using in=LL::DLL<Data>;
 public:
@@ -634,6 +634,8 @@ public:
 
 	constexpr bool MY_LIBRARY operator==(const in* _ptr)const noexcept { return this->ptr == _ptr; }
 	constexpr bool MY_LIBRARY operator==(const iterator _ptr)const noexcept { return this->ptr == _ptr.ptr; }
+	constexpr bool MY_LIBRARY operator!=(const in* _ptr)const noexcept { return this->ptr != _ptr; }
+	constexpr bool MY_LIBRARY operator!=(const iterator _ptr)const noexcept { return this->ptr != _ptr.ptr; }
 
 	MY_LIBRARY ~iterator()noexcept = default;
 
@@ -675,12 +677,13 @@ public:
 
 private:
 	in* ptr;
-	friend struct std::iterator<std::output_iterator_tag, const LL::DLL<Data>>;
+	friend class std::iterator<std::bidirectional_iterator_tag, LL::DLL<Data>>;
+	friend struct std::iterator<std::bidirectional_iterator_tag, const LL::DLL<Data>>;
 	static inline Data NullData = 0;
 };
 
 template<typename Data>
-struct std::iterator<std::output_iterator_tag, const LL::DLL<Data>>
+struct std::iterator<std::bidirectional_iterator_tag, const LL::DLL<Data>>
 {
 	using in=const LL::DLL<Data>;
 public:
@@ -690,6 +693,8 @@ public:
 
 	constexpr bool MY_LIBRARY operator==(const in* _ptr)const noexcept { return this->ptr == _ptr; }
 	constexpr bool MY_LIBRARY operator==(const iterator _ptr)const noexcept { return this->ptr == _ptr.ptr; }
+	constexpr bool MY_LIBRARY operator!=(const in* _ptr)const noexcept { return this->ptr != _ptr; }
+	constexpr bool MY_LIBRARY operator!=(const iterator _ptr)const noexcept { return this->ptr != _ptr.ptr; }
 
 	MY_LIBRARY ~iterator()noexcept = default;
 
@@ -720,8 +725,8 @@ public:
 			return this->ptr->data;
 		}
 		else {
-			assert((std::iterator<std::output_iterator_tag, LL::DLL<Data>>::NullData == 0));
-			return static_cast<const Data&>(std::iterator<std::output_iterator_tag, LL::DLL<Data>>::NullData = 0);
+			assert((std::iterator<std::bidirectional_iterator_tag, LL::DLL<Data>>::NullData == 0));
+			return static_cast<const Data&>(std::iterator<std::bidirectional_iterator_tag, LL::DLL<Data>>::NullData = 0);
 		}
 	}
 

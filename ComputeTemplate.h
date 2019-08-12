@@ -293,8 +293,10 @@ namespace LargeInteger{
 				}
 			}
 		}
-		template<typename Linear, typename Iterator, typename Data>
+		template<typename Linear, typename Iterator>
 		static INLINED void MY_LIBRARY DivideInto(Linear& Res, Iterator a, Iterator b) noexcept {
+			static_assert(std::is_same< std::remove_cvref<decltype(*a)>::type, std::remove_cvref<decltype(*b)>::type>::value);
+			using Data=std::remove_cvref<decltype(*a)>::type;
 			//Regarding of the compatibility, we didn't use any majorization.
 			auto func1 = [&Res](const Iterator& a, const Iterator& b, Data times)->void {
 				for (Data i = 0; i < times; ++i) {
@@ -305,16 +307,18 @@ namespace LargeInteger{
 			auto func2 = [&Res]()->void {_Traits::assign(&Res, 1); };
 			__DivideInto<decltype(func1), decltype(func2), Iterator, Data>(a, b, func2, func1);
 		}
-		template<typename Iterator, typename Data>
-		static INLINED void MY_LIBRARY DivideInto(Iterator a, Iterator b) {
+		template<typename Iterator1, typename Iterator2>
+		static INLINED void MY_LIBRARY DivideInto(Iterator1 a, Iterator2 b) {
+			static_assert(std::is_same< std::remove_cvref<decltype(*a)>::type, std::remove_cvref<decltype(*b)>::type>::value);
+			using Data=std::remove_cvref<decltype(*a)>::type;
 			//Regarding of the compatibility, we didn't use any majorization.
-			auto func = [](const Iterator& a, const Iterator& b, Data times)->void {
+			auto func = [](const Iterator1& a, const Iterator2& b, Data times)->void {
 				for (Data i = Data(0); i < times; ++i) {
-					AppositionComputeTo<typename _Traits::SubtractFrom, Iterator, Data>(a, b);
+					AppositionComputeTo<typename _Traits::SubtractFrom, Iterator1, Iterator2, Data>(a, b);
 				}
 			};
 			auto null = []()->void {};
-			__DivideInto<decltype(func), decltype(null), Iterator, Data>(a, b, null, func);
+			__DivideInto<decltype(func), decltype(null), Iterator1, Iterator2, Data>(a, b, null, func);
 		}
 	};
 

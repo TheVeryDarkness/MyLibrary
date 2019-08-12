@@ -405,13 +405,13 @@ namespace LargeInteger {
 			}
 			if (this->data > 0 && that.data > 0)
 			{
-				if (LargeInteger::LongCmpt::CompareTo<LinkedList*, Data, LLComputeTraits<LinkedList, radix_t, Radix>>(this->next, that.next) == LongCmpt::Compare::Smaller)
+				if (LargeInteger::LongCmpt::CompareTo<LinkedList*, Data, LLComputeTraits<LinkedList, radix_t, Radix>>(this->next, that.next) == LargeInteger::Compare::Smaller)
 					return true;
 				else return false;
 			}
 			else
 			{
-				if (LargeInteger::LongCmpt::CompareTo<LinkedList*, Data, LLComputeTraits<LinkedList, radix_t, Radix>>(that.next, this->next) == LongCmpt::Compare::Smaller)
+				if (LargeInteger::LongCmpt::CompareTo<LinkedList*, Data, LLComputeTraits<LinkedList, radix_t, Radix>>(that.next, this->next) == LargeInteger::Compare::Smaller)
 					return true;
 				else return false;
 			}
@@ -463,7 +463,7 @@ namespace LargeInteger {
 		void MY_LIBRARY operator%=(const LargeUnsigned& that)noexcept {
 			if (this->next != nullptr && that.next != nullptr)
 			{
-				LargeInteger::LongCmpt::DivideInto<LinkedList*, Data, LLComputeTraits<LinkedList, radix_t, Radix>>(that.next, this->next);
+				LargeInteger::LongCmpt<StdCmptTraits<Data>>::DivideInto(that.next, this->next);
 			}
 			else return;
 			this->Simplify();
@@ -472,7 +472,7 @@ namespace LargeInteger {
 			if (this->next != nullptr && that.next != nullptr)
 			{
 				LargeUnsigned Res(true);
-				LargeInteger::LongCmpt::DivideInto<LinkedList, LinkedList*, Data, LLComputeTraits<LinkedList, radix_t, Radix>>(Res, that.next, this->next);
+				LargeInteger::LongCmpt<StdCmptTraits<Data>>::DivideInto(Res, that.next, this->next);
 				this->destruct();
 				this->next = Res.next;
 			}
