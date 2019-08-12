@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Shared.h"
+#include <type_traits>
 
 namespace LargeInteger{
 	enum class Compare :short
