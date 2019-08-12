@@ -67,7 +67,7 @@ namespace LargeInteger {
 			return;
 		}
 		static constexpr LargeUnsigned MY_LIBRARY Copy(const LargeUnsigned& that)noexcept {
-			LargeUnsigned This(that);
+			LargeUnsigned This(0);
 			for (auto& i : that) {
 				auto& j = This.begin();
 				*j = i;
@@ -219,27 +219,27 @@ namespace LargeInteger {
 			}
 			if (this->next == nullptr)
 			{
-				*this = LargeUnsigned(that, true);
+				*this = Copy(that);
 				return;
 			}
 			if ((this->data > 0 && that.data > 0) || (this->data == 0 && that.data == 0))
 			{
-				LargeInteger::LongCmpt::AppositionComputeTo<typename LargeInteger::LongCmpt::StdCmptTraits<Data>::Add, LinkedList*, Data, LargeInteger::StdCmptTraits<radix_t>>(that.next, this->next);
+				LargeInteger::LongCmpt<StdCmptTraits<Data>>::AddTo(that.next, this->next);
 			}
 			else {
-				LargeInteger::Compare Cmpr = LargeInteger::LongCmpt::CompareTo<LinkedList*, Data, LLComputeTraits<LinkedList, radix_t, Radix>>(this->next, that.next);
+				LargeInteger::Compare Cmpr = LargeInteger::LongCmpt<StdCmptTraits<Data>>::CompareTo(this->next, that.next);
 				if (Cmpr == LargeInteger::Compare::Equal)
 				{
 					this->destruct();
 				}
 				if (Cmpr == LargeInteger::Compare::Larger)
 				{
-					LargeInteger::LongCmpt::AppositionComputeTo<typename LargeInteger::StdCmptTraits<Data>::SubtractFrom, LinkedList*, Data, LLComputeTraits<LinkedList, radix_t, Radix>>(that.next, this->next);
+					LargeInteger::LongCmpt<StdCmptTraits<Data>>::SubtractFrom(that.next, this->next);
 				}
 				else
 				{
-					LinkedList temp(that, true);
-					LargeInteger::LongCmpt::AppositionComputeTo<typename LargeInteger::StdCmptTraits<Data>::SubtractFrom, LinkedList*, Data, LLComputeTraits<LinkedList, radix_t, Radix>>(this->next, temp.next);
+					LargeUnsigned temp =Copy(that);
+					LargeInteger::LongCmpt<StdCmptTraits<Data>>::SubtractFrom(this->next, temp.next);
 					*this = temp;
 				}
 			}
@@ -387,7 +387,7 @@ namespace LargeInteger {
 			return LL::operator!=(that);
 		}
 		bool MY_LIBRARY operator==(const Data& that)const noexcept {
-			LargeUnsigned T(Data);
+			LargeUnsigned T(that);
 			return LL::operator==(T);
 		}
 		bool MY_LIBRARY operator!=(const Data& that)const noexcept {
@@ -405,7 +405,7 @@ namespace LargeInteger {
 			}
 			if (this->data > 0 && that.data > 0)
 			{
-				if (LargeInteger::LongCmpt<StdCmptTraits<Data>>::(this->next, that.next) == LargeInteger::Compare::Smaller)
+				if (LargeInteger::LongCmpt<StdCmptTraits<Data>>::CompareTo(this->next, that.next) == LargeInteger::Compare::Smaller)
 					return true;
 				else return false;
 			}
@@ -576,10 +576,8 @@ namespace LargeInteger {
 			:PosSign(Pos), LargeUnsigned<LL, radix>(Val) {
 			assert(Val >= 0);
 		}
-		explicit MY_LIBRARY LargeSigned(bool sign, LargeUnsigned<LL,radix> uns)noexcept
-			:PosSign(sign), LargeUnsigned<LL, radix>(uns) {
-			assert(Val >= 0);
-		}
+		explicit MY_LIBRARY LargeSigned(bool sign, LargeUnsigned<LL, radix> uns)noexcept
+			:PosSign(sign), LargeUnsigned<LL, radix>(uns) {	}
 
 		static constexpr LargeSigned MY_LIBRARY Copy(const LargeSigned& that)noexcept {
 			LargeSigned This(that.PosSign, LargeUnsigned<LL, radix>::Copy(that));

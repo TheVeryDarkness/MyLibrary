@@ -43,11 +43,17 @@ namespace LL {
 
 		MEMORY_CACHE(20);
 	public:
+		constexpr INLINED std::iterator<std::bidirectional_iterator_tag, DLL> begin() noexcept {
+			return std::iterator<std::bidirectional_iterator_tag, DLL>(this);
+		}
+		constexpr INLINED std::iterator<std::bidirectional_iterator_tag, DLL> end() noexcept {
+			return std::iterator<std::bidirectional_iterator_tag, DLL>(nullptr);
+		}
 		constexpr INLINED std::iterator<std::bidirectional_iterator_tag, const DLL> begin()const noexcept {
-			return this;
+			return std::iterator<std::bidirectional_iterator_tag, const DLL>(this);
 		}
 		constexpr INLINED std::iterator<std::bidirectional_iterator_tag, const DLL> end()const noexcept {
-			return nullptr;
+			return std::iterator<std::bidirectional_iterator_tag, const DLL>(nullptr);
 		}
 		Data data;
 		DLL* next = nullptr;
