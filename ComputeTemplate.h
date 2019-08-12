@@ -191,7 +191,8 @@ namespace LargeInteger{
 			static_assert(std::is_same<std::remove_cvref<decltype(*a)>::type, std::remove_cvref<decltype(*b)>::type>::value);
 			{
 				Compare temp = Compare::Equal;
-				Iterator _a = a, _b = b;
+				Iterator1 _a = a;
+				Iterator2 _b = b;
 				for (;
 					;
 					++_a, ++_b
@@ -305,7 +306,7 @@ namespace LargeInteger{
 				}
 				Res += times;
 			};
-			auto func2 = [&Res]()->void {_Traits::assign(&Res, 1); };
+			auto func2 = [&Res]()->void {Res <<= 1; };
 			__DivideInto<decltype(func1), decltype(func2), Iterator, Data>(a, b, func2, func1);
 		}
 		template<typename Iterator1, typename Iterator2>
