@@ -17,6 +17,7 @@
 #endif
 
 #include <cassert>
+#include <iostream>
 #ifndef ERR
 #ifdef _DEBUG
 #define ERR(x) std::cerr << x

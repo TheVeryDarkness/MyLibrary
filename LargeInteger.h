@@ -171,7 +171,7 @@ namespace LargeInteger {
 			{
 				return;
 			}
-			LargeInteger::LongCmpt<typename LargeInteger::StdCmptTraits<typename Data>>::MultiplyTo(times, this->begin());
+			LargeInteger::LongCmpt<typename LargeInteger::StdCmptTraits<Data>>::MultiplyTo(times, this->begin());
 		}
 		//жиди
 		/*INLINED*/LargeUnsigned MY_LIBRARY operator*(Data times)const noexcept {
@@ -459,6 +459,8 @@ namespace LargeInteger {
 	template<typename LL, auto radix>
 	class LargeSigned:protected LargeUnsigned<LL, radix>
 	{
+		using radix_t=decltype(radix);
+		using Data=Num<radix_t, radix>;
 		friend class Q;
 	public:
 		template<typename val> explicit MY_LIBRARY LargeSigned(val Val)noexcept
@@ -625,7 +627,7 @@ namespace LargeInteger {
 			return *this;
 		}
 		LargeSigned MY_LIBRARY operator+(const Data& that) const noexcept {
-			this->LargeSigned temp = Copy(*this);
+			LargeSigned temp = Copy(*this);
 			temp += that;
 			return temp;
 		}

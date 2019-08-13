@@ -351,8 +351,8 @@ namespace LL {
 				{
 					break;
 				}
-				++OprtPtr
-					OprtPtr->data = &data[count - 1];
+				++OprtPtr;
+				OprtPtr->data = &data[count - 1];
 				count++;
 			}
 			return;
@@ -589,7 +589,7 @@ namespace LL {
 				{
 					//本段代码无用
 					//为提高效率略去
-					//*this -= that;
+					// *this -= that;
 
 					DLL one(true, 1);//此处可优化
 					Res += one;
@@ -633,7 +633,7 @@ namespace LL {
 		INLINED std::ostream& MY_LIBRARY Print(
 			std::ostream& out = std::cout
 		)const noexcept {
-			return LL::_Print<DLL, Radix>(*this, out);
+			return LL::_Print(*this, out);
 		}
 	};
 

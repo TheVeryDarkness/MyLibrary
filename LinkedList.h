@@ -66,7 +66,7 @@ namespace LL {
 			SinglePrint(*that.next, out, ShowComma, MinLength);
 			out << ((ShowComma) ? "," : "");
 			char* c = DBG_NEW char[MinLength + 1ULL]();
-			assert(base < BaseType(INT_MAX));
+			ASSERT("The base is too large" ,base < BaseType(INT_MAX));
 			std::to_chars_result rs = std::to_chars(c, &(c[MinLength]), that.data());
 
 			std::string str = c;
