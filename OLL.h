@@ -222,9 +222,7 @@ namespace LL {
 		//覆盖赋值
 		//浅拷贝
 		//将清除被赋值对象原有内容
-		INLINED OLL& MY_LIBRARY operator=(
-			const OLL& that
-			) noexcept {
+		INLINED OLL& MY_LIBRARY operator=(const OLL& that) noexcept {
 			if (&that == this)
 			{
 				return *this;
