@@ -247,7 +247,7 @@ namespace LargeInteger{
 		template<typename Iterator1, typename Iterator2>
 		static INLINED auto MY_LIBRARY _CompareTo(const Iterator1& a, const Iterator2& b) noexcept {
 			using Data=typename std::remove_cvref<decltype(*a)>::type;
-			static_assert(std::is_same<std::remove_cvref<decltype(*a)>::type, std::remove_cvref<decltype(*b)>::type>);
+			static_assert(std::is_same_v<std::remove_cvref<decltype(*a)>::type, std::remove_cvref<decltype(*b)>::type>);
 			{
 				Compare temp = Compare::Equal;
 				Iterator1 _a = a;
@@ -264,7 +264,7 @@ namespace LargeInteger{
 					{
 						temp = Compare::Smaller;
 					}
-					if ((_a + 1 == _Traits::NullIterator) && (_b + 1 == _Traits::NullIterator))
+					if ((_a + 1 == nullptr) && (_b + 1 == nullptr))
 					{
 						break;
 					}
@@ -277,8 +277,8 @@ namespace LargeInteger{
 						return std::pair<Data, Compare>(Data(1), Compare::Larger);
 					}
 					else if (temp == Compare::Smaller) {
-						if (_Traits::GetData(_a) < (_Traits::GetData(_b))) {
-							return std::pair<Data, Compare>(Data(_Traits::GetData(_b) / (_Traits::GetData(_a) + Data(1))), Compare::Smaller);
+						if (*_a < (*_b)) {
+							return std::pair<Data, Compare>(Data(*_b / (*_a + Data(1))), Compare::Smaller);
 						}
 						return std::pair<Data, Compare>(Data(1), Compare::Smaller);
 					}
