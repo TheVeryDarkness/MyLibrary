@@ -700,7 +700,7 @@ namespace LargeInteger {
 			{
 				o << "-";
 			}
-			return _Print<LL, radix>(static_cast<LL>(*this), o);
+			return _Print<decltype(this->begin()), radix>(this->begin(), o);
 		}
 
 		~LargeSigned()

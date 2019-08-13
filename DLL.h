@@ -131,52 +131,6 @@ namespace LL {
 			return;
 		}
 		INLINED bool MY_LIBRARY operator==(
-			int that
-			)const noexcept {
-			if (this->next == nullptr && that == 0)
-			{
-				return true;
-			}
-			else if (that == 0)
-			{
-				return false;
-			}
-			if (
-				(this->data > 0 && that >= 0)
-				||
-				(this->data == 0 && that <= 0)
-				) {
-				that = std::abs(that);
-			}
-			else return false;
-			DLL* OprtPtr = this->next;
-			while (OprtPtr != nullptr)
-			{
-				if constexpr (Radix == 0) {
-					if (OprtPtr->data != ((Data)that))
-						return false;
-				}
-				else if (OprtPtr->data != (that % Radix))
-					return false;
-				else
-				{
-					if constexpr (Radix == 0)
-						that >> (Array::BitsPerByte * sizeof(Data));
-					else that /= Radix;
-					if (that == 0)
-					{
-						if (OprtPtr->next == nullptr || OprtPtr->next->data == 0)
-						{
-							return true;
-						}
-						else return false;
-					}
-					OprtPtr = OprtPtr->next;
-				}
-			}
-			return false;
-		}
-		INLINED bool MY_LIBRARY operator==(
 			const DLL& that
 			)const noexcept {
 			const DLL* OprtPtr = this, * PreOprtPtr = &that;
