@@ -467,7 +467,7 @@ private:
 };
 
 template<typename Data>
-struct std::iterator<std::forward_iterator_tag, const LL::OLL<Data>>
+class std::iterator<std::forward_iterator_tag, const LL::OLL<Data>>
 {
 	using in=const LL::OLL<Data>;
 public:
