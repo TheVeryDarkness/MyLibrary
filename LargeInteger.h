@@ -78,7 +78,7 @@ namespace LargeInteger {
 		}
 
 		constexpr void MY_LIBRARY destruct()noexcept {
-			this->destruct();
+			this->LL::destruct();
 		}
 
 		//二进制输出到控制台窗口
@@ -569,7 +569,7 @@ namespace LargeInteger {
 		}
 
 		constexpr void MY_LIBRARY destruct()noexcept {
-			this->destruct();
+			this->LL::destruct();
 		}
 
 		bool MY_LIBRARY operator==(const LargeSigned& that)const noexcept {
