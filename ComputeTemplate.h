@@ -219,7 +219,7 @@ namespace LargeInteger{
 		//Compare a to b.
 		template<typename Iterator1, typename Iterator2>
 		static INLINED Compare MY_LIBRARY CompareTo(const Iterator1& a, const Iterator2& b) noexcept {
-			static_assert(std::is_same<std::remove_cvref<decltype(*a)>::type, std::remove_cvref<decltype(*b)>::type>::value);
+			static_assert(std::is_same_v<std::remove_cvref_t<decltype(*a)>, std::remove_cvref_t<decltype(*b)>>);
 			{
 				Compare temp = Compare::Equal;
 				Iterator1 _a = a;
