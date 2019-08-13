@@ -334,7 +334,7 @@ namespace LL {
 		/*INLINED*/void MY_LIBRARY SetValue(
 			long num, const Data* data
 		) noexcept {
-			auto& OprtPtr = this->begin();//操作当前对象
+			auto OprtPtr = this->begin();//操作当前对象
 			OprtPtr->data = data;
 			long count = 1;
 			while (true)

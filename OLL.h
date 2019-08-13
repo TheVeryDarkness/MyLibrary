@@ -224,7 +224,7 @@ namespace LL {
 		/*INLINED*/void MY_LIBRARY SetValue(
 			long num, const Data* data
 		) noexcept {
-			auto& OprtPtr = this->begin();//操作当前对象
+			auto OprtPtr = this->begin();//操作当前对象
 			OprtPtr->data = data;
 			long count = 1;
 			while (true)
@@ -241,8 +241,8 @@ namespace LL {
 				{
 					break;
 				}
-				++OprtPtr
-					OprtPtr->data = &data[count - 1];
+				++OprtPtr;
+				OprtPtr->data = &data[count - 1];
 				count++;
 			}
 			return;
@@ -409,6 +409,8 @@ public:
 
 	constexpr bool MY_LIBRARY operator==(const in* _ptr)const noexcept { return this->ptr == _ptr; }
 	constexpr bool MY_LIBRARY operator==(const iterator _ptr)const noexcept { return this->ptr == _ptr.ptr; }
+	constexpr bool MY_LIBRARY operator!=(const in* _ptr)const noexcept { return this->ptr != _ptr; }
+	constexpr bool MY_LIBRARY operator!=(const iterator _ptr)const noexcept { return this->ptr != _ptr.ptr; }
 
 	MY_LIBRARY ~iterator()noexcept = default;
 
@@ -468,6 +470,8 @@ public:
 
 	constexpr bool MY_LIBRARY operator==(const in* _ptr)const noexcept { return this->ptr == _ptr; }
 	constexpr bool MY_LIBRARY operator==(const iterator _ptr)const noexcept { return this->ptr == _ptr.ptr; }
+	constexpr bool MY_LIBRARY operator!=(const in* _ptr)const noexcept { return this->ptr != _ptr; }
+	constexpr bool MY_LIBRARY operator!=(const iterator _ptr)const noexcept { return this->ptr != _ptr.ptr; }
 
 	MY_LIBRARY ~iterator()noexcept = default;
 
