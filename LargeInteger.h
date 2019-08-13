@@ -23,7 +23,7 @@ namespace LargeInteger {
 			out << ((ShowComma) ? "," : "");
 			char* c = DBG_NEW char[MinLength + 1ULL]();
 			assert(base < BaseType(INT_MAX));
-			std::to_chars_result rs = std::to_chars(c, &(c[MinLength]), *that, base);
+			std::to_chars_result rs = std::to_chars(c, &(c[MinLength]), (*that)(), base);
 
 			std::string str = c;
 			delete[] c;
@@ -57,7 +57,7 @@ namespace LargeInteger {
 		explicit MY_LIBRARY LargeUnsigned(val Val)noexcept :LL(0){
 			static_assert(radix != radix_t(1));
 			static_assert(!std::is_same<val, bool>::value, "Never use bool type");
-			LargeInteger::LongCmpt<StdCmptTraits<Data>>::LayerIterator<StdCmptTraits<Data>::Divide, Data> it(Val);
+			LargeInteger::LongCmpt<StdCmptTraits<Data>>::LayerIterator<StdCmptTraits<Data>::Divide<radix>, Data> it(Val);
 			for (auto& i = this->begin();; ++i)
 			{
 				*i = Val % radix;

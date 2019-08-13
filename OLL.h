@@ -382,7 +382,7 @@ public:
 		return it;
 	}
 
-	constexpr auto& MY_LIBRARY operator*()noexcept {
+	constexpr auto& MY_LIBRARY operator*()const noexcept {
 		if (this->ptr != nullptr) {
 			return this->ptr->data;
 		}
@@ -437,7 +437,7 @@ public:
 		return it;
 	}
 
-	constexpr auto& MY_LIBRARY operator*()noexcept {
+	constexpr auto& MY_LIBRARY operator*()const noexcept {
 		if (this->ptr != nullptr) {
 			return this->ptr->data;
 		}

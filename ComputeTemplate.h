@@ -47,8 +47,8 @@ namespace LargeInteger{
 				return Result.first;
 			}
 			//return true if the iterator is still working
-			MY_LIBRARY operator bool()const noexcept {
-				return !(
+			bool MY_LIBRARY operator!()const noexcept {
+				return (
 					a == _Traits::NullIterator
 					&&
 					b == _Traits::NullIterator
@@ -78,15 +78,40 @@ namespace LargeInteger{
 			//	this function move the iterator b to its next place
 			void MY_LIBRARY operator++() noexcept {
 				++b;
-
 				Result = c(Result.second, a, *b);
+			}
+			constexpr void MY_LIBRARY operator+=(size_t sz) noexcept {
+				for (size_t i = 0; i < sz && b != nullptr; i++)
+				{
+					++b;
+				}
+				Result = c(Result.second, a, *b);
+			}
+			constexpr LineIterator MY_LIBRARY operator+(size_t sz) const noexcept {
+				LineIterator it(*this);
+				it += sz;
+				return it;
 			}
 			const Data& operator*()const noexcept {
 				return Result.first;
 			}
 			//return true if the iterator is still working
-			MY_LIBRARY operator bool()const noexcept {
-				return !(b == nullptr && Result.first == Data(0) && Result.second == Data(0));
+			bool MY_LIBRARY operator!()const noexcept {
+				return (b == nullptr && Result.first == Data(0) && Result.second == Data(0));
+			}
+			constexpr bool MY_LIBRARY operator==(const LineIterator& that)const noexcept {
+				return (this->a == that.a) && (this->b == that.b);
+			}
+			constexpr bool MY_LIBRARY operator!=(const LineIterator& that)const noexcept {
+				return (this->a != that.a) || (this->b != that.b);
+			}
+			template<typename Other>
+			constexpr bool MY_LIBRARY operator==(const Other& that)const noexcept {
+				return (this->b == that);
+			}
+			template<typename Other>
+			constexpr bool MY_LIBRARY operator!=(const Other& that)const noexcept {
+				return (this->b != that);
 			}
 			//result;overflow
 			std::pair<Data, Data> Result;
@@ -107,7 +132,7 @@ namespace LargeInteger{
 				return Result.first;
 			}
 			void MY_LIBRARY operator++() noexcept {
-				Result = c(Result);
+				Result = c(Result.first);
 			}
 
 		private:
@@ -126,10 +151,10 @@ namespace LargeInteger{
 				//This element
 				*(compute.b) = compute.Result.first;
 				if (
-					*(compute.b) == nullptr
+					(compute.b + 1) == nullptr
 					)
 				{
-					if (compute.a + 1 == nullptr)
+					if ((compute.a + 1) == nullptr)
 					{
 						if (compute.Result.second != Data(0))
 						{
@@ -139,7 +164,7 @@ namespace LargeInteger{
 					}
 					else
 					{
-						compute.b.insert(compute.b);
+						compute.b.insert(compute.b, Data(0));
 					}
 				}
 				++compute;
@@ -264,7 +289,7 @@ namespace LargeInteger{
 		template<typename Accumulation, typename Recursion, typename Iterator1, typename Iterator2, typename Data>
 		static INLINED void MY_LIBRARY __DivideInto(Iterator1 _a, Iterator2 _b, Recursion Move, Accumulation Accum)noexcept {
 			{
-				switch (CompareTo<Iterator1, Iterator2, Data>(_a, _b))
+				switch (CompareTo(_a, _b))
 				{
 				case Compare::Larger:
 					return;
@@ -397,14 +422,16 @@ namespace LargeInteger{
 			}
 		};
 
+		template<auto radix>
 		class Divide
 		{
 		public:
 			MY_LIBRARY Divide()noexcept{}
 			MY_LIBRARY ~Divide()noexcept{}
 
-		private:
-
+			std::pair<Data, Data> operator()(const Data& that) noexcept{
+				return std::pair<Data, Data>(that % radix, that / radix);
+			}
 		};
 
 
