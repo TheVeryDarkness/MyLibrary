@@ -57,7 +57,7 @@ namespace LargeInteger {
 		explicit MY_LIBRARY LargeUnsigned(val Val)noexcept :LL(0){
 			static_assert(radix != radix_t(1));
 			static_assert(!std::is_same<val, bool>::value, "Never use bool type");
-			LargeInteger::LongCmpt<StdCmptTraits<Data>>::LayerIterator<StdCmptTraits<Data>::Divide<radix>, Data> it(Val);
+			LargeInteger::LongCmpt<StdCmptTraits<val>>::LayerIterator<StdCmptTraits<val>::Divide<radix>, val> it(Val);
 			for (auto& i = this->begin();!!it; ++i)
 			{
 				*i = *it;
