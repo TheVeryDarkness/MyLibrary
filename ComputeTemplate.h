@@ -48,7 +48,7 @@ namespace LargeInteger{
 			}
 			//return true if the iterator is still working
 			bool MY_LIBRARY operator!()const noexcept {
-				return !(
+				return (
 					a == nullptr
 					&&
 					b == nullptr
@@ -89,7 +89,7 @@ namespace LargeInteger{
 			}
 			constexpr LineIterator MY_LIBRARY operator+(size_t sz) const noexcept {
 				LineIterator it(*this);
-				it += sz;
+				it.b = it.b + sz;
 				return it;
 			}
 			const Data& operator*()const noexcept {
@@ -105,13 +105,11 @@ namespace LargeInteger{
 			constexpr bool MY_LIBRARY operator!=(const LineIterator& that)const noexcept {
 				return (this->a != that.a) || (this->b != that.b);
 			}
-			template<typename Other>
-			constexpr bool MY_LIBRARY operator==(const Other& that)const noexcept {
-				return (this->b == that);
+			constexpr bool MY_LIBRARY operator==(nullptr_t null)const noexcept {
+				return (this->b == null) && (Result.second == Data(0));
 			}
-			template<typename Other>
-			constexpr bool MY_LIBRARY operator!=(const Other& that)const noexcept {
-				return (this->b != that);
+			constexpr bool MY_LIBRARY operator!=(nullptr_t null)const noexcept {
+				return !(*this == null);
 			}
 			//result;overflow
 			std::pair<Data, Data> Result;
@@ -132,10 +130,24 @@ namespace LargeInteger{
 				return Result.first;
 			}
 			void MY_LIBRARY operator++() noexcept {
-				Result = c(Result.first);
+				Result = c(Result.second);
+			}
+			void MY_LIBRARY operator+=(size_t sz)noexcept {
+				for (size_t i = 0; i < sz; i++)
+				{
+					++*this;
+				}
+			}
+			LayerIterator MY_LIBRARY operator+(size_t sz)const noexcept {
+				LayerIterator it(*this);
+				it += sz;
+				return it;
+			}
+			bool MY_LIBRARY operator==(std::nullptr_t nul)const noexcept {
+				return !*this;
 			}
 			bool MY_LIBRARY operator!()const noexcept {
-				return (Result.second == Data(0));
+				return (Result.second == Data(0) && Result.first == Data(0));
 			}
 
 		private:
