@@ -105,7 +105,7 @@ namespace LargeInteger {
 			this->data %= that.data;
 			return *this;
 		}
-		constexpr Num MY_LIBRARY operator/(const Num& that) noexcept {
+		constexpr Num MY_LIBRARY operator/(const Num& that) const noexcept {
 			Num Copy(*this);
 			return (Copy /= that);
 		}
