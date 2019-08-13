@@ -124,22 +124,22 @@ namespace LargeInteger{
 			while (true)
 			{
 				//This element
-				_Traits::GetData(compute.b) = compute.Result.first;
+				*(compute.b) = compute.Result.first;
 				if (
-					_Traits::GetNext(compute.b) == _Traits::NullIterator
+					*(compute.b) == nullptr
 					)
 				{
-					if (_Traits::GetNext(compute.a) == _Traits::NullIterator)
+					if (compute.a + 1 == nullptr)
 					{
 						if (compute.Result.second != Data(0))
 						{
-							_Traits::InsertAfter(compute.b, compute.Result.second);
+							compute.b.insert(compute.b, compute.Result.second);
 						}
 						break;
 					}
 					else
 					{
-						_Traits::InsertAfter(compute.b);
+						compute.b.insert(compute.b);
 					}
 				}
 				++compute;
