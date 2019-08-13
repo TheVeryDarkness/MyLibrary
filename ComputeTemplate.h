@@ -142,8 +142,10 @@ namespace LargeInteger{
 		};
 
 
-		template<typename Compute, typename Iterator1, typename Iterator2, typename Data>
+		template<typename Compute, typename Iterator1, typename Iterator2>
 		static constexpr INLINED void MY_LIBRARY AppositionComputeTo(Iterator1 a, Iterator2 b)noexcept {
+			static_assert(std::is_same_v<std::remove_cvref_t<decltype(*a)>, std::remove_cvref_t<decltype(*b)>>);
+			using Data=std::remove_cvref_t<decltype(*a)>;
 			Data Carry = Data(0);
 			AppositionIterator<Compute, Iterator1, Iterator2, Data> compute(a, b);
 			while (true)
@@ -178,12 +180,12 @@ namespace LargeInteger{
 		template<typename Iterator1, typename Iterator2>
 		static constexpr INLINED void MY_LIBRARY AddTo(Iterator1 a, Iterator2 b)noexcept {
 			static_assert(std::is_same<typename std::remove_cvref<decltype(*a)>::type, typename std::remove_cvref<decltype(*b)>::type>::value);
-			return AppositionComputeTo<typename _Traits::Add, Iterator1, Iterator2, decltype(*a)>(a, b);
+			return AppositionComputeTo<typename _Traits::Add, Iterator1, Iterator2>(a, b);
 		}
 		
 		template<typename Iterator1, typename Iterator2>
 		static constexpr INLINED void MY_LIBRARY SubtractFrom(Iterator1 a, Iterator2 b)noexcept {
-			return AppositionComputeTo<typename _Traits::SubtractFrom, Iterator1, Iterator2, decltype(*a)>(a, b);
+			return AppositionComputeTo<typename _Traits::SubtractFrom, Iterator1, Iterator2>(a, b);
 		}
 
 		template<typename Iterator, typename Data>
@@ -243,7 +245,7 @@ namespace LargeInteger{
 		}
 		//Extension for Compare()
 		template<typename Iterator1, typename Iterator2>
-		static INLINED std::pair<typename std::remove_cvref<decltype(*a)>::type, Compare> MY_LIBRARY _CompareTo(const Iterator1& a, const Iterator2& b) noexcept {
+		static INLINED auto MY_LIBRARY _CompareTo(const Iterator1& a, const Iterator2& b) noexcept {
 			using Data=typename std::remove_cvref<decltype(*a)>::type;
 			static_assert(std::is_same<std::remove_cvref<decltype(*a)>::type, std::remove_cvref<decltype(*b)>::type>);
 			{
@@ -328,7 +330,7 @@ namespace LargeInteger{
 			//Regarding of the compatibility, we didn't use any majorization.
 			auto func1 = [&Res](const Iterator1& a, const Iterator2& b, Data times)->void {
 				for (Data i = Data(0); i < times; ++i) {
-					AppositionComputeTo<typename _Traits::SubtractFrom, Iterator1, Iterator2, Data>(a, b);
+					AppositionComputeTo<typename _Traits::SubtractFrom, Iterator1, Iterator2>(a, b);
 				}
 				Res += times;
 			};
@@ -342,7 +344,7 @@ namespace LargeInteger{
 			//Regarding of the compatibility, we didn't use any majorization.
 			auto func = [](const Iterator1& a, const Iterator2& b, Data times)->void {
 				for (Data i = Data(0); i < times; ++i) {
-					AppositionComputeTo<typename _Traits::SubtractFrom, Iterator1, Iterator2, Data>(a, b);
+					AppositionComputeTo<typename _Traits::SubtractFrom, Iterator1, Iterator2>(a, b);
 				}
 			};
 			auto null = []()->void {};
