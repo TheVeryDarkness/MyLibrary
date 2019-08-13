@@ -54,7 +54,7 @@ namespace LargeInteger {
 			}
 			else
 			{
-				return BaseSet<char_type, int_type, BeginIndex + 1, Remained>::to_char_type(Int);
+				return BaseSet<char_type, int_type, BeginIndex + 1, Remained...>::to_char_type(Int);
 			}
 		}
 		constexpr static int_type MY_LIBRARY getRadix()noexcept {
