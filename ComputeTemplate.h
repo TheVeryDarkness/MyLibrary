@@ -135,7 +135,7 @@ namespace LargeInteger{
 				Result = c(Result.first);
 			}
 			bool MY_LIBRARY operator!()const noexcept {
-				return (Result.first == Data(0) && Result.second == Data(0));
+				return (Result.second == Data(0));
 			}
 
 		private:
