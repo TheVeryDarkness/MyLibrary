@@ -389,7 +389,7 @@ namespace LargeInteger {
 			return LL::operator==(T);
 		}
 		bool MY_LIBRARY operator!=(const Data& that)const noexcept {
-			LargeUnsigned T(Data);
+			LargeUnsigned T(that);
 			return LL::operator!=(T);
 		}
 		bool MY_LIBRARY operator<(const LargeUnsigned& that)const noexcept {
