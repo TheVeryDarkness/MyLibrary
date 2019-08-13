@@ -264,6 +264,7 @@ namespace LL {
 			{
 				this->cut();
 			}
+			this->data = Data(0);
 			return;
 		}
 		//在当前位置后插入新的一节

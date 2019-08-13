@@ -136,6 +136,7 @@ namespace LL {
 			{
 				this->cut();
 			}
+			this->data = Data(0);
 			return;
 		}
 		//链表版求最大值
