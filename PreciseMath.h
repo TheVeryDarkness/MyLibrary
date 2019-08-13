@@ -111,14 +111,15 @@ namespace LargeInteger {
 			this->Denominator = 1;
 			this->Numerator = that;
 		}
-
-		void MY_LIBRARY operator+=(Data that) {
+		template<typename Int>
+		void MY_LIBRARY operator+=(Int that) {
 			Z Product(this->Denominator * that);
 			this->Numerator += Product;
 			Product.destruct();
 			this->Simplify();
 		}
-		void MY_LIBRARY operator-=(Data that) {
+		template<typename Int>
+		void MY_LIBRARY operator-=(Int that) {
 			Z Product = this->Denominator * that;
 			this->Numerator -= Product;
 			Product.destruct();
@@ -179,7 +180,8 @@ namespace LargeInteger {
 			Res /= that;
 			return Res;
 		}
-		bool MY_LIBRARY operator==(Data that)const {
+		template<typename Int>
+		bool MY_LIBRARY operator==(Int that)const {
 			Z temp = this->Denominator * that;
 			bool ret = (temp == this->Numerator);
 			temp.destruct();
