@@ -41,7 +41,7 @@
 
 #include <cassert>
 #ifdef _DEBUG
-#define MY_ASSERT(x,y) if(!(x))OutputDebugStringA(#y);assert(x);
+#define MY_ASSERT(x,y) if(!(x))std::cerr<<(#y);assert(x);
 #else
 #define MY_ASSERT(x,y); 
 #endif
