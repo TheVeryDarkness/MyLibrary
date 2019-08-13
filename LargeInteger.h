@@ -265,7 +265,7 @@ namespace LargeInteger {
 
 
 		INLINED void MY_LIBRARY operator+=(const Data& that)noexcept {
-			LinkedList temp(that, nullptr);
+			LargeUnsigned temp(that);
 			if (that != Data(0) && this->next == nullptr)
 			{
 				this->data = Data(1);
@@ -274,12 +274,12 @@ namespace LargeInteger {
 			}
 			if (this->data == 0)
 			{
-				LargeInteger::LongCmpt::AppositionComputeTo<typename StdCmptTraits<Data>::SubtractFrom, LinkedList*, Data, LLComputeTraits<LinkedList, radix_t, Radix>>(&temp, this->begin());
+				LargeInteger::LongCmpt<StdCmptTraits<Data>>::SubtractFrom(temp.begin(), this->begin());
 			}
 			else
 			{
 
-				LargeInteger::LongCmpt::AppositionComputeTo<typename StdCmptTraits<Data>::Add, LinkedList*, Data, LLComputeTraits<LinkedList, radix_t, Radix>>(&temp, this->begin());
+				LargeInteger::LongCmpt<StdCmptTraits<Data>>::AddTo(temp.begin(), this->begin());
 			}
 		}
 		INLINED void MY_LIBRARY operator-=(const Data& that)noexcept {
