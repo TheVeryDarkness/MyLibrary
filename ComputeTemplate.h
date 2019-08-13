@@ -134,6 +134,9 @@ namespace LargeInteger{
 			void MY_LIBRARY operator++() noexcept {
 				Result = c(Result.first);
 			}
+			bool MY_LIBRARY operator!()const noexcept {
+				return (Result.first == Data(0) && Result.second == Data(0));
+			}
 
 		private:
 			//Remained, Quotient
