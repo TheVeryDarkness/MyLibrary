@@ -293,56 +293,18 @@ namespace LargeInteger {
 			return LL::operator!=(that);
 		}
 		bool MY_LIBRARY operator==(const Data& that)const noexcept {
-			LargeUnsigned T(that);
-			return LL::operator==(T);
+			typename LongCmpt<StdCmptTraits<Data>>::template LayerIterator<StdCmptTraits<Data>::template Divide<radix>, Data> it(that);
+			return (LargeInteger::LongCmpt<StdCmptTraits<Data>>::CompareTo(this->begin(), it) == Compare::Equal);
 		}
 		bool MY_LIBRARY operator!=(const Data& that)const noexcept {
 			LargeUnsigned T(that);
 			return LL::operator!=(T);
 		}
 		bool MY_LIBRARY operator<(const LargeUnsigned& that)const noexcept {
-			if (this->data == 0 && that.data > 0)
-			{
-				return true;
-			}
-			if (this->data > 0 && that.data == 0)
-			{
-				return false;
-			}
-			if (this->data > 0 && that.data > 0)
-			{
-				if (LargeInteger::LongCmpt<StdCmptTraits<Data>>::CompareTo(this->begin(), that.begin()) == LargeInteger::Compare::Smaller)
-					return true;
-				else return false;
-			}
-			else
-			{
-				if (LargeInteger::LongCmpt<StdCmptTraits<Data>>::CompareTo(that.begin(), this->begin()) == LargeInteger::Compare::Smaller)
-					return true;
-				else return false;
-			}
+			return (LargeInteger::LongCmpt<StdCmptTraits<Data>>::CompareTo(this->begin(), that.begin()) == Compare::Smaller);
 		}
 		bool MY_LIBRARY operator>(const LargeUnsigned& that)const noexcept {
-			if (this->data == 0 && that.data > 0)
-			{
-				return false;
-			}
-			if (this->data > 0 && that.data == 0)
-			{
-				return true;
-			}
-			if (this->data > 0 && that.data > 0)
-			{
-				if (LargeInteger::LongCmpt<StdCmptTraits<Data>>::CompareTo(this->begin(), that.begin()) == Compare::Larger)
-					return true;
-				else return false;
-			}
-			else
-			{
-				if (LargeInteger::LongCmpt<StdCmptTraits<Data>>::CompareTo(that.begin(), this->begin()) == Compare::Larger)
-					return true;
-				else return false;
-			}
+			return(LargeInteger::LongCmpt<StdCmptTraits<Data>>::CompareTo(this->begin(), that.begin()) == Compare::Larger);
 		}
 		bool MY_LIBRARY operator<=(const LargeUnsigned& that)const noexcept {
 			return !(*this > that);
