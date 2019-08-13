@@ -203,8 +203,7 @@ namespace LargeInteger {
 		//重载LinkedList链表负号
 		INLINED LargeUnsigned MY_LIBRARY operator-(
 			)const noexcept {
-			LargeUnsigned res(*this);
-			res.data = !res.data;
+			LargeUnsigned res = Copy(*this);
 			return res;
 		}
 		//重载LinkedList链表+=
