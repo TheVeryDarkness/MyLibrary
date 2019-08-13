@@ -24,7 +24,7 @@
 #define ERR(x) 
 #endif // _DEBUG
 #ifndef ASSERT
-#define ASSERT(x,y) if(!!(y)) { std::cerr << x << std::endl; } assert(y);
+#define ASSERT(x,y) if(!(y)) { std::cerr << x << std::endl; } assert(y);
 #endif // !ASSERT
 #endif // !ERR
 
