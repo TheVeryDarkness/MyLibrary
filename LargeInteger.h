@@ -252,46 +252,20 @@ namespace LargeInteger {
 
 		INLINED void MY_LIBRARY operator+=(const Data& that)noexcept {
 			LargeUnsigned temp(that);
-			if (that != Data(0) && this->next == nullptr)
-			{
-				this->data = Data(1);
-				this->insert(that);
-				return;
-			}
-			if (this->data == 0)
-			{
-				LargeInteger::LongCmpt<StdCmptTraits<Data>>::SubtractFrom(temp.begin(), this->begin());
-			}
-			else
-			{
-
-				LargeInteger::LongCmpt<StdCmptTraits<Data>>::AddTo(temp.begin(), this->begin());
-			}
+			*this += temp;
+			temp.destruct();
 		}
 		INLINED void MY_LIBRARY operator-=(const Data& that)noexcept {
 			LargeUnsigned temp(that);
-			if (that != Data(0) && *this != Data(0))
-			{
-				this->data = Data(0);
-				this->insert(that);
-				return;
-			}
-			if (this->data > 0)
-			{
-				LargeInteger::LongCmpt<StdCmptTraits<Data>>::SubtractFrom(temp.begin(), this->begin());
-			}
-			else
-			{
-
-				LargeInteger::LongCmpt<StdCmptTraits<Data>>::AddTo(temp.begin(), this->begin());
-			}
+			*this -= temp;
+			temp.destruct();
 		}
 		INLINED void MY_LIBRARY operator+(const Data& that)const noexcept {
-			LinkedList res(*this, true);
+			LargeUnsigned res(*this, true);
 			return (res += that);
 		}
 		INLINED void MY_LIBRARY operator-(const Data& that)const noexcept {
-			LinkedList res(*this, true);
+			LargeUnsigned res(*this, true);
 			return (res -= that);
 		}
 
