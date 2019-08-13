@@ -3,6 +3,7 @@
 #include "Shared.h"
 #include "Statistics.h"
 #include "ComputeTemplate.h"
+#include <iostream>
 #include <cassert>
 
 namespace LargeInteger {
@@ -19,7 +20,7 @@ namespace LargeInteger {
 	) noexcept {
 		if (that != 0)
 		{
-			SinglePrint(that, out, ShowComma, MinLength, base);
+			SinglePrint(that + 1, out, ShowComma, MinLength, base);
 			out << ((ShowComma) ? "," : "");
 			char* c = DBG_NEW char[MinLength + 1ULL]();
 			assert(base < BaseType(INT_MAX));
@@ -54,16 +55,15 @@ namespace LargeInteger {
 		using Data=Num<radix_t, radix>;
 	public:
 		template<typename val>
-		explicit MY_LIBRARY LargeUnsigned(val Val)noexcept :LL(0){
+		explicit MY_LIBRARY LargeUnsigned(const val &Val)noexcept :LL(0){
 			static_assert(radix != radix_t(1));
 			static_assert(!std::is_same<val, bool>::value, "Never use bool type");
 			LargeInteger::LongCmpt<StdCmptTraits<val>>::LayerIterator<StdCmptTraits<val>::Divide<radix>, val> it(Val);
 			for (auto& i = this->begin();!!it; ++i)
 			{
-				*i = *it;
+				*i = Data(*it);
 				++it;
 			}
-			assert(Val == static_cast<val>(0));
 			return;
 		}
 		static constexpr LargeUnsigned MY_LIBRARY Copy(const LargeUnsigned& that)noexcept {
@@ -707,7 +707,11 @@ namespace LargeInteger {
 			std::ostream& out,
 			const LargeSigned& l
 			) noexcept {
-			return _Print(l.begin(), out);
+			if (!l.PosSign)
+			{
+				out << "-";
+			}
+			return l.LargeSigned::Print(out);
 		}
 
 		INLINED std::ostream& MY_LIBRARY Print(std::ostream& o = std::cout) const noexcept {

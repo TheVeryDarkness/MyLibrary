@@ -30,7 +30,7 @@ namespace LargeInteger {
 		constexpr const Data& MY_LIBRARY operator()()const noexcept{ return this->data; }
 		constexpr MY_LIBRARY Num(Data init)noexcept
 			:data((Radix == Data(0)) ? (init) : (init % Radix)) {
-			assert(init < Radix);
+			ASSERT(init << " >= " << Radix, init < Radix);
 			static_assert(std::is_integral<Data>::value, "Integral required");
 			static_assert(Data(-1) > Data(0), "Unsigned type required");
 		}

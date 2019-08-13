@@ -48,7 +48,7 @@ namespace LargeInteger{
 			}
 			//return true if the iterator is still working
 			bool MY_LIBRARY operator!()const noexcept {
-				return (
+				return !(
 					a == nullptr
 					&&
 					b == nullptr

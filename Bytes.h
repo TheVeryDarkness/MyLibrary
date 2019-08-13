@@ -28,7 +28,7 @@ namespace LargeInteger {
 	class Bytes
 	{
 	private:
-		value_type Byte[Length];
+		value_type Byte[Length] = {};
 	public:
 		constexpr explicit MY_LIBRARY Bytes()noexcept {}
 		template<size_t OriginLength> constexpr explicit MY_LIBRARY Bytes(const Bytes<OriginLength>&)noexcept;
