@@ -262,6 +262,7 @@ namespace LargeInteger{
 		template<typename Iterator1, typename Iterator2>
 		static INLINED auto MY_LIBRARY _CompareTo(const Iterator1& a, const Iterator2& b) noexcept {
 			using Data=typename std::remove_cvref<decltype(*a)>::type;
+			using TRUE_TYPE=typename Depack<Data>::TRUE_TYPE;
 			static_assert(std::is_same_v<std::remove_cvref_t<decltype(*a)>, std::remove_cvref_t<decltype(*b)>>);
 			{
 				Compare temp = Compare::Equal;
@@ -287,18 +288,18 @@ namespace LargeInteger{
 				{
 					if (temp == Compare::Larger) {
 						if (*_a > *_b) {
-							return std::pair<Data, Compare>(Data(*_a / (*_b + Data(1))), Compare::Larger);
+							return std::pair<TRUE_TYPE, Compare>(TRUE_TYPE(*_a / (*_b + Data(1))), Compare::Larger);
 						}
-						return std::pair<Data, Compare>(Data(1), Compare::Larger);
+						return std::pair<TRUE_TYPE, Compare>(1, Compare::Larger);
 					}
 					else if (temp == Compare::Smaller) {
 						if (*_a < (*_b)) {
-							return std::pair<Data, Compare>(Data(*_b / (*_a + Data(1))), Compare::Smaller);
+							return std::pair<TRUE_TYPE, Compare>(TRUE_TYPE(*_b / (*_a + Data(1))), Compare::Smaller);
 						}
-						return std::pair<Data, Compare>(Data(1), Compare::Smaller);
+						return std::pair<TRUE_TYPE, Compare>((1), Compare::Smaller);
 					}
 					else {
-						return std::pair<Data, Compare>(Data(1), Compare::Equal);
+						return std::pair<TRUE_TYPE, Compare>((1), Compare::Equal);
 					}
 				}
 			}
@@ -311,7 +312,7 @@ namespace LargeInteger{
 				case Compare::Larger:
 					return;
 				case Compare::Equal:
-					Accum(_a, _b, Data(1));
+					Accum(_a, _b, 1);
 					return;
 				case Compare::Smaller:
 					__DivideInto<Accumulation, Recursion, Iterator1, Iterator2, Data>(_a, _b + 1, Move, Accum);
@@ -331,7 +332,7 @@ namespace LargeInteger{
 				else {
 					if (cmpr == Compare::Equal)
 					{
-						res = Data(1);
+						res = 1;
 					}
 					Accum(_a, _b, res);
 					//return;
@@ -343,8 +344,8 @@ namespace LargeInteger{
 			static_assert(std::is_same< std::remove_cvref<decltype(*a)>::type, std::remove_cvref<decltype(*b)>::type>::value);
 			using Data=typename std::remove_cvref<decltype(*a)>::type;
 			//Regarding of the compatibility, we didn't use any majorization.
-			auto func1 = [&Res](const Iterator1& a, const Iterator2& b, Data times)->void {
-				for (Data i = Data(0); i < times; ++i) {
+			auto func1 = [&Res](const Iterator1& a, const Iterator2& b, size_t times)->void {
+				for (size_t i = 0; i < times; ++i) {
 					AppositionComputeTo<typename _Traits::SubtractFrom, Iterator1, Iterator2>(a, b);
 				}
 				Res += times;
