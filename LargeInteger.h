@@ -584,20 +584,28 @@ namespace LargeInteger {
 			temp -= that;
 			return temp;
 		}
-		LargeSigned& MY_LIBRARY operator+=(const Data& that) noexcept {
+		template<typename Int>
+		LargeSigned& MY_LIBRARY operator+=(const Int& that) noexcept {
+			static_assert(std::is_integral_v<Int>);
 			this->LargeUnsigned<LL, radix>::operator+=(that);
 			return *this;
 		}
-		LargeSigned MY_LIBRARY operator+(const Data& that) const noexcept {
+		template<typename Int>
+		LargeSigned MY_LIBRARY operator+(const Int& that) const noexcept {
+			static_assert(std::is_integral_v<Int>);
 			LargeSigned temp = Copy(*this);
 			temp += that;
 			return temp;
 		}
-		LargeSigned& MY_LIBRARY operator-=(const Data& that) noexcept {
+		template<typename Int>
+		LargeSigned& MY_LIBRARY operator-=(const Int& that) noexcept {
+			static_assert(std::is_integral_v<Int>);
 			this->LargeUnsigned<LL, radix>::operator-=(that);
 			return *this;
 		}
-		LargeSigned MY_LIBRARY operator-(const Data& that) const noexcept {
+		template<typename Int>
+		LargeSigned MY_LIBRARY operator-(const Int& that) const noexcept {
+			static_assert(std::is_integral_v<Int>);
 			LargeSigned temp = Copy(*this);
 			temp -= that;
 			return temp;
@@ -611,11 +619,15 @@ namespace LargeInteger {
 			temp *= that;
 			return temp;
 		}
-		LargeSigned& MY_LIBRARY operator*=(const Data& that) noexcept {
+		template<typename Int>
+		LargeSigned& MY_LIBRARY operator*=(const Int& that) noexcept {
+			static_assert(std::is_integral_v<Int>);
 			this->LargeUnsigned<LL, radix>::operator*=(that);
 			return *this;
 		}
-		LargeSigned MY_LIBRARY operator*(const Data& that) const noexcept {
+		template<typename Int>
+		LargeSigned MY_LIBRARY operator*(const Int& that) const noexcept {
+			static_assert(std::is_integral_v<Int>);
 			LargeSigned temp = Copy(*this);
 			temp *= that;
 			return temp;
@@ -638,11 +650,15 @@ namespace LargeInteger {
 			temp /= that;
 			return temp;
 		}
-		LargeSigned& MY_LIBRARY operator%=(const Data& that) noexcept {
+		template<typename Int>
+		LargeSigned& MY_LIBRARY operator%=(const Int& that) noexcept {
+			static_assert(std::is_integral_v<Int>);
 			this->LargeUnsigned<LL, radix>::operator%=(that);
 			return *this;
 		}
-		LargeSigned MY_LIBRARY operator%(const Data& that) const noexcept {
+		template<typename Int>
+		LargeSigned MY_LIBRARY operator%(const Int& that) const noexcept {
+			static_assert(std::is_integral_v<Int>);
 			LargeSigned temp = Copy(*this);
 			temp %= that;
 			return temp;
