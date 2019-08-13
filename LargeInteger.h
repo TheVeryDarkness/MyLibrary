@@ -260,72 +260,20 @@ namespace LargeInteger {
 			*this -= temp;
 			temp.destruct();
 		}
-		INLINED void MY_LIBRARY operator+(const Data& that)const noexcept {
-			LargeUnsigned res(*this, true);
-			return (res += that);
+		INLINED LargeUnsigned MY_LIBRARY operator+(const Data& that)const noexcept {
+			LargeUnsigned res = Copy(*this);
+			res += that;
+			return res;
 		}
-		INLINED void MY_LIBRARY operator-(const Data& that)const noexcept {
-			LargeUnsigned res(*this, true);
-			return (res -= that);
+		INLINED LargeUnsigned MY_LIBRARY operator-(const Data& that)const noexcept {
+			LargeUnsigned res = Copy(*this);
+			res -= that;
+			return res;
 		}
 
 
 
-		//覆盖赋值
-		/*INLINED*/void MY_LIBRARY SetValue(
-			long num, const Data* data
-		) noexcept {
-			auto& OprtPtr = this->begin();//操作当前对象
-			OprtPtr->data = data;
-			long count = 1;
-			while (true)
-			{
-				if (count >= num)
-				{
-					break;
-				}
-				if (OprtPtr->next == nullptr)
-				{
-					OprtPtr->insert();
-				}
-				else
-				{
-					break;
-				}
-				++OprtPtr
-				OprtPtr->data = &data[count - 1];
-				count++;
-			}
-			return;
-		}
-		//覆盖赋值
-		//因为不知名的原因，对SBLinkedList禁用
-		/*INLINED*/void __cdecl SetValue(
-			long num, Data data, ...
-		) noexcept {
-			LinkedList* OprtPtr = this;//操作当前对象
-			OprtPtr->data = data;
-			long count = 1;
-			while (true)
-			{
-				if (count >= num)
-				{
-					break;
-				}
-				if (OprtPtr->next == nullptr)
-				{
-					OprtPtr->insert();
-				}
-				else
-				{
-					break;
-				}
-				OprtPtr = OprtPtr->next;
-				OprtPtr->data = ((&data)[count - 1]);
-				count++;
-			}
-			return;
-		}
+		
 
 		//位移运算
 		//按独立进制而非二进制
@@ -453,7 +401,7 @@ namespace LargeInteger {
 				LargeUnsigned Res(Data(0));
 				LargeInteger::LongCmpt<StdCmptTraits<Data>>::DivideInto(Res, temp.begin(), this->begin());
 				this->destruct();
-				this->next = Res.next;
+				*this = Res;
 			}
 			else return;
 			this->Simplify();
@@ -559,17 +507,49 @@ namespace LargeInteger {
 		bool MY_LIBRARY operator!=(const LargeSigned& that)const noexcept {
 			return (this->LargeUnsigned<LL, radix>::operator!=(that) || (this->PosSign != that.PosSign));
 		}
-		bool MY_LIBRARY operator>(const LargeSigned& that)const noexcept {
-			return (this->LargeUnsigned<LL, radix>::operator>(that));
-		}
 		bool MY_LIBRARY operator<(const LargeSigned& that)const noexcept {
-			return (this->LargeUnsigned<LL, radix>::operator<(that));
+			if ((!this->PosSign) && that.PosSign)
+			{
+				return true;
+			}
+			if (this->PosSign && !(that.PosSign))
+			{
+				return false;
+			}
+			if (this->PosSign && that.PosSign)
+			{
+				return this->LargeUnsigned<LL, radix>::operator<(that);
+			}
+			else
+			{
+				assert((!this->PosSign) && (!that.PosSign));
+				return this->LargeUnsigned<LL, radix>::operator>(that);
+			}
 		}
-		bool MY_LIBRARY operator>=(const LargeSigned& that)const noexcept {
-			return (this->LargeUnsigned<LL, radix>::operator>=(that));
+		bool MY_LIBRARY operator>(const LargeSigned& that)const noexcept {
+			if ((!this->PosSign) && that.PosSign)
+			{
+				return false;
+			}
+			if (this->PosSign && !(that.PosSign))
+			{
+				return true;
+			}
+			if (this->PosSign && that.PosSign)
+			{
+				return this->LargeUnsigned<LL, radix>::operator>(that);
+			}
+			else
+			{
+				assert((!this->PosSign) && (!that.PosSign));
+				return this->LargeUnsigned<LL, radix>::operator<(that);
+			}
 		}
 		bool MY_LIBRARY operator<=(const LargeSigned& that)const noexcept {
-			return (this->LargeUnsigned<LL, radix>::operator<=(that));
+			return !(*this > that);
+		}
+		bool MY_LIBRARY operator>=(const LargeSigned& that)const noexcept {
+			return !(*this < that);
 		}
 		bool MY_LIBRARY operator==(const Data& that)const noexcept {
 			return (this->LargeUnsigned<LL, radix>::operator==(that) && (this->PosSign == (that > 0)));
@@ -634,7 +614,27 @@ namespace LargeInteger {
 			return temp;
 		}
 		LargeSigned& MY_LIBRARY operator-=(const LargeSigned& that) noexcept {
-			LargeUnsigned<LL, radix>::operator-=(that);
+			if ((*this >= 0 && that <= 0) || (this <= 0 && that >= 0))
+			{
+				LargeUnsigned<LL, radix>::operator+=(that);
+			}
+			else {
+				LargeInteger::Compare Cmpr = LargeInteger::LongCmpt<StdCmptTraits<Data>>::CompareTo(this->begin(), that.begin());
+				if (Cmpr == LargeInteger::Compare::Equal)
+				{
+					this->destruct();
+				}
+				if (Cmpr == LargeInteger::Compare::Larger)
+				{
+					LargeInteger::LongCmpt<StdCmptTraits<Data>>::SubtractFrom(that.begin(), this->begin());
+				}
+				else
+				{
+					LargeSigned temp = Copy(that);
+					temp.LargeUnsigned::operator-=(*this);
+					*this = temp;
+				}
+			}
 			return *this;
 		}
 		LargeSigned MY_LIBRARY operator-(const LargeSigned& that) const noexcept {
