@@ -283,8 +283,8 @@ namespace LargeInteger {
 			}
 		}
 		INLINED void MY_LIBRARY operator-=(const Data& that)noexcept {
-			LinkedList temp(that, nullptr);
-			if (that != Data(0) && this->next == nullptr)
+			LargeUnsigned temp(that);
+			if (that != Data(0) && *this != Data(0))
 			{
 				this->data = Data(0);
 				this->insert(that);
@@ -292,12 +292,12 @@ namespace LargeInteger {
 			}
 			if (this->data > 0)
 			{
-				LargeInteger::LongCmpt::AppositionComputeTo<typename LargeInteger::StdCmptTraits<Data>::SubtractFrom, LinkedList*, Data, LLComputeTraits<LinkedList, radix_t, Radix>>(&temp, this->begin());
+				LargeInteger::LongCmpt<StdCmptTraits<Data>>::SubtractFrom(temp.begin(), this->begin());
 			}
 			else
 			{
 
-				LargeInteger::LongCmpt::AppositionComputeTo<typename LargeInteger::StdCmptTraits<Data>::Add, LinkedList*, Data, LLComputeTraits<LinkedList, radix_t, Radix>>(&temp, this->begin());
+				LargeInteger::LongCmpt<StdCmptTraits<Data>>::AddTo(temp.begin(), this->begin());
 			}
 		}
 		INLINED void MY_LIBRARY operator+(const Data& that)const noexcept {
@@ -477,6 +477,27 @@ namespace LargeInteger {
 			else return;
 			this->Simplify();
 		}
+		void MY_LIBRARY operator%=(const Data& that)noexcept {
+			LargeUnsigned temp(that);
+			if (this->next != nullptr && temp.next != nullptr)
+			{
+				LargeInteger::LongCmpt<StdCmptTraits<Data>>::DivideInto(temp.begin(), this->begin());
+			}
+			else return;
+			this->Simplify();
+		}
+		void MY_LIBRARY operator/=(const Data& that)noexcept {
+			LargeUnsigned temp(that);
+			if (this->next != nullptr && temp.next != nullptr)
+			{
+				LargeUnsigned Res(Data(0));
+				LargeInteger::LongCmpt<StdCmptTraits<Data>>::DivideInto(Res, temp.begin(), this->begin());
+				this->destruct();
+				this->next = Res.next;
+			}
+			else return;
+			this->Simplify();
+		}
 
 		//位移运算
 		//按独立进制而非二进制
@@ -641,12 +662,30 @@ namespace LargeInteger {
 			temp -= thst;
 			return temp;
 		}
+		LargeSigned& MY_LIBRARY operator+=(const Data& that) noexcept {
+			this->LargeUnsigned<LL, radix>::operator+=(that);
+			return *this;
+		}
+		LargeSigned MY_LIBRARY operator+(const Data& that) const noexcept {
+			this->LargeSigned temp = Copy(*this);
+			temp += thst;
+			return temp;
+		}
+		LargeSigned& MY_LIBRARY operator-=(const Data& that) noexcept {
+			this->LargeUnsigned<LL, radix>::operator-=(that);
+			return *this;
+		}
+		LargeSigned MY_LIBRARY operator-(const Data& that) const noexcept {
+			LargeSigned temp = Copy(*this);
+			temp -= thst;
+			return temp;
+		}
 		LargeSigned& MY_LIBRARY operator*=(const LargeSigned& that) noexcept {
 			this->LargeUnsigned<LL, radix>::operator*=(that);
 			return *this;
 		}
 		LargeSigned MY_LIBRARY operator*(const LargeSigned& that) const noexcept {
-			this->LargeSigned temp = Copy(*this);
+			LargeSigned temp = Copy(*this);
 			temp *= that;
 			return temp;
 		}
@@ -655,7 +694,7 @@ namespace LargeInteger {
 			return *this;
 		}
 		LargeSigned MY_LIBRARY operator*(const Data& that) const noexcept {
-			this->LargeSigned temp = Copy(*this);
+			LargeSigned temp = Copy(*this);
 			temp *= that;
 			return temp;
 		}
@@ -664,7 +703,7 @@ namespace LargeInteger {
 			return *this;
 		}
 		LargeSigned MY_LIBRARY operator%(const LargeSigned& that) const noexcept {
-			this->LargeSigned temp = Copy(*this);
+			LargeSigned temp = Copy(*this);
 			temp %= that;
 			return temp;
 		}
@@ -673,7 +712,25 @@ namespace LargeInteger {
 			return *this;
 		}
 		LargeSigned MY_LIBRARY operator/(const LargeSigned& that) const noexcept {
-			this->LargeSigned temp = Copy(*this);
+			LargeSigned temp = Copy(*this);
+			temp /= that;
+			return temp;
+		}
+		LargeSigned& MY_LIBRARY operator%=(const Data& that) noexcept {
+			this->LargeUnsigned<LL, radix>::operator%=(that);
+			return *this;
+		}
+		LargeSigned MY_LIBRARY operator%(const Data& that) const noexcept {
+			LargeSigned temp = Copy(*this);
+			temp %= that;
+			return temp;
+		}
+		LargeSigned& MY_LIBRARY operator/=(const Data& that) noexcept {
+			this->LargeUnsigned<LL, radix>::operator/=(that);
+			return *this;
+		}
+		LargeSigned MY_LIBRARY operator/(const Data& that) const noexcept {
+			LargeSigned temp = Copy(*this);
 			temp /= that;
 			return temp;
 		}
