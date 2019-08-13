@@ -436,7 +436,14 @@ public:
 
 	constexpr iterator MY_LIBRARY operator+(size_t sz)const noexcept {
 		iterator it(*this);
-		it += sz;
+		for (size_t i = 0; i < sz; i++)
+		{
+			if (it.ptr != nullptr)
+			{
+				it.ptr = it.ptr->next;
+			}
+			else break;
+		}
 		return it;
 	}
 
