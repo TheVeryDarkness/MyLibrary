@@ -58,12 +58,10 @@ namespace LargeInteger {
 			static_assert(radix != radix_t(1));
 			static_assert(!std::is_same<val, bool>::value, "Never use bool type");
 			LargeInteger::LongCmpt<StdCmptTraits<Data>>::LayerIterator<StdCmptTraits<Data>::Divide<radix>, Data> it(Val);
-			for (auto& i = this->begin();; ++i)
+			for (auto& i = this->begin();!!it; ++i)
 			{
-				*i = Val % radix;
-				if ((Val /= radix) == static_cast<val>(0)) {
-					break;
-				}
+				*i = *it;
+				++it;
 			}
 			assert(Val == static_cast<val>(0));
 			return;
