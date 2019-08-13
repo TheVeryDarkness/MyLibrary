@@ -195,12 +195,17 @@ namespace LargeInteger {
 		/*INLINED*/void MY_LIBRARY operator*=(const LargeUnsigned& b) noexcept {
 			LargeUnsigned This(b);
 			this->~LargeUnsigned();
+			size_t WhiteLength = 0;
 			for (auto OprtPtr = b.begin(); OprtPtr != nullptr; ++OprtPtr) {
 				typename LargeInteger::LongCmpt<typename LargeInteger::StdCmptTraits<Data>>::template LineIterator<typename LargeInteger::StdCmptTraits<Data>::Multiply, decltype(this->begin()), Data> temp(*OprtPtr, This.begin());
 				LargeInteger::LongCmpt<typename LargeInteger::StdCmptTraits<Data>>::AddTo(temp, this->begin());
 				This <<= 1;
+				++WhiteLength;
 			}
-			
+			for (size_t i = 0; i < WhiteLength; i++)
+			{
+				This.cut();
+			}
 		}
 		//÷ÿ‘ÿ
 		/*INLINED*/LargeUnsigned MY_LIBRARY operator*(const LargeUnsigned& b)const noexcept {
@@ -342,14 +347,18 @@ namespace LargeInteger {
 		template<typename Int>
 		bool MY_LIBRARY operator<(const Int& that)const noexcept {
 			static_assert(std::is_integral_v<Int>);
-			LargeUnsigned T(that);
-			return (*this < T);
+			LargeUnsigned temp(that);
+			bool&& Res = (*this < temp);
+			temp.destruct();
+			return Res;
 		}
 		template<typename Int>
 		bool MY_LIBRARY operator>(const Int& that)const noexcept {
 			static_assert(std::is_integral_v<Int>);
-			LargeUnsigned T(that);
-			return (*this > T);
+			LargeUnsigned temp(that);
+			bool&& Res = (*this > temp);
+			temp.destruct();
+			return Res;
 		}
 		template<typename Int>
 		bool MY_LIBRARY operator<=(const Int& that)const noexcept {
@@ -380,12 +389,14 @@ namespace LargeInteger {
 			static_assert(std::is_integral_v<Int>);
 			LargeUnsigned temp(that);
 			*this %= temp;
+			temp.destruct();
 		}
 		template<typename Int>
 		void MY_LIBRARY operator/=(const Int& that)noexcept {
 			static_assert(std::is_integral_v<Int>);
 			LargeUnsigned temp(that);
 			*this /= temp;
+			temp.destruct();
 		}
 
 		//Œª“∆‘ÀÀ„
