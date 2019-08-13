@@ -56,23 +56,22 @@ namespace LL {
 		friend outNode MY_LIBRARY Transform(inNode& in)noexcept;
 
 
-		friend struct std::iterator<std::output_iterator_tag, OLL>;
-		friend struct std::iterator<std::output_iterator_tag, const OLL>;
+		friend struct std::iterator<std::forward_iterator_tag, OLL>;
+		friend struct std::iterator<std::forward_iterator_tag, const OLL>;
 
 		MEMORY_CACHE(20);
 	public:
-		template<bool ins = false>
-		constexpr INLINED std:: iterator<std::output_iterator_tag, const OLL> begin()const noexcept {
-			return std::iterator<std::output_iterator_tag, const OLL>(this);
+		constexpr INLINED std:: iterator<std::forward_iterator_tag, OLL> begin() noexcept {
+			return std::iterator<std::forward_iterator_tag, OLL>(this);
 		}
-		constexpr INLINED std:: iterator<std::output_iterator_tag, OLL> begin() noexcept {
-			return std::iterator<std::output_iterator_tag, OLL>(this);
+		constexpr INLINED std:: iterator<std::forward_iterator_tag, const OLL> begin()const noexcept {
+			return std::iterator<std::forward_iterator_tag, const OLL>(this);
 		}
-		constexpr INLINED std::iterator<std::output_iterator_tag,OLL> end()const noexcept {
-			return std::iterator<std::output_iterator_tag, OLL>(nullptr);
+		constexpr INLINED std::iterator<std::forward_iterator_tag,OLL> end() noexcept {
+			return std::iterator<std::forward_iterator_tag, OLL>(nullptr);
 		}
-		constexpr INLINED std::iterator<std::output_iterator_tag,const OLL> end() noexcept {
-			return std::iterator<std::output_iterator_tag, const OLL>(nullptr);
+		constexpr INLINED std::iterator<std::forward_iterator_tag,const OLL> end() const noexcept {
+			return std::iterator<std::forward_iterator_tag, const OLL>(nullptr);
 		}
 	protected:
 
@@ -343,7 +342,7 @@ namespace LL {
 }
 
 template<typename Data>
-class std::iterator<std::output_iterator_tag, LL::OLL<Data>>
+class std::iterator<std::forward_iterator_tag, LL::OLL<Data>>
 {
 	using in=LL::OLL<Data>;
 public:
@@ -397,12 +396,12 @@ public:
 
 private:
 	in* ptr;
-	friend struct std::iterator<std::output_iterator_tag, const LL::OLL<Data>>;
+	friend struct std::iterator<std::forward_iterator_tag, const LL::OLL<Data>>;
 	static inline Data NullData = 0;
 };
 
 template<typename Data>
-struct std::iterator<std::output_iterator_tag, const LL::OLL<Data>>
+struct std::iterator<std::forward_iterator_tag, const LL::OLL<Data>>
 {
 	using in=const LL::OLL<Data>;
 public:
@@ -442,8 +441,8 @@ public:
 			return this->ptr->data;
 		}
 		else {
-			assert((std::iterator<std::output_iterator_tag, LL::OLL<Data>>::NullData == 0));
-			return static_cast<const Data&>(std::iterator<std::output_iterator_tag, LL::OLL<Data>>::NullData = 0);
+			assert((std::iterator<std::forward_iterator_tag, LL::OLL<Data>>::NullData == 0));
+			return static_cast<const Data&>(std::iterator<std::forward_iterator_tag, LL::OLL<Data>>::NullData = 0);
 		}
 	}
 
