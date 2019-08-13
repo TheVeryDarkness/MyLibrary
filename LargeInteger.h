@@ -211,16 +211,16 @@ namespace LargeInteger {
 		}
 		//ÖØÔØLinkedListÁ´±í+=
 		INLINED void MY_LIBRARY operator+=(const LargeUnsigned& that) noexcept {
-			if (that.next == nullptr)
+			if (that == Data(0))
 			{
 				return;
 			}
-			if (this->next == nullptr)
+			if (*this == Data(0))
 			{
 				*this = Copy(that);
 				return;
 			}
-			if ((this->data > 0 && that.data > 0) || (this->data == 0 && that.data == 0))
+			if ((*this >= 0 && that >= 0) || (this <= 0 && that <= 0))
 			{
 				LargeInteger::LongCmpt<StdCmptTraits<Data>>::AddTo(that.begin(), this->begin());
 			}
