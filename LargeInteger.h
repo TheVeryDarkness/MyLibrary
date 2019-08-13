@@ -55,6 +55,7 @@ namespace LargeInteger {
 	public:
 		template<typename val>
 		explicit MY_LIBRARY LargeUnsigned(val Val)noexcept {
+			static_assert(radix != radix_t(1));
 			static_assert(!std::is_same<val, bool>::value, "Never use bool type");
 			LargeInteger::LongCmpt<StdCmptTraits<Data>>::LayerIterator<StdCmptTraits<Data>::Divide, Data> it(Val);
 			for (auto& i = this->begin();; ++i)
@@ -172,7 +173,7 @@ namespace LargeInteger {
 			{
 				return;
 			}
-			LargeInteger::LongCmpt<typename LargeInteger::StdCmptTraits<typename radix_t>>::MultiplyTo(times, this->begin());
+			LargeInteger::LongCmpt<typename LargeInteger::StdCmptTraits<typename Data>>::MultiplyTo(times, this->begin());
 		}
 		//重载
 		/*INLINED*/LargeUnsigned MY_LIBRARY operator*(Data times)const noexcept {
@@ -491,24 +492,10 @@ namespace LargeInteger {
 
 		//覆盖赋值
 		/*INLINED*/LargeUnsigned& MY_LIBRARY operator=(
-			long value
+			unsigned long value
 			) noexcept {
-			if constexpr (Radix == radix_t(1))
 			{
-				this->data = (Data)value;
-			}
-			else
-			{
-				LinkedList* OprtPtr = this;//操作当前对象
-				if (value >= 0)
-				{
-					OprtPtr->data = Data(true);
-				}
-				else
-				{
-					OprtPtr->data = Data(false);
-					value = -value;
-				}
+				auto OprtPtr = this->begin();//操作当前对象
 				while (true)
 				{
 					if (value == 0)
@@ -623,8 +610,17 @@ namespace LargeInteger {
 		}
 
 		template<typename Val >
-		LargeSigned& MY_LIBRARY operator=(Val val) noexcept {
-			LargeUnsigned<LL, radix>::operator=(val);
+		LargeSigned& MY_LIBRARY operator=(Val value) noexcept {
+			if (value >= 0)
+			{
+				this->PosSign = true;
+			}
+			else
+			{
+				this->PosSign = false;
+				value = -value;
+			}
+			LargeUnsigned<LL, radix>::operator=(value);
 			return *this;
 		}
 		LargeSigned& MY_LIBRARY operator+=(const LargeSigned& that) noexcept {
