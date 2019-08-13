@@ -31,17 +31,17 @@ namespace LargeInteger{
 		{
 		public:
 			MY_LIBRARY AppositionIterator(Iterator1 a, Iterator2 b)noexcept
-				:a(a), b(b), c(), Result(c(Data(0), _Traits::GetData(a), _Traits::GetData(b))) {
-				static_assert(std::is_same<Data, std::remove_reference<decltype(_Traits::GetData(b))>::type>::value, "It should be the same type");
+				:a(a), b(b), c(), Result(c(Data(0), *(a), *(b))) {
+				static_assert(std::is_same_v<Data, std::remove_cvref_t<decltype(*(b))>>, "It should be the same type");
 			}
 			MY_LIBRARY ~AppositionIterator()noexcept {}
 			//Notice:
 			//	this function move the iterator to its next place
 			void MY_LIBRARY operator++() noexcept {
-				a = _Traits::GetNext(a);
-				b = _Traits::GetNext(b);
+				++a;
+				++b;
 
-				Result = c(Result.second, _Traits::GetData(a), _Traits::GetData(b));
+				Result = c(Result.second, *(a), *(b));
 			}
 			const Data& operator*()const noexcept {
 				return Result.first;
@@ -49,9 +49,9 @@ namespace LargeInteger{
 			//return true if the iterator is still working
 			bool MY_LIBRARY operator!()const noexcept {
 				return (
-					a == _Traits::NullIterator
+					a == nullptr
 					&&
-					b == _Traits::NullIterator
+					b == nullptr
 					&&
 					Result.first == Data(0)
 					&&
