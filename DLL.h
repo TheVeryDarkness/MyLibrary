@@ -330,6 +330,60 @@ namespace LL {
 		//Head included
 		INLINED size_t MY_LIBRARY RawLength()const noexcept {
 			LL_LENGTH(DLL);
+		}//覆盖赋值
+		/*INLINED*/void MY_LIBRARY SetValue(
+			long num, const Data* data
+		) noexcept {
+			auto& OprtPtr = this->begin();//操作当前对象
+			OprtPtr->data = data;
+			long count = 1;
+			while (true)
+			{
+				if (count >= num)
+				{
+					break;
+				}
+				if (OprtPtr->next == nullptr)
+				{
+					OprtPtr->insert();
+				}
+				else
+				{
+					break;
+				}
+				++OprtPtr
+					OprtPtr->data = &data[count - 1];
+				count++;
+			}
+			return;
+		}
+		//覆盖赋值
+		//因为不知名的原因，对SBLinkedList禁用
+		/*INLINED*/void __cdecl SetValue(
+			long num, Data data, ...
+		) noexcept {
+			auto OprtPtr = this->begin();//操作当前对象
+			OprtPtr->data = data;
+			long count = 1;
+			while (true)
+			{
+				if (count >= num)
+				{
+					break;
+				}
+				if (OprtPtr->next == nullptr)
+				{
+					OprtPtr->insert();
+				}
+				else
+				{
+					break;
+				}
+				OprtPtr = OprtPtr->next;
+				OprtPtr->data = ((&data)[count - 1]);
+				count++;
+			}
+			return;
 		}
 		/*
 		//重载
