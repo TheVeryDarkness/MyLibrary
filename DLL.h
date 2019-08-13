@@ -152,6 +152,9 @@ namespace LL {
 				return false;
 			}
 		}
+		INLINED bool MY_LIBRARY operator!=(const DLL& that)const noexcept {
+			return !(*this == that);
+		}
 		INLINED bool MY_LIBRARY operator<(const DLL& that)const noexcept {
 			if (this->data > 0 && that.data == 0)
 				return false;

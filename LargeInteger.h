@@ -643,21 +643,21 @@ namespace LargeInteger {
 			return *this;
 		}
 		LargeSigned& MY_LIBRARY operator+=(const LargeSigned& that) noexcept {
-			this->LargeUnsigned<LL, radix>::operator+=(that);
+			LargeUnsigned<LL, radix>::operator+=(that);
 			return *this;
 		}
 		LargeSigned MY_LIBRARY operator+(const LargeSigned& that) const noexcept {
-			this->LargeSigned temp = Copy(*this);
-			temp += thst;
+			LargeSigned temp = Copy(*this);
+			temp += that;
 			return temp;
 		}
 		LargeSigned& MY_LIBRARY operator-=(const LargeSigned& that) noexcept {
-			this->LargeUnsigned<LL, radix>::operator-=(that);
+			LargeUnsigned<LL, radix>::operator-=(that);
 			return *this;
 		}
 		LargeSigned MY_LIBRARY operator-(const LargeSigned& that) const noexcept {
 			LargeSigned temp = Copy(*this);
-			temp -= thst;
+			temp -= that;
 			return temp;
 		}
 		LargeSigned& MY_LIBRARY operator+=(const Data& that) noexcept {
@@ -666,7 +666,7 @@ namespace LargeInteger {
 		}
 		LargeSigned MY_LIBRARY operator+(const Data& that) const noexcept {
 			this->LargeSigned temp = Copy(*this);
-			temp += thst;
+			temp += that;
 			return temp;
 		}
 		LargeSigned& MY_LIBRARY operator-=(const Data& that) noexcept {
@@ -675,7 +675,7 @@ namespace LargeInteger {
 		}
 		LargeSigned MY_LIBRARY operator-(const Data& that) const noexcept {
 			LargeSigned temp = Copy(*this);
-			temp -= thst;
+			temp -= that;
 			return temp;
 		}
 		LargeSigned& MY_LIBRARY operator*=(const LargeSigned& that) noexcept {
