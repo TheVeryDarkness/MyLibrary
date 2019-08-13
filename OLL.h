@@ -258,9 +258,7 @@ namespace LL {
 				PreOprtPtr = PreOprtPtr->next;
 			}
 		}
-		bool MY_LIBRARY operator!=(
-			const OLL& that
-			)const noexcept {
+		bool MY_LIBRARY operator!=(const OLL& that)const noexcept {
 			return !(*this == that);
 		}
 		//从链表头（不包括链表头）开始，倒置之后的链节
