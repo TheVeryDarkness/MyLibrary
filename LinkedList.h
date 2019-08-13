@@ -39,7 +39,7 @@ namespace LL {
 
 	template<typename Type>
 	//输出流
-	/*INLINED*/std::ostream& MY_LIBRARY out(
+	INLINED std::ostream& MY_LIBRARY out(
 		std::ostream& out, const Type& b
 	) noexcept {
 		if (b.next != nullptr)
@@ -66,7 +66,6 @@ namespace LL {
 			SinglePrint(*that.next, out, ShowComma, MinLength);
 			out << ((ShowComma) ? "," : "");
 			char* c = DBG_NEW char[MinLength + 1ULL]();
-			ASSERT("The base is too large" ,base < BaseType(INT_MAX));
 			std::to_chars_result rs = std::to_chars(c, &(c[MinLength]), that.data());
 
 			std::string str = c;
