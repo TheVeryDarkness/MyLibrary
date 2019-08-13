@@ -281,7 +281,7 @@ namespace LargeInteger{
 			}
 			while (true)
 			{
-				auto [res, cmpr] = _CompareTo<Iterator, Data>(_b, _a);
+				auto [res, cmpr] = _CompareTo(_b, _a);
 				if (cmpr == Compare::Smaller)
 				{
 					return;

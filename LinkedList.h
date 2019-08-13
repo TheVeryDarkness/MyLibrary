@@ -59,16 +59,15 @@ namespace LL {
 		const Type& that,
 		std::ostream& out = std::cout,
 		bool ShowComma = true,
-		unsigned MinLength = 0,
-		BaseType base = 10
+		unsigned MinLength = 0
 	) noexcept {
 		if (that.next != nullptr)
 		{
-			SinglePrint(*that.next, out, ShowComma, MinLength, base);
+			SinglePrint(*that.next, out, ShowComma, MinLength);
 			out << ((ShowComma) ? "," : "");
 			char* c = DBG_NEW char[MinLength + 1ULL]();
 			assert(base < BaseType(INT_MAX));
-			std::to_chars_result rs = std::to_chars(c, &(c[MinLength]), that.data(), base);
+			std::to_chars_result rs = std::to_chars(c, &(c[MinLength]), that.data());
 
 			std::string str = c;
 			delete[] c;

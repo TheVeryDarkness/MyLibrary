@@ -54,7 +54,7 @@ namespace LargeInteger {
 		using Data=Num<radix_t, radix>;
 	public:
 		template<typename val>
-		explicit MY_LIBRARY LargeUnsigned(val Val)noexcept {
+		explicit MY_LIBRARY LargeUnsigned(val Val)noexcept :LL(0){
 			static_assert(radix != radix_t(1));
 			static_assert(!std::is_same<val, bool>::value, "Never use bool type");
 			LargeInteger::LongCmpt<StdCmptTraits<Data>>::LayerIterator<StdCmptTraits<Data>::Divide, Data> it(Val);
@@ -692,7 +692,7 @@ namespace LargeInteger {
 			std::ostream& out,
 			const LargeSigned& l
 			) noexcept {
-			return _Print<LargeSigned, radix>(l, out);
+			return _Print(l.begin(), out);
 		}
 
 		INLINED std::ostream& MY_LIBRARY Print(std::ostream& o = std::cout) const noexcept {

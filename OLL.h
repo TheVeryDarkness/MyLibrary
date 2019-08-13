@@ -31,13 +31,12 @@ namespace LL {
 		INLINED friend std::ostream& MY_LIBRARY out(
 			std::ostream& out, const Type& b
 		)noexcept;
-		template<typename Type, typename BaseType>
+		template<typename Type>
 		INLINED friend void MY_LIBRARY SinglePrint(
 			const Type& that,
 			std::ostream& out,
 			bool ShowComma,
-			unsigned MinLength,
-			BaseType base
+			unsigned MinLength
 		)noexcept;
 		template<typename Type, auto Radix>
 		/*INLINED*/friend std::ostream& MY_LIBRARY _Print(
