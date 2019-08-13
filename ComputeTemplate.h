@@ -70,7 +70,7 @@ namespace LargeInteger{
 		{
 		public:
 			MY_LIBRARY LineIterator(Data a, Iterator b)noexcept :a(a), b(b), c(), Result(c(Data(0), a, *b)) {
-				static_assert(std::is_same<Data, std::remove_reference<decltype(*b)>::type>::value, "It should be the same type");
+				static_assert(std::is_same<Data, std::remove_cvref_t<decltype(*b)>>::value, "It should be the same type");
 			}
 			MY_LIBRARY ~LineIterator()noexcept {}
 			//Notice:
