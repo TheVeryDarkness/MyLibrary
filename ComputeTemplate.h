@@ -12,13 +12,12 @@ namespace LargeInteger{
 
 
 	//The _Traits must give these functions:
-	//	Iterator GetNext(Iterator);
-	//	Data& GetData(Iterator);
-	//	void Add(Data&, bool, Data, Data);
-	//	void Subtract(Data&, bool, Data, Data);
-	//	void assign(Linear*, size_t);
-	//	void InsertAfter(Iterator*, Data);//However, it doen't need to insert an element after it
-	//When an element doesn't a next element, GetNext(Iterator) should return NullIterator.
+	//	std::pair<Data, Data> Add(const Data& Carry, const Data& a, const Data& b);
+	//	std::pair<Data, Data> SubtractFrom(Data Carry, const Data& a, const Data& b);
+	//	std::pair<Data, Data> Multiply(Data Carry, Data a, Data b);
+	//	std::pair<Data, Data> Divide<radix>(const Data& that);
+	//	void insert(Iterator, Data);//However, it doen't need to insert an element after it
+	//When an element doesn't a next element, GetNext(Iterator) should return a Iterator that equals to nullptr.
 	//
 	//The _Traits must give these definition:
 	//	NullIterator;
