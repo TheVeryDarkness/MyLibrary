@@ -59,10 +59,14 @@ namespace LargeInteger {
 			static_assert(radix != radix_t(1));
 			static_assert(!std::is_same_v<val, bool>, "Never use bool type");
 			typename LongCmpt<StdCmptTraits<val>>::template LayerIterator<StdCmptTraits<val>::template Divide<radix>, val> it(Val);
-			for (auto i = this->begin();!!it; ++i)
+			for (auto i = this->begin();!!it; )
 			{
 				*i = Data(*it);
 				++it;
+				if (!!it)
+				{
+					++i;
+				}
 			}
 			return;
 		}
@@ -293,12 +297,15 @@ namespace LargeInteger {
 			return LL::operator!=(that);
 		}
 		bool MY_LIBRARY operator==(const Data& that)const noexcept {
+			if (that == Data(0))
+			{
+				return (this->LL::next == nullptr) && (this->LL::data == Data(0));
+			}
 			typename LongCmpt<StdCmptTraits<Data>>::template LayerIterator<StdCmptTraits<Data>::template Divide<radix>, Data> it(that);
 			return (LargeInteger::LongCmpt<StdCmptTraits<Data>>::CompareTo(this->begin(), it) == Compare::Equal);
 		}
 		bool MY_LIBRARY operator!=(const Data& that)const noexcept {
-			LargeUnsigned T(that);
-			return LL::operator!=(T);
+			return !(*this == that);
 		}
 		bool MY_LIBRARY operator<(const LargeUnsigned& that)const noexcept {
 			return (LargeInteger::LongCmpt<StdCmptTraits<Data>>::CompareTo(this->begin(), that.begin()) == Compare::Smaller);
@@ -329,11 +336,13 @@ namespace LargeInteger {
 			return (*this >= T);
 		}
 		void MY_LIBRARY operator%=(const LargeUnsigned& that)noexcept {
+			assert(that != 0);
 			LargeInteger::LongCmpt<StdCmptTraits<Data>>::DivideInto(that.begin(), this->begin());
 			this->Simplify();
 		}
 		void MY_LIBRARY operator/=(const LargeUnsigned& that)noexcept {
-			LargeUnsigned Res(Data(0));
+			assert(that != 0);
+			LargeUnsigned Res(0);
 			LargeInteger::LongCmpt<StdCmptTraits<Data>>::DivideInto(Res, that.begin(), this->begin());
 			*this = Res;
 			this->Simplify();
