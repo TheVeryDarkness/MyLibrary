@@ -18,16 +18,24 @@
 
 #include <cassert>
 #include <iostream>
+
 #ifndef ERR
 #ifdef _DEBUG
 #define ERR(x) std::cerr << x
 #else
 #define ERR(x) 
+
 #endif // _DEBUG
-#ifndef ASSERT
-#define ASSERT(x,y) if(!(y)) { std::cerr << x << std::endl; } assert(y);
-#endif // !ASSERT
 #endif // !ERR
+
+#ifndef ASSERT
+#ifdef _DEBUG
+#define ASSERT(x,y) {if(!(y)) { std::cerr << x << std::endl; } assert(y);}
+#else
+#define ASSERT(x, y)
+
+#endif // _DEBUG
+#endif // !ASSERT
 
 template<typename Ptr> INLINED void PtrDelete(Ptr ptr) { if (ptr != nullptr)delete ptr; }
 
