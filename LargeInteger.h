@@ -502,7 +502,7 @@ namespace LargeInteger {
 					{
 						return *this;
 					}
-					if constexpr (Radix == 0) {
+					if constexpr (radix == radix_t(0)) {
 						OprtPtr->insert(static_cast<Data>(value));
 						if (sizeof(Data) >= sizeof(value))
 						{
@@ -511,10 +511,10 @@ namespace LargeInteger {
 						value >>= (LargeInteger::BitsPerByte * sizeof(Data));
 					}
 					else {
-						OprtPtr->insert((Data)(value % Radix));
-						value = value / Radix;
+						OprtPtr.insert(OprtPtr, (Data)(value% radix));
+						value = value / radix;
 					}
-					OprtPtr = OprtPtr->next;
+					++OprtPtr;
 				}
 			}
 			return *this;
