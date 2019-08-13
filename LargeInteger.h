@@ -7,23 +7,23 @@
 
 namespace LargeInteger {
 
-	template<typename Type, typename BaseType>
+	template<typename Iter, typename BaseType>
 	//简单输出到控制台窗口
 	//需要用户补换行
 	INLINED void MY_LIBRARY SinglePrint(
-		const Type& that,
+		const Iter& that,
 		std::ostream& out = std::cout,
 		bool ShowComma = true,
 		unsigned MinLength = 0,
 		BaseType base = 10
 	) noexcept {
-		if (that.next != nullptr)
+		if (that != 0)
 		{
 			SinglePrint(that, out, ShowComma, MinLength, base);
 			out << ((ShowComma) ? "," : "");
 			char* c = DBG_NEW char[MinLength + 1ULL]();
 			assert(base < BaseType(INT_MAX));
-			std::to_chars_result rs = std::to_chars(c, &(c[MinLength]), that.data(), base);
+			std::to_chars_result rs = std::to_chars(c, &(c[MinLength]), *that, base);
 
 			std::string str = c;
 			delete[] c;
@@ -41,7 +41,7 @@ namespace LargeInteger {
 		}
 		else
 		{
-			out << that.data;
+			out << *that;
 		}
 		return;
 	}
