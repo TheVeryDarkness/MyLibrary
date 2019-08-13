@@ -367,44 +367,22 @@ namespace LargeInteger {
 			return (*this >= T);
 		}
 		void MY_LIBRARY operator%=(const LargeUnsigned& that)noexcept {
-			if (this->next != nullptr && that.next != nullptr)
-			{
-				LargeInteger::LongCmpt<StdCmptTraits<Data>>::DivideInto(that.begin(), this->begin());
-			}
-			else return;
+			LargeInteger::LongCmpt<StdCmptTraits<Data>>::DivideInto(that.begin(), this->begin());
 			this->Simplify();
 		}
 		void MY_LIBRARY operator/=(const LargeUnsigned& that)noexcept {
-			if (this->next != nullptr && that.next != nullptr)
-			{
-				LargeUnsigned Res(Data(0));
-				LargeInteger::LongCmpt<StdCmptTraits<Data>>::DivideInto(Res, that.begin(), this->begin());
-				this->destruct();
-				this->next = Res.next;
-			}
-			else return;
+			LargeUnsigned Res(Data(0));
+			LargeInteger::LongCmpt<StdCmptTraits<Data>>::DivideInto(Res, that.begin(), this->begin());
+			*this = Res;
 			this->Simplify();
 		}
 		void MY_LIBRARY operator%=(const Data& that)noexcept {
 			LargeUnsigned temp(that);
-			if (this->next != nullptr && temp.next != nullptr)
-			{
-				LargeInteger::LongCmpt<StdCmptTraits<Data>>::DivideInto(temp.begin(), this->begin());
-			}
-			else return;
-			this->Simplify();
+			*this %= temp;
 		}
 		void MY_LIBRARY operator/=(const Data& that)noexcept {
 			LargeUnsigned temp(that);
-			if (this->next != nullptr && temp.next != nullptr)
-			{
-				LargeUnsigned Res(Data(0));
-				LargeInteger::LongCmpt<StdCmptTraits<Data>>::DivideInto(Res, temp.begin(), this->begin());
-				this->destruct();
-				*this = Res;
-			}
-			else return;
-			this->Simplify();
+			*this /= temp;
 		}
 
 		//Œª“∆‘ÀÀ„
