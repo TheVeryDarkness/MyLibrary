@@ -197,8 +197,17 @@ namespace LargeInteger {
 			return Res;
 		}
 		//重载
-		INLINED void MY_LIBRARY operator-=(const LargeUnsigned& b) noexcept {
-			*this += (-b);
+		INLINED void MY_LIBRARY operator-=(const LargeUnsigned& that) noexcept {
+			if (that == Data(0))
+			{
+				return;
+			}
+			if (*this == Data(0))
+			{
+				*this = Copy(that);
+				return;
+			}
+			LargeInteger::LongCmpt<StdCmptTraits<Data>>::SubtractFrom(that.begin(), this->begin());
 		}
 		//重载LinkedList链表负号
 		INLINED LargeUnsigned MY_LIBRARY operator-(
@@ -217,28 +226,7 @@ namespace LargeInteger {
 				*this = Copy(that);
 				return;
 			}
-			if ((*this >= 0 && that >= 0) || (this <= 0 && that <= 0))
-			{
-				LargeInteger::LongCmpt<StdCmptTraits<Data>>::AddTo(that.begin(), this->begin());
-			}
-			else {
-				LargeInteger::Compare Cmpr = LargeInteger::LongCmpt<StdCmptTraits<Data>>::CompareTo(this->begin(), that.begin());
-				if (Cmpr == LargeInteger::Compare::Equal)
-				{
-					this->destruct();
-				}
-				if (Cmpr == LargeInteger::Compare::Larger)
-				{
-					LargeInteger::LongCmpt<StdCmptTraits<Data>>::SubtractFrom(that.begin(), this->begin());
-				}
-				else
-				{
-					LargeUnsigned temp =Copy(that);
-					LargeInteger::LongCmpt<StdCmptTraits<Data>>::SubtractFrom(this->begin(), temp.begin());
-					*this = temp;
-				}
-			}
-			this->Simplify();
+			LargeInteger::LongCmpt<StdCmptTraits<Data>>::AddTo(that.begin(), this->begin());
 		}
 		//重载LinkedList链表加号
 		INLINED LargeUnsigned MY_LIBRARY operator+(
@@ -255,9 +243,10 @@ namespace LargeInteger {
 			return (*this + (-b));
 		}
 		void MY_LIBRARY operator++() {
-			LinkedList temp(true, 1);
-			*this += temp;
-			temp.destruct();
+			*this += 1;
+		}
+		void MY_LIBRARY operator--() {
+			*this -= 1;
 		}
 
 
@@ -642,7 +631,27 @@ namespace LargeInteger {
 			return *this;
 		}
 		LargeSigned& MY_LIBRARY operator+=(const LargeSigned& that) noexcept {
-			LargeUnsigned<LL, radix>::operator+=(that);
+			if ((*this >= 0 && that >= 0) || (this <= 0 && that <= 0))
+			{
+				LargeUnsigned<LL, radix>::operator+=(that);
+			}
+			else {
+				LargeInteger::Compare Cmpr = LargeInteger::LongCmpt<StdCmptTraits<Data>>::CompareTo(this->begin(), that.begin());
+				if (Cmpr == LargeInteger::Compare::Equal)
+				{
+					this->destruct();
+				}
+				if (Cmpr == LargeInteger::Compare::Larger)
+				{
+					LargeInteger::LongCmpt<StdCmptTraits<Data>>::SubtractFrom(that.begin(), this->begin());
+				}
+				else
+				{
+					LargeSigned temp = Copy(that);
+					temp.LargeUnsigned::operator-=(*this);
+					*this = temp;
+				}
+			}
 			return *this;
 		}
 		LargeSigned MY_LIBRARY operator+(const LargeSigned& that) const noexcept {
