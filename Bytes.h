@@ -148,7 +148,7 @@ namespace LargeInteger {
 		constexpr size_t MY_LIBRARY GetBits()const noexcept {
 			Bytes temp(*this);
 			size_t i = 0;
-			for (; i < Length * BitsPerByte && temp != 0; ++i)
+			for (; i < Length * BitsPerByte && (temp != Bytes(0)); ++i)
 			{
 				temp >>= 1;
 			}
