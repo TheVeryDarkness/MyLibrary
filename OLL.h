@@ -67,10 +67,16 @@ namespace LL {
 		constexpr INLINED std:: iterator<std::forward_iterator_tag, const OLL> begin()const noexcept {
 			return std::iterator<std::forward_iterator_tag, const OLL>(this);
 		}
+		constexpr INLINED std:: iterator<std::forward_iterator_tag, const OLL> cbegin()const noexcept {
+			return std::iterator<std::forward_iterator_tag, const OLL>(this);
+		}
 		constexpr INLINED std::iterator<std::forward_iterator_tag,OLL> end() noexcept {
 			return std::iterator<std::forward_iterator_tag, OLL>(nullptr);
 		}
 		constexpr INLINED std::iterator<std::forward_iterator_tag,const OLL> end() const noexcept {
+			return std::iterator<std::forward_iterator_tag, const OLL>(nullptr);
+		}
+		constexpr INLINED std::iterator<std::forward_iterator_tag,const OLL> cend() const noexcept {
 			return std::iterator<std::forward_iterator_tag, const OLL>(nullptr);
 		}
 	protected:

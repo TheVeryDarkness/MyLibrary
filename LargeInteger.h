@@ -164,19 +164,6 @@ namespace LargeInteger {
 		INLINED std::ostream& MY_LIBRARY Print(std::ostream& o = std::cout) const noexcept{
 			return _Print<LL, radix>(static_cast<LL>(*this), o);
 		}
-
-		INLINED void MY_LIBRARY operator*=(const Data& times) noexcept {
-			if (times == Data(0))
-			{
-				this->destruct();
-				return;
-			}
-			else if (times == Data(1))
-			{
-				return;
-			}
-			LargeInteger::LongCmpt<typename LargeInteger::StdCmptTraits<Data>>::MultiplyTo(Data(times), this->begin());
-		}
 		template<typename Int>
 		INLINED void MY_LIBRARY operator*=(const Int& that) noexcept {
 			static_assert(std::is_integral_v<Int>);
@@ -197,7 +184,7 @@ namespace LargeInteger {
 			this->~LargeUnsigned();
 			size_t WhiteLength = 0;
 			for (auto OprtPtr = b.begin(); OprtPtr != nullptr; ++OprtPtr) {
-				typename LargeInteger::LongCmpt<typename LargeInteger::StdCmptTraits<Data>>::template LineIterator<typename LargeInteger::StdCmptTraits<Data>::Multiply, decltype(this->begin()), Data> temp(*OprtPtr, This.begin());
+				typename LargeInteger::LongCmpt<typename LargeInteger::StdCmptTraits<Data>>::template LineIterator<typename LargeInteger::StdCmptTraits<Data>::Multiply, decltype(this->cbegin()), Data> temp(*OprtPtr, This.cbegin());
 				LargeInteger::LongCmpt<typename LargeInteger::StdCmptTraits<Data>>::AddTo(temp, this->begin());
 				This <<= 1;
 				++WhiteLength;
@@ -679,15 +666,6 @@ namespace LargeInteger {
 			return *this;
 		}
 		LargeSigned MY_LIBRARY operator*(const LargeSigned& that) const noexcept {
-			LargeSigned temp = Copy(*this);
-			temp *= that;
-			return temp;
-		}
-		LargeSigned& MY_LIBRARY operator*=(const Data& that) noexcept {
-			this->LargeUnsigned<LL, radix>::operator*=(that);
-			return *this;
-		}
-		LargeSigned MY_LIBRARY operator*(const Data& that) const noexcept {
 			LargeSigned temp = Copy(*this);
 			temp *= that;
 			return temp;

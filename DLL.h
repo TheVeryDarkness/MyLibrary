@@ -54,6 +54,12 @@ namespace LL {
 		constexpr INLINED std::iterator<std::bidirectional_iterator_tag, const DLL> end()const noexcept {
 			return std::iterator<std::bidirectional_iterator_tag, const DLL>(nullptr);
 		}
+		constexpr INLINED std::iterator<std::bidirectional_iterator_tag, const DLL> cbegin()const noexcept {
+			return std::iterator<std::bidirectional_iterator_tag, const DLL>(this);
+		}
+		constexpr INLINED std::iterator<std::bidirectional_iterator_tag, const DLL> cend()const noexcept {
+			return std::iterator<std::bidirectional_iterator_tag, const DLL>(nullptr);
+		}
 		Data data;
 		DLL* next = nullptr;
 		DLL* last = nullptr;
