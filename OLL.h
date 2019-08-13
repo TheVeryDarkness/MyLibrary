@@ -258,6 +258,11 @@ namespace LL {
 				PreOprtPtr = PreOprtPtr->next;
 			}
 		}
+		bool MY_LIBRARY operator!=(
+			const OLL& that
+			)const noexcept {
+			return !(*this == that);
+		}
 		//从链表头（不包括链表头）开始，倒置之后的链节
 		//使用new创建新链表
 		/*INLINED*/OLL MY_LIBRARY invert(const OLL& b) const noexcept {
