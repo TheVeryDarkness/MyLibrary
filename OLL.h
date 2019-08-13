@@ -392,6 +392,8 @@ public:
 			return (NullData = 0);
 		}
 	}
+	constexpr void insert(iterator& it, Data d) {
+		it.ptr->insert(d);
 
 private:
 	in* ptr;
