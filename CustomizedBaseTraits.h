@@ -138,4 +138,57 @@ namespace LargeInteger {
 	private:
 		std::basic_istream<_Elem>& is;
 	};
+	
+	template<typename _Elem, typename char_type, typename int_type, size_t BeginIndex, char_type... set>
+	class std::basic_ostream<_Elem, BaseSet<char_type, int_type, BeginIndex, set...>>
+	{
+		using charset=LargeInteger::BaseSet<char_type, int_type, BeginIndex, set...>;
+	public:
+		basic_ostream(std::basic_ostream<_Elem>& o)noexcept :os(o) {}
+
+		~basic_ostream() = default;
+
+		template<typename Iter>
+		auto& MY_LIBRARY operator<<(Iter it) {
+			static_assert(GetPowerTimes(Iter::getRadix(), charset::getRadix()) != 0 || Iter::getRadix() == charset::getRadix());
+			std::ostream_iterator<_Elem> o(os);
+			if constexpr (Iter::getRadix() == charset::getRadix())
+			{
+				for (auto i = it.cbegin(); i != it.cend(); ++i) {
+					auto c = charset::to_int_type(*i);
+					if (c != '?')
+					{
+						++o;
+						*o = c;
+					}
+				}
+				return *this;
+			}
+			else
+			{
+				for (auto i = it.cbegin(); i != it.cend(); ++i) {
+					for (decltype(GetPowerTimes(Iter::getRadix(), charset::getRadix())) j = 0; j < GetPowerTimes(Iter::getRadix(), charset::getRadix()); j++) {
+						auto val = *i;
+						auto c = charset::to_int_type(val % charset::getRadix());
+						val /= charset::getRadix();
+						if (c != '?')
+						{
+							++o;
+							*o = c;
+						}
+						else --j;
+						i++;
+						if (i == it.cend())
+						{
+							break;
+						}
+					}
+				}
+				return *this;
+			}
+		}
+
+	private:
+		std::basic_ostream<_Elem>& os;
+	};
 };
