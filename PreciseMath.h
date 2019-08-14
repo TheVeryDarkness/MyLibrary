@@ -41,53 +41,36 @@ namespace LargeInteger {
 		}
 		//Ô¼·Ö
 		void MY_LIBRARY Simplify() {
-			while (true)
-			{
-				if (this->Denominator == 0 && this->Numerator == 0)
-				{
-					return;
-				}
-				if (this->Denominator == 0 || this->Numerator == 0)
-				{
-					break;
-				}
-			}
 			if (Numerator == Denominator)
 			{
 				Numerator = 1;
 				Denominator = 1;
 			}
-			else if (Numerator == Z(0))
-			{
+			else if (Numerator == 0) {
 				Denominator = 1;
 			}
-			else if (Denominator == Z(0))
-			{
-				MY_ASSERT(false,0/0);
+			else if (Denominator == 0) {
+				MY_ASSERT(false, 0 / 0);
 				Numerator = 1;
 			}
 			else
 			{
-				Z a(Z::Copy(Numerator)), b(Z::Copy(Denominator));
+				Z a = Z::Copy(Numerator), b = Z::Copy(Denominator);
 				a.PosSign = true;
 				b.PosSign = true;
 				while (true)
 				{
-					{
-						if (a == 0)
-						{
-							this->Numerator /= b;
-							this->Denominator /= b;
-							a.destruct(); b.destruct();
-							return;
-						}
-						if (b == 0)
-						{
-							this->Numerator /= a;
-							this->Denominator /= a;
-							a.destruct(), b.destruct();
-							return;
-						}
+					if (a == 0) {
+						this->Numerator /= b;
+						this->Denominator /= b;
+						a.destruct(); b.destruct();
+						return;
+					}
+					if (b == 0) {
+						this->Numerator /= a;
+						this->Denominator /= a;
+						a.destruct(), b.destruct();
+						return;
 					}
 					if (a == b)
 					{
