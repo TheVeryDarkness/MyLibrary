@@ -23,7 +23,7 @@ namespace LargeInteger {
 	//***************************************************
 
 	constexpr char MY_LIBRARY ENDIAN()noexcept {
-		union { char c[4]; unsigned long l; }endian_test = { { 'l', '?', '?', 'b' } };
+		union { char c[4]; unsigned __int32 l; }endian_test = { { 'l', '?', '?', 'b' } };
 		return((char)endian_test.l);
 	}
 
@@ -81,58 +81,22 @@ namespace LargeInteger {
 		constexpr value_type MY_LIBRARY add_s(const Bytes& that) noexcept {
 			static_assert(Length != 0);
 			bool Carry = false;
-			if (ENDIAN() == 'l') {
-				for (size_t i = 0; i < Length / sizeof(size_t); i++) {
-					if (Carry) {
-						if (static_cast<size_t*>(this)[i] == std::numeric_limits<size_t>::max()) {
-							static_cast<size_t*>(this)[i] = 0;
-							Carry = true;
-						}
-						else {
-							static_cast<size_t*>(this)[i] += 1;
-							Carry = false;
-						}
-					}
-					if (static_cast<size_t*>(this)[i] > static_cast<value_type>(static_cast<const size_t*>(&that)[i])) {
+			for (size_t i = 0; i < Length; ++i) {
+				//If (a + b) overflows, then a > ~b.
+				if (Carry) {
+					if (Byte[i] == std::numeric_limits<value_type>::max()) {
+						Byte[i] = 0;
 						Carry = true;
 					}
-					static_cast<size_t*>(this)[i] += static_cast<const size_t*>(&that)[i];
+					else {
+						Byte[i] += 1;
+						Carry = false;
+					}
 				}
-				for (size_t i = (Length / sizeof(size_t)) * sizeof(size_t); i < Length; ++i) {
-					if (Carry) {
-						if (Byte[i] == std::numeric_limits<value_type>::max()) {
-							Byte[i] = 0;
-							Carry = true;
-						}
-						else {
-							Byte[i] += 1;
-							Carry = false;
-						}
-					}
-					if (Byte[i] > static_cast<value_type>(~that.Byte[i])) {
-						Carry = true;
-					}
-					Byte[i] += that.Byte[i];
+				if (Byte[i] > static_cast<value_type>(~that.Byte[i])) {
+					Carry = true;
 				}
-			}
-			else {
-				for (size_t i = 0; i < Length; i++) {
-					//If (a + b) overflows, then a > ~b.
-					if (Carry) {
-						if (Byte[i] == std::numeric_limits<value_type>::max()) {
-							Byte[i] = 0;
-							Carry = true;
-						}
-						else {
-							Byte[i] += 1;
-							Carry = false;
-						}
-					}
-					if (Byte[i] > static_cast<value_type>(~that.Byte[i])) {
-						Carry = true;
-					}
-					Byte[i] += that.Byte[i];
-				}
+				Byte[i] += that.Byte[i];
 			}
 			return Carry;
 		}
@@ -172,8 +136,7 @@ namespace LargeInteger {
 		}
 		constexpr Bytes MY_LIBRARY operator~ ()const noexcept {
 			Bytes ret;
-			for (size_t i = 0; i < Length; i++)
-			{
+			for (size_t i = 0; i < Length; i++) {
 				ret.Byte[i] = ~this->Byte[i];
 			}
 			return ret;
