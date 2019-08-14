@@ -578,7 +578,7 @@ namespace LargeInteger {
 			return *this;
 		}
 		LargeSigned& MY_LIBRARY operator+=(const LargeSigned& that) noexcept {
-			if ((this->PosSign && that.PosSign) || (!this->PosSign && that.PosSign))
+			if ((this->PosSign && that.PosSign) || (!this->PosSign && !that.PosSign))
 			{
 				LargeUnsigned<LL, radix>::operator+=(*static_cast<const LargeUnsigned<LL, radix>*>(&that));
 			}
@@ -607,7 +607,7 @@ namespace LargeInteger {
 			return temp;
 		}
 		LargeSigned& MY_LIBRARY operator-=(const LargeSigned& that) noexcept {
-			if ((this->PosSign && that.PosSign) || (!this->PosSign && !that.PosSign))
+			if ((this->PosSign && !that.PosSign) || (!this->PosSign && that.PosSign))
 			{
 				LargeUnsigned<LL, radix>::operator+=(*static_cast<const LargeUnsigned<LL, radix>*>(&that));
 			}
