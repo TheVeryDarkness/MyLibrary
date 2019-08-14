@@ -68,10 +68,7 @@ namespace LL {
 			const DLL& that,
 			bool DeepCopy
 		) noexcept :data(that.data) {
-			while (this->next != nullptr)
-			{
-				this->cut();
-			}
+			this->release();
 			if (DeepCopy)
 			{
 				this->last = nullptr;
@@ -109,10 +106,7 @@ namespace LL {
 		INLINED MY_LIBRARY DLL(
 			const DLL& that
 		) noexcept :data(that.data),last(that.last) {
-			while (this->next != nullptr)
-			{
-				this->cut();
-			}
+			this->release();
 			this->next = that.next;
 			if (this->next != nullptr)
 			{
@@ -271,12 +265,15 @@ namespace LL {
 			return (that <= *this);
 		}
 		INLINED void MY_LIBRARY destruct() noexcept {
+			this->release();
+			this->data = Data(0);
+			return;
+		}
+		INLINED void MY_LIBRARY release() noexcept {
 			while (this->next != nullptr)
 			{
 				this->cut();
 			}
-			this->data = Data(0);
-			return;
 		}
 		//在当前位置后插入新的一节
 		INLINED void MY_LIBRARY insert(
@@ -671,6 +668,10 @@ public:
 	constexpr bool MY_LIBRARY operator==(const iterator _ptr)const noexcept { return this->ptr == _ptr.ptr; }
 	constexpr bool MY_LIBRARY operator!=(const in* _ptr)const noexcept { return this->ptr != _ptr; }
 	constexpr bool MY_LIBRARY operator!=(const iterator _ptr)const noexcept { return this->ptr != _ptr.ptr; }
+
+	constexpr LL::DLL<Data>* operator->() const noexcept {
+		return this->ptr;
+	}
 
 	MY_LIBRARY ~iterator()noexcept = default;
 

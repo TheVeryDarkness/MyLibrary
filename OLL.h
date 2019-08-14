@@ -91,11 +91,7 @@ namespace LL {
 			const OLL& that,
 			bool DeepCopy
 		) noexcept :data(that.data) {
-			this->data = that.data;
-			while (this->next != nullptr)
-			{
-				this->cut();
-			}
+			this->release();
 			if (DeepCopy)
 			{
 				OLL* OprtPtr = this;
@@ -130,10 +126,7 @@ namespace LL {
 		INLINED MY_LIBRARY OLL(
 			const OLL& that
 		) noexcept :data(that.data) {
-			while (this->next != nullptr)
-			{
-				this->cut();
-			}
+			this->release();
 			this->next = that.next;
 			return;
 		}
@@ -144,11 +137,16 @@ namespace LL {
 		) noexcept :data(HeadData), next(NextPtr) {}
 		//释放链表头后对应链节的指针
 		INLINED void MY_LIBRARY destruct() noexcept {
+			this->release();
+			this->data = Data(0);
+			return;
+		}
+		//释放链表头后对应链节的指针
+		INLINED void MY_LIBRARY release() noexcept {
 			while (this->next != nullptr)
 			{
 				this->cut();
 			}
-			this->data = Data(0);
 			return;
 		}
 		//链表版求最大值
@@ -430,6 +428,10 @@ public:
 	constexpr bool MY_LIBRARY operator==(const iterator _ptr)const noexcept { return this->ptr == _ptr.ptr; }
 	constexpr bool MY_LIBRARY operator!=(const in* _ptr)const noexcept { return this->ptr != _ptr; }
 	constexpr bool MY_LIBRARY operator!=(const iterator _ptr)const noexcept { return this->ptr != _ptr.ptr; }
+
+	constexpr LL::OLL<Data>* operator->() const noexcept{
+		return this->ptr;
+	}
 
 	MY_LIBRARY ~iterator()noexcept = default;
 
