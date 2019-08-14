@@ -4,10 +4,10 @@
 #include <forward_list>
 
 #define Posi(a) (((a)>0)?(a):0)//取正值
-template<typename Data>constexpr bool sign(Data data) { return ((data >= 0) ? true : false); }//取符号，0视为正
+template<typename Data>constexpr bool sign(Data data) noexcept{ return ((data >= 0) ? true : false); }//取符号，0视为正
 #define Sign(a) ((a)>0)?(1):((((a)<0)?(-1):(0)))//取符号
 template<typename Data>
-constexpr inline Data ABS(Data a) {
+constexpr inline Data ABS(Data a) noexcept {
 	if constexpr (Data(-1) > 0) {
 		return a;
 	}
