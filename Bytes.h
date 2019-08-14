@@ -79,28 +79,57 @@ namespace LargeInteger {
 			return *this;
 		}
 		constexpr value_type MY_LIBRARY add_s(const Bytes& that) noexcept {
-			value_type Carry = 0;
-			if constexpr (Length != 0)
-			{
-				for (size_t i = 0; i < Length; i++)
-				{
-					//If (a + b) overflows, then a > ~b.
-					if (Carry > 0)
-					{
-						if (Byte[i] > static_cast<value_type>(~Carry))
-						{
-							Byte[i] = 0;
-							Carry = 1;
+			static_assert(Length != 0);
+			bool Carry = false;
+			if (ENDIAN() == 'l') {
+				for (size_t i = 0; i < Length / sizeof(size_t); i++) {
+					if (Carry) {
+						if (static_cast<size_t*>(this)[i] == std::numeric_limits<size_t>::max()) {
+							static_cast<size_t*>(this)[i] = 0;
+							Carry = true;
 						}
-						else
-						{
-							Byte[i] += 1;
-							Carry = 0;
+						else {
+							static_cast<size_t*>(this)[i] += 1;
+							Carry = false;
 						}
 					}
-					if (Byte[i] > static_cast<value_type>(~that.Byte[i]))
-					{
-						Carry = 1;
+					if (static_cast<size_t*>(this)[i] > static_cast<value_type>(static_cast<const size_t*>(&that)[i])) {
+						Carry = true;
+					}
+					static_cast<size_t*>(this)[i] += static_cast<const size_t*>(&that)[i];
+				}
+				for (size_t i = (Length / sizeof(size_t)) * sizeof(size_t); i < Length; ++i) {
+					if (Carry) {
+						if (Byte[i] == std::numeric_limits<value_type>::max()) {
+							Byte[i] = 0;
+							Carry = true;
+						}
+						else {
+							Byte[i] += 1;
+							Carry = false;
+						}
+					}
+					if (Byte[i] > static_cast<value_type>(~that.Byte[i])) {
+						Carry = true;
+					}
+					Byte[i] += that.Byte[i];
+				}
+			}
+			else {
+				for (size_t i = 0; i < Length; i++) {
+					//If (a + b) overflows, then a > ~b.
+					if (Carry) {
+						if (Byte[i] == std::numeric_limits<value_type>::max()) {
+							Byte[i] = 0;
+							Carry = true;
+						}
+						else {
+							Byte[i] += 1;
+							Carry = false;
+						}
+					}
+					if (Byte[i] > static_cast<value_type>(~that.Byte[i])) {
+						Carry = true;
 					}
 					Byte[i] += that.Byte[i];
 				}
