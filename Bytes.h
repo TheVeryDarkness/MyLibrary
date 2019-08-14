@@ -167,14 +167,17 @@ namespace LargeInteger {
 				Bytes Quo(0),temp(that);
 				size_t diff = this->GetBits() - that.GetBits();
 				temp <<= diff;
-				for (size_t i = 0; i < diff; i++)
+				for (size_t i = 0; i <= diff; i++)
 				{
-					if (*this > temp) {
+					if (*this >= temp) {
 						*this -= temp;
-						Quo &= Bytes(1);
+						Quo.Byte[0] |= 0x1;
 					}
 					temp >>= 1;
-					Quo <<= 1;
+					if (i != diff)
+					{
+						Quo <<= 1;
+					}
 				}
 				return Quo;
 			}
@@ -299,10 +302,10 @@ namespace LargeInteger {
 				if ((Bits % BitsPerByte) != 0)
 				{
 					value_type Pre = {}, temp = {};
-					for (size_t i = Length - 1; i >= Bits / BitsPerByte; i--)
+					for (size_t i = Length; i > Bits / BitsPerByte; i--)
 					{
-						temp = this->Byte[i] << (BitsPerByte - Bits % BitsPerByte);
-						this->Byte[i] = (this->Byte[i] >> (Bits % BitsPerByte)) | Pre;
+						temp = this->Byte[i - 1] << (BitsPerByte - Bits % BitsPerByte);
+						this->Byte[i - 1] = (this->Byte[i - 1] >> (Bits % BitsPerByte)) | Pre;
 						Pre = temp;
 					}
 				}
@@ -330,7 +333,7 @@ namespace LargeInteger {
 		}
 		constexpr bool MY_LIBRARY operator<=(const Bytes& that)const noexcept {
 			if (Length == 0)return true;
-			for (size_t i = Length - 1; i > 0; i--)
+			for (size_t i = Length - 1;; i--)
 			{
 				if (this->Byte[i] < that.Byte[i])
 				{
