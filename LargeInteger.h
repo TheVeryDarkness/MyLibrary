@@ -64,6 +64,25 @@ namespace LargeInteger {
 		using radix_t=decltype(radix);
 		using Data=Num<radix_t, radix>;
 	public:
+		static constexpr radix_t getRadix()noexcept { return radix; }
+		constexpr INLINED auto begin() noexcept {
+			return this->LL::begin();
+		}
+		constexpr INLINED auto begin()const noexcept {
+			return this->LL::begin();
+		}
+		constexpr INLINED auto cbegin()const noexcept {
+			return this->LL::cbegin();
+		}
+		constexpr INLINED auto end() noexcept {
+			return this->LL::end();
+		}
+		constexpr INLINED auto end() const noexcept {
+			return this->LL::end();
+		}
+		constexpr INLINED auto cend() const noexcept {
+			return this->LL::cend();
+		}
 		template<typename val>
 		explicit MY_LIBRARY LargeUnsigned(val Val)noexcept :LL(0){
 			static_assert(std::is_integral_v<val>);
@@ -475,6 +494,25 @@ namespace LargeInteger {
 		using Data=Num<radix_t, radix>;
 		friend class Q;
 	public:
+		static constexpr radix_t getRadix()noexcept { return radix; }
+		constexpr INLINED auto begin() noexcept {
+			return this->LargeUnsigned<LL, radix>::begin();
+		}
+		constexpr INLINED auto begin()const noexcept {
+			return this->LargeUnsigned<LL, radix>::begin();
+		}
+		constexpr INLINED auto cbegin()const noexcept {
+			return this->LargeUnsigned<LL, radix>::cbegin();
+		}
+		constexpr INLINED auto end() noexcept {
+			return this->LargeUnsigned<LL, radix>::end();
+		}
+		constexpr INLINED auto end() const noexcept {
+			return this->LargeUnsigned<LL, radix>::end();
+		}
+		constexpr INLINED auto cend() const noexcept {
+			return this->LargeUnsigned<LL, radix>::cend();
+		}
 		template<typename val> explicit MY_LIBRARY LargeSigned(val Val)noexcept
 			:PosSign(Val > 0), LargeUnsigned<LL, radix>(ABS(Val)) {}
 		template<typename val> explicit MY_LIBRARY LargeSigned(bool Pos, val Val)noexcept

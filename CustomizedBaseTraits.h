@@ -102,8 +102,11 @@ namespace LargeInteger {
 					auto c = charset::to_int_type(*i);
 					if (c != '?')
 					{
-						++str;
 						*str = c;
+						if (i + 1 != temp.crend())
+						{
+							++str;
+						}
 					}
 				}
 				return;
@@ -119,7 +122,7 @@ namespace LargeInteger {
 							sum += c * static_cast<decltype(Iter::getRadix())>(Power(static_cast<decltype(Iter::getRadix())>(charset::getRadix()), j));
 						}
 						else --j;
-						i++;
+						++i;
 						if (i == temp.crend())
 						{
 							break;
@@ -127,8 +130,11 @@ namespace LargeInteger {
 					}
 					if (sum != static_cast<decltype(sum)>(0))
 					{
-						++str;
 						*str = sum;
+						if (i  != temp.crend())
+						{
+							++str;
+						}
 					}
 				}
 				return;
@@ -148,6 +154,8 @@ namespace LargeInteger {
 
 		~basic_ostream() = default;
 
+		MY_LIBRARY operator std::basic_ostream<_Elem>& () noexcept { return os; }
+
 		template<typename Iter>
 		auto& MY_LIBRARY operator<<(Iter it) {
 			static_assert(GetPowerTimes(Iter::getRadix(), charset::getRadix()) != 0 || Iter::getRadix() == charset::getRadix());
@@ -155,7 +163,7 @@ namespace LargeInteger {
 			if constexpr (Iter::getRadix() == charset::getRadix())
 			{
 				for (auto i = it.cbegin(); i != it.cend(); ++i) {
-					auto c = charset::to_int_type(*i);
+					auto c = charset::to_char_type(*i);
 					if (c != '?')
 					{
 						++o;
@@ -167,9 +175,9 @@ namespace LargeInteger {
 			else
 			{
 				for (auto i = it.cbegin(); i != it.cend(); ++i) {
+					auto val = *i;
 					for (decltype(GetPowerTimes(Iter::getRadix(), charset::getRadix())) j = 0; j < GetPowerTimes(Iter::getRadix(), charset::getRadix()); j++) {
-						auto val = *i;
-						auto c = charset::to_int_type(val % charset::getRadix());
+						auto c = charset::to_char_type(val() % charset::getRadix());
 						val /= charset::getRadix();
 						if (c != '?')
 						{
@@ -177,11 +185,6 @@ namespace LargeInteger {
 							*o = c;
 						}
 						else --j;
-						i++;
-						if (i == it.cend())
-						{
-							break;
-						}
 					}
 				}
 				return *this;
