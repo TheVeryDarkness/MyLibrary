@@ -68,7 +68,10 @@ namespace LL {
 			const DLL& that,
 			bool DeepCopy
 		) noexcept :data(that.data) {
-			this->destruct();
+			while (this->next != nullptr)
+			{
+				this->cut();
+			}
 			if (DeepCopy)
 			{
 				this->last = nullptr;
@@ -105,10 +108,12 @@ namespace LL {
 		//浅拷贝
 		INLINED MY_LIBRARY DLL(
 			const DLL& that
-		) noexcept :data(that.data) {
-			this->destruct();
+		) noexcept :data(that.data),last(that.last) {
+			while (this->next != nullptr)
+			{
+				this->cut();
+			}
 			this->next = that.next;
-			this->last = that.last;
 			if (this->next != nullptr)
 			{
 				//此步骤非常重要

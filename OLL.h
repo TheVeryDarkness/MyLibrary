@@ -1,7 +1,7 @@
 #pragma once
 
 #ifndef _SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING
-#define _SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING
+#define _SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING 1
 #endif // !_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING
 
 #include "LinkedList.h"
@@ -9,7 +9,7 @@
 #pragma warning(disable : 4996)
 
 #ifndef _SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING
-#define _SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING
+#define _SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING 1
 #endif // !_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING
 
 namespace LL {
@@ -92,7 +92,10 @@ namespace LL {
 			bool DeepCopy
 		) noexcept :data(that.data) {
 			this->data = that.data;
-			this->destruct();
+			while (this->next != nullptr)
+			{
+				this->cut();
+			}
 			if (DeepCopy)
 			{
 				OLL* OprtPtr = this;
@@ -127,7 +130,10 @@ namespace LL {
 		INLINED MY_LIBRARY OLL(
 			const OLL& that
 		) noexcept :data(that.data) {
-			this->destruct();
+			while (this->next != nullptr)
+			{
+				this->cut();
+			}
 			this->next = that.next;
 			return;
 		}
@@ -411,6 +417,7 @@ class std::iterator<std::forward_iterator_tag, LL::OLL<Data>>
 public:
 	static constexpr auto MY_LIBRARY getRadix()noexcept { return decltype(ptr->data)::getRadix(); }
 	static constexpr in* MY_LIBRARY NEXT(in& i)noexcept { if (i.next == nullptr)i.insert(); return i.next; }
+
 	constexpr MY_LIBRARY iterator(in* _ptr)noexcept :ptr(_ptr) {}
 
 	constexpr bool MY_LIBRARY operator==(const in* _ptr)const noexcept { return this->ptr == _ptr; }
