@@ -6,7 +6,18 @@
 #define Posi(a) (((a)>0)?(a):0)//取正值
 template<typename Data>constexpr bool sign(Data data) { return ((data >= 0) ? true : false); }//取符号，0视为正
 #define Sign(a) ((a)>0)?(1):((((a)<0)?(-1):(0)))//取符号
-#define ABS(a) (((a)>0)?(a):(-(a)))//取绝对值
+template<typename Data>
+constexpr inline Data ABS(Data a) {
+	if constexpr (Data(-1) > 0) {
+		return a;
+	}
+	else {
+		if (a >= 0)
+			return a;
+		else return (-a);
+	}
+}
+//#define ABS(a) (((a)>=0)?(a):(-(a)))//取绝对值
 
 
 inline long __stdcall Max(long[], long);
