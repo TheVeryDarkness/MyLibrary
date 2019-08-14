@@ -415,7 +415,7 @@ namespace LL {
 }
 
 template<typename Data>
-class std::iterator<std::forward_iterator_tag, LL::OLL<Data>>
+struct std::iterator<std::forward_iterator_tag, LL::OLL<Data>>
 {
 	using in=LL::OLL<Data>;
 public:
@@ -483,12 +483,12 @@ public:
 
 private:
 	in* ptr;
-	friend class std::iterator<std::forward_iterator_tag, const LL::OLL<Data>>;
+	friend struct std::iterator<std::forward_iterator_tag, const LL::OLL<Data>>;
 	static inline Data NullData = 0;
 };
 
 template<typename Data>
-class std::iterator<std::forward_iterator_tag, const LL::OLL<Data>>
+struct std::iterator<std::forward_iterator_tag, const LL::OLL<Data>>
 {
 	using in=const LL::OLL<Data>;
 public:
