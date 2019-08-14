@@ -483,7 +483,7 @@ public:
 
 private:
 	in* ptr;
-	friend struct std::iterator<std::forward_iterator_tag, const LL::OLL<Data>>;
+	friend class std::iterator<std::forward_iterator_tag, const LL::OLL<Data>>;
 	static inline Data NullData = 0;
 };
 
