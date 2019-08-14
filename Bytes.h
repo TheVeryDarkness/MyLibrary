@@ -22,7 +22,7 @@ namespace LargeInteger {
 	//***************************************************
 	//***************************************************
 
-	constexpr char MY_LIBRARY ENDIAN()noexcept {
+	char MY_LIBRARY ENDIAN()noexcept {
 		union { char c[4]; unsigned __int32 l; }endian_test = { { 'l', '?', '?', 'b' } };
 		return((char)endian_test.l);
 	}
