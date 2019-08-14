@@ -52,9 +52,9 @@ namespace LargeInteger{
 					&&
 					b == nullptr
 					&&
-					Result.first == Data(0)
+					Result.first() == 0
 					&&
-					Result.second == Data(0)
+					Result.second() == 0
 					);
 			}
 			//result;overflow
@@ -96,7 +96,7 @@ namespace LargeInteger{
 			}
 			//return true if the iterator is still working
 			bool MY_LIBRARY operator!()const noexcept {
-				return (b == nullptr && Result.first == Data(0) && Result.second == Data(0));
+				return (b == nullptr && Result.first() == 0 && Result.second() == 0);
 			}
 			constexpr bool MY_LIBRARY operator==(const LineIterator& that)const noexcept {
 				return (this->a == that.a) && (this->b == that.b);
@@ -105,7 +105,7 @@ namespace LargeInteger{
 				return (this->a != that.a) || (this->b != that.b);
 			}
 			constexpr bool MY_LIBRARY operator==(nullptr_t null)const noexcept {
-				return (this->b == null) && (Result.second == Data(0));
+				return (this->b == null) && (Result.second() == 0);
 			}
 			constexpr bool MY_LIBRARY operator!=(nullptr_t null)const noexcept {
 				return !(*this == null);
@@ -172,7 +172,7 @@ namespace LargeInteger{
 				{
 					if ((compute.a + 1) == nullptr)
 					{
-						if (compute.Result.second != Data(0))
+						if (compute.Result.second() != (0))
 						{
 							compute.b.insert(compute.b, compute.Result.second);
 						}
@@ -264,12 +264,13 @@ namespace LargeInteger{
 			using TRUE_TYPE=typename Depack<Data>::TRUE_TYPE;
 			static_assert(std::is_same_v<std::remove_cvref_t<decltype(*a)>, std::remove_cvref_t<decltype(*b)>>);
 			{
+				bool HasChanged = false;
 				Compare temp = Compare::Equal;
 				Iterator1 _a = a;
 				Iterator2 _b = b;
 				for (;
 					;
-					++_a, ++_b
+					++_a, ++_b, HasChanged = true
 					) {
 					if (*_a > *_b)
 					{
@@ -287,12 +288,20 @@ namespace LargeInteger{
 				{
 					if (temp == Compare::Larger) {
 						if (*_a > *_b) {
+							if (!HasChanged && ((*_a)() != 0))
+							{
+								return std::pair<TRUE_TYPE, Compare>(TRUE_TYPE(*_a / (*_b)), Compare::Larger);
+							}
 							return std::pair<TRUE_TYPE, Compare>(TRUE_TYPE(*_a / (*_b + Data(1))), Compare::Larger);
 						}
 						return std::pair<TRUE_TYPE, Compare>(1, Compare::Larger);
 					}
 					else if (temp == Compare::Smaller) {
 						if (*_a < (*_b)) {
+							if (!HasChanged && ((*_a)() != 0))
+							{
+								return std::pair<TRUE_TYPE, Compare>(TRUE_TYPE(*_b / (*_a)), Compare::Smaller);
+							}
 							return std::pair<TRUE_TYPE, Compare>(TRUE_TYPE(*_b / (*_a + Data(1))), Compare::Smaller);
 						}
 						return std::pair<TRUE_TYPE, Compare>((1), Compare::Smaller);
@@ -343,11 +352,10 @@ namespace LargeInteger{
 			static_assert(std::is_same< std::remove_cvref<decltype(*a)>::type, std::remove_cvref<decltype(*b)>::type>::value);
 			using Data=typename std::remove_cvref<decltype(*a)>::type;
 			//Regarding of the compatibility, we didn't use any majorization.
-			auto func1 = [&Res](const Iterator1& a, const Iterator2& b, size_t times)->void {
-				for (size_t i = 0; i < times; ++i) {
-					AppositionComputeTo<typename _Traits::SubtractFrom, Iterator1, Iterator2>(a, b);
-				}
-				Res += times;
+			auto func1 = [&Res](const Iterator1& a, const Iterator2& b, Data times)->void {
+				LineIterator<_Traits::Multiply, Iterator1, decltype(times)> temp(times, a);
+				SubtractFrom(temp, b);
+				Res += times();
 			};
 			auto func2 = [&Res]()->void {Res <<= 1; };
 			__DivideInto<decltype(func1), decltype(func2), Iterator1, Iterator2, Data>(a, b, func2, func1);
@@ -358,9 +366,8 @@ namespace LargeInteger{
 			using Data=typename std::remove_cvref<decltype(*a)>::type;
 			//Regarding of the compatibility, we didn't use any majorization.
 			auto func = [](const Iterator1& a, const Iterator2& b, Data times)->void {
-				for (Data i = Data(0); i < times; ++i) {
-					AppositionComputeTo<typename _Traits::SubtractFrom, Iterator1, Iterator2>(a, b);
-				}
+				LineIterator<_Traits::Multiply, Iterator1, decltype(times)> temp(times, a);
+				SubtractFrom(temp, b);
 			};
 			auto null = []()->void {};
 			__DivideInto<decltype(func), decltype(null), Iterator1, Iterator2, Data>(a, b, null, func);
