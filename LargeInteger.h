@@ -597,14 +597,14 @@ namespace LargeInteger {
 				}
 				if (Cmpr == LargeInteger::Compare::Larger)
 				{
-					LargeInteger::LongCmpt<LLCmptTraits<radix>>::SubtractFrom(that.begin(), this->begin());
+					this->LargeUnsigned<LL, radix>::operator-=(*static_cast<const LargeUnsigned<LL, radix>*>(&that));
 				}
 				else
 				{
 					LargeSigned temp = Copy(that);
 					temp.LargeUnsigned<LL, radix>::operator-=(*static_cast<const LargeUnsigned<LL, radix>*>(this));
 					*this = temp;
-					this->PosSign = !this->PosSign;
+					//this->PosSign = !this->PosSign;
 				}
 			}
 			return *this;
@@ -703,6 +703,10 @@ namespace LargeInteger {
 			return temp;
 		}
 		LargeSigned& MY_LIBRARY operator%=(const LargeSigned& that) noexcept {
+			if (!that.PosSign)
+			{
+				this->PosSign = !this->PosSign;
+			}
 			this->LargeUnsigned<LL, radix>::operator%=(*static_cast<const LargeUnsigned<LL, radix>*>(&that));
 			return *this;
 		}
