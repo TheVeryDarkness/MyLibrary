@@ -22,9 +22,13 @@ namespace LargeInteger {
 	//***************************************************
 	//***************************************************
 
+	constexpr char MY_LIBRARY ENDIAN()noexcept {
+		union { char c[4]; unsigned long l; }endian_test = { { 'l', '?', '?', 'b' } };
+		return((char)endian_test.l);
+	}
 
 
-	template<size_t Length = 1>
+	template<size_t Length>
 	class Bytes
 	{
 	private:
