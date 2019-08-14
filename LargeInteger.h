@@ -181,18 +181,14 @@ namespace LargeInteger {
 		//жиди
 		/*INLINED*/void MY_LIBRARY operator*=(const LargeUnsigned& b) noexcept {
 			LargeUnsigned This(*this);
-			this->destruct();
-			size_t WhiteLength = 0;
+			this->next = nullptr;
+			this->data = Data(0);
 			for (auto OprtPtr = b.begin(); OprtPtr != nullptr; ++OprtPtr) {
 				typename LargeInteger::LongCmpt<typename LargeInteger::StdCmptTraits<Data>>::template LineIterator<typename LargeInteger::StdCmptTraits<Data>::Multiply, decltype(This.cbegin()), Data> temp(*OprtPtr, This.cbegin());
 				LargeInteger::LongCmpt<typename LargeInteger::StdCmptTraits<Data>>::AddTo(temp, this->begin());
 				This <<= 1;
-				++WhiteLength;
 			}
-			for (size_t i = 0; i < WhiteLength; i++)
-			{
-				This >>= 1;
-			}
+			This.release();
 		}
 		//жиди
 		/*INLINED*/LargeUnsigned MY_LIBRARY operator*(const LargeUnsigned& b)const noexcept {
