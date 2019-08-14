@@ -15,9 +15,6 @@ namespace LL {
 		virtual void MY_LIBRARY destruct()noexcept {}
 
 		virtual std::ostream& MY_LIBRARY Print(std::ostream& o)const noexcept { return o; }
-		friend std::ostream& MY_LIBRARY operator<<(std::ostream& o, const Function& func) noexcept {
-			return func.Print(o);
-		}
 	private:
 
 	};

@@ -10,24 +10,25 @@
 class Series
 {
 private:
-	std::forward_list<LL::Function> series;
+	std::forward_list<LL::Function*> series;
 public:
-	Series(const std::initializer_list<LL::Function>& list) :series(list) {}
+	Series(const std::initializer_list<LL::Function*>& list) :series(list) {}
 	~Series() {
 		for (auto& i : series)
 		{
-			i.destruct();
+			i->destruct();
+			delete i;
 		}
 	}
 	Series& __stdcall diff() {
 		for (auto& i : series) {
-			i.diff();
+			i->diff();
 		}
 		return *this;
 	}
 	Series& __stdcall integral() {
 		for (auto& i : series) {
-			i.integral();
+			i->integral();
 		}
 		return *this;
 	}
@@ -43,7 +44,7 @@ std::ostream& __stdcall operator<<(std::ostream& o, const Series& s) {
 	}
 	for (auto const& i : s.series)
 	{
-		o << i;
+		i->Print(o);
 		if ((--sz) > 0)
 		{
 			o << " + ";
