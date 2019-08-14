@@ -37,8 +37,6 @@
 #endif // _DEBUG
 #endif // !ASSERT
 
-template<typename Ptr> INLINED void PtrDelete(Ptr ptr) { if (ptr != nullptr)delete ptr; }
-
 
 template<typename type>
 class Depack
