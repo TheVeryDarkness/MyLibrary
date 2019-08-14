@@ -50,31 +50,29 @@ namespace LargeInteger {
 			return *this;
 		}
 		constexpr Bytes& MY_LIBRARY operator+=(const Bytes& that)noexcept {
-			if constexpr (Length != 0)
+			static_assert(Length != 0);
+			value_type Carry = 0;
+			for (size_t i = 0; i < Length; i++)
 			{
-				value_type Carry = 0;
-				for (size_t i = 0; i < Length; i++)
+				//If (a + b) overflows, then a > ~b.
+				if (Carry > 0)
 				{
-					//If (a + b) overflows, then a > ~b.
-					if (Carry > 0)
+					if (Byte[i] > static_cast<value_type>(~Carry))
 					{
-						if (Byte[i] > static_cast<value_type>(~Carry))
-						{
-							Byte[i] = 0;
-							Carry = 1;
-						}
-						else
-						{
-							Byte[i] += 1;
-							Carry = 0;
-						}
-					}
-					if (Byte[i] > static_cast<value_type>(~that.Byte[i]))
-					{
+						Byte[i] = 0;
 						Carry = 1;
 					}
-					Byte[i] += that.Byte[i];
+					else
+					{
+						Byte[i] += 1;
+						Carry = 0;
+					}
 				}
+				if (Byte[i] > static_cast<value_type>(~that.Byte[i]))
+				{
+					Carry = 1;
+				}
+				Byte[i] += that.Byte[i];
 			}
 			return *this;
 		}
