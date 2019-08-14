@@ -347,7 +347,7 @@ namespace LargeInteger{
 				}
 			}
 		}
-		template<typename Linear, typename Iterator1, typename Iterator2>
+		template<typename Simplify, typename Linear, typename Iterator1, typename Iterator2>
 		static INLINED void MY_LIBRARY DivideInto(Linear& Res, Iterator1 a, Iterator2 b) noexcept {
 			static_assert(std::is_same< std::remove_cvref<decltype(*a)>::type, std::remove_cvref<decltype(*b)>::type>::value);
 			using Data=typename std::remove_cvref<decltype(*a)>::type;
@@ -355,12 +355,13 @@ namespace LargeInteger{
 			auto func1 = [&Res](const Iterator1& a, const Iterator2& b, Data times)->void {
 				LineIterator<_Traits::Multiply, Iterator1, decltype(times)> temp(times, a);
 				SubtractFrom(temp, b);
+				Simplify s(b);
 				Res += times();
 			};
 			auto func2 = [&Res]()->void {Res <<= 1; };
 			__DivideInto<decltype(func1), decltype(func2), Iterator1, Iterator2, Data>(a, b, func2, func1);
 		}
-		template<typename Iterator1, typename Iterator2>
+		template<typename Simplify, typename Iterator1, typename Iterator2>
 		static INLINED void MY_LIBRARY DivideInto(Iterator1 a, Iterator2 b) {
 			static_assert(std::is_same< std::remove_cvref<decltype(*a)>::type, std::remove_cvref<decltype(*b)>::type>::value);
 			using Data=typename std::remove_cvref<decltype(*a)>::type;
@@ -368,6 +369,7 @@ namespace LargeInteger{
 			auto func = [](const Iterator1& a, const Iterator2& b, Data times)->void {
 				LineIterator<_Traits::Multiply, Iterator1, decltype(times)> temp(times, a);
 				SubtractFrom(temp, b);
+				Simplify s(b);
 			};
 			auto null = []()->void {};
 			__DivideInto<decltype(func), decltype(null), Iterator1, Iterator2, Data>(a, b, null, func);
