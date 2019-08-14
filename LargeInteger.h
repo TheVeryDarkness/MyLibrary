@@ -83,9 +83,13 @@ namespace LargeInteger {
 		}
 		static constexpr LargeUnsigned MY_LIBRARY Copy(const LargeUnsigned& that)noexcept {
 			LargeUnsigned This(0);
-			for (auto i : that) {
 				auto j = This.begin();
-				*j = i;
+			for (auto i = that.begin(); i != that.end(); ++i) {
+				*j = *i;
+				if (i + 1 != that.end())
+				{
+					++j;
+				}
 			}
 			return This;
 		}
