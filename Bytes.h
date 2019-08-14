@@ -280,27 +280,25 @@ namespace LargeInteger {
 			return (ret >>= Bits);
 		}
 		constexpr Bytes& MY_LIBRARY operator<<=(size_t Bits)noexcept {
+			static_assert((Length != 0));
 			if ((Bits / Length) >= BitsPerByte)
 			{
 				memset(this->Byte, 0, Length);
 				return *this;
 			}
-			if constexpr (Length != 0)
+			if (Bits >= BitsPerByte)
 			{
-				if (Bits >= BitsPerByte)
+				memcpy(this->Byte + Bits / BitsPerByte, this->Byte, Length - Bits / BitsPerByte);
+				memset(this->Byte, 0, Bits / BitsPerByte);
+			}
+			if ((Bits % BitsPerByte) != 0)
+			{
+				value_type Pre = {}, temp = {};
+				for (size_t i = Bits / BitsPerByte; i < Length; i++)
 				{
-					memcpy(this->Byte + Bits / BitsPerByte, this->Byte, Length - Bits / BitsPerByte);
-					memset(this->Byte, 0, Bits / BitsPerByte);
-				}
-				if ((Bits % BitsPerByte) != 0)
-				{
-					value_type Pre = {}, temp = {};
-					for (size_t i = Bits / BitsPerByte; i < Length; i++)
-					{
-						temp = this->Byte[i] >> (BitsPerByte - Bits % BitsPerByte);
-						this->Byte[i] = (this->Byte[i] << (Bits % BitsPerByte)) | Pre;
-						Pre = temp;
-					}
+					temp = this->Byte[i] >> (BitsPerByte - Bits % BitsPerByte);
+					this->Byte[i] = (this->Byte[i] << (Bits % BitsPerByte)) | Pre;
+					Pre = temp;
 				}
 			}
 			return *this;
