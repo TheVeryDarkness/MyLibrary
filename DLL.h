@@ -304,6 +304,12 @@ namespace LL {
 			}
 			return;
 		}
+		//弹出当前位置后的一位
+		INLINED Data MY_LIBRARY pop() noexcept(DEBUG_FLAG) {
+			Data temp = this->next->data;
+			this->cut();
+			return temp;
+		}
 		//剪去空白高位
 		//返回指向非空最高位的指针
 		INLINED DLL* MY_LIBRARY Simplify() noexcept {

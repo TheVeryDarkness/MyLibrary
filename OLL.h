@@ -357,6 +357,12 @@ namespace LL {
 			}
 			return;
 		}
+		//弹出当前位置后的一位
+		INLINED Data MY_LIBRARY pop() noexcept(DEBUG_FLAG) {
+			Data temp = this->next->data;
+			this->cut();
+			return temp;
+		}
 		INLINED OLL* MY_LIBRARY Simplify() noexcept {
 			LL_SIMPLIFY(OLL);
 		}
