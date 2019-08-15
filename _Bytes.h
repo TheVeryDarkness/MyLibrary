@@ -244,6 +244,7 @@ namespace LargeInteger {
 
 		template<typename Val> _Bytes Make(Val val)noexcept {
 			this->Maker(val);
+			ASSERT("Overflow in construct!", val == 0);
 			return *this;
 		}
 		template<typename Val> static _Bytes Make_s(Val val)noexcept {
