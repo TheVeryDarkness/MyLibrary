@@ -1,5 +1,9 @@
 #pragma once
 
+#ifndef _DEBUG
+#define NDEBUG
+#endif // !_DEBUG
+
 
 #ifdef _DEBUG
 #define DEBUG_FLAG 0
