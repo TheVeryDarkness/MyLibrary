@@ -40,7 +40,7 @@ namespace LL {
 		template<class inNode, class outNode, auto inRadix, auto outRadix, bool Destroy>
 		friend outNode MY_LIBRARY Transform(inNode& in)noexcept;
 
-		MEMORY_CACHE(20);
+		MEMORY_CACHE(50);
 	public:
 		constexpr INLINED std::iterator<std::bidirectional_iterator_tag, DLL> begin() noexcept {
 			return std::iterator<std::bidirectional_iterator_tag, DLL>(this);

@@ -59,7 +59,7 @@ namespace LL {
 		friend struct std::iterator<std::forward_iterator_tag, OLL>;
 		friend struct std::iterator<std::forward_iterator_tag, const OLL>;
 
-		MEMORY_CACHE(20);
+		MEMORY_CACHE(50);
 	public:
 		constexpr INLINED std:: iterator<std::forward_iterator_tag, OLL> begin() noexcept {
 			return std::iterator<std::forward_iterator_tag, OLL>(this);
