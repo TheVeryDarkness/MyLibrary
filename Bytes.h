@@ -4,6 +4,7 @@
 #include <cstring>
 #include <type_traits>
 #include "Shared.h"
+#include "Statistics.h"
 
 namespace LargeInteger {
 
