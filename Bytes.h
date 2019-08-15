@@ -51,26 +51,21 @@ namespace LargeInteger {
 		}
 		constexpr Bytes& MY_LIBRARY operator+=(const Bytes& that)noexcept {
 			static_assert(Length != 0);
-			value_type Carry = 0;
-			for (size_t i = 0; i < Length; i++)
-			{
+			bool Carry = false;
+			for (size_t i = 0; i < Length; ++i) {
 				//If (a + b) overflows, then a > ~b.
-				if (Carry > 0)
-				{
-					if (Byte[i] > static_cast<value_type>(~Carry))
-					{
+				if (Carry) {
+					if (Byte[i] == std::numeric_limits<value_type>::max()) {
 						Byte[i] = 0;
-						Carry = 1;
+						Carry = true;
 					}
-					else
-					{
+					else {
 						Byte[i] += 1;
-						Carry = 0;
+						Carry = false;
 					}
 				}
-				if (Byte[i] > static_cast<value_type>(~that.Byte[i]))
-				{
-					Carry = 1;
+				if (Byte[i] > static_cast<value_type>(~that.Byte[i])) {
+					Carry = true;
 				}
 				Byte[i] += that.Byte[i];
 			}
