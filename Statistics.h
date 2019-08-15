@@ -21,6 +21,20 @@ constexpr inline Data ABS(Data a) noexcept {
 
 namespace LargeInteger {
 	constexpr unsigned char BitsPerByte = 8;
+
+	template<typename Data>
+	constexpr size_t GetMinLength(Data data)noexcept;
+
+	template<typename Data>
+	constexpr INLINED size_t GetMinLength(Data data) noexcept {
+		static_assert(std::is_integral<Data>::value, "Integral required.");
+		static_assert(Data(-1) > 0, "Unsigned type required.");
+		size_t res = ((static_cast<Data>(~data) == 0) ? 1 : 0);
+		do {
+			++res;
+		} while ((data >>= 8) != 0);
+		return res;
+	}
 }
 template<typename value_type>size_t getBits(const value_type& that)noexcept {
 	value_type temp = 1;
