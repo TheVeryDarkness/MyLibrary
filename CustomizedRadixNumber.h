@@ -1,7 +1,10 @@
 #pragma once
 
 #include "Shared.h"
+#ifdef _DEBUG
 #include "Bytes.h"
+#endif // _DEBUG
+#include "_Bytes.h"
 #include <cassert>
 #include <limits>
 #include <type_traits>
