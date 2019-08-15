@@ -22,11 +22,11 @@ public:
 
 
 	void* pop(size_t Block) {
-		for (size_t i = 0; i < CacheSize; i++)
+		for (auto val : Cache)
 		{
-			if (Cache[i] != nullptr)
+			if (val != nullptr)
 			{
-				void* temp = Cache[i];
+				void* temp = val;
 				Cache[i] = nullptr;
 				return temp;
 			}
@@ -35,11 +35,11 @@ public:
 	}
 
 	void MY_LIBRARY push(void* block)noexcept {
-		for (size_t i = 0; i < CacheSize; i++)
+		for (auto val : Cache)
 		{
-			if (Cache[i] == nullptr)
+			if (val == nullptr)
 			{
-				Cache[i] = block;
+				val = block;
 				return;
 			}
 		}
