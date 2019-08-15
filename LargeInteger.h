@@ -7,6 +7,8 @@
 #include <cassert>
 
 namespace LargeInteger {
+	template<typename LL, auto radix> class LargeUnsigned;
+	template<typename LL, auto radix> class LargeSigned;
 	template<auto radix>
 	class LLCmptTraits :public LargeInteger::StdCmptTraits<LargeInteger::Num<decltype(radix), radix>>
 	{
