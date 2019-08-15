@@ -19,6 +19,15 @@ constexpr inline Data ABS(Data a) noexcept {
 }
 //#define ABS(a) (((a)>=0)?(a):(-(a)))//È¡¾ø¶ÔÖµ
 
+constexpr unsigned char BitsPerByte = 8;
+template<typename value_type>size_t getBits(const value_type& that)noexcept {
+	value_type temp = 1;
+	size_t i = 0;
+	for (; i < sizeof(value_type) * BitsPerByte && ((temp & that) == 0); i++) {
+		temp <<= 1;
+	}
+	return i;
+}
 
 inline long __stdcall Max(long[], long);
 inline long __stdcall Min(long[], long);

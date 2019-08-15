@@ -6,7 +6,6 @@
 #include "Shared.h"
 
 namespace LargeInteger {
-	constexpr unsigned char BitsPerByte = 8;
 
 	template<size_t Length>
 	class Bytes;
