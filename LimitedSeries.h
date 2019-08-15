@@ -16,19 +16,18 @@ public:
 	~Series() {
 		for (auto& i : series)
 		{
-			i->destruct();
 			delete i;
 		}
 	}
 	Series& __stdcall diff() {
 		for (auto& i : series) {
-			i->diff();
+			i->diff(i);
 		}
 		return *this;
 	}
 	Series& __stdcall integral() {
 		for (auto& i : series) {
-			i->integral();
+			i->integral(i);
 		}
 		return *this;
 	}
