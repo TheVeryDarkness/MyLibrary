@@ -54,11 +54,20 @@ namespace Integer {
 		constexpr bool Comp()noexcept {
 			return true;
 		}
+		constexpr bool add_o(const _Bytes& that)noexcept {
+			return false;
+		}
 	public:
 		constexpr MY_LIBRARY _Bytes() = default;
 		MY_LIBRARY ~_Bytes() = default;
-		constexpr bool add_o(const _Bytes& that)noexcept {
+		constexpr bool operator>(const _Bytes& that)const noexcept {
 			return false;
+		}
+		constexpr bool operator<(const _Bytes& that)const noexcept {
+			return false;
+		}
+		constexpr bool operator==(const _Bytes& that)const noexcept {
+			return true;
 		}
 		static constexpr size_t getAccount()noexcept {
 			return 0;
@@ -116,6 +125,37 @@ namespace Integer {
 		constexpr _Bytes& operator+=(const _Bytes& that)noexcept {
 			this->add_o(that);
 			return *this;
+		}
+		constexpr bool operator>(const _Bytes& that)const noexcept {
+			return (
+				(this->Byte > that.Byte) ?
+				true
+				: ((this->Byte < that.Byte) ?
+					false
+					: (this->_Bytes<IntelligentLength(Length).first>::operator>(*static_cast<const _Bytes<IntelligentLength(Length).first>*>(&that)))));
+		}
+		constexpr bool operator<(const _Bytes& that)const noexcept {
+			return (
+				(this->Byte < that.Byte) ?
+				true
+				: ((this->Byte > that.Byte) ?
+					false
+					: (this->_Bytes<IntelligentLength(Length).first>::operator<(*static_cast<const _Bytes<IntelligentLength(Length).first>*>(&that)))));
+		}
+		constexpr bool operator>=(const _Bytes& that)const noexcept {
+			return !(*this < that);
+		}
+		constexpr bool operator<=(const _Bytes& that)const noexcept {
+			return !(*this > that);
+		}
+		constexpr bool operator==(const _Bytes& that)const noexcept {
+			return (
+				(this->Byte == that.Byte) ?
+				true
+				: (this->_Bytes<IntelligentLength(Length).first>::operator==(*static_cast<const _Bytes<IntelligentLength(Length).first>*>(&that))));
+		}
+		constexpr bool operator!=(const _Bytes& that)const noexcept {
+			return !(*this == that);
 		}
 		constexpr static size_t getAccount()noexcept { return (_Bytes<IntelligentLength(Length).first>::getAccount() + 1); }
 		constexpr friend std::ostream& operator<<(std::ostream& o, const _Bytes& b)noexcept {
