@@ -25,13 +25,13 @@ namespace LargeInteger {
 			Numerator(((n > 0) ? 1 : 0), static_cast<unsigned long>(abs(n))),
 			Denominator(true, static_cast<unsigned long>(d)) {}
 		MY_LIBRARY Q(const Q& that) noexcept :
-			Denominator(that.Denominator),
-			Numerator(that.Numerator) {}
-		explicit MY_LIBRARY Q(const Z& Denominator, const Z& Numerator) noexcept :
-			Denominator(Denominator),
-			Numerator(Numerator) {}
+			Numerator(that.Numerator),
+			Denominator(that.Denominator) {}
+		explicit MY_LIBRARY Q(const Z& Numerator, const Z& Denominator) noexcept :
+			Numerator(Numerator),
+			Denominator(Denominator) {}
 		static Q MY_LIBRARY Copy(const Q& that)noexcept {
-			Q temp = Q(Z::Copy(that.Denominator), Z::Copy(that.Denominator));
+			Q temp = Q(Z::Copy(that.Numerator), Z::Copy(that.Denominator));
 			return temp;
 		}
 		MY_LIBRARY ~Q();
