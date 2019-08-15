@@ -35,7 +35,7 @@ namespace LargeInteger {
 			return temp;
 		}
 		MY_LIBRARY ~Q();
-		INLINED void MY_LIBRARY destruct() {
+		INLINED void MY_LIBRARY destruct() noexcept {
 			this->Denominator.destruct();
 			this->Numerator.destruct();
 		}

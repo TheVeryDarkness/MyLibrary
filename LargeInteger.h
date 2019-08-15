@@ -529,7 +529,7 @@ namespace LargeInteger {
 			return This;
 		}
 
-		constexpr void MY_LIBRARY destruct()noexcept {
+		constexpr void MY_LIBRARY destruct() noexcept {
 			this->LL::destruct();
 		}
 
