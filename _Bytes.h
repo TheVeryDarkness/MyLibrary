@@ -57,6 +57,9 @@ namespace Integer {
 		constexpr bool add_o(const _Bytes& that)noexcept {
 			return false;
 		}
+		constexpr bool sub_u(const _Bytes& that)noexcept {
+			return false;
+		}
 	public:
 		constexpr MY_LIBRARY _Bytes() = default;
 		MY_LIBRARY ~_Bytes() = default;
@@ -102,6 +105,25 @@ namespace Integer {
 			Byte += that.Byte;
 			return Carry;
 		}
+		constexpr bool sub_u(const _Bytes& that)noexcept {
+			bool Carry = this->_Bytes<IntelligentLength(Length).first>::sub_u(*static_cast<const _Bytes<IntelligentLength(Length).first>*>(&that));
+			//If (a - b) underflows, then a < b.
+			if (Carry) {
+				if (Byte == 0) {
+					Byte = std::numeric_limits<value_type>::max();
+					Carry = true;
+				}
+				else {
+					Byte -= 1;
+					Carry = false;
+				}
+			}
+			if (Byte < that.Byte) {
+				Carry = true;
+			}
+			Byte -= that.Byte;
+			return Carry;
+		}
 		constexpr bool Comp()noexcept {
 			this->Byte = ~this->Byte;
 			if (this->_Bytes<IntelligentLength(Length).first>::Comp())
@@ -124,6 +146,10 @@ namespace Integer {
 		}
 		constexpr _Bytes& operator+=(const _Bytes& that)noexcept {
 			this->add_o(that);
+			return *this;
+		}
+		constexpr _Bytes& operator-=(const _Bytes& that)noexcept {
+			this->sub_u(that);
 			return *this;
 		}
 		constexpr bool operator>(const _Bytes& that)const noexcept {
