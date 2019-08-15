@@ -215,7 +215,7 @@ namespace LargeInteger {
 		/*INLINED*/void MY_LIBRARY operator*=(const LargeUnsigned& b) noexcept {
 			LargeUnsigned This(*this);
 			this->next = nullptr;
-			this->data = Data(0);
+			this->data = Data(radix_t(0));
 			for (auto OprtPtr = b.begin(); OprtPtr != nullptr; ++OprtPtr) {
 				typename LargeInteger::LongCmpt<typename LargeInteger::LLCmptTraits<radix>>::template LineIterator<typename LargeInteger::LLCmptTraits<radix>::Multiply, decltype(This.cbegin()), Data> temp(*OprtPtr, This.cbegin());
 				LargeInteger::LongCmpt<typename LargeInteger::LLCmptTraits<radix>>::AddTo(temp, this->begin());
