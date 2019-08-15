@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Shared.h"
+#include "Statistics.h"
 #ifdef _DEBUG
 #include "Bytes.h"
 #endif // _DEBUG
@@ -129,9 +130,11 @@ namespace LargeInteger {
 		constexpr bool MY_LIBRARY operator<(const Data& data)const noexcept { return (this->data < data); }
 		constexpr bool MY_LIBRARY operator<=(const Data& data)const noexcept { return (this->data <= data); }
 		constexpr Num& MY_LIBRARY operator*=(const Num& that) noexcept {
+			assert(false);
+			using LargeInteger::_Bytes;
 			if constexpr(Radix == Data(0))
 			{
-				Bytes<sizeof(Data) * 2> This = *this(), That = that();
+				_Bytes<sizeof(Data) * 2> This = _Bytes<sizeof(Data) * 2>::Make_s(*this()), That = _Bytes<sizeof(Data) * 2>::Make_s(that());
 				This *= that;
 				this->data = Data(This);
 				return *this;
@@ -140,9 +143,9 @@ namespace LargeInteger {
 			{
 				if constexpr(Radix > std::numeric_limits<Data>::max() / Radix)
 				{
-					Bytes<sizeof(Data) * 2> This = Bytes<sizeof(Data) * 2>(this->data);
-					This *= Bytes<sizeof(Data) * 2>(that.data);
-					this->data = Data(This % Bytes<sizeof(Data) * 2>(Radix));
+					_Bytes<sizeof(Data) * 2> This = _Bytes<sizeof(Data) * 2>::Make_s(this->data);
+					This *= _Bytes<sizeof(Data) * 2>::Make_s(that.data);
+					this->data = Data(This % _Bytes<sizeof(Data) * 2>::Make_s(Radix));
 					return *this;
 				}
 				else
@@ -164,23 +167,23 @@ namespace LargeInteger {
 			~Multiply() = default;
 
 			std::pair<Num, Num> MY_LIBRARY operator()(Num Carry, Num a, Num b)const noexcept {
+				using LargeInteger::_Bytes;
 				if constexpr (Radix == Data(0))
 				{
-					Bytes<sizeof(Num) * 2> This(a());
-					This *= Bytes<sizeof(Num) * 2>(b());
-					This += Bytes<sizeof(Num) * 2>(Carry());
-					return std::pair<Num, Num>(Num(Data(This)), Num(Data(This >> BitsPerByte * sizeof(Num))));
+					_Bytes<sizeof(Data) * 2> This(a());
+					This *= _Bytes<sizeof(Data) * 2>::Make_s(b());
+					This += _Bytes<sizeof(Data) * 2>::Make_s(Carry());
+					return std::pair<Num, Num>(Num(Data(This)), Num(Data(This >> LargeInteger::BitsPerByte * sizeof(Num))));
 				}
 				else
 				{
 					if constexpr (Radix > std::numeric_limits<Data>::max() / Radix)
 					{
-						Bytes<GetMinLength(Radix) * 2> This(a());
-						This *= Bytes<GetMinLength(Radix) * 2>(b());
-						This += Bytes<GetMinLength(Radix) * 2>(Carry());
-						Bytes<GetMinLength(Radix) * 2> Res(0);
-						Bytes<GetMinLength(Radix) * 2> radix(Radix);
-						Res = This.Divide(radix);
+						_Bytes<GetMinLength(Radix) * 2> This = _Bytes<GetMinLength(Radix) * 2>::Make_s(a());
+						This *= _Bytes<GetMinLength(Radix) * 2>::Make_s(b());
+						This += _Bytes<GetMinLength(Radix) * 2>::Make_s(Carry());
+						_Bytes<GetMinLength(Radix) * 2> radix = _Bytes<GetMinLength(Radix) * 2>::Make_s(Radix);
+						_Bytes<GetMinLength(Radix) * 2> Res = This.Divide(radix);
 						return std::pair<Num, Num>(
 							Num(Data(This)),
 							Num(Data(Res))
