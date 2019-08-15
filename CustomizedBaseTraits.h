@@ -140,46 +140,6 @@ namespace LargeInteger {
 				return;
 			}
 		}
-		template<typename Iter>
-		auto MY_LIBRARY operator>>(Iter str)noexcept {
-			static_assert(GetPowerTimes(Iter::getRadix(), charset::getRadix()) != 0 || Iter::getRadix() == charset::getRadix());
-			std::istream_iterator<_Elem> i(is);
-			if constexpr (Iter::getRadix() == charset::getRadix())
-			{
-				while (i)
-				{
-					auto c = charset::to_int_type(*i);
-					if (c != '?')
-					{
-						*str = c;
-						++str;
-					}
-				}
-				return *this;
-			}
-			else
-			{
-				while (i)
-				{
-					typename std::remove_reference<decltype(*str)>::type sum = std::remove_reference<decltype(*str)>::type(0);
-					for (decltype(GetPowerTimes(Iter::getRadix(), charset::getRadix())) j = 0; j < GetPowerTimes(Iter::getRadix(), charset::getRadix()); j++) {
-						auto c = charset::to_int_type(*i);
-						if (c != charset::IntType('?'))
-						{
-							sum += c * static_cast<decltype(Iter::getRadix())>(Power(static_cast<decltype(Iter::getRadix())>(charset::getRadix()), j));
-						}
-						else --j;
-						++i;
-					}
-					if (sum != static_cast<decltype(sum)>(0))
-					{
-						*str = sum;
-						++str;
-					}
-				}
-				return *this;
-			}
-		}
 
 	private:
 		std::basic_istream<_Elem>& is;
