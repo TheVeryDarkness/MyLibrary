@@ -231,8 +231,8 @@ namespace Integer {
 		}
 		constexpr bool operator==(const _Bytes& that)const noexcept {
 			return (
-				(this->Byte == that.Byte) ?
-				true
+				(this->Byte != that.Byte) ?
+				false
 				: (this->_Bytes<IntelligentLength(Length).first>::operator==(*static_cast<const _Bytes<IntelligentLength(Length).first>*>(&that))));
 		}
 		constexpr bool operator!=(const _Bytes& that)const noexcept {
