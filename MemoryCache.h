@@ -10,7 +10,7 @@ public:
 	MY_LIBRARY MemorryCache()noexcept{}
 
 	MY_LIBRARY ~MemorryCache()noexcept{
-		for (auto var : Cache)
+		for (auto& var : Cache)
 		{
 			if (var!=nullptr)
 			{
@@ -22,12 +22,12 @@ public:
 
 
 	void* pop(size_t Block) {
-		for (auto val : Cache)
+		for (auto& val : Cache)
 		{
 			if (val != nullptr)
 			{
 				void* temp = val;
-				Cache[i] = nullptr;
+				val = nullptr;
 				return temp;
 			}
 		}
@@ -35,7 +35,7 @@ public:
 	}
 
 	void MY_LIBRARY push(void* block)noexcept {
-		for (auto val : Cache)
+		for (auto& val : Cache)
 		{
 			if (val == nullptr)
 			{
