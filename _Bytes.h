@@ -85,6 +85,9 @@ namespace Integer {
 	public:
 		constexpr size_t MY_LIBRARY GetBits()const noexcept { return 0; }
 		constexpr MY_LIBRARY _Bytes() = default;
+		template<typename Val>constexpr MY_LIBRARY _Bytes(Val val) {
+			assert(val == 0);
+		}
 		MY_LIBRARY ~_Bytes() = default;
 		constexpr bool operator>(const _Bytes& that)const noexcept {
 			return false;
@@ -225,8 +228,17 @@ namespace Integer {
 	public:
 		using value_type=decltype(Byte);
 		template<typename Val, typename... Vals>
-		constexpr MY_LIBRARY _Bytes(Val val, Vals... vals)
+		explicit constexpr MY_LIBRARY _Bytes(Val val, Vals... vals)
 			noexcept : Byte(val), _Bytes<IntelligentLength(Length).first>(vals...) {}; //= default;
+		template<typename Val>
+		constexpr MY_LIBRARY _Bytes(Val val)
+			noexcept :
+			Byte(static_cast<value_type>(val)),
+			_Bytes<IntelligentLength(Length).first>(
+			(sizeof(Val) > sizeof(value_type)) ?
+				(val >>= (sizeof(value_type) * LargeInteger::BitsPerByte))
+				: Val(0)
+				) {}
 		constexpr MY_LIBRARY _Bytes()
 			noexcept :Byte(0), _Bytes<IntelligentLength(Length).first>() {};
 		MY_LIBRARY ~_Bytes() = default;
