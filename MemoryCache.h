@@ -22,30 +22,30 @@ public:
 
 
 	void* pop(size_t Block) {
-		auto i = std::find_if_not(Cache.begin(), Cache.end(), [](void* that)->bool {return(that == nullptr); });
-		if (i == Cache.end())
+		for (size_t i = 0; i < CacheSize; i++)
 		{
-			return malloc(Block);
+			if (Cache[i] != nullptr)
+			{
+				void* temp = Cache[i];
+				Cache[i] = nullptr;
+				return temp;
+			}
 		}
-		else {
-			void* temp = *i;
-			*i = nullptr;
-			return temp;
-		}
+		return malloc(Block);
 	}
 
 	void MY_LIBRARY push(void* block)noexcept {
-		auto i = std::find_if(Cache.begin(), Cache.end(), [](void* that)->bool {return(that == nullptr); });
-		if (i == Cache.end())
+		for (size_t i = 0; i < CacheSize; i++)
 		{
-			return free(block);
+			if (Cache[i] == nullptr)
+			{
+				Cache[i] = block;
+				return;
+			}
 		}
-		else {
-			*i = block;
-			return;
-		}
+		return free(block);
 	}
 
 private:
-	std::array<void*, CacheSize> Cache = {};
+	void* Cache[CacheSize] = {};
 };
