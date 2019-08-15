@@ -60,6 +60,9 @@ namespace Integer {
 		constexpr bool sub_u(const _Bytes& that)noexcept {
 			return false;
 		}
+		constexpr void And(const _Bytes* that)noexcept { return; }
+		constexpr void Or(const _Bytes* that)noexcept { return; }
+		constexpr void XOr(const _Bytes* that)noexcept { return; }
 	public:
 		constexpr MY_LIBRARY _Bytes() = default;
 		MY_LIBRARY ~_Bytes() = default;
@@ -134,13 +137,25 @@ namespace Integer {
 			}
 			return false;
 		}
+		constexpr void And(const _Bytes* that)noexcept {
+			this->Byte &= that->Byte;
+			this->_Bytes<IntelligentLength(Length).first>::And(static_cast<const _Bytes<IntelligentLength(Length).first>*>(that));
+		}
+		constexpr void Or(const _Bytes* that)noexcept {
+			this->Byte |= that->Byte;
+			this->_Bytes<IntelligentLength(Length).first>::Or(static_cast<const _Bytes<IntelligentLength(Length).first>*>(that));
+		}
+		constexpr void XOr(const _Bytes* that)noexcept {
+			this->Byte ^= that->Byte;
+			this->_Bytes<IntelligentLength(Length).first>::XOr(static_cast<const _Bytes<IntelligentLength(Length).first>*>(that));
+		}
 	public:
 		using value_type=decltype(Byte);
 		template<typename Val, typename... Vals>
 		constexpr MY_LIBRARY _Bytes(Val val, Vals... vals)
 			noexcept : Byte(val), _Bytes<IntelligentLength(Length).first>(vals...) {}; //= default;
 		MY_LIBRARY ~_Bytes() = default;
-		constexpr _Bytes Comple()noexcept {
+		constexpr _Bytes& Comple()noexcept {
 			this->Comp();
 			return *this;
 		}
@@ -182,6 +197,18 @@ namespace Integer {
 		}
 		constexpr bool operator!=(const _Bytes& that)const noexcept {
 			return !(*this == that);
+		}
+		constexpr _Bytes& operator&=(const _Bytes& that)noexcept {
+			this->And(&that);
+			return *this;
+		}
+		constexpr _Bytes& operator|=(const _Bytes& that)noexcept {
+			this->Or(&that);
+			return *this;
+		}
+		constexpr _Bytes& operator^=(const _Bytes& that)noexcept {
+			this->XOr(&that);
+			return *this;
 		}
 		constexpr static size_t getAccount()noexcept { return (_Bytes<IntelligentLength(Length).first>::getAccount() + 1); }
 		constexpr friend std::ostream& operator<<(std::ostream& o, const _Bytes& b)noexcept {
