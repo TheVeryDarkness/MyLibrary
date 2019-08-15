@@ -63,6 +63,15 @@ namespace Integer {
 		constexpr void And(const _Bytes* that)noexcept { return; }
 		constexpr void Or(const _Bytes* that)noexcept { return; }
 		constexpr void XOr(const _Bytes* that)noexcept { return; }
+		constexpr bool SHL()noexcept { 
+			return false;
+		}
+		constexpr void SHR(bool fill)noexcept {
+			return; 
+		}
+		constexpr void _SHR(bool fill, bool& tail)noexcept {
+			return;
+		}
 	public:
 		constexpr MY_LIBRARY _Bytes() = default;
 		MY_LIBRARY ~_Bytes() = default;
@@ -149,6 +158,25 @@ namespace Integer {
 			this->Byte ^= that->Byte;
 			this->_Bytes<IntelligentLength(Length).first>::XOr(static_cast<const _Bytes<IntelligentLength(Length).first>*>(that));
 		}
+		constexpr bool SHL()noexcept {
+			bool&& temp = this->_Bytes<IntelligentLength(Length).first>::SHL();
+			bool Fill = (this->Byte >> (sizeof(value_type) * LargeInteger::BitsPerByte - 1)) & 0x1;
+			this->Byte <<= 1;
+			if (temp)
+			{
+				this->Byte |= 0x1;
+			}
+			return Fill;
+		}
+		constexpr void SHR(bool fill)noexcept {
+			bool temp = this->Byte & 0x1;
+			this->Byte >>= 1;
+			if (fill)
+			{
+				this->Byte |= value_type(value_type(1) << (sizeof(value_type) * LargeInteger::BitsPerByte - 1));
+			}
+			this->_Bytes<IntelligentLength(Length).first>::SHR(temp);
+		}
 	public:
 		using value_type=decltype(Byte);
 		template<typename Val, typename... Vals>
@@ -157,6 +185,18 @@ namespace Integer {
 		MY_LIBRARY ~_Bytes() = default;
 		constexpr _Bytes& Comple()noexcept {
 			this->Comp();
+			return *this;
+		}
+		constexpr _Bytes& operator<<=(size_t sz)noexcept {
+			for (size_t i = 0; i < sz; i++) {
+				this->SHL();
+			}
+			return *this;
+		}
+		constexpr _Bytes& operator>>=(size_t sz)noexcept {
+			for (size_t i = 0; i < sz; i++) {
+				this->SHR(false);
+			}
 			return *this;
 		}
 		constexpr _Bytes& operator+=(const _Bytes& that)noexcept {
