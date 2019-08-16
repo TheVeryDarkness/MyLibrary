@@ -7,8 +7,7 @@
 namespace Function {
 	using value=double;
 	class function;
-	class num;
-	class x;
+	template<vari> class num;
 	template<size_t count>class sum;
 	template<size_t count>class product;
 	class f_ln;
@@ -95,10 +94,8 @@ namespace Function {
 	public:
 		template<typename ...pack>
 		MY_LIBRARY sum(function* p, pack... _p) noexcept :p(p), sum<count - 1>(_p...) {
-			ERR(count << "-level sum constructs on " << this << ", with a member on " << p << "." << std::endl);
 		}
 		MY_LIBRARY ~sum() noexcept {
-			ERR(count << "-level sum destructs on " << this << ", with a member on " << p << "." << std::endl);
 			delete p;
 		}
 		sum* MY_LIBRARY copy()noexcept { return new sum(p->copy(), this->sum<count - 1>::copy()); }
@@ -108,7 +105,6 @@ namespace Function {
 			return;
 		}
 		void MY_LIBRARY diff(function*& f) noexcept {
-			ERR(count << "-level sum diffs on " << this << ", with a member on " << p << "." << std::endl);
 			assert(this == f);
 			p->diff(p);
 			return;
@@ -131,10 +127,8 @@ namespace Function {
 	class product<1> :public function {
 	public:
 		MY_LIBRARY product(function* p)noexcept :p(p) { 
-			ERR(1 << "-level product constructs on ") << this << ", with a member on " << p << "." << std::endl;
 		}
 		MY_LIBRARY ~product() noexcept { 
-			ERR(1 << "-level product constructs on ") << this << ", with a member on " << p << "." << std::endl; 
 			delete p; 
 		}
 		product* MY_LIBRARY copy()noexcept { return new product(p->copy()); }
@@ -165,12 +159,10 @@ namespace Function {
 	class product :public product<count - 1>/*, public function */ {
 	public:
 		template<typename ...pack> MY_LIBRARY product(function* p, pack... _p) noexcept :p(p), product<count - 1>(_p...) {
-			ERR(count << "-level product constructs on " << this << ", with a member on " << p << "." << std::endl);
 		}
 		explicit MY_LIBRARY product(product* _p) noexcept 
 			:p(_p->p), product<count - 1>(static_cast<product<count - 1>*>(_p)) { }
 		MY_LIBRARY ~product() noexcept {
-			ERR(count << "-level product denstructs on " << this << ", with a member on " << p << "." << std::endl);
 			if (p != nullptr) {
 				delete p;
 			}
@@ -211,17 +203,14 @@ namespace Function {
 	class f_ln :public function {
 	public:
 		MY_LIBRARY f_ln(function* in)noexcept :inner(in) {
-			ERR("f_ln constructs on " << this << ", with a member on " << inner << "." << std::endl);
 		}
 		MY_LIBRARY ~f_ln()noexcept {
-			ERR("f_ln destructs on " << this << ", with a member on " << inner << "." << std::endl);
 			if (inner != nullptr) {
 				delete this->inner;
 			}
 		}
 		function* MY_LIBRARY copy()noexcept {
 			auto&& temp = new f_ln(this->inner->copy());
-			ERR("a f_ln on " << this << "has been copied. it has a value of " << *this << ". new f_ln is on " << temp << std::endl);
 			return temp;
 		}
 		void MY_LIBRARY diff(function*& f) noexcept;
@@ -246,10 +235,8 @@ namespace Function {
 	public:
 		MY_LIBRARY f_power(function* base, function* expo) noexcept
 			:base(base), expo(expo) {
-			ERR("f_power destructs on " << this << " with two members on " << base << "and" << expo << std::endl);
 		}
 		MY_LIBRARY ~f_power()noexcept {
-			ERR("f_power destructs on " << this << " with two members on " << base << "and" << expo << std::endl);
 			if (base != nullptr) {
 				delete base;
 			}
@@ -259,7 +246,6 @@ namespace Function {
 		}
 		function* MY_LIBRARY copy()noexcept {
 			auto&& temp = new f_power(this->base->copy(), this->expo->copy());
-			ERR("a f_power on " << this << "has been copied. it has a value of " << *this << ". new f_power is on " << temp << std::endl);
 			return temp;
 		}
 		void MY_LIBRARY diff(function*& f) noexcept;
@@ -284,21 +270,17 @@ namespace Function {
 	public:
 		MY_LIBRARY f_sin(function* in)noexcept
 			:inner(in) {
-			ERR("f_sin constructs on " << this << ", with a member on " << inner << "." << std::endl);
 		}
 		MY_LIBRARY ~f_sin()noexcept {
-			ERR("f_sin destructs on " << this << ", with a member on " << inner << "." << std::endl);
 			delete this->inner;
 		}
 		function* MY_LIBRARY copy()noexcept {
 			auto&& temp = new f_sin(this->inner->copy());
-			ERR("a f_sin on " << this << "has been copied. it has a value of " << *this << ". new f_sin is on " << temp << std::endl);
 			return temp;
 		}
 		void MY_LIBRARY diff(function*& f) noexcept {
 			assert(this == f);
-			ERR("a f_sin on " << this << "diffs. its origin value is" << *this << std::endl);
-			inner = new sum<2>(inner, new num(1, 2));
+			inner = new sum<2>(inner, new num<vari::DEF>(1, 2));
 			function* temp = inner->copy();
 			temp->diff(temp);
 			f = new product<2>(temp, f);
@@ -321,7 +303,6 @@ namespace Function {
 
 	INLINED void MY_LIBRARY f_power::diff(function*& f) noexcept {
 		assert(this == f);
-		ERR("f_power on " << this << "diff. it has a value of " << *this << std::endl);
 		function *_base = base->copy(), *_expo = expo->copy();
 		_base->diff(_base);
 		_expo->diff(_expo);
@@ -330,8 +311,7 @@ namespace Function {
 	}
 	INLINED void MY_LIBRARY f_ln::diff(function*& f) noexcept {
 		assert(this == f);
-		ERR("a f_ln on " << this << "diffs. its origin value is" << *this << std::endl);
-		f = new f_power(inner, new num(-1));
+		f = new f_power(inner, new num<vari::DEF>(-1));
 		inner = nullptr;
 		delete this;
 		return;
