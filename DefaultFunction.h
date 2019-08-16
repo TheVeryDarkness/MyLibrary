@@ -165,11 +165,12 @@ namespace Function {
 	class product :public product<count - 1>/*, public function */ {
 	public:
 		template<typename ...pack> MY_LIBRARY product(function* p, pack... _p) noexcept :p(p), product<count - 1>(_p...) {
-			ERR(count << "-level product constructs" << this << ", with a member on " << p << "." << std::endl);
+			ERR(count << "-level product constructs on " << this << ", with a member on " << p << "." << std::endl);
 		}
-		explicit MY_LIBRARY product(product* _p) noexcept :p(_p->p), product<count - 1>(static_cast<product<count - 1>*>(_p)) { }
+		explicit MY_LIBRARY product(product* _p) noexcept 
+			:p(_p->p), product<count - 1>(static_cast<product<count - 1>*>(_p)) { }
 		MY_LIBRARY ~product() noexcept {
-			ERR(count << "-level product denstructs" << this << ", with a member on " << p << "." << std::endl);
+			ERR(count << "-level product denstructs on " << this << ", with a member on " << p << "." << std::endl);
 			if (p != nullptr) {
 				delete p;
 			}
@@ -214,7 +215,9 @@ namespace Function {
 		}
 		MY_LIBRARY ~f_ln()noexcept {
 			ERR("f_ln destructs on " << this << ", with a member on " << inner << "." << std::endl);
-			delete this->inner;
+			if (inner != nullptr) {
+				delete this->inner;
+			}
 		}
 		function* MY_LIBRARY copy()noexcept {
 			auto&& temp = new f_ln(this->inner->copy());
@@ -247,6 +250,12 @@ namespace Function {
 		}
 		MY_LIBRARY ~f_power()noexcept {
 			ERR("f_power destructs on " << this << " with two members on " << base << "and" << expo << std::endl);
+			if (base != nullptr) {
+				delete base;
+			}
+			if (expo != nullptr) {
+				delete expo;
+			}
 		}
 		function* MY_LIBRARY copy()noexcept {
 			auto&& temp = new f_power(this->base->copy(), this->expo->copy());
@@ -316,16 +325,14 @@ namespace Function {
 		function *_base = base->copy(), *_expo = expo->copy();
 		_base->diff(_base);
 		_expo->diff(_expo);
-		f = new product<2>(new sum<2>(new product<3>(base, _expo, new f_ln(base->copy())), new product<2>(_base, expo)), f);
-		base = nullptr;
-		expo = nullptr;
-		delete this;
+		f = new product<2>(new sum<2>(new product<3>(base->copy(), _expo, new f_ln(base->copy())), new product<2>(_base, expo->copy())), f);
 		return;
 	}
 	INLINED void MY_LIBRARY f_ln::diff(function*& f) noexcept {
 		assert(this == f);
 		ERR("a f_ln on " << this << "diffs. its origin value is" << *this << std::endl);
 		f = new f_power(inner, new num(-1));
+		inner = nullptr;
 		delete this;
 		return;
 	}
