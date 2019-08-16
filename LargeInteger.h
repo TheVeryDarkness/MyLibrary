@@ -779,7 +779,7 @@ namespace LargeInteger {
 		//¿ÉÄÜÒç³ö
 		template<typename val=__int64>
 		/*INLINED*/val MY_LIBRARY GetValue()const noexcept {
-			val&& value = LargeUnsigned<LL, radix>::GetValue<val>();
+			val&& value = LargeUnsigned<LL, radix>::template GetValue<val>();
 			if (!PosSign) {
 				value = -value;
 			}
