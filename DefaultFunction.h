@@ -7,7 +7,7 @@ namespace LL {
 	class power_func;
 	class sum;
 	class product;
-	class sin_pi;
+	class sin_pi_div_2;
 
 	class Function
 	{
@@ -184,15 +184,15 @@ namespace LL {
 		Function* a, * b;
 	};
 
-	class sin_pi :public Function {
+	class sin_pi_div_2 :public Function {
 		using Q=LargeInteger::Q;
 	public:
-		explicit MY_LIBRARY sin_pi(const Q& Coefficient, const Q& Index)noexcept
+		explicit MY_LIBRARY sin_pi_div_2(const Q& Coefficient, const Q& Index)noexcept
 			:omega(Q::Copy(Coefficient)), phi(Q::Copy(Index)) {
 			ERR("正弦函数逐项复制构造于" << this << ";值为" << *this << std::endl);
 			this->simplify();
 		}
-		explicit MY_LIBRARY sin_pi(
+		explicit MY_LIBRARY sin_pi_div_2(
 			long Coefficient1, unsigned short Coefficient2,
 			unsigned short Index1, unsigned short Index2
 		)noexcept
@@ -207,7 +207,7 @@ namespace LL {
 			}
 			this->simplify();
 		}
-		MY_LIBRARY ~sin_pi()noexcept {
+		MY_LIBRARY ~sin_pi_div_2()noexcept {
 			ERR("正弦函数析构于" << this << ";值为" << *this << std::endl);
 			this->omega.destruct();
 			this->phi.destruct();
@@ -226,14 +226,9 @@ namespace LL {
 		}
 		void MY_LIBRARY integral(Function*& f) noexcept {
 			assert(this == f);
-			sin_pi* res = new sin_pi(this->omega, this->phi);
-			res->phi += 1;
-			if (res->phi == 0)
-			{
-				assert(false);
-				return;
-			}
-			res->omega /= phi;
+			ERR("正弦函数求导于" << this << ";值为" << *this << std::endl);
+			this->phi -= 1;
+			f = new product(new power_func(omega), f);
 			return;
 		}
 		void MY_LIBRARY simplify()noexcept {
@@ -243,10 +238,10 @@ namespace LL {
 		std::ostream& MY_LIBRARY Print(std::ostream& o)const noexcept {
 			return o << "((" << omega << ')' << " * x^(" << phi << "))";
 		}
-		INLINED bool MY_LIBRARY operator==(const sin_pi& that)const noexcept {
+		INLINED bool MY_LIBRARY operator==(const sin_pi_div_2& that)const noexcept {
 			return (this->omega == that.omega && this->phi == that.phi);
 		}
-		INLINED bool MY_LIBRARY operator!=(const sin_pi& that)const noexcept {
+		INLINED bool MY_LIBRARY operator!=(const sin_pi_div_2& that)const noexcept {
 			return !(*this == that);
 		}
 	private:
