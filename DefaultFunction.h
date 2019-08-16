@@ -232,6 +232,7 @@ namespace Function {
 		function* base, * expo;
 	};
 
+	//function sin()
 	class fsin :public function {
 		using Q=LargeInteger::Q;
 	public:
@@ -263,7 +264,7 @@ namespace Function {
 			return;
 		}
 		value MY_LIBRARY estimate()const noexcept {
-			return std::fsin(this->inner->estimate());
+			return std::sin(this->inner->estimate());
 		}
 		std::ostream& MY_LIBRARY Print(std::ostream& o)const noexcept {
 			return o << "sin(" << *inner << ')';
