@@ -453,19 +453,17 @@ namespace LargeInteger {
 		/*INLINED*/Val MY_LIBRARY GetValue()const noexcept {
 			Val value = 0;
 			unsigned __int64 n = 0;
-			auto OprtPtr = this->begin();
+			auto OprtPtr = this->cbegin();
 			if (OprtPtr == nullptr) {
 				return 0;
 			}
 			while (true) {
+				value += ((Val)((*OprtPtr)())) * Power(static_cast<Val>(radix), n);
 				if (OprtPtr + 1 != nullptr) {
 					++OprtPtr;
-					value += ((Val)((*OprtPtr)())) * Power(static_cast<Val>(radix), n);
-					n++;
+					++n;
 				}
-				else {
-					break;
-				}
+				else  break;
 			}
 			return (value);
 		}
