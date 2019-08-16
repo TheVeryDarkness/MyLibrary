@@ -459,6 +459,10 @@ namespace LargeInteger {
 		/*INLINED*/LargeUnsigned& MY_LIBRARY operator=(
 			Int Val
 			) noexcept {
+			if (Val == 0)
+			{
+				this->destruct();
+			}
 			typename LongCmpt<StdCmptTraits<Int>>::template LayerIterator<StdCmptTraits<Int>::template Divide<radix>, Int> it(Val);
 			for (auto index = this->begin(); !!it; )
 			{
