@@ -7,6 +7,7 @@ namespace LL {
 	class power;
 	class sum;
 	class product;
+	class sin_pi;
 
 	class Function
 	{
@@ -33,7 +34,7 @@ namespace LL {
 	public:
 		explicit MY_LIBRARY power(const Q& Coefficient, const Q& Index)noexcept
 			:c(Q::Copy(Coefficient)), i(Q::Copy(Index)) {
-			ERR("逐项复制构造幂函数于" << this << ";值为" << *this << std::endl);
+			ERR("幂函数逐项复制构造于" << this << ";值为" << *this << std::endl);
 			this->simplify();
 		}
 		explicit MY_LIBRARY power(
@@ -41,7 +42,7 @@ namespace LL {
 			unsigned short Index1, unsigned short Index2
 		)noexcept 
 			: c(Coefficient1, Coefficient2), i(Index1, Index2) {
-			ERR("输入值法构造幂函数于" << this << std::endl);
+			ERR("幂函数初始值构造于" << this << std::endl);
 			if (Index2 == 0 || Coefficient2 == 0)
 			{
 				assert(false);
@@ -52,17 +53,18 @@ namespace LL {
 			this->simplify();
 		}
 		MY_LIBRARY ~power()noexcept { 
-			ERR("析构幂函数:" << this << ";值为" << *this << std::endl);
+			ERR("幂函数析构于" << this << ";值为" << *this << std::endl);
 			this->c.destruct(); 
 			this->i.destruct(); 
 		}
 		Function* MY_LIBRARY copy()noexcept { 
-			ERR("复制了位于" << this << "的幂级数;其值为" << *this << std::endl);
-			return new power(this->c, this->i);
+			auto&& temp = new power(this->c, this->i);
+			ERR("复制了位于" << this << "的幂级数;其值为" << *this << ";新幂函数在" << temp << std::endl);
+			return temp;
 		}
 		void MY_LIBRARY diff(Function*& f) noexcept {
 			assert(this == f);
-			ERR("幂函数于" << this << "求导;值为" << *this << std::endl);
+			ERR("幂函数求导于" << this << ";值为" << *this << std::endl);
 			if (this->i == 0)
 			{
 				this->i = 0;
@@ -100,9 +102,6 @@ namespace LL {
 		INLINED bool MY_LIBRARY operator!=(const power& that)const noexcept {
 			return !(*this == that);
 		}
-		friend std::ostream& MY_LIBRARY operator<<(std::ostream& o, const power& p) noexcept {
-			return p.Print(o);
-		}
 	private:
 		Q c;//coefficent
 		Q i;//index of issue
@@ -111,9 +110,11 @@ namespace LL {
 	class sum:public Function
 	{
 	public:
-		MY_LIBRARY sum(Function* a, Function* b) noexcept :a(a), b(b) { }
+		MY_LIBRARY sum(Function* a, Function* b) noexcept :a(a), b(b) { ERR("加和构造于" << this << ", 两成员为" << a << "和" << b << std::endl); }
 		MY_LIBRARY ~sum() noexcept {
-			delete a, b;
+			ERR("加和析构于" << this << ", 两成员为" << a << "和" << b << std::endl);
+			delete a;
+			delete b;
 		}
 		sum* MY_LIBRARY copy()noexcept { return new sum(a->copy(), b->copy()); }
 		void MY_LIBRARY integral(Function*& f) noexcept {
@@ -138,7 +139,7 @@ namespace LL {
 
 	class product :public Function {
 	public:
-		MY_LIBRARY product(Function* a, Function* b) noexcept :a(a), b(b) { ERR("乘积构造于" << this << std::endl); }
+		MY_LIBRARY product(Function* a, Function* b) noexcept :a(a), b(b) { ERR("乘积构造于" << this << ", 两成员为" << a << "和" << b << std::endl); }
 		MY_LIBRARY ~product() noexcept {
 			ERR("乘积析构于" << this << ", 两成员为" << a << "和" << b << std::endl);
 			if (a != nullptr)
@@ -164,11 +165,11 @@ namespace LL {
 		}
 		void MY_LIBRARY diff(Function*& f) noexcept {
 			assert(this == f);
-			auto&& _a = a->copy();
-			auto&& _b = b->copy();
+			auto _a = a->copy();
+			auto _b = b->copy();
 			_a->diff(_a);
 			_b->diff(_b);
-			auto&& temp = f;
+			auto temp = f;
 			f = new sum(new product(a, _b), new product(_a, b));
 			a = b = nullptr;
 			delete temp;
@@ -176,5 +177,83 @@ namespace LL {
 		}
 	private:
 		Function* a, * b;
+	};
+
+	class sin_pi :public Function {
+		using Q=LargeInteger::Q;
+	public:
+		explicit MY_LIBRARY sin_pi(const Q& Coefficient, const Q& Index)noexcept
+			:c(Q::Copy(Coefficient)), i(Q::Copy(Index)) {
+			ERR("正弦函数逐项复制构造于" << this << ";值为" << *this << std::endl);
+			this->simplify();
+		}
+		explicit MY_LIBRARY sin_pi(
+			long Coefficient1, unsigned short Coefficient2,
+			unsigned short Index1, unsigned short Index2
+		)noexcept
+			: c(Coefficient1, Coefficient2), i(Index1, Index2) {
+			ERR("正弦函数初始值构造于" << this << std::endl);
+			if (Index2 == 0 || Coefficient2 == 0)
+			{
+				assert(false);
+				this->i = Coefficient1;
+				this->c = Index1;
+				return;
+			}
+			this->simplify();
+		}
+		MY_LIBRARY ~sin_pi()noexcept {
+			ERR("正弦函数析构于" << this << ";值为" << *this << std::endl);
+			this->c.destruct();
+			this->i.destruct();
+		}
+		Function* MY_LIBRARY copy()noexcept {
+			auto&& temp = new power(this->c, this->i);
+			ERR("复制了位于" << this << "的正弦级数;其值为" << *this << ";新正弦函数在" << temp << std::endl);
+			return temp;
+		}
+		void MY_LIBRARY diff(Function*& f) noexcept {
+			assert(this == f);
+			ERR("正弦函数求导于" << this << ";值为" << *this << std::endl);
+			if (this->i == 0)
+			{
+				this->i = 0;
+				this->c = 0;
+			}
+			else
+			{
+				this->c *= i;
+				this->i -= 1;
+			}
+			return;
+		}
+		void MY_LIBRARY integral(Function*& f) noexcept {
+			assert(this == f);
+			sin_pi* res = new sin_pi(this->c, this->i);
+			res->i += 1;
+			if (res->i == 0)
+			{
+				assert(false);
+				return;
+			}
+			res->c /= i;
+			return;
+		}
+		void MY_LIBRARY simplify()noexcept {
+			c.Simplify();
+			i.Simplify();
+		}
+		std::ostream& MY_LIBRARY Print(std::ostream& o)const noexcept {
+			return o << "((" << c << ')' << " * x^(" << i << "))";
+		}
+		INLINED bool MY_LIBRARY operator==(const sin_pi& that)const noexcept {
+			return (this->c == that.c && this->i == that.i);
+		}
+		INLINED bool MY_LIBRARY operator!=(const sin_pi& that)const noexcept {
+			return !(*this == that);
+		}
+	private:
+		Q c;//coefficent
+		Q i;//index of issue
 	};
 }
