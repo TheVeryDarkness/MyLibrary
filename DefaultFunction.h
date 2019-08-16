@@ -1,11 +1,38 @@
 #pragma once
 
 #include "PreciseMath.h"
+#include <map>
 
 
 #define new DBG_NEW
 namespace Function {
 	using value=double;
+	enum class vari {
+		DEF, x, y, z, w
+	};
+	INLINED std::ostream& MY_LIBRARY operator<<(std::ostream& o, vari var)noexcept {
+		switch (var) {
+		case Function::vari::DEF:
+			assert(false);
+			break;
+		case Function::vari::x:
+			o << 'x';
+			break;
+		case Function::vari::y:
+			o << 'y';
+			break;
+		case Function::vari::z:
+			o << 'z';
+			break;
+		case Function::vari::w:
+			o << 'w';
+			break;
+		default:
+			break;
+		}
+		return o;
+	}
+	std::map<vari, value> num_map = {};
 	class function;
 	template<vari> class num;
 	template<size_t count>class sum;
@@ -35,7 +62,34 @@ namespace Function {
 
 	};
 
+	template<vari var = vari::DEF>
 	class num :public function {
+	public:
+		MY_LIBRARY num()noexcept = default;
+		MY_LIBRARY ~num()noexcept = default;
+		void MY_LIBRARY diff(function*& f) noexcept {
+			assert(this == f);
+		};
+		void MY_LIBRARY integral(function*&) noexcept { };
+		function* MY_LIBRARY copy()noexcept { return new num(); };
+		value MY_LIBRARY estimate()const noexcept { 
+			auto&& it = num_map.find(var);
+			if (it != num_map.end()) {
+				return (*it).second;
+			}
+			else {
+				std::cout << var << " = " << std::endl;
+				value v;
+				std::cin >> v;
+				num_map.insert(std::pair(var, v));
+				return v;
+			}
+		}
+		std::ostream& MY_LIBRARY Print(std::ostream& o) const noexcept { return o << estimate(); };
+	};
+
+	template<>
+	class num<vari::DEF> :public function {
 	public:
 		template<typename Val>
 		MY_LIBRARY num(Val val)noexcept :q(val) { }
