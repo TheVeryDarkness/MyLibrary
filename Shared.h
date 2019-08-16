@@ -11,6 +11,12 @@
 #define DEBUG_FLAG 1
 #endif // _DEBUG
 
+#ifdef _DEBUG
+#define free(x) _free_dbg(x,_NORMAL_BLOCK)
+#else
+#undef free
+#endif // _DEBUG
+
 
 #ifndef MY_LIBRARY
 #define MY_LIBRARY __stdcall
