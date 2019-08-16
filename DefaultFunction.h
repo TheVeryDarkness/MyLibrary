@@ -11,7 +11,7 @@ namespace Function {
 	template<size_t count>class sum;
 	template<size_t count>class product;
 	class power_func;
-	class sin;
+	class fsin;
 
 	class function {
 	public:
@@ -232,19 +232,19 @@ namespace Function {
 		function* base, * expo;
 	};
 
-	class sin :public function {
+	class fsin :public function {
 		using Q=LargeInteger::Q;
 	public:
-		explicit MY_LIBRARY sin(function* in)noexcept
+		MY_LIBRARY fsin(function* in)noexcept
 			:inner(in) {
 			ERR("正弦函数构造于" << this << ";值为" << *this << std::endl);
 		}
-		MY_LIBRARY ~sin()noexcept {
+		MY_LIBRARY ~fsin()noexcept {
 			ERR("正弦函数析构于" << this << ";值为" << *this << std::endl);
 			delete this->inner;
 		}
 		function* MY_LIBRARY copy()noexcept {
-			auto&& temp = new sin(this->inner->copy());
+			auto&& temp = new fsin(this->inner->copy());
 			ERR("复制了位于" << this << "的正弦级数;其值为" << *this << ";新正弦函数在" << temp << std::endl);
 			return temp;
 		}
@@ -263,7 +263,7 @@ namespace Function {
 			return;
 		}
 		value MY_LIBRARY estimate()const noexcept {
-			return std::sin(this->inner->estimate());
+			return std::fsin(this->inner->estimate());
 		}
 		std::ostream& MY_LIBRARY Print(std::ostream& o)const noexcept {
 			return o << "sin(" << *inner << ')';
