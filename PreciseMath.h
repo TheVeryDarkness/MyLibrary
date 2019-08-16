@@ -34,6 +34,9 @@ namespace LargeInteger {
 			Q temp = Q(Z::Copy(that.Numerator), Z::Copy(that.Denominator));
 			return temp;
 		}
+		Q& MY_LIBRARY toReciprocal()noexcept {
+			this->Numerator._Swap(this->Denominator);
+		}
 		MY_LIBRARY ~Q();
 		INLINED void MY_LIBRARY destruct() noexcept {
 			this->Denominator.destruct();

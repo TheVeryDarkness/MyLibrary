@@ -43,7 +43,7 @@ namespace LargeInteger {
 			if (str.length() < MinLength)
 			{
 				std::string nStr;
-				for (size_t i = MinLength - str.length(); i > 0; i--)
+				for (size_t index = MinLength - str.length(); index > 0; index--)
 				{
 					nStr.push_back('0');
 				}
@@ -91,13 +91,13 @@ namespace LargeInteger {
 			static_assert(radix != radix_t(1));
 			static_assert(!std::is_same_v<val, bool>, "Never use bool type");
 			typename LongCmpt<StdCmptTraits<val>>::template LayerIterator<StdCmptTraits<val>::template Divide<radix>, val> it(Val);
-			for (auto i = this->begin();!!it; )
+			for (auto index = this->begin();!!it; )
 			{
-				*i = Data(*it);
+				*index = Data(*it);
 				++it;
 				if (!!it)
 				{
-					++i;
+					++index;
 				}
 			}
 			return;
@@ -105,9 +105,9 @@ namespace LargeInteger {
 		static constexpr LargeUnsigned MY_LIBRARY Copy(const LargeUnsigned& that)noexcept {
 			LargeUnsigned This(0);
 				auto j = This.begin();
-			for (auto i = that.begin(); i != that.end(); ++i) {
-				*j = *i;
-				if (i + 1 != that.end())
+			for (auto index = that.begin(); index != that.end(); ++index) {
+				*j = *index;
+				if (index + 1 != that.end())
 				{
 					++j;
 				}
@@ -212,6 +212,14 @@ namespace LargeInteger {
 			LargeUnsigned temp(that);
 			*this *= temp;
 			temp.destruct();
+		}
+		constexpr void MY_LIBRARY Swap(LargeUnsigned& that)noexcept {
+			auto* temp = that.next;
+			that.next = temp;
+			this->next = temp;
+			auto temp = that.data;
+			that.data = this->data;
+			this->data = that.data;
 		}
 		//重载
 		/*INLINED*/void MY_LIBRARY operator*=(const LargeUnsigned& b) noexcept {
@@ -324,7 +332,7 @@ namespace LargeInteger {
 		//左移时用默认值补齐
 		/*INLINED*/LargeUnsigned& operator<<=(
 			unsigned int bits) noexcept {
-			for (unsigned int i = 0; i < bits; i++)
+			for (unsigned int index = 0; index < bits; index++)
 			{
 				this->insert(this->data);
 				this->data = 0;
@@ -434,7 +442,7 @@ namespace LargeInteger {
 		//按独立进制而非二进制
 		//右移时第一位销毁
 		/*INLINED*/LargeUnsigned& operator>>=(unsigned int bits) noexcept {
-			for (unsigned int i = 0; i < bits; i++)
+			for (unsigned int index = 0; index < bits; index++)
 			{
 				this->data = this->LL::pop();
 			}
@@ -448,13 +456,13 @@ namespace LargeInteger {
 			Int Val
 			) noexcept {
 			typename LongCmpt<StdCmptTraits<Int>>::template LayerIterator<StdCmptTraits<Int>::template Divide<radix>, Int> it(Val);
-			for (auto i = this->begin(); !!it; )
+			for (auto index = this->begin(); !!it; )
 			{
-				*i = Data(*it);
+				*index = Data(*it);
 				++it;
 				if (!!it)
 				{
-					++i;
+					++index;
 				}
 			}
 			return *this;
@@ -528,7 +536,15 @@ namespace LargeInteger {
 			LargeSigned This(that.PosSign, LargeUnsigned<LL, radix>::Copy(that));
 			return This;
 		}
-
+		constexpr void MY_LIBRARY _Swap(LargeSigned& that)noexcept {
+			this->LargeUnsigned<LL, radix>::Swap(that);
+		}
+		constexpr void MY_LIBRARY Swap(LargeSigned& that)noexcept {
+			this->_Swap(that);
+			auto temp = that.PosSign;
+			that.PosSign = this->PosSign;
+			this->PosSign = temp;
+		}
 		constexpr void MY_LIBRARY destruct() noexcept {
 			this->LL::destruct();
 		}

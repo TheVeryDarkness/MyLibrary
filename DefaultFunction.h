@@ -4,7 +4,7 @@
 
 namespace LL {
 	class Function; 
-	class power;
+	class power_func;
 	class sum;
 	class product;
 	class sin_pi;
@@ -28,83 +28,88 @@ namespace LL {
 
 	};
 
-	class power:public Function
+	class power_func:public Function
 	{
 		using Q=LargeInteger::Q;
 	public:
-		explicit MY_LIBRARY power(const Q& Coefficient, const Q& Index)noexcept
-			:c(Q::Copy(Coefficient)), i(Q::Copy(Index)) {
+		explicit MY_LIBRARY power_func(const Q& Coefficient, const Q& Index)noexcept
+			:coeff(Q::Copy(Coefficient)), power(Q::Copy(Index)) {
 			ERR("幂函数逐项复制构造于" << this << ";值为" << *this << std::endl);
 			this->simplify();
 		}
-		explicit MY_LIBRARY power(
+		explicit MY_LIBRARY power_func(const Q& Coefficient)noexcept
+			:coeff(Q::Copy(Coefficient)), power(1) {
+			ERR("幂函数仅分子复制构造于" << this << ";值为" << *this << std::endl);
+			this->simplify();
+		}
+		explicit MY_LIBRARY power_func(
 			long Coefficient1, unsigned short Coefficient2,
 			unsigned short Index1, unsigned short Index2
 		)noexcept 
-			: c(Coefficient1, Coefficient2), i(Index1, Index2) {
+			: coeff(Coefficient1, Coefficient2), power(Index1, Index2) {
 			ERR("幂函数初始值构造于" << this << std::endl);
 			if (Index2 == 0 || Coefficient2 == 0)
 			{
 				assert(false);
-				this->i = Coefficient1;
-				this->c = Index1;
+				this->power = Coefficient1;
+				this->coeff = Index1;
 				return;
 			}
 			this->simplify();
 		}
-		MY_LIBRARY ~power()noexcept { 
+		MY_LIBRARY ~power_func()noexcept { 
 			ERR("幂函数析构于" << this << ";值为" << *this << std::endl);
-			this->c.destruct(); 
-			this->i.destruct(); 
+			this->coeff.destruct(); 
+			this->power.destruct(); 
 		}
 		Function* MY_LIBRARY copy()noexcept { 
-			auto&& temp = new power(this->c, this->i);
+			auto&& temp = new power_func(this->coeff, this->power);
 			ERR("复制了位于" << this << "的幂级数;其值为" << *this << ";新幂函数在" << temp << std::endl);
 			return temp;
 		}
 		void MY_LIBRARY diff(Function*& f) noexcept {
 			assert(this == f);
 			ERR("幂函数求导于" << this << ";值为" << *this << std::endl);
-			if (this->i == 0)
+			if (this->power == 0)
 			{
-				this->i = 0;
-				this->c = 0;
+				this->power = 0;
+				this->coeff = 0;
 			}
 			else
 			{
-				this->c *= i;
-				this->i -= 1;
+				this->coeff *= power;
+				this->power -= 1;
 			}
 			return;
 		}
 		void MY_LIBRARY integral(Function*& f) noexcept {
 			assert(this == f);
-			power* res = new power(this->c, this->i);
-			res->i += 1;
-			if (res->i == 0)
+			power_func* res = new power_func(this->coeff, this->power);
+			res->power += 1;
+			if (res->power == 0)
 			{
 				assert(false);
 				return;
 			}
-			res->c /= i;
+			res->coeff /= power;
 			return;
 		}
 		void MY_LIBRARY simplify()noexcept {
-			c.Simplify();
-			i.Simplify();
+			coeff.Simplify();
+			power.Simplify();
 		}
 		std::ostream& MY_LIBRARY Print(std::ostream& o)const noexcept {
-			return o <<"((" << c << ')' << " * x^(" << i << "))";
+			return o <<"((" << coeff << ')' << " * x^(" << power << "))";
 		}
-		INLINED bool MY_LIBRARY operator==(const power& that)const noexcept {
-			return (this->c == that.c && this->i == that.i);
+		INLINED bool MY_LIBRARY operator==(const power_func& that)const noexcept {
+			return (this->coeff == that.coeff && this->power == that.power);
 		}
-		INLINED bool MY_LIBRARY operator!=(const power& that)const noexcept {
+		INLINED bool MY_LIBRARY operator!=(const power_func& that)const noexcept {
 			return !(*this == that);
 		}
 	private:
-		Q c;//coefficent
-		Q i;//index of issue
+		Q coeff;//coefficent
+		Q power;//index of issue
 	};
 
 	class sum:public Function
@@ -183,7 +188,7 @@ namespace LL {
 		using Q=LargeInteger::Q;
 	public:
 		explicit MY_LIBRARY sin_pi(const Q& Coefficient, const Q& Index)noexcept
-			:c(Q::Copy(Coefficient)), i(Q::Copy(Index)) {
+			:omega(Q::Copy(Coefficient)), phi(Q::Copy(Index)) {
 			ERR("正弦函数逐项复制构造于" << this << ";值为" << *this << std::endl);
 			this->simplify();
 		}
@@ -191,69 +196,61 @@ namespace LL {
 			long Coefficient1, unsigned short Coefficient2,
 			unsigned short Index1, unsigned short Index2
 		)noexcept
-			: c(Coefficient1, Coefficient2), i(Index1, Index2) {
+			: omega(Coefficient1, Coefficient2), phi(Index1, Index2) {
 			ERR("正弦函数初始值构造于" << this << std::endl);
 			if (Index2 == 0 || Coefficient2 == 0)
 			{
 				assert(false);
-				this->i = Coefficient1;
-				this->c = Index1;
+				this->phi = Coefficient1;
+				this->omega = Index1;
 				return;
 			}
 			this->simplify();
 		}
 		MY_LIBRARY ~sin_pi()noexcept {
 			ERR("正弦函数析构于" << this << ";值为" << *this << std::endl);
-			this->c.destruct();
-			this->i.destruct();
+			this->omega.destruct();
+			this->phi.destruct();
 		}
 		Function* MY_LIBRARY copy()noexcept {
-			auto&& temp = new power(this->c, this->i);
+			auto&& temp = new power_func(this->omega, this->phi);
 			ERR("复制了位于" << this << "的正弦级数;其值为" << *this << ";新正弦函数在" << temp << std::endl);
 			return temp;
 		}
 		void MY_LIBRARY diff(Function*& f) noexcept {
 			assert(this == f);
 			ERR("正弦函数求导于" << this << ";值为" << *this << std::endl);
-			if (this->i == 0)
-			{
-				this->i = 0;
-				this->c = 0;
-			}
-			else
-			{
-				this->c *= i;
-				this->i -= 1;
-			}
+			this->phi += 1;
+			f = new product(new power_func(omega), f);
 			return;
 		}
 		void MY_LIBRARY integral(Function*& f) noexcept {
 			assert(this == f);
-			sin_pi* res = new sin_pi(this->c, this->i);
-			res->i += 1;
-			if (res->i == 0)
+			sin_pi* res = new sin_pi(this->omega, this->phi);
+			res->phi += 1;
+			if (res->phi == 0)
 			{
 				assert(false);
 				return;
 			}
-			res->c /= i;
+			res->omega /= phi;
 			return;
 		}
 		void MY_LIBRARY simplify()noexcept {
-			c.Simplify();
-			i.Simplify();
+			omega.Simplify();
+			phi.Simplify();
 		}
 		std::ostream& MY_LIBRARY Print(std::ostream& o)const noexcept {
-			return o << "((" << c << ')' << " * x^(" << i << "))";
+			return o << "((" << omega << ')' << " * x^(" << phi << "))";
 		}
 		INLINED bool MY_LIBRARY operator==(const sin_pi& that)const noexcept {
-			return (this->c == that.c && this->i == that.i);
+			return (this->omega == that.omega && this->phi == that.phi);
 		}
 		INLINED bool MY_LIBRARY operator!=(const sin_pi& that)const noexcept {
 			return !(*this == that);
 		}
 	private:
-		Q c;//coefficent
-		Q i;//index of issue
+		Q omega;//coefficent
+		Q phi;//index of issue
 	};
 }
