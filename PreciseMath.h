@@ -13,8 +13,7 @@ namespace LargeInteger {
 	//有理数
 	//Rational Number
 	//negative sign on denominator will be ignored
-	class Q
-	{
+	class Q {
 	protected:
 		using Data=LargeInteger::Num<unsigned int, Z_MAX>;
 		Z Numerator;//分子
@@ -23,13 +22,13 @@ namespace LargeInteger {
 		//MY_LIBRARY Q();
 		explicit MY_LIBRARY Q(long n, unsigned short d = 1)noexcept :
 			Numerator(((n > 0) ? 1 : 0), static_cast<unsigned long>(abs(n))),
-			Denominator(true, static_cast<unsigned long>(d)) {}
+			Denominator(true, static_cast<unsigned long>(d)) { }
 		MY_LIBRARY Q(const Q& that) noexcept :
 			Numerator(that.Numerator),
-			Denominator(that.Denominator) {}
+			Denominator(that.Denominator) { }
 		explicit MY_LIBRARY Q(const Z& Numerator, const Z& Denominator) noexcept :
 			Numerator(Numerator),
-			Denominator(Denominator) {}
+			Denominator(Denominator) { }
 		static Q MY_LIBRARY Copy(const Q& that)noexcept {
 			Q temp = Q(Z::Copy(that.Numerator), Z::Copy(that.Denominator));
 			return temp;
@@ -44,8 +43,7 @@ namespace LargeInteger {
 		}
 		//约分
 		void MY_LIBRARY Simplify() {
-			if (Numerator == Denominator)
-			{
+			if (Numerator == Denominator) {
 				Numerator = 1;
 				Denominator = 1;
 			}
@@ -56,13 +54,11 @@ namespace LargeInteger {
 				MY_ASSERT(false, 0 / 0);
 				Numerator = 1;
 			}
-			else
-			{
+			else {
 				Z a = Z::Copy(Numerator), b = Z::Copy(Denominator);
 				a.PosSign = true;
 				b.PosSign = true;
-				while (true)
-				{
+				while (true) {
 					if (a == 0) {
 						this->Numerator /= b;
 						this->Denominator /= b;
@@ -75,8 +71,7 @@ namespace LargeInteger {
 						a.destruct(), b.destruct();
 						return;
 					}
-					if (a == b)
-					{
+					if (a == b) {
 						this->Numerator /= a;
 						this->Denominator /= b;
 						a.destruct();
@@ -84,8 +79,7 @@ namespace LargeInteger {
 						return;
 					}
 					{
-						if (a < b)
-						{
+						if (a < b) {
 							b %= a;
 						}
 						else a %= b;
@@ -150,8 +144,7 @@ namespace LargeInteger {
 			this->Denominator *= that.Numerator;
 			this->Numerator *= that.Denominator;
 			this->Simplify();
-			if (this->Numerator > 0 && !(this->Denominator > 0))
-			{
+			if (this->Numerator > 0 && !(this->Denominator > 0)) {
 				this->Numerator.SetToContradict();
 				this->Denominator.SetToContradict();
 			}
@@ -185,7 +178,7 @@ namespace LargeInteger {
 			return q.Print(o);
 		}
 	};
-	INLINED MY_LIBRARY Q::~Q() {}
+	INLINED MY_LIBRARY Q::~Q() { }
 }
 #ifdef Z_MAX
 #undef Z_MAX

@@ -12,13 +12,12 @@ namespace Function {
 	class power_func;
 	class sin;
 
-	class function
-	{
+	class function {
 	public:
-		MY_LIBRARY function()noexcept {};
+		MY_LIBRARY function()noexcept { };
 		MY_LIBRARY function(const function& that)noexcept = delete;
 
-		virtual MY_LIBRARY ~function()noexcept {}
+		virtual MY_LIBRARY ~function()noexcept { }
 
 		virtual void MY_LIBRARY diff(function*&) noexcept = 0;
 		virtual void MY_LIBRARY integral(function*&) noexcept = 0;
@@ -31,12 +30,11 @@ namespace Function {
 
 	};
 
-	class num :public function
-	{
+	class num :public function {
 	public:
 		template<typename Val>
-		MY_LIBRARY num(Val val)noexcept :q(val) {}
-		MY_LIBRARY num(const LargeInteger::Q& val)noexcept :q(val) {}
+		MY_LIBRARY num(Val val)noexcept :q(val) { }
+		MY_LIBRARY num(const LargeInteger::Q& val)noexcept :q(val) { }
 
 		MY_LIBRARY ~num()noexcept {
 			q.destruct();
@@ -46,7 +44,7 @@ namespace Function {
 			assert(this == f);
 			q = 0;
 		};
-		virtual void MY_LIBRARY integral(function*&) noexcept {};
+		virtual void MY_LIBRARY integral(function*&) noexcept { };
 		virtual function* MY_LIBRARY copy()noexcept { return new num(LargeInteger::Q::Copy(q)); };
 		virtual std::ostream& MY_LIBRARY Print(std::ostream& o) const noexcept { return q.Print(o); };
 
@@ -57,7 +55,7 @@ namespace Function {
 	template<>
 	class sum<1> :public function {
 	public:
-		MY_LIBRARY sum(function* p)noexcept :p(p) {}
+		MY_LIBRARY sum(function* p)noexcept :p(p) { }
 		MY_LIBRARY ~sum() noexcept { delete p; }
 		sum* MY_LIBRARY copy()noexcept { return new sum(p->copy()); }
 		std::ostream& MY_LIBRARY Print(std::ostream& o)const noexcept {
@@ -81,8 +79,7 @@ namespace Function {
 	};
 
 	template<size_t count>
-	class sum :public sum<count - 1>, public function
-	{
+	class sum :public sum<count - 1>, public function {
 	public:
 		template<typename ...pack>
 		MY_LIBRARY sum(function* p, pack... _p) noexcept :p(p), sum<count - 1>(_p...) {
@@ -107,7 +104,7 @@ namespace Function {
 			o << *p << " + ";
 			return static_cast<const sum<count - 1>*>(this)->_Print(o);
 		}
-		std::ostream& MY_LIBRARY Print(std::ostream& o)const noexcept { 
+		std::ostream& MY_LIBRARY Print(std::ostream& o)const noexcept {
 			return this->_Print(o << '(');
 		}
 	private:
@@ -117,11 +114,11 @@ namespace Function {
 	template<>
 	class product<1> :public function {
 	public:
-		MY_LIBRARY product(function* p)noexcept :p(p) {}
+		MY_LIBRARY product(function* p)noexcept :p(p) { }
 		MY_LIBRARY ~product() noexcept { delete p; }
 		product* MY_LIBRARY copy()noexcept { return new product(p->copy()); }
 		std::ostream& MY_LIBRARY Print(std::ostream& o)const noexcept {
-			return o << *p ;
+			return o << *p;
 		}
 		void MY_LIBRARY integral(function*& f) noexcept {
 			assert(this == f);
@@ -144,11 +141,10 @@ namespace Function {
 	class product :public product<count - 1>, public function {
 	public:
 		template<typename ...pack> MY_LIBRARY product(function* p, pack... _p) noexcept :p(p), product<count - 1>(_p...) { ERR("乘积构造于" << this << ", 当前成员在" << p << "." << std::endl); }
-		explicit MY_LIBRARY product(product* _p) noexcept :p(_p->p), product<count - 1>(static_cast<product<count - 1>*>(_p)) {}
+		explicit MY_LIBRARY product(product* _p) noexcept :p(_p->p), product<count - 1>(static_cast<product<count - 1>*>(_p)) { }
 		MY_LIBRARY ~product() noexcept {
 			ERR("乘积析构于" << this << ", 当前成员为" << p << "." << std::endl);
-			if (p != nullptr)
-			{
+			if (p != nullptr) {
 				delete p;
 			}
 		}
@@ -182,8 +178,7 @@ namespace Function {
 		function* p;
 	};
 
-	class power_func :public function
-	{
+	class power_func :public function {
 		using Q=LargeInteger::Q;
 	public:
 		MY_LIBRARY power_func(function* base, function* expo) noexcept

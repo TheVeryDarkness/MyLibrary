@@ -10,8 +10,7 @@ namespace LargeInteger {
 	template<typename LL, auto radix> class LargeUnsigned;
 	template<typename LL, auto radix> class LargeSigned;
 	template<auto radix>
-	class LLCmptTraits :public LargeInteger::StdCmptTraits<LargeInteger::Num<decltype(radix), radix>>
-	{
+	class LLCmptTraits :public LargeInteger::StdCmptTraits<LargeInteger::Num<decltype(radix), radix>> {
 	public:
 		using Data=LargeInteger::Num<decltype(radix), radix>;
 		MY_LIBRARY LLCmptTraits() = delete;
@@ -30,8 +29,7 @@ namespace LargeInteger {
 		unsigned MinLength = 0,
 		BaseType base = 10
 	) noexcept {
-		if (that + 1 != nullptr)
-		{
+		if (that + 1 != nullptr) {
 			SinglePrint(that + 1, out, ShowComma, MinLength, base);
 			out << ((ShowComma) ? "," : "");
 			char* c = DBG_NEW char[MinLength + 1ULL]();
@@ -40,11 +38,9 @@ namespace LargeInteger {
 
 			std::string str = c;
 			delete[] c;
-			if (str.length() < MinLength)
-			{
+			if (str.length() < MinLength) {
 				std::string nStr;
-				for (size_t index = MinLength - str.length(); index > 0; index--)
-				{
+				for (size_t index = MinLength - str.length(); index > 0; index--) {
 					nStr.push_back('0');
 				}
 				nStr += str;
@@ -52,16 +48,14 @@ namespace LargeInteger {
 			}
 			else out << str;
 		}
-		else
-		{
+		else {
 			out << *that;
 		}
 		return;
 	}
 
 	template<typename LL, auto radix>
-	class LargeUnsigned:protected LL
-	{
+	class LargeUnsigned :protected LL {
 	protected:
 		using radix_t=decltype(radix);
 		using Data=Num<radix_t, radix>;
@@ -86,17 +80,15 @@ namespace LargeInteger {
 			return this->LL::cend();
 		}
 		template<typename val>
-		explicit MY_LIBRARY LargeUnsigned(val Val)noexcept :LL(0){
+		explicit MY_LIBRARY LargeUnsigned(val Val)noexcept :LL(0) {
 			static_assert(std::is_integral_v<val>);
 			static_assert(radix != radix_t(1));
 			static_assert(!std::is_same_v<val, bool>, "Never use bool type");
 			typename LongCmpt<StdCmptTraits<val>>::template LayerIterator<StdCmptTraits<val>::template Divide<radix>, val> it(Val);
-			for (auto index = this->begin();!!it; )
-			{
+			for (auto index = this->begin(); !!it; ) {
 				*index = Data(*it);
 				++it;
-				if (!!it)
-				{
+				if (!!it) {
 					++index;
 				}
 			}
@@ -104,11 +96,10 @@ namespace LargeInteger {
 		}
 		static constexpr LargeUnsigned MY_LIBRARY Copy(const LargeUnsigned& that)noexcept {
 			LargeUnsigned This(0);
-				auto j = This.begin();
+			auto j = This.begin();
 			for (auto index = that.begin(); index != that.end(); ++index) {
 				*j = *index;
-				if (index + 1 != that.end())
-				{
+				if (index + 1 != that.end()) {
 					++j;
 				}
 			}
@@ -123,7 +114,7 @@ namespace LargeInteger {
 		/*INLINED*/friend std::ostream& MY_LIBRARY operator<<(
 			std::ostream& out,
 			const LargeUnsigned& l
-		) noexcept {
+			) noexcept {
 			return _Print<LargeUnsigned, radix>(l, out);
 		}
 		template<typename Iter, auto Radix = 0>
@@ -133,34 +124,27 @@ namespace LargeInteger {
 			const Iter & that,
 			std::ostream & out = std::cout
 		) noexcept {
-			if (that == 0)
-			{
+			if (that == 0) {
 				out << "0";
 				return out;
 			}
-			if (Radix == static_cast<decltype(Radix)>(0))
-			{
+			if (Radix == static_cast<decltype(Radix)>(0)) {
 				out << "0x"
 					<< std::setbase(16);
 				LargeInteger::SinglePrint(that, out, false, 2 * sizeof(Radix), 16);
 			}
-			else
-			{
+			else {
 				bool temp = false;
 				unsigned int Length = 0;
 				Length = GetPowerTimes(Radix, 10);
 				decltype(Radix) OutBase = 0;
-				if (Length == 0)
-				{
+				if (Length == 0) {
 					Length = GetPowerTimes(Radix, 16);
-					if (Length == 0)
-					{
+					if (Length == 0) {
 						Length = GetPowerTimes(Radix, 8);
-						if (Length == 0)
-						{
+						if (Length == 0) {
 							Length = GetPowerTimes(Radix, 2);
-							if (Length == 0)
-							{
+							if (Length == 0) {
 								Length = 1;
 								OutBase = Radix;
 								out << "(Base:"
@@ -168,14 +152,12 @@ namespace LargeInteger {
 									<< ")";
 								temp = true;
 							}
-							else
-							{
+							else {
 								OutBase = 2;
 								out << "0b" << std::setbase(2);
 							}
 						}
-						else
-						{
+						else {
 							OutBase = 8;
 							out << "0" << std::setbase(8);
 						}
@@ -186,8 +168,7 @@ namespace LargeInteger {
 							<< std::setbase(16);
 					}
 				}
-				else
-				{
+				else {
 					OutBase = 10;
 				}
 				LargeInteger::SinglePrint(that, out, temp, Length, OutBase);
@@ -196,7 +177,7 @@ namespace LargeInteger {
 			out << std::setbase(10);
 			return out;
 		}
-		INLINED std::ostream& MY_LIBRARY Print(std::ostream& o = std::cout) const noexcept{
+		INLINED std::ostream& MY_LIBRARY Print(std::ostream& o = std::cout) const noexcept {
 			return _Print<LL, radix>(static_cast<LL>(*this), o);
 		}
 		template<typename Int>
@@ -245,12 +226,10 @@ namespace LargeInteger {
 		}
 		//重载
 		INLINED void MY_LIBRARY operator-=(const LargeUnsigned& that) noexcept {
-			if (that == 0)
-			{
+			if (that == 0) {
 				return;
 			}
-			if (*this == 0)
-			{
+			if (*this == 0) {
 				*this = Copy(that);
 				return;
 			}
@@ -265,12 +244,10 @@ namespace LargeInteger {
 		}
 		//重载LinkedList链表+=
 		INLINED void MY_LIBRARY operator+=(const LargeUnsigned& that) noexcept {
-			if (that == 0)
-			{
+			if (that == 0) {
 				return;
 			}
-			if (*this == 0)
-			{
+			if (*this == 0) {
 				*this = Copy(that);
 				return;
 			}
@@ -329,15 +306,14 @@ namespace LargeInteger {
 
 
 
-		
+
 
 		//位移运算
 		//按独立进制而非二进制
 		//左移时用默认值补齐
 		/*INLINED*/LargeUnsigned& operator<<=(
 			unsigned int bits) noexcept {
-			for (unsigned int index = 0; index < bits; index++)
-			{
+			for (unsigned int index = 0; index < bits; index++) {
 				this->insert(this->data);
 				this->data = 0;
 			}
@@ -352,8 +328,7 @@ namespace LargeInteger {
 		template<typename Int>
 		bool MY_LIBRARY operator==(const Int& that)const noexcept {
 			static_assert(std::is_integral_v<Int>);
-			if (that == Data(0))
-			{
+			if (that == Data(0)) {
 				return (this->LL::next == nullptr) && (this->LL::data == Data(0));
 			}
 			typename LongCmpt<LLCmptTraits<radix>>::template LayerIterator<LLCmptTraits<radix>::template Divide<radix>, Data> it(that);
@@ -405,8 +380,7 @@ namespace LargeInteger {
 			return (*this >= T);
 		}
 		template<typename Iter>
-		class Sim
-		{
+		class Sim {
 		public:
 			MY_LIBRARY Sim(Iter it)noexcept {
 				it->Simplify();
@@ -417,7 +391,7 @@ namespace LargeInteger {
 		void MY_LIBRARY operator%=(const LargeUnsigned& that)noexcept {
 			assert(that != 0);
 
-			LargeInteger::LongCmpt<LLCmptTraits<radix>>::template DivideInto<Sim<decltype(this->begin())>,decltype(that.begin()), decltype(this->begin())>(that.begin(), this->begin());
+			LargeInteger::LongCmpt<LLCmptTraits<radix>>::template DivideInto<Sim<decltype(this->begin())>, decltype(that.begin()), decltype(this->begin())>(that.begin(), this->begin());
 			this->Simplify();
 		}
 		void MY_LIBRARY operator/=(const LargeUnsigned& that)noexcept {
@@ -446,8 +420,7 @@ namespace LargeInteger {
 		//按独立进制而非二进制
 		//右移时第一位销毁
 		/*INLINED*/LargeUnsigned& operator>>=(unsigned int bits) noexcept {
-			for (unsigned int index = 0; index < bits; index++)
-			{
+			for (unsigned int index = 0; index < bits; index++) {
 				this->data = this->LL::pop();
 			}
 			return *this;
@@ -459,17 +432,14 @@ namespace LargeInteger {
 		/*INLINED*/LargeUnsigned& MY_LIBRARY operator=(
 			Int Val
 			) noexcept {
-			if (Val == 0)
-			{
+			if (Val == 0) {
 				this->destruct();
 			}
 			typename LongCmpt<StdCmptTraits<Int>>::template LayerIterator<StdCmptTraits<Int>::template Divide<radix>, Int> it(Val);
-			for (auto index = this->begin(); !!it; )
-			{
+			for (auto index = this->begin(); !!it; ) {
 				*index = Data(*it);
 				++it;
-				if (!!it)
-				{
+				if (!!it) {
 					++index;
 				}
 			}
@@ -483,31 +453,26 @@ namespace LargeInteger {
 			long long value = 0;
 			long n = 0;
 			auto OprtPtr = this->begin();
-			if (OprtPtr == nullptr)
-			{
+			if (OprtPtr == nullptr) {
 				return 0;
 			}
-			while (true)
-			{
+			while (true) {
 				if (OprtPtr + 1 != nullptr) {
 					++OprtPtr;
 					value += ((unsigned long long)((*OprtPtr)())) * Power(radix, n);
 					n++;
 				}
-				else
-				{
+				else {
 					break;
 				}
 			}
 			return (value);
 		}
 
-		~LargeUnsigned(){
-		}
+		~LargeUnsigned() { }
 	};
 	template<typename LL, auto radix>
-	class LargeSigned:protected LargeUnsigned<LL, radix>
-	{
+	class LargeSigned :protected LargeUnsigned<LL, radix> {
 		using radix_t=decltype(radix);
 		using Data=Num<radix_t, radix>;
 		friend class Q;
@@ -532,13 +497,13 @@ namespace LargeInteger {
 			return this->LargeUnsigned<LL, radix>::cend();
 		}
 		template<typename val> explicit MY_LIBRARY LargeSigned(val Val)noexcept
-			:PosSign(Val > 0), LargeUnsigned<LL, radix>(ABS(Val)) {}
+			:PosSign(Val > 0), LargeUnsigned<LL, radix>(ABS(Val)) { }
 		template<typename val> explicit MY_LIBRARY LargeSigned(bool Pos, val Val)noexcept
 			:PosSign(Pos), LargeUnsigned<LL, radix>(Val) {
 			assert(Val >= 0);
 		}
 		explicit MY_LIBRARY LargeSigned(bool sign, LargeUnsigned<LL, radix> uns)noexcept
-			:PosSign(sign), LargeUnsigned<LL, radix>(uns) {	}
+			:PosSign(sign), LargeUnsigned<LL, radix>(uns) { }
 
 		static constexpr LargeSigned MY_LIBRARY Copy(const LargeSigned& that)noexcept {
 			LargeSigned This(that.PosSign, LargeUnsigned<LL, radix>::Copy(that));
@@ -564,39 +529,31 @@ namespace LargeInteger {
 			return !(*this == that);
 		}
 		bool MY_LIBRARY operator<(const LargeSigned& that)const noexcept {
-			if ((!this->PosSign) && that.PosSign)
-			{
+			if ((!this->PosSign) && that.PosSign) {
 				return true;
 			}
-			if (this->PosSign && !(that.PosSign))
-			{
+			if (this->PosSign && !(that.PosSign)) {
 				return false;
 			}
-			if (this->PosSign && that.PosSign)
-			{
+			if (this->PosSign && that.PosSign) {
 				return this->LargeUnsigned<LL, radix>::operator<(*static_cast<const LargeUnsigned<LL, radix>*>(&that));
 			}
-			else
-			{
+			else {
 				assert((!this->PosSign) && (!that.PosSign));
 				return this->LargeUnsigned<LL, radix>::operator>(*static_cast<const LargeUnsigned<LL, radix>*>(&that));
 			}
 		}
 		bool MY_LIBRARY operator>(const LargeSigned& that)const noexcept {
-			if ((!this->PosSign) && that.PosSign)
-			{
+			if ((!this->PosSign) && that.PosSign) {
 				return false;
 			}
-			if (this->PosSign && !(that.PosSign))
-			{
+			if (this->PosSign && !(that.PosSign)) {
 				return true;
 			}
-			if (this->PosSign && that.PosSign)
-			{
+			if (this->PosSign && that.PosSign) {
 				return this->LargeUnsigned<LL, radix>::operator>(that);
 			}
-			else
-			{
+			else {
 				assert((!this->PosSign) && (!that.PosSign));
 				return this->LargeUnsigned<LL, radix>::operator<(that);
 			}
@@ -640,12 +597,10 @@ namespace LargeInteger {
 
 		template<typename Val>
 		LargeSigned& MY_LIBRARY operator=(Val value) noexcept {
-			if (value >= 0)
-			{
+			if (value >= 0) {
 				this->PosSign = true;
 			}
-			else
-			{
+			else {
 				this->PosSign = false;
 				value = -value;
 			}
@@ -653,22 +608,18 @@ namespace LargeInteger {
 			return *this;
 		}
 		LargeSigned& MY_LIBRARY operator+=(const LargeSigned& that) noexcept {
-			if ((this->PosSign && that.PosSign) || (!this->PosSign && !that.PosSign))
-			{
+			if ((this->PosSign && that.PosSign) || (!this->PosSign && !that.PosSign)) {
 				LargeUnsigned<LL, radix>::operator+=(*static_cast<const LargeUnsigned<LL, radix>*>(&that));
 			}
 			else {
 				LargeInteger::Compare Cmpr = LargeInteger::LongCmpt<LLCmptTraits<radix>>::CompareTo(this->begin(), that.begin());
-				if (Cmpr == LargeInteger::Compare::Equal)
-				{
+				if (Cmpr == LargeInteger::Compare::Equal) {
 					this->destruct();
 				}
-				if (Cmpr == LargeInteger::Compare::Larger)
-				{
+				if (Cmpr == LargeInteger::Compare::Larger) {
 					this->LargeUnsigned<LL, radix>::operator-=(*static_cast<const LargeUnsigned<LL, radix>*>(&that));
 				}
-				else
-				{
+				else {
 					LargeSigned temp = Copy(that);
 					temp.LargeUnsigned<LL, radix>::operator-=(*static_cast<const LargeUnsigned<LL, radix>*>(this));
 					*this = temp;
@@ -683,22 +634,18 @@ namespace LargeInteger {
 			return temp;
 		}
 		LargeSigned& MY_LIBRARY operator-=(const LargeSigned& that) noexcept {
-			if ((this->PosSign && !that.PosSign) || (!this->PosSign && that.PosSign))
-			{
+			if ((this->PosSign && !that.PosSign) || (!this->PosSign && that.PosSign)) {
 				LargeUnsigned<LL, radix>::operator+=(*static_cast<const LargeUnsigned<LL, radix>*>(&that));
 			}
 			else {
 				LargeInteger::Compare Cmpr = LargeInteger::LongCmpt<LLCmptTraits<radix>>::CompareTo(this->begin(), that.begin());
-				if (Cmpr == LargeInteger::Compare::Equal)
-				{
+				if (Cmpr == LargeInteger::Compare::Equal) {
 					this->destruct();
 				}
-				if (Cmpr == LargeInteger::Compare::Larger)
-				{
+				if (Cmpr == LargeInteger::Compare::Larger) {
 					LargeInteger::LongCmpt<LLCmptTraits<radix>>::SubtractFrom(that.begin(), this->begin());
 				}
-				else
-				{
+				else {
 					LargeSigned temp = Copy(that);
 					temp.LargeUnsigned<LL, radix>::operator-=(*static_cast<const LargeUnsigned<LL, radix>*>(this));
 					*this = temp;
@@ -743,8 +690,7 @@ namespace LargeInteger {
 			return temp;
 		}
 		LargeSigned& MY_LIBRARY operator*=(const LargeSigned& that) noexcept {
-			if (!that.PosSign)
-			{
+			if (!that.PosSign) {
 				this->PosSign = !this->PosSign;
 			}
 			this->LargeUnsigned<LL, radix>::operator*=(*static_cast<const LargeUnsigned<LL, radix>*>(&that));
@@ -771,8 +717,7 @@ namespace LargeInteger {
 			return temp;
 		}
 		LargeSigned& MY_LIBRARY operator%=(const LargeSigned& that) noexcept {
-			if (!that.PosSign)
-			{
+			if (!that.PosSign) {
 				this->PosSign = !this->PosSign;
 			}
 			this->LargeUnsigned<LL, radix>::operator%=(*static_cast<const LargeUnsigned<LL, radix>*>(&that));
@@ -784,8 +729,7 @@ namespace LargeInteger {
 			return temp;
 		}
 		LargeSigned& MY_LIBRARY operator/=(const LargeSigned& that) noexcept {
-			if (!that.PosSign)
-			{
+			if (!that.PosSign) {
 				this->PosSign = !this->PosSign;
 			}
 			this->LargeUnsigned<LL, radix>::operator/=(*static_cast<const LargeUnsigned<LL, radix>*>(&that));
@@ -845,16 +789,13 @@ namespace LargeInteger {
 		}
 
 		INLINED std::ostream& MY_LIBRARY Print(std::ostream& o = std::cout) const noexcept {
-			if (!this->PosSign)
-			{
+			if (!this->PosSign) {
 				o << "-";
 			}
 			return LargeUnsigned<LL, radix>::template _Print<decltype(this->begin()), radix>(this->begin(), o);
 		}
 
-		~LargeSigned()
-		{
-		}
+		~LargeSigned() { }
 
 	private:
 		bool PosSign;

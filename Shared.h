@@ -49,8 +49,7 @@
 
 
 template<typename type>
-class Depack
-{
+class Depack {
 public:
 	Depack() = delete;
 	~Depack() = delete;
