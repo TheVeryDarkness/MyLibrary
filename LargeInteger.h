@@ -214,12 +214,16 @@ namespace LargeInteger {
 			temp.destruct();
 		}
 		constexpr void MY_LIBRARY Swap(LargeUnsigned& that)noexcept {
-			auto* temp = that.next;
-			that.next = temp;
-			this->next = temp;
-			auto temp = that.data;
-			that.data = this->data;
-			this->data = that.data;
+			{
+				LL* temp = that.next;
+				that.next = temp;
+				this->next = temp;
+			}
+			{
+				Data temp = that.data;
+				that.data = this->data;
+				this->data = that.data;
+			}
 		}
 		//жиди
 		/*INLINED*/void MY_LIBRARY operator*=(const LargeUnsigned& b) noexcept {
@@ -541,7 +545,7 @@ namespace LargeInteger {
 		}
 		constexpr void MY_LIBRARY Swap(LargeSigned& that)noexcept {
 			this->_Swap(that);
-			auto temp = that.PosSign;
+			bool temp = that.PosSign;
 			that.PosSign = this->PosSign;
 			this->PosSign = temp;
 		}
