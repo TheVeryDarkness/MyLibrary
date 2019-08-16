@@ -12,9 +12,9 @@
 #endif // _DEBUG
 
 #ifdef _DEBUG
-#define free(x) _free_dbg(x,_NORMAL_BLOCK)
+#define _free_dbg(x,_NORMAL_BLOCK) free(x)
 #else
-#undef free
+#undef _free_dbg
 #endif // _DEBUG
 
 
