@@ -78,14 +78,14 @@ namespace Function {
 				return (*it).second;
 			}
 			else {
-				std::cout << var << " = " << std::endl;
+				std::cout << var << " = " << std::flush;
 				value v;
 				std::cin >> v;
 				num_map.insert(std::pair(var, v));
 				return v;
 			}
 		}
-		std::ostream& MY_LIBRARY Print(std::ostream& o) const noexcept { return o << estimate(); };
+		std::ostream& MY_LIBRARY Print(std::ostream& o) const noexcept { return o << var; };
 	};
 
 	template<>
