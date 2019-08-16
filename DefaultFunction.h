@@ -2,9 +2,11 @@
 
 #include "PreciseMath.h"
 
+#define new DBG_NEW
 namespace Function {
 	class function;
 	class num;
+	class x;
 	template<size_t count>class sum;
 	template<size_t count>class product;
 	class power_func;
@@ -34,6 +36,7 @@ namespace Function {
 	public:
 		template<typename Val>
 		MY_LIBRARY num(Val val)noexcept :q(val) {}
+		MY_LIBRARY num(const LargeInteger::Q& val)noexcept :q(val) {}
 
 		MY_LIBRARY ~num()noexcept {
 			q.destruct();
@@ -55,6 +58,7 @@ namespace Function {
 	class sum<1> :public function {
 	public:
 		MY_LIBRARY sum(function* p)noexcept :p(p) {}
+		MY_LIBRARY ~sum() noexcept { delete p; }
 		sum* MY_LIBRARY copy()noexcept { return new sum(p->copy()); }
 		std::ostream& MY_LIBRARY Print(std::ostream& o)const noexcept {
 			return o << *p << ")";
@@ -103,8 +107,8 @@ namespace Function {
 			o << *p << " + ";
 			return static_cast<const sum<count - 1>*>(this)->_Print(o);
 		}
-		std::ostream& MY_LIBRARY Print(std::ostream& o)const noexcept {
-			return this->_Print(o);
+		std::ostream& MY_LIBRARY Print(std::ostream& o)const noexcept { 
+			return this->_Print(o << '(');
 		}
 	private:
 		function* p;
@@ -114,9 +118,10 @@ namespace Function {
 	class product<1> :public function {
 	public:
 		MY_LIBRARY product(function* p)noexcept :p(p) {}
+		MY_LIBRARY ~product() noexcept { delete p; }
 		product* MY_LIBRARY copy()noexcept { return new product(p->copy()); }
 		std::ostream& MY_LIBRARY Print(std::ostream& o)const noexcept {
-			return o << *p << ")";
+			return o << *p ;
 		}
 		void MY_LIBRARY integral(function*& f) noexcept {
 			assert(this == f);
@@ -152,7 +157,7 @@ namespace Function {
 			return static_cast<const product<count - 1>*>(this)->_Print(o);
 		}
 		std::ostream& MY_LIBRARY Print(std::ostream& o)const noexcept {
-			return this->_Print(o);
+			return this->_Print(o << '(');
 		}
 		product* MY_LIBRARY copy()noexcept {
 			return new product(p->copy(), product<count - 1>::copy());
@@ -166,12 +171,11 @@ namespace Function {
 			assert(this == f);
 			auto _p = p->copy();
 			_p->diff(_p);
-			function* temp = this->product<count - 1>::copy();
-			temp->diff(temp);
-			auto _f = f;
+			function* _this = this->product<count - 1>::copy();
+			_this->diff(_this);
+			f = new sum<2>(new product<2>(_p, this->product<count - 1>::copy()), new product<2>(p, _this));
 			p = nullptr;
-			f = new sum<2>(new product<2>(p, static_cast<product<count - 1>*>(f)), new product<2>(_p, temp));
-			delete _f;
+			delete this;
 			return;
 		}
 	private:
@@ -252,3 +256,4 @@ namespace Function {
 		function* inner;
 	};
 }
+#undef new
