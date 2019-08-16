@@ -4,6 +4,7 @@
 
 #define new DBG_NEW
 namespace Function {
+	using value=double;
 	class function;
 	class num;
 	class x;
@@ -22,6 +23,7 @@ namespace Function {
 		virtual void MY_LIBRARY diff(function*&) noexcept = 0;
 		virtual void MY_LIBRARY integral(function*&) noexcept = 0;
 		virtual function* MY_LIBRARY copy()noexcept = 0;
+		virtual value MY_LIBRARY estimate()const noexcept = 0;
 		virtual std::ostream& MY_LIBRARY Print(std::ostream& o) const noexcept = 0;
 		friend std::ostream& MY_LIBRARY operator<<(std::ostream& o, const function& fun)noexcept {
 			return fun.Print(o);
@@ -40,13 +42,14 @@ namespace Function {
 			q.destruct();
 		}
 
-		virtual void MY_LIBRARY diff(function*& f) noexcept {
+		void MY_LIBRARY diff(function*& f) noexcept {
 			assert(this == f);
 			q = 0;
 		};
-		virtual void MY_LIBRARY integral(function*&) noexcept { };
-		virtual function* MY_LIBRARY copy()noexcept { return new num(LargeInteger::Q::Copy(q)); };
-		virtual std::ostream& MY_LIBRARY Print(std::ostream& o) const noexcept { return q.Print(o); };
+		void MY_LIBRARY integral(function*&) noexcept { };
+		function* MY_LIBRARY copy()noexcept { return new num(LargeInteger::Q::Copy(q)); };
+		value MY_LIBRARY estimate()const noexcept { return this->q.estim<value>(); }
+		std::ostream& MY_LIBRARY Print(std::ostream& o) const noexcept { return q.Print(o); };
 
 	private:
 		LargeInteger::Q q;
@@ -70,6 +73,9 @@ namespace Function {
 			assert(this == f);
 			f->diff(f);
 			return;
+		}
+		value MY_LIBRARY estimate()const noexcept {
+			return this->p->estimate();
 		}
 		std::ostream& MY_LIBRARY _Print(std::ostream& o)const noexcept {
 			return o << *p << ')';
@@ -99,6 +105,9 @@ namespace Function {
 			assert(this == f);
 			p->diff(p);
 			return;
+		}
+		value MY_LIBRARY estimate()const noexcept {
+			return this->p->estimate() + this->sum<count - 1>::estimate();
 		}
 		std::ostream& MY_LIBRARY _Print(std::ostream& o)const noexcept {
 			o << *p << " + ";
@@ -130,6 +139,9 @@ namespace Function {
 			p->diff(p);
 			return;
 		}
+		value MY_LIBRARY estimate()const noexcept {
+			return this->p->estimate();
+		}
 		std::ostream& MY_LIBRARY _Print(std::ostream& o)const noexcept {
 			return o << *p << ')';
 		}
@@ -154,6 +166,9 @@ namespace Function {
 		}
 		std::ostream& MY_LIBRARY Print(std::ostream& o)const noexcept {
 			return this->_Print(o << '(');
+		}
+		value MY_LIBRARY estimate()const noexcept {
+			return this->p->estimate() * this->product<count - 1>::estimate();
 		}
 		product* MY_LIBRARY copy()noexcept {
 			return new product(p->copy(), product<count - 1>::copy());
@@ -207,6 +222,9 @@ namespace Function {
 			assert(false);
 			return;
 		}
+		value MY_LIBRARY estimate()const noexcept {
+			return pow(this->base->estimate(), this->expo->estimate());
+		}
 		std::ostream& MY_LIBRARY Print(std::ostream& o)const noexcept {
 			return o << '(' << *base << "^(" << *expo << "))";
 		}
@@ -243,6 +261,9 @@ namespace Function {
 			assert(this == f);
 			assert(false);
 			return;
+		}
+		value MY_LIBRARY estimate()const noexcept {
+			return std::sin(this->inner->estimate());
 		}
 		std::ostream& MY_LIBRARY Print(std::ostream& o)const noexcept {
 			return o << "sin(" << *inner << ')';
