@@ -36,8 +36,9 @@ namespace LargeInteger {
 		Q& MY_LIBRARY toReciprocal()noexcept {
 			this->Numerator._Swap(this->Denominator);
 		}
-		double MY_LIBRARY estim()const noexcept {
-			return this->Numerator.GetValue<double>() / (this->Denominator.GetValue<double>());
+		template<typename val = double> val MY_LIBRARY estim()const noexcept {
+			static_assert(std::is_arithmetic_v<val> && !std::is_integral_v<val>);
+			return this->Numerator.GetValue<val>() / (this->Denominator.GetValue<val>());
 		}
 		MY_LIBRARY ~Q();
 		INLINED void MY_LIBRARY destruct() noexcept {
