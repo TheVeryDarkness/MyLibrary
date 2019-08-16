@@ -449,9 +449,10 @@ namespace LargeInteger {
 
 		//获取存储的值
 		//可能溢出
-		/*INLINED*/long long MY_LIBRARY GetValue()const noexcept {
-			long long value = 0;
-			long n = 0;
+		template<typename Val=__int64>
+		/*INLINED*/Val MY_LIBRARY GetValue()const noexcept {
+			Val value = 0;
+			unsigned __int64 n = 0;
 			auto OprtPtr = this->begin();
 			if (OprtPtr == nullptr) {
 				return 0;
@@ -459,7 +460,7 @@ namespace LargeInteger {
 			while (true) {
 				if (OprtPtr + 1 != nullptr) {
 					++OprtPtr;
-					value += ((unsigned long long)((*OprtPtr)())) * Power(radix, n);
+					value += ((Val)((*OprtPtr)())) * Power(static_cast<Val>(radix), n);
 					n++;
 				}
 				else {
@@ -776,8 +777,13 @@ namespace LargeInteger {
 
 		//获取存储的值
 		//可能溢出
-		/*INLINED*/long long MY_LIBRARY GetValue()const noexcept {
-			return LargeUnsigned<LL, radix>::GetValue();
+		template<typename val=__int64>
+		/*INLINED*/val MY_LIBRARY GetValue()const noexcept {
+			val&& value = LargeUnsigned<LL, radix>::GetValue<val>();
+			if (!PosSign) {
+				value = -value;
+			}
+			return value;
 		}
 
 		//二进制输出到控制台窗口

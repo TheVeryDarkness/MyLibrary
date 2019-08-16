@@ -36,6 +36,9 @@ namespace LargeInteger {
 		Q& MY_LIBRARY toReciprocal()noexcept {
 			this->Numerator._Swap(this->Denominator);
 		}
+		double MY_LIBRARY estim()const noexcept {
+			return this->Numerator.GetValue<double>() / (this->Denominator.GetValue<double>());
+		}
 		MY_LIBRARY ~Q();
 		INLINED void MY_LIBRARY destruct() noexcept {
 			this->Denominator.destruct();
