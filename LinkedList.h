@@ -52,7 +52,7 @@ namespace LL {
 		}
 		return out;
 	}
-	template<typename Type, typename BaseType>
+	template<typename Type>
 	//简单输出到控制台窗口
 	//需要用户补换行
 	INLINED void MY_LIBRARY SinglePrint(

@@ -23,11 +23,6 @@ namespace LL {
 			bool ShowComma,
 			unsigned MinLength
 		)noexcept;
-		template<typename Type, auto Radix>
-		/*INLINED*/friend std::ostream& MY_LIBRARY _Print(
-			const Type& that,
-			std::ostream& out
-		)noexcept;
 		template<
 			typename Data,
 			typename SubData,
@@ -642,12 +637,6 @@ namespace LL {
 			bool Comma = true
 		)const noexcept {
 			return LL::SinglePrint<DLL>(*this, out);
-		}
-		//二进制输出到控制台窗口
-		INLINED std::ostream& MY_LIBRARY Print(
-			std::ostream& out = std::cout
-		)const noexcept {
-			return LL::_Print(*this, out);
 		}
 	};
 

@@ -38,11 +38,6 @@ namespace LL {
 			bool ShowComma,
 			unsigned MinLength
 		)noexcept;
-		template<typename Type, auto Radix>
-		/*INLINED*/friend std::ostream& MY_LIBRARY _Print(
-			const Type& that,
-			std::ostream& out
-		)noexcept;
 		template<
 			typename Data,
 			typename SubData,
