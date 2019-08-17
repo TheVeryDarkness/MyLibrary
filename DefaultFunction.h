@@ -10,31 +10,15 @@ namespace Function {
 	enum class vari {
 		DEF, x, y, z, w
 	};
-	INLINED std::ostream& MY_LIBRARY operator<<(std::ostream& o, vari var)noexcept {
-		switch (var) {
-		case Function::vari::DEF:
-			assert(false);
-			break;
-		case Function::vari::x:
-			o << 'x';
-			break;
-		case Function::vari::y:
-			o << 'y';
-			break;
-		case Function::vari::z:
-			o << 'z';
-			break;
-		case Function::vari::w:
-			o << 'w';
-			break;
-		default:
-			break;
-		}
-		return o;
-	}
+	enum class gener {
+		i, j, k, l
+	};
 	std::map<vari, value> num_map = {};
+	
+
 	class function;
 	template<vari> class num;
+	template<size_t n>class series;
 	template<size_t count>class sum;
 	template<size_t count>class product;
 	class f_ln;
@@ -113,6 +97,7 @@ namespace Function {
 	private:
 		LargeInteger::Q q;
 	};
+
 
 	template<>
 	class sum<1> :public function {
@@ -369,6 +354,48 @@ namespace Function {
 		inner = nullptr;
 		delete this;
 		return;
+	}
+	INLINED std::ostream& MY_LIBRARY operator<<(std::ostream& o, gener var)noexcept {
+		switch (var) {
+		case Function::gener::i:
+			o << 'i';
+			break;
+		case Function::gener::j:
+			o << 'j';
+			break;
+		case Function::gener::k:
+			o << 'k';
+			break;
+		case Function::gener::l:
+			o << 'l';
+			break;
+		default:
+			assert(false);
+			break;
+		}
+	}
+	INLINED std::ostream& MY_LIBRARY operator<<(std::ostream& o, vari var)noexcept {
+		switch (var) {
+		case Function::vari::DEF:
+			assert(false);
+			break;
+		case Function::vari::x:
+			o << 'x';
+			break;
+		case Function::vari::y:
+			o << 'y';
+			break;
+		case Function::vari::z:
+			o << 'z';
+			break;
+		case Function::vari::w:
+			o << 'w';
+			break;
+		default:
+			assert(false);
+			break;
+		}
+		return o;
 	}
 }
 #undef new
