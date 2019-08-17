@@ -125,6 +125,16 @@ namespace LL {
 			this->next = that.next;
 			return;
 		}
+		//移动构造函数
+		//默认为浅拷贝
+		INLINED MY_LIBRARY OLL(
+			OLL&& that
+		) noexcept :data(that.data) {
+			this->release();
+			this->next = that.next;
+			that.next = nullptr;
+			return;
+		}
 		//仅初始化链表头的构造函数
 		constexpr explicit INLINED MY_LIBRARY OLL(
 			Data HeadData,

@@ -234,20 +234,23 @@ namespace LargeInteger {
 		}
 	public:
 		template<typename Val, typename... Vals>
-		explicit constexpr MY_LIBRARY _Bytes(Val val, Vals... vals)
+		constexpr explicit MY_LIBRARY _Bytes(Val val, Vals... vals)
 			noexcept : Byte(val), _Bytes<IntelligentLength<Length>().first>(vals...) {
 			static_assert(std::is_integral_v<Val>);
 		}; //= default;
-		explicit constexpr MY_LIBRARY _Bytes() noexcept :Byte(0), _Bytes<IntelligentLength<Length>().first>() {};
+		constexpr explicit MY_LIBRARY _Bytes() noexcept :Byte(0), _Bytes<IntelligentLength<Length>().first>() {};
 
-		_Bytes(const _Bytes& that) = default;
+		MY_LIBRARY _Bytes(const _Bytes& that) = default;
+		MY_LIBRARY _Bytes(_Bytes&& that) = default;
 
-		template<typename Val> _Bytes Make(Val val)noexcept {
+		template<typename Val> 
+		constexpr _Bytes Make(Val val)noexcept {
 			this->Maker(val);
 			ASSERT("Overflow in construct!", val == 0);
 			return *this;
 		}
-		template<typename Val> static _Bytes Make_s(Val val)noexcept {
+		template<typename Val> 
+		constexpr static _Bytes Make_s(Val val)noexcept {
 			_Bytes res;
 			return res.Make(val);
 		}

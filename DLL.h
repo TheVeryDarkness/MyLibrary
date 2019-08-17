@@ -100,7 +100,7 @@ namespace LL {
 		//浅拷贝
 		INLINED MY_LIBRARY DLL(
 			const DLL& that
-		) noexcept :data(that.data),last(that.last) {
+		) noexcept :data(that.data), last(that.last) {
 			this->release();
 			this->next = that.next;
 			if (this->next != nullptr)
@@ -108,6 +108,21 @@ namespace LL {
 				//此步骤非常重要
 				this->next->last = this;
 			}
+		}
+		//移动构造函数
+		//默认为浅拷贝
+		INLINED MY_LIBRARY DLL(
+			DLL&& that
+		) noexcept :data(that.data), last(that.last) {
+			this->release();
+			this->next = that.next;
+			if (this->next != nullptr) {
+				//此步骤非常重要
+				this->next->last = this;
+			}
+			that.next = nullptr;
+			that.last = nullptr;
+			return;
 		}
 		//覆盖赋值
 		//浅拷贝
