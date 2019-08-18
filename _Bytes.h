@@ -8,19 +8,19 @@
 namespace LargeInteger {
 	template<size_t sz>
 	constexpr std::pair<size_t, size_t> MY_LIBRARY IntelligentLength()noexcept {
-		if (sz >= 8)
+		if constexpr (sz >= 8)
 		{
 			return std::pair<size_t, size_t>(sz - 8, 8);
 		}
-		else if (sz >= 4)
+		else if constexpr (sz >= 4)
 		{
 			return std::pair<size_t, size_t>(sz - 4, 4);
 		}
-		else if (sz >= 2)
+		else if constexpr (sz >= 2)
 		{
 			return std::pair<size_t, size_t>(sz - 2, 2);
 		}
-		else if (sz >= 1)
+		else if constexpr (sz >= 1)
 		{
 			return std::pair<size_t, size_t>(sz - 1, 1);
 		}
@@ -192,6 +192,11 @@ namespace LargeInteger {
 			}
 			this->_Bytes<IntelligentLength<Length>().first>::SHR(temp);
 		}
+		constexpr void SHR()noexcept {
+			bool temp = this->Byte & 0x1;
+			this->Byte >>= 1;
+			this->_Bytes<IntelligentLength<Length>().first>::SHR(temp);
+		}
 		constexpr void _SHR(bool fill, bool& tail)noexcept {
 			bool temp = this->Byte & 0x1;
 			this->Byte >>= 1;
@@ -274,11 +279,9 @@ namespace LargeInteger {
 			return *this;
 		}
 		constexpr bool NonZero()const noexcept {
-			if (this->Byte != 0)
-			{
-				return true;
-			}
-			else return this->_Bytes<IntelligentLength<Length>().first>::NonZero();
+			return (this->Byte != 0)?
+				true
+				: (this->_Bytes<IntelligentLength<Length>().first>::NonZero());
 		}
 		constexpr _Bytes& operator<<=(size_t sz)noexcept {
 			for (size_t i = 0; i < sz; i++) {
@@ -288,7 +291,7 @@ namespace LargeInteger {
 		}
 		constexpr _Bytes& operator>>=(size_t sz)noexcept {
 			for (size_t i = 0; i < sz; i++) {
-				this->SHR(false);
+				this->SHR();
 			}
 			return *this;
 		}
@@ -301,24 +304,23 @@ namespace LargeInteger {
 			return *this;
 		}
 		constexpr _Bytes& operator++()noexcept {
+			this->PlusOne();
 			return *this;
 		}
 		constexpr _Bytes& operator--()noexcept {
+			this->MinusOne();
 			return *this;
 		}
 		constexpr _Bytes& MY_LIBRARY operator*=(const _Bytes& that)noexcept {
 			_Bytes This = *this;
 			memset(this, 0, Length);
 			auto temp = that;
-			bool Will;
 			for (size_t j = 0; j < Length * LargeInteger::BitsPerByte && temp.NonZero(); ++j)
 			{
-				Will = temp.Odd();
-				if (Will) {
+				if (temp.Odd()) {
 					*this += This;
 				}
 				This.SHL();
-				//temp._SHR(false, Will);
 				temp.SHR(false);
 			}
 			return *this;

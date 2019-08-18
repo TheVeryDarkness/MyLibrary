@@ -4,7 +4,7 @@
 #include <type_traits>
 
 namespace LargeInteger{
-	enum class Compare :short
+	enum class Compare :signed char
 	{
 		Larger = 0x1, Equal = 0x0, Smaller = -0x1
 	};
