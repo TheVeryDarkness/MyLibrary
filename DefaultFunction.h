@@ -18,7 +18,8 @@ namespace Function {
 
 	class function;
 	template<vari> class num;
-	template<size_t n>class series;
+	template<size_t n>class self_increase;//自增
+	template<size_t n>class partial_sum;//数列从1到n的部分和
 	template<size_t count>class sum;
 	template<size_t count>class product;
 	class f_ln;
@@ -96,6 +97,63 @@ namespace Function {
 
 	private:
 		LargeInteger::Q q;
+	};
+
+	template<size_t n>
+	class self_increase :public function{
+	public:
+		MY_LIBRARY self_increase(size_t _i = 1)noexcept :i(new size_t(_i)) { }
+		MY_LIBRARY ~self_increase()noexcept { delete i; }
+
+		void MY_LIBRARY diff(function*& f) noexcept {
+			assert(this == f);
+			f = new num<vari::DEF>(0);
+			delete this;
+		};
+		void MY_LIBRARY integral(function*& f) noexcept {
+			assert(this == f);
+			f = new sum<2>(this, new num<vari::x>());
+		};
+		function* MY_LIBRARY copy()noexcept { return new self_increase(*i); };
+		value MY_LIBRARY estimate() const noexcept {
+			return value((*i == n) ? (*i = 1) : ((*i)++));
+		}
+		std::ostream& MY_LIBRARY Print(std::ostream& o) const noexcept {
+			return o << 'i';
+		};
+	private:
+		size_t* i;
+	};
+
+	template<size_t n>
+	class partial_sum :public function{
+	public:
+		MY_LIBRARY partial_sum(function* _p)noexcept:p(_p) { }
+		MY_LIBRARY ~partial_sum()noexcept {
+			delete p;
+		}
+
+		void MY_LIBRARY diff(function*& f) noexcept {
+			assert(this == f);
+			p->diff(p);
+		};
+		void MY_LIBRARY integral(function*& f) noexcept { 
+			assert(this == f);
+			p->integral(p);
+		};
+		function* MY_LIBRARY copy()noexcept { return new partial_sum(p->copy()); };
+		value MY_LIBRARY estimate()const noexcept { 
+			value s = 0;
+			for (size_t i = 0; i < n; i++) {
+				s += this->p->estimate();
+			}
+			return s; 
+		}
+		std::ostream& MY_LIBRARY Print(std::ostream& o) const noexcept { 
+			return p->Print(o << "(∑(1:1:" << n << ')') << ')';
+		};
+	private:
+		function* p;
 	};
 
 
