@@ -26,7 +26,7 @@ namespace LargeInteger {
 				}
 				auto&& i = set::to_int_type(c);
 				if (i!='?') {
-					it = i;
+					*it = i;
 					++it;
 				}
 			}
