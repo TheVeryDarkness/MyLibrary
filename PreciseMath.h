@@ -15,7 +15,7 @@ namespace LargeInteger {
 	//negative sign on denominator will be ignored
 	class Q {
 	protected:
-		using Data=LargeInteger::Num<unsigned int, Z_MAX>;
+		using Data=unsigned int;
 		Z Numerator;//·Ö×Ó
 		Z Denominator;//·ÖÄ¸
 	public:

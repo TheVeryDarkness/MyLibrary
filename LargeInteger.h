@@ -58,7 +58,6 @@ namespace LargeInteger {
 	class LargeUnsigned :protected LL {
 	protected:
 		using radix_t=decltype(radix);
-		using __Data=Num<radix_t, radix>;
 		using Data=radix_t;
 
 		template<typename Iter>
@@ -483,7 +482,6 @@ namespace LargeInteger {
 	template<typename LL, auto radix>
 	class LargeSigned :protected LargeUnsigned<LL, radix> {
 		using radix_t=decltype(radix);
-		using __Data=Num<radix_t, radix>;
 		using Data=radix_t;
 		friend class Q;
 	public:

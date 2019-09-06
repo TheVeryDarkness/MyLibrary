@@ -2,10 +2,6 @@
 #include "Shared.h"
 #include <cstring>
 
-
-#pragma pack(push)
-#pragma pack(1)
-
 namespace LargeInteger {
 	template<size_t sz>
 	constexpr std::pair<size_t, size_t> MY_LIBRARY IntelligentLength()noexcept {
@@ -51,7 +47,7 @@ namespace LargeInteger {
 	};
 
 	template<>
-	class _Bytes<0> {
+	class alignas(1) _Bytes<0> {
 	protected:
 		constexpr bool Comp()noexcept {
 			return true;
@@ -108,7 +104,7 @@ namespace LargeInteger {
 	};
 
 	template<size_t Length>
-	class _Bytes :public _Bytes<IntelligentLength<Length>().first>
+	class alignas(1) _Bytes :public _Bytes<IntelligentLength<Length>().first>
 	{
 	private:
 		typename _Int<IntelligentLength<Length>().second>::type Byte;
@@ -416,4 +412,3 @@ namespace LargeInteger {
 		}
 	};
 }
-#pragma pack(pop)

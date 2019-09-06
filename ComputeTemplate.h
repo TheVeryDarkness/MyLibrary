@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Shared.h"
+#include "_Bytes.h"
 #include <type_traits>
 
 namespace LargeInteger{
@@ -473,6 +474,46 @@ namespace LargeInteger{
 			}
 		};
 
+
+	private:
+
+	};
+
+	template<auto Radix>
+	class Multiply {
+	public:
+		using Num=decltype(Radix);
+		using Data=Num;
+		Multiply() = default;
+		~Multiply() = default;
+
+		std::pair<Num, Num> MY_LIBRARY operator()(Num Carry, Num a, Num b)const noexcept {
+			using LargeInteger::_Bytes;
+			if constexpr (Radix == Data(0)) {
+				_Bytes<sizeof(Data) * 2> This(a);
+				This *= _Bytes<sizeof(Data) * 2>::Make_s(b);
+				This += _Bytes<sizeof(Data) * 2>::Make_s(Carry);
+				return std::pair<Num, Num>(Num(Data(This)), Num(Data(This >> LargeInteger::BitsPerByte * sizeof(Num))));
+			}
+			else {
+				if constexpr (Radix > std::numeric_limits<Data>::max() / Radix) {
+					_Bytes<GetMinLength(Radix) * 2> This = _Bytes<GetMinLength(Radix) * 2>::Make_s(a);
+					This *= _Bytes<GetMinLength(Radix) * 2>::Make_s(b);
+					This += _Bytes<GetMinLength(Radix) * 2>::Make_s(Carry);
+					_Bytes<GetMinLength(Radix) * 2> radix = _Bytes<GetMinLength(Radix) * 2>::Make_s(Radix);
+					_Bytes<GetMinLength(Radix) * 2> Res = This.Divide(radix);
+					return std::pair<Num, Num>(
+						Num(Data(This)),
+						Num(Data(Res))
+						);
+				}
+				else {
+					a.data *= b.data;
+					a.data += Carry.data;
+					return std::pair<Num, Num>(Num(a % Radix), Num(a / Radix));
+				}
+			}
+		}
 
 	private:
 
