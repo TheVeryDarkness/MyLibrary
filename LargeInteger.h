@@ -128,7 +128,7 @@ namespace LargeInteger {
 			std::ostream& out,
 			const LargeUnsigned& l
 			) noexcept {
-			return _Print<LargeUnsigned, radix>(l, out);
+			return _Print<decltype(l.cbegin()), radix>(l.cbegin(), out);
 		}
 		template<typename Iter, auto Radix = 0>
 		//二进制输出到控制台窗口
