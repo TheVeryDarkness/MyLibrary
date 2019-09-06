@@ -127,13 +127,13 @@ namespace LL {
 		constexpr auto times = GetPowerTimes(outRadix, inRadix);
 		if constexpr (Destroy)
 		{
-			outNode out(in.data);
+			outNode out(0);
 			while (true)
 			{
 				decltype(out.data) temp = 0;
 				for (typename std::remove_const<decltype(times)>::type i = 0; i < times; i++)
 				{
-					temp += static_cast<decltype(temp)>(in.pop()) * Power(inRadix, i);
+					temp += static_cast<decltype(temp)>(in._pop()) * Power(inRadix, i);
 					if (in.next == nullptr)
 						break;
 				}

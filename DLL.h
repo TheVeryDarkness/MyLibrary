@@ -313,8 +313,15 @@ namespace LL {
 		}
 		//弹出当前位置后的一位
 		INLINED Data MY_LIBRARY pop() noexcept(DEBUG_FLAG) {
+			assert(this->next != nullptr);
 			Data temp = this->next->data;
 			this->cut();
+			return temp;
+		}
+		//弹出当前位置
+		INLINED Data MY_LIBRARY _pop() noexcept(DEBUG_FLAG) {
+			Data temp = this->data;
+			this->data = ((this->next != nullptr) ? this->pop() : 0);
 			return temp;
 		}
 		//剪去空白高位
@@ -415,7 +422,7 @@ namespace LL {
 			decltype(b.cbegin()) OprtPtr = b.GetEnd();
 			DLL Result(*OprtPtr);
 			auto Ptr = Result.begin();
-			while (b - 1 != nullptr) {
+			while (OprtPtr - 1 != nullptr) {
 				*(++Ptr) = *(--(OprtPtr));
 			}
 			return Result;
@@ -701,6 +708,21 @@ public:
 		}
 		return *this;
 	}
+	constexpr iterator& MY_LIBRARY operator--()noexcept {
+		if (this->ptr != nullptr) {
+			this->ptr = ptr->last;
+		}
+		return *this;
+	}
+	constexpr iterator& MY_LIBRARY operator-(size_t sz)const noexcept {
+		iterator it(*this);
+		for (size_t i = 0; i < sz; i++) {
+			if (it.ptr != nullptr) {
+				--it;
+			}
+		}
+		return it;
+	}
 
 	constexpr iterator& MY_LIBRARY operator+=(size_t sz)noexcept {
 		for (size_t i = 0; i < sz && this->ptr != nullptr; i++)
@@ -784,6 +806,22 @@ public:
 			++(*this);
 		}
 		return *this;
+	}
+
+	constexpr iterator& MY_LIBRARY operator--()noexcept {
+		if (this->ptr != nullptr) {
+			this->ptr = ptr->last;
+		}
+		return *this;
+	}
+	constexpr iterator MY_LIBRARY operator-(size_t sz)const noexcept {
+		iterator it(*this);
+		for (size_t i = 0; i < sz; i++) {
+			if (it.ptr != nullptr) {
+				--it;
+			}
+		}
+		return it;
 	}
 
 	constexpr iterator MY_LIBRARY operator+(size_t sz)const noexcept {
