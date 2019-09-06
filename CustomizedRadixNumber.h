@@ -44,7 +44,9 @@ namespace LargeInteger {
 		explicit constexpr MY_LIBRARY operator Data&()noexcept{
 			return data;
 		}
-		MY_LIBRARY ~Num()noexcept {}
+		MY_LIBRARY ~Num()noexcept {
+
+		}
 		constexpr Num MY_LIBRARY ComplementCodeAsMinus()const noexcept{
 			if constexpr (Radix != Data(0)) {
 				if (data != Data(0))
