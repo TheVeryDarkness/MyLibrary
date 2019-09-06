@@ -261,7 +261,7 @@ namespace LargeInteger {
 			static_assert(std::is_integral_v<std::decay_t<value_type>>);
 			static_assert(sizeof(val) == Length);
 		}
-		constexpr explicit MY_LIBRARY _Bytes(value_type val)noexcept :Byte(val) {}
+		//constexpr explicit MY_LIBRARY _Bytes(value_type val)noexcept :Byte(val) {}
 
 		template<typename Val>
 		constexpr MY_LIBRARY operator Val()
@@ -331,35 +331,40 @@ namespace LargeInteger {
 			}
 		}
 		constexpr _Bytes MY_LIBRARY Divide(const _Bytes& that)noexcept {
-			if (*this < that) {
-				assert(this->GetBits() <= that.GetBits());
-				return _Bytes();
-			}
-			else if (*this == that) {
-				assert(this->GetBits() == that.GetBits());
-				memset(this, 0, Length);
-				_Bytes res;
-				res.PlusOne();
-				return res;
+			if constexpr (IntelligentLength<Length>().first == 0) {
+				_Bytes&& Quo = _Bytes(static_cast<value_type>(this->Byte / that.Byte));
+				this->Byte %= that.Byte;
+				return Quo;
 			}
 			else {
-				_Bytes Quo(0), temp(that);
-				size_t diff = this->GetBits() - that.GetBits();
-				assert(this->GetBits() >= that.GetBits());
-				temp <<= diff;
-				for (size_t i = 0; i <= diff; i++)
-				{
-					if (*this >= temp) {
-						*this -= temp;
-						Quo.PlusOne();
-					}
-					temp >>= 1;
-					if (i != diff)
-					{
-						Quo <<= 1;
-					}
+				if (*this < that) {
+					assert(this->GetBits() <= that.GetBits());
+					return _Bytes();
 				}
-				return Quo;
+				else if (*this == that) {
+					assert(this->GetBits() == that.GetBits());
+					memset(this, 0, Length);
+					_Bytes res;
+					res.PlusOne();
+					return res;
+				}
+				else {
+					_Bytes Quo(0), temp(that);
+					size_t diff = this->GetBits() - that.GetBits();
+					assert(this->GetBits() >= that.GetBits());
+					temp <<= diff;
+					for (size_t i = 0; i <= diff; i++) {
+						if (*this >= temp) {
+							*this -= temp;
+							Quo.PlusOne();
+						}
+						temp >>= 1;
+						if (i != diff) {
+							Quo <<= 1;
+						}
+					}
+					return Quo;
+				}
 			}
 		}
 		constexpr bool operator>(const _Bytes& that)const noexcept {
