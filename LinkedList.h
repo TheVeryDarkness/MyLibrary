@@ -133,19 +133,17 @@ namespace LL {
 				decltype(out.data) temp = 0;
 				for (typename std::remove_const<decltype(times)>::type i = 0; i < times; i++)
 				{
-					if (in.next != nullptr)
-					{
-						temp += static_cast<decltype(temp)>(in.next->data) * Power(inRadix, i);
-						in.cut();
-					}
-					else break;
+					temp += static_cast<decltype(temp)>(in.pop()) * Power(inRadix, i);
+					if (in.next == nullptr)
+						break;
 				}
-				out.insert(temp);
 				if (in.next == nullptr)
 				{
+					out.data = temp;
 					out = out.invert(out);
 					return out;
 				}
+				else out.insert(temp);
 			}
 		}
 		else

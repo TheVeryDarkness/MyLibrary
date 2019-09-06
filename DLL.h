@@ -412,11 +412,11 @@ namespace LL {
 		//从链表头（不包括链表头）开始，倒置之后的链节
 		//使用new创建新链表
 		/*INLINED*/DLL MY_LIBRARY invert(const DLL& b) const noexcept {
-			DLL Result(b.data);
-			const DLL* OprtPtr = &b;
-			while (OprtPtr->next != nullptr) {
-				Result.insert(OprtPtr->next->data);
-				OprtPtr = (OprtPtr->next);
+			decltype(b.cbegin()) OprtPtr = b.GetEnd();
+			DLL Result(*OprtPtr);
+			auto Ptr = Result.begin();
+			while (b - 1 != nullptr) {
+				*(++Ptr) = *(--(OprtPtr));
 			}
 			return Result;
 		}
@@ -755,7 +755,7 @@ private:
 };
 
 template<typename Data>
-struct std::iterator<std::bidirectional_iterator_tag, const LL::DLL<Data>>
+class std::iterator<std::bidirectional_iterator_tag, const LL::DLL<Data>>
 {
 	using in=const LL::DLL<Data>;
 public:

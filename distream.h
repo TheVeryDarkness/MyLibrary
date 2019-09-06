@@ -23,14 +23,19 @@ namespace LargeInteger {
 				case '\r':
 					return *this;
 				default:
-					break;
+					auto&& i = charset::to_int_type(c);
+					if (i != '?') {
+						*it = i;
+						++it;
+					}
+					else { 
+						putch(' ');
+						return *this; 
+					}
 				}
-				auto&& i = charset::to_int_type(c);
-				if (i != '?') {
-					*it = i;
-					++it;
-				}
+				putch(c);
 			}
+			return *this;
 		}
 	};
 }
