@@ -4,7 +4,7 @@
 #include <map>
 
 
-#define new DBG_NEW
+//#define new DBG_NEW
 namespace Function {
 	using value=double;
 	enum class vari {

@@ -84,7 +84,7 @@ namespace LargeInteger {
 			static_assert(std::is_integral_v<val>);
 			static_assert(radix != radix_t(1));
 			static_assert(!std::is_same_v<val, bool>, "Never use bool type");
-			typename LongCmpt<StdCmptTraits<val>>::template LayerIterator<StdCmptTraits<val>::template Divide<radix>, val> it(Val);
+			typename LongCmpt<StdCmptTraits<val>>::template LayerIterator<typename StdCmptTraits<val>::template Divide<radix>, val> it(Val);
 			for (auto index = this->begin(); !!it; ) {
 				*index = Data(*it);
 				++it;
@@ -328,10 +328,10 @@ namespace LargeInteger {
 		template<typename Int>
 		bool MY_LIBRARY operator==(const Int& that)const noexcept {
 			static_assert(std::is_integral_v<Int>);
-			if (that == Data(0)) {
+			if (that == Int(0)) {
 				return (this->LL::next == nullptr) && (this->LL::data == Data(0));
 			}
-			typename LongCmpt<LLCmptTraits<radix>>::template LayerIterator<LLCmptTraits<radix>::template Divide<radix>, Data> it(that);
+			typename LongCmpt<LLCmptTraits<radix>>::template LayerIterator<typename LLCmptTraits<radix>::template Divide<radix>, Data> it(that);
 			return (LargeInteger::LongCmpt<LLCmptTraits<radix>>::CompareTo(this->begin(), it) == Compare::Equal);
 		}
 		template<typename Int>
@@ -435,7 +435,7 @@ namespace LargeInteger {
 			if (Val == 0) {
 				this->destruct();
 			}
-			typename LongCmpt<StdCmptTraits<Int>>::template LayerIterator<StdCmptTraits<Int>::template Divide<radix>, Int> it(Val);
+			typename LongCmpt<StdCmptTraits<Int>>::template LayerIterator<typename StdCmptTraits<Int>::template Divide<radix>, Int> it(Val);
 			for (auto index = this->begin(); !!it; ) {
 				*index = Data(*it);
 				++it;

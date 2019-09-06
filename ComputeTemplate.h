@@ -30,7 +30,7 @@ namespace LargeInteger{
 		{
 		public:
 			MY_LIBRARY AppositionIterator(Iterator1 a, Iterator2 b)noexcept
-				:a(a), b(b), c(), Result(c(Data(0), *(a), *(b))) {
+				:a(a), b(b),Result(c(Data(0), *(a), *(b))) {
 				static_assert(std::is_same_v<Data, std::remove_cvref_t<decltype(*(b))>>, "It should be the same type");
 			}
 			MY_LIBRARY ~AppositionIterator()noexcept {}
@@ -62,7 +62,7 @@ namespace LargeInteger{
 			Iterator1 a;
 			Iterator2 b;
 		private:
-			ComputeFunction c;
+			ComputeFunction c = ComputeFunction();
 		};
 
 		template<class ComputeFunction, typename Iterator, typename Data>
