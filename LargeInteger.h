@@ -21,12 +21,12 @@ namespace LargeInteger {
 			MY_LIBRARY ~Add()noexcept { }
 			std::pair<Data, Data> MY_LIBRARY operator()(Data Carry, const Data& a, const Data& b)noexcept {
 				return std::pair<Data, Data>(
-					a + b + Carry,
+					(a + b + Carry) % Radix,
 					Data(
 					(Carry > 0) ?
 						(((a > static_cast<Data>((Radix - 1) - b)) || (b > static_cast<Data>(Radix - 1))) ? 1 : 0)
 						:
-						((a > static_cast<Data>(Radix - 1) ? 1 : 0))
+						((a > static_cast<Data>(Radix - b) ? 1 : 0))
 					)
 					);
 			}
@@ -38,7 +38,7 @@ namespace LargeInteger {
 			MY_LIBRARY ~SubtractFrom()noexcept { }
 			std::pair<Data, Data> MY_LIBRARY operator()(Data Carry, const Data& a, const Data& b)noexcept {
 				return std::pair<Data, Data>(
-					b - a - Carry,
+					(b - a - Carry) % Radix,
 					Data(
 					(Carry > 0) ?
 						((b <= a) ? 1 : 0)
