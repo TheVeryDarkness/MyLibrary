@@ -175,6 +175,7 @@ namespace LargeInteger {
 			}
 			return;
 		}
+		explicit MY_LIBRARY LargeUnsigned(LL ll)noexcept:LL(ll) { }
 		static constexpr LargeUnsigned MY_LIBRARY Copy(const LargeUnsigned& that)noexcept {
 			LargeUnsigned This(0);
 			auto j = This.begin();
