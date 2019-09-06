@@ -90,7 +90,7 @@ namespace LL {
 	public:
 		//∞¥data£¨next£¨last ‰»Î
 		constexpr explicit INLINED MY_LIBRARY DLL(
-			Data HeadData = Data(false),
+			Data HeadData,
 			DLL* NextPtr = nullptr,
 			DLL* LastPtr = nullptr
 		)noexcept :
