@@ -86,7 +86,7 @@ namespace LargeInteger {
 			static_assert(!std::is_same_v<val, bool>, "Never use bool type");
 			typename LongCmpt<StdCmptTraits<val>>::template LayerIterator<typename StdCmptTraits<val>::template Divide<radix>, val> it(Val);
 			for (auto index = this->begin(); !!it; ) {
-				*index = *it;
+				*index = Data(*it);
 				++it;
 				if (!!it) {
 					++index;
