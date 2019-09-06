@@ -104,7 +104,7 @@ namespace LargeInteger {
 	};
 
 	template<size_t Length>
-	class alignas(1) _Bytes :public _Bytes<IntelligentLength<Length>().first>
+	class /*alignas(1)*/ _Bytes :public _Bytes<IntelligentLength<Length>().first>
 	{
 	private:
 		typename _Int<IntelligentLength<Length>().second>::type Byte;
