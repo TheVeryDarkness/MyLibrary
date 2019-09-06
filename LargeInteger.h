@@ -9,14 +9,82 @@
 namespace LargeInteger {
 	template<typename LL, auto radix> class LargeUnsigned;
 	template<typename LL, auto radix> class LargeSigned;
-	template<auto radix>
-	class LLCmptTraits :public LargeInteger::StdCmptTraits<decltype(radix)> {
+	template<auto Radix>
+	class LLCmptTraits :public LargeInteger::StdCmptTraits<decltype(Radix)> {
 	public:
-		using Data=decltype(radix);
+		using Data=decltype(Radix);
 		MY_LIBRARY LLCmptTraits() = delete;
 		MY_LIBRARY ~LLCmptTraits() = delete;
+		class Add {
+		public:
+			MY_LIBRARY Add()noexcept { }
+			MY_LIBRARY ~Add()noexcept { }
+			std::pair<Data, Data> MY_LIBRARY operator()(Data Carry, const Data& a, const Data& b)noexcept {
+				return std::pair<Data, Data>(
+					a + b + Carry,
+					Data(
+					(Carry > 0) ?
+						(((a > static_cast<Data>((Radix - 1) - b)) || (b > static_cast<Data>(Radix - 1))) ? 1 : 0)
+						:
+						((a > static_cast<Data>(Radix - 1) ? 1 : 0))
+					)
+					);
+			}
+		};
 
-		using Multiply=typename LargeInteger::Multiply<radix>;
+		class SubtractFrom {
+		public:
+			MY_LIBRARY SubtractFrom()noexcept { }
+			MY_LIBRARY ~SubtractFrom()noexcept { }
+			std::pair<Data, Data> MY_LIBRARY operator()(Data Carry, const Data& a, const Data& b)noexcept {
+				return std::pair<Data, Data>(
+					b - a - Carry,
+					Data(
+					(Carry > 0) ?
+						((b <= a) ? 1 : 0)
+						:
+						((b < a) ? 1 : 0))
+					);
+			}
+		};
+		class Multiply {
+		public:
+			using Num=decltype(Radix);
+			using Data=Num;
+			Multiply() = default;
+			~Multiply() = default;
+
+			std::pair<Num, Num> MY_LIBRARY operator()(Num Carry, Num a, Num b)const noexcept {
+				using LargeInteger::_Bytes;
+				if constexpr (Radix == Data(0)) {
+					_Bytes<sizeof(Data) * 2> This(a);
+					This *= _Bytes<sizeof(Data) * 2>::Make_s(b);
+					This += _Bytes<sizeof(Data) * 2>::Make_s(Carry);
+					return std::pair<Num, Num>(Num(Data(This)), Num(Data(This >> LargeInteger::BitsPerByte * sizeof(Num))));
+				}
+				else {
+					if constexpr (Radix > std::numeric_limits<Data>::max() / Radix) {
+						_Bytes<GetMinLength(Radix) * 2> This = _Bytes<GetMinLength(Radix) * 2>::Make_s(a);
+						This *= _Bytes<GetMinLength(Radix) * 2>::Make_s(b);
+						This += _Bytes<GetMinLength(Radix) * 2>::Make_s(Carry);
+						_Bytes<GetMinLength(Radix) * 2> radix = _Bytes<GetMinLength(Radix) * 2>::Make_s(Radix);
+						_Bytes<GetMinLength(Radix) * 2> Res = This.Divide(radix);
+						return std::pair<Num, Num>(
+							Num(Data(This)),
+							Num(Data(Res))
+							);
+					}
+					else {
+						a.data *= b.data;
+						a.data += Carry.data;
+						return std::pair<Num, Num>(Num(a % Radix), Num(a / Radix));
+					}
+				}
+			}
+
+		private:
+
+		};
 	};
 
 	template<typename Iter, typename BaseType>
@@ -32,10 +100,10 @@ namespace LargeInteger {
 		if (that + 1 != nullptr) {
 			SinglePrint(that + 1, out, ShowComma, MinLength, base);
 			out << ((ShowComma) ? "," : "");
-			char* c = DBG_NEW char[MinLength + 1ULL]();
+			char* c = DBG_NEW char[MinLength + static_cast<size_t>(1)]();
 			assert(base < BaseType(INT_MAX));
 			std::to_chars_result rs = std::to_chars(c, &(c[MinLength]), (*that), base);
-
+			assert(rs.ec == std::errc());
 			std::string str = c;
 			delete[] c;
 			if (str.length() < MinLength) {
