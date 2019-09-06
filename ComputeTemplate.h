@@ -52,9 +52,9 @@ namespace LargeInteger{
 					&&
 					b == nullptr
 					&&
-					Result.first() == 0
+					Result.first == 0
 					&&
-					Result.second() == 0
+					Result.second == 0
 					);
 			}
 			//result;overflow
@@ -105,7 +105,7 @@ namespace LargeInteger{
 				return (this->a != that.a) || (this->b != that.b);
 			}
 			constexpr bool MY_LIBRARY operator==(nullptr_t null)const noexcept {
-				return (this->b == null) && (Result.second() == 0);
+				return (this->b == null) && (Result.second == 0);
 			}
 			constexpr bool MY_LIBRARY operator!=(nullptr_t null)const noexcept {
 				return !(*this == null);
@@ -158,7 +158,11 @@ namespace LargeInteger{
 
 		template<typename Compute, typename Iterator1, typename Iterator2>
 		static constexpr INLINED void MY_LIBRARY AppositionComputeTo(Iterator1 a, Iterator2 b)noexcept {
-			static_assert(std::is_same_v<std::remove_cvref_t<decltype(*a)>, std::remove_cvref_t<decltype(*b)>>);
+			static_assert(std::is_same_v<
+				typename std::remove_cvref_t<decltype(*a)>, 
+				typename std::remove_cvref_t<decltype(*b)>
+			>,
+				"They should have the same type.");
 			using Data=std::remove_cvref_t<decltype(*a)>;
 			Data Carry = Data(0);
 			AppositionIterator<Compute, Iterator1, Iterator2, Data> compute(a, b);
@@ -172,7 +176,7 @@ namespace LargeInteger{
 				{
 					if ((compute.a + 1) == nullptr)
 					{
-						if (compute.Result.second() != (0))
+						if (compute.Result.second != 0)
 						{
 							compute.b.insert(compute.b, compute.Result.second);
 						}
@@ -193,7 +197,10 @@ namespace LargeInteger{
 
 		template<typename Iterator1, typename Iterator2>
 		static constexpr INLINED void MY_LIBRARY AddTo(Iterator1 a, Iterator2 b)noexcept {
-			static_assert(std::is_same<typename std::remove_cvref<decltype(*a)>::type, typename std::remove_cvref<decltype(*b)>::type>::value);
+			static_assert(std::is_same_v<
+				typename std::remove_cvref_t<decltype(*a)>,
+				typename std::remove_cvref_t<decltype(*b)>
+			>);
 			return AppositionComputeTo<typename _Traits::Add, Iterator1, Iterator2>(a, b);
 		}
 		
@@ -230,7 +237,12 @@ namespace LargeInteger{
 		//Compare a to b.
 		template<typename Iterator1, typename Iterator2>
 		static INLINED Compare MY_LIBRARY CompareTo(const Iterator1& a, const Iterator2& b) noexcept {
-			static_assert(std::is_same_v<Depack_t<std::remove_cvref_t<decltype(*a)>>, Depack_t<std::remove_cvref_t<decltype(*b)>>>, "They should have the same type");
+			static_assert(
+				std::is_same_v<
+				std::remove_cvref_t<decltype(*a)>, 
+				std::remove_cvref_t<decltype(*b)>
+				>,
+				"They should have the same type");
 			{
 				Compare temp = Compare::Equal;
 				Iterator1 _a = a;
@@ -288,7 +300,7 @@ namespace LargeInteger{
 				{
 					if (temp == Compare::Larger) {
 						if (*_a > *_b) {
-							if (!HasChanged && ((*_a)() != 0))
+							if (!HasChanged && ((*_a) != 0))
 							{
 								return std::pair<TRUE_TYPE, Compare>(TRUE_TYPE(*_a / (*_b)), Compare::Larger);
 							}
@@ -298,7 +310,7 @@ namespace LargeInteger{
 					}
 					else if (temp == Compare::Smaller) {
 						if (*_a < (*_b)) {
-							if (!HasChanged && ((*_a)() != 0))
+							if (!HasChanged && ((*_a) != 0))
 							{
 								return std::pair<TRUE_TYPE, Compare>(TRUE_TYPE(*_b / (*_a)), Compare::Smaller);
 							}
@@ -356,7 +368,7 @@ namespace LargeInteger{
 				LineIterator<_Traits::Multiply, Iterator1, decltype(times)> temp(times, a);
 				SubtractFrom(temp, b);
 				Simplify s(b);
-				Res += times();
+				Res += times;
 			};
 			auto func2 = [&Res]()->void {Res <<= 1; };
 			__DivideInto<decltype(func1), decltype(func2), Iterator1, Iterator2, Data>(a, b, func2, func1);

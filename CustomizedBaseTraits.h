@@ -93,10 +93,10 @@ namespace LargeInteger {
 		~basic_istream() = default;
 
 
-		template<typename Iter>
+		template<typename Iter, auto radix>
 		static void MY_LIBRARY store(const std::basic_string<_Elem>& temp, Iter str)noexcept {
-			static_assert(GetPowerTimes(Iter::getRadix(), charset::getRadix()) != 0 || Iter::getRadix() == charset::getRadix());
-			if constexpr (Iter::getRadix() == charset::getRadix())
+			static_assert(GetPowerTimes(radix, charset::getRadix()) != 0 || radix == charset::getRadix());
+			if constexpr (radix == charset::getRadix())
 			{
 				for (auto i = temp.crbegin(); i != temp.crend(); ++i) {
 					auto c = charset::to_int_type(*i);

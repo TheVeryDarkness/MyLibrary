@@ -664,7 +664,7 @@ class std::iterator<std::bidirectional_iterator_tag, LL::DLL<Data>>
 {
 	using in=LL::DLL<Data>;
 public:
-	static constexpr auto MY_LIBRARY getRadix()noexcept { return decltype(ptr->data)::getRadix(); }
+	//static constexpr auto MY_LIBRARY getRadix()noexcept { return decltype(ptr->data)::getRadix(); }
 	static constexpr in* MY_LIBRARY NEXT(in& i)noexcept { if (i.next == nullptr)i.insert(); return i.next; }
 	constexpr MY_LIBRARY iterator(in* _ptr)noexcept :ptr(_ptr) {}
 

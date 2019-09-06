@@ -10,13 +10,13 @@ namespace LargeInteger {
 	template<typename LL, auto radix> class LargeUnsigned;
 	template<typename LL, auto radix> class LargeSigned;
 	template<auto radix>
-	class LLCmptTraits :public LargeInteger::StdCmptTraits<LargeInteger::Num<decltype(radix), radix>> {
+	class LLCmptTraits :public LargeInteger::StdCmptTraits<decltype(radix)> {
 	public:
-		using Data=LargeInteger::Num<decltype(radix), radix>;
+		using Data=decltype(radix);
 		MY_LIBRARY LLCmptTraits() = delete;
 		MY_LIBRARY ~LLCmptTraits() = delete;
 
-		using Multiply=typename Data::Multiply;
+		using Multiply=typename LargeInteger::Multiply<radix>;
 	};
 
 	template<typename Iter, typename BaseType>
@@ -34,7 +34,7 @@ namespace LargeInteger {
 			out << ((ShowComma) ? "," : "");
 			char* c = DBG_NEW char[MinLength + 1ULL]();
 			assert(base < BaseType(INT_MAX));
-			std::to_chars_result rs = std::to_chars(c, &(c[MinLength]), (*that)(), base);
+			std::to_chars_result rs = std::to_chars(c, &(c[MinLength]), (*that), base);
 
 			std::string str = c;
 			delete[] c;
@@ -58,7 +58,21 @@ namespace LargeInteger {
 	class LargeUnsigned :protected LL {
 	protected:
 		using radix_t=decltype(radix);
-		using Data=Num<radix_t, radix>;
+		using __Data=Num<radix_t, radix>;
+		using Data=radix_t;
+
+		template<typename Iter>
+		/*INLINED*/void MY_LIBRARY mul(Iter b) noexcept {
+			LargeUnsigned This(*this);
+			this->next = nullptr;
+			this->data = Data(radix_t(0));
+			for (auto OprtPtr = b; OprtPtr != nullptr; ++OprtPtr) {
+				typename LargeInteger::LongCmpt<typename LargeInteger::LLCmptTraits<radix>>::template LineIterator<typename LargeInteger::LLCmptTraits<radix>::Multiply, decltype(This.cbegin()), Data> temp(*OprtPtr, This.cbegin());
+				LargeInteger::LongCmpt<typename LargeInteger::LLCmptTraits<radix>>::AddTo(temp, this->begin());
+				This <<= 1;
+			}
+			This.release();
+		}
 	public:
 		static constexpr radix_t getRadix()noexcept { return radix; }
 		constexpr INLINED auto begin() noexcept {
@@ -181,11 +195,10 @@ namespace LargeInteger {
 			return _Print<LL, radix>(static_cast<LL>(*this), o);
 		}
 		template<typename Int>
-		INLINED void MY_LIBRARY operator*=(const Int& that) noexcept {
+		/*INLINED*/ void MY_LIBRARY operator*=(const Int& that) noexcept {
 			static_assert(std::is_integral_v<Int>);
-			LargeUnsigned temp(that);
-			*this *= temp;
-			temp.destruct();
+			typename LongCmpt<StdCmptTraits<Int>>::template LayerIterator<typename StdCmptTraits<Int>::template Divide<radix>, Int> it(that);
+			this->mul(it);
 		}
 		template<typename Int>
 		/*INLINED*/LargeUnsigned MY_LIBRARY operator*(const Int& that)const noexcept {
@@ -206,17 +219,8 @@ namespace LargeInteger {
 				this->data = that.data;
 			}
 		}
-		//жиди
 		/*INLINED*/void MY_LIBRARY operator*=(const LargeUnsigned& b) noexcept {
-			LargeUnsigned This(*this);
-			this->next = nullptr;
-			this->data = Data(radix_t(0));
-			for (auto OprtPtr = b.begin(); OprtPtr != nullptr; ++OprtPtr) {
-				typename LargeInteger::LongCmpt<typename LargeInteger::LLCmptTraits<radix>>::template LineIterator<typename LargeInteger::LLCmptTraits<radix>::Multiply, decltype(This.cbegin()), Data> temp(*OprtPtr, This.cbegin());
-				LargeInteger::LongCmpt<typename LargeInteger::LLCmptTraits<radix>>::AddTo(temp, this->begin());
-				This <<= 1;
-			}
-			This.release();
+			this->mul(b.begin());
 		}
 		//жиди
 		/*INLINED*/LargeUnsigned MY_LIBRARY operator*(const LargeUnsigned& b)const noexcept {
@@ -278,9 +282,15 @@ namespace LargeInteger {
 		template<typename Int>
 		INLINED void MY_LIBRARY operator+=(const Int& that)noexcept {
 			static_assert(std::is_integral_v<Int>, "integral type required.");
-			LargeUnsigned temp(that);
-			*this += temp;
-			temp.destruct();
+			if (that == 0) {
+				return;
+			}
+			if (*this == 0) {
+				*this = that;
+				return;
+			}
+			typename LongCmpt<StdCmptTraits<Int>>::template LayerIterator<typename StdCmptTraits<Int>::template Divide<radix>, Int> it(that);
+			LargeInteger::LongCmpt<LLCmptTraits<radix>>::AddTo(it, this->begin());
 		}
 		template<typename Int>
 		INLINED void MY_LIBRARY operator-=(const Int& that)noexcept {
@@ -458,7 +468,7 @@ namespace LargeInteger {
 				return 0;
 			}
 			while (true) {
-				value += ((Val)((*OprtPtr)())) * Power(static_cast<Val>(radix), n);
+				value += ((Val)((*OprtPtr))) * Power(static_cast<Val>(radix), n);
 				if (OprtPtr + 1 != nullptr) {
 					++OprtPtr;
 					++n;
@@ -473,7 +483,8 @@ namespace LargeInteger {
 	template<typename LL, auto radix>
 	class LargeSigned :protected LargeUnsigned<LL, radix> {
 		using radix_t=decltype(radix);
-		using Data=Num<radix_t, radix>;
+		using __Data=Num<radix_t, radix>;
+		using Data=radix_t;
 		friend class Q;
 	public:
 		static constexpr radix_t getRadix()noexcept { return radix; }
