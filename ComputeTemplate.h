@@ -123,7 +123,7 @@ namespace LargeInteger{
 		{
 		public:
 			template<typename Val>
-			LayerIterator(Val val) noexcept :c(), Result(c(val)) {}
+			LayerIterator(Val val) noexcept :c(), Result(c(val)) { }
 			~LayerIterator()noexcept {}
 			const Data& operator*()const noexcept {
 				return Result.first;
@@ -230,7 +230,7 @@ namespace LargeInteger{
 		//Compare a to b.
 		template<typename Iterator1, typename Iterator2>
 		static INLINED Compare MY_LIBRARY CompareTo(const Iterator1& a, const Iterator2& b) noexcept {
-			static_assert(std::is_same_v<std::remove_cvref_t<decltype(*a)>, std::remove_cvref_t<decltype(*b)>>);
+			static_assert(std::is_same_v<Depack_t<std::remove_cvref_t<decltype(*a)>>, Depack_t<std::remove_cvref_t<decltype(*b)>>>, "They should have the same type");
 			{
 				Compare temp = Compare::Equal;
 				Iterator1 _a = a;
@@ -456,6 +456,7 @@ namespace LargeInteger{
 			MY_LIBRARY ~Divide()noexcept{}
 
 			std::pair<Data, Data> operator()(const Data& that) noexcept{
+				static_assert(std::is_same_v<Depack<Data>::TRUE_TYPE, Data>, "The type must not be num!");
 				return std::pair<Data, Data>(that % radix, that / radix);
 			}
 		};

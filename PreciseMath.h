@@ -174,7 +174,7 @@ namespace LargeInteger {
 			return ((this->Numerator == that.Numerator) && (this->Denominator == that.Denominator));
 		}
 		std::ostream& Print(std::ostream& o)const {
-			if (this->Denominator == Z(1))
+			if (this->Denominator == 1)
 				return Numerator.Print();
 			return Denominator.Print((Numerator.Print(o) << '/'));
 		}

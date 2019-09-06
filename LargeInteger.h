@@ -86,7 +86,7 @@ namespace LargeInteger {
 			static_assert(!std::is_same_v<val, bool>, "Never use bool type");
 			typename LongCmpt<StdCmptTraits<val>>::template LayerIterator<typename StdCmptTraits<val>::template Divide<radix>, val> it(Val);
 			for (auto index = this->begin(); !!it; ) {
-				*index = Data(*it);
+				*index = *it;
 				++it;
 				if (!!it) {
 					++index;
@@ -331,7 +331,7 @@ namespace LargeInteger {
 			if (that == Int(0)) {
 				return (this->LL::next == nullptr) && (this->LL::data == Data(0));
 			}
-			typename LongCmpt<LLCmptTraits<radix>>::template LayerIterator<typename LLCmptTraits<radix>::template Divide<radix>, Data> it(that);
+			typename LongCmpt<StdCmptTraits<radix_t>>::template LayerIterator<typename StdCmptTraits<radix_t>::template Divide<radix>, radix_t> it(that);
 			return (LargeInteger::LongCmpt<LLCmptTraits<radix>>::CompareTo(this->begin(), it) == Compare::Equal);
 		}
 		template<typename Int>
@@ -566,7 +566,7 @@ namespace LargeInteger {
 		template<typename Int>
 		bool MY_LIBRARY operator==(const Int& that)const noexcept {
 			static_assert(std::is_integral_v<Int>);
-			return (this->LargeUnsigned<LL, radix>::operator==(that) && (that == 0 || (this->PosSign == (that > 0))));
+			return ((that == 0 || (this->PosSign == (that > 0))) && this->LargeUnsigned<LL, radix>::operator==(that));
 		}
 		template<typename Int>
 		bool MY_LIBRARY operator!=(const Int& that)const noexcept {
