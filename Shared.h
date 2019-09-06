@@ -57,3 +57,5 @@ public:
 private:
 
 };
+template<typename _Ty>
+using Depack_t=typename Depack<_Ty>::TRUE_TYPE;
