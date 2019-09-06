@@ -8,7 +8,7 @@ namespace LargeInteger {
 	enum source {
 		kb
 	};
-	template<source s,typename set>
+	template<source s,typename charset>
 	class din {
 	public:
 		din() noexcept { }
@@ -20,12 +20,13 @@ namespace LargeInteger {
 				auto&& c = _getch();
 				switch (c) {
 				case '\n':
+				case '\r':
 					return *this;
 				default:
 					break;
 				}
-				auto&& i = set::to_int_type(c);
-				if (i!='?') {
+				auto&& i = charset::to_int_type(c);
+				if (i != '?') {
 					*it = i;
 					++it;
 				}
