@@ -469,7 +469,7 @@ namespace LargeInteger{
 			MY_LIBRARY ~Divide()noexcept{}
 
 			std::pair<Data, Data> operator()(const Data& that) noexcept{
-				static_assert(std::is_same_v<Depack<Data>::TRUE_TYPE, Data>, "The type must not be num!");
+				static_assert(std::is_same_v<Depack_t<Data>, Data>, "The type must not be num!");
 				return std::pair<Data, Data>(that % radix, that / radix);
 			}
 		};
