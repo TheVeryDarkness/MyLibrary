@@ -5,25 +5,15 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "clang.exe build and debug active file",
-            "type": "cppdbg",
+            "name": "(Windows) Launch",
+            "type": "cppvsdbg",
             "request": "launch",
-            "program": "${fileDirname}\\${fileBasenameNoExtension}.exe",
+            "program": "enter program name, for example ${workspaceFolder}/a.exe",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
-            "externalConsole": false,
-            "MIMode": "lldb",
-            "miDebuggerPath": "D:\\Clang\\LLVM\\bin\\lldb-mi.exe",
-            "setupCommands": [
-                {
-                    "description": "Enable pretty-printing for gdb",
-                    "text": "-enable-pretty-printing",
-                    "ignoreFailures": true
-                }
-            ],
-            "preLaunchTask": "clang.exe build active file"
+            "externalConsole": false
         }
     ]
 }
