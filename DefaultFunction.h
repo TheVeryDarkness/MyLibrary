@@ -18,8 +18,8 @@ namespace Function {
 
 	class function;
 	template<vari> class num;
-	template<size_t n>class self_increase;//自增
-	template<size_t n>class partial_sum;//数列从1到n的部分和
+	template<size_t n>class self_increase;
+	template<size_t n>class partial_sum;
 	template<size_t count>class sum;
 	template<size_t count>class product;
 	class f_ln;
@@ -150,7 +150,7 @@ namespace Function {
 			return s; 
 		}
 		std::ostream& MY_LIBRARY Print(std::ostream& o) const noexcept { 
-			return p->Print(o << "(∑(1:1:" << n << ')') << ')';
+			return p->Print(o << "(锟斤拷(1:1:" << n << ')') << ')';
 		};
 	private:
 		function* p;
