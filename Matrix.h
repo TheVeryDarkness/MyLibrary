@@ -1,72 +1,39 @@
 #include <amp.h>
 
-using concurrency::array;
-using concurrency::array_view;
-using concurrency::index;
-using concurrency::parallel_for_each;
-using std::vector;
+namespace Math {
+	using concurrency::array;
+	using concurrency::array_view;
+	using concurrency::index;
+	using concurrency::parallel_for_each;
 
+	template<typename Data, size_t... pack>class Matrix;
 
-template<
-	typename Data,
-	//These define the size of the matrix
-	unsigned long m, unsigned long n
->
-class Matrix
-{
-public:
-	Data** data;
-	inline Matrix() {
-		data = new Data * ();
-		for (long i = 0; i < m; i++)
-		{
-			data[i] = new Data[n]();
-		}
-		return;
-	}
-	typedef Data(__stdcall* Value)();
-	inline Matrix(Value) {
-		data = new Data * ();
-		for (long i = 0; i < m; i++)
-		{
-			data[i] = new Data[n](*Value);
-		}
-		return;
-	}
-	inline ~Matrix() {
-		for (long i = 0; i < m; i++)
-		{
-			delete[] data[i];
-		}
-		delete[] data;
-		return;
-	}
-	//Remember to release the memory.
-	inline Matrix operator+(const Matrix& Operand) {
-		Matrix Result = Matrix();
-		for (long i = 0; i < m; i++)
-		{
-			Data __row[n];
-			for (long j = 0; j < n; j++)
-			{
-				__row[j] = Operand.data[i][j];
-			}
-			Data row[n];//save the data of this matrix.
-			for (long j = 0; j < n; j++)
-			{
-				row[j] = this->data[i][j];
-			}
-			//save the data of result matrix.
-			array_view<int, 1> _row(n, Result.data[i]);
-			parallel_for_each(
-				_row.extent,
-				[&__row,&row,&_row](index<1> j) restrict(amp)
-				{
-					_row[j] = row[j] + __row[j];
-				}
+	template<typename Data, size_t... pack>
+	class Matrix {
+	public:
+		using size=int;
+		Concurrency::array<Data, sizeof...(pack)> Element;
+		__stdcall Matrix(size E0, Data* E) :Element(E0, E) { }
+
+		void operator+=(const Matrix& that)noexcept {
+			Add add(this->Element, that.Element);
+			Concurrency::parallel_for_each(
+				this->Element.extent,
+				add
 			);
 		}
-		return Result;
-	}
-private:
+	private:
+		class Add {
+		public:
+			using arr=Concurrency::array<Data, sizeof...(pack)>;
+			Add(arr& a, const arr & b) :a(a), b(b) { }
+			~Add() = default;
+			void operator()(concurrency::index<sizeof...(pack)> idx) restrict(amp) {
+				a[idx] += b[idx];
+			}
+		private:
+			arr& a;
+			const arr&b;
+		};
+	};
 };
