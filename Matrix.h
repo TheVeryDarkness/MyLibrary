@@ -28,7 +28,7 @@ namespace Math {
 			using arr=Concurrency::array<Data, sizeof...(pack)>;
 			Add(arr& a, const arr & b) :a(a), b(b) { }
 			~Add() = default;
-			void operator()(concurrency::index<sizeof...(pack)> idx) restrict(amp) {
+			void operator()(concurrency::index<sizeof...(pack)> idx)const restrict(amp) {
 				a[idx] += b[idx];
 			}
 		private:
