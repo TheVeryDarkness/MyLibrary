@@ -18,9 +18,9 @@
 #endif // _DEBUG
 
 
-#ifndef MY_LIBRARY
-#define MY_LIBRARY __stdcall
-#endif // !MY_LIBRARY
+#ifndef MY_LIB
+#define MY_LIB __stdcall
+#endif // !MY_LIB
 
 #ifndef INLINED
 #define INLINED inline

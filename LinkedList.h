@@ -26,8 +26,8 @@
 //Use a std::array to cache memory
 #define MEMORY_CACHE(MEMORY_CACHE_SIZE) \
 static INLINED MemorryCache<MEMORY_CACHE_SIZE> Buffer = {};\
-static void* MY_LIBRARY operator new(size_t size)noexcept {return Buffer.pop(size);}\
-static void MY_LIBRARY operator delete(void* _ptr, size_t size)noexcept {return Buffer.push(_ptr);}
+static void* MY_LIB operator new(size_t size)noexcept {return Buffer.pop(size);}\
+static void MY_LIB operator delete(void* _ptr, size_t size)noexcept {return Buffer.push(_ptr);}
 
 //#define MEMORY_CACHE(X)
 
@@ -38,7 +38,7 @@ namespace LL {
 
 	template<typename Type>
 	//输出流
-	INLINED std::ostream& MY_LIBRARY out(
+	INLINED std::ostream& MY_LIB out(
 		std::ostream& out, const Type& b
 	) noexcept {
 		if (b.next != nullptr)
@@ -54,7 +54,7 @@ namespace LL {
 	template<typename Type>
 	//简单输出到控制台窗口
 	//需要用户补换行
-	INLINED void MY_LIBRARY SinglePrint(
+	INLINED void MY_LIB SinglePrint(
 		const Type& that,
 		std::ostream& out = std::cout,
 		bool ShowComma = true,
@@ -99,7 +99,7 @@ namespace LL {
 		typename SubType
 	>
 		SubType GetSubList(
-			const SubData& (MY_LIBRARY* GetFunction)(const Data&),
+			const SubData& (MY_LIB* GetFunction)(const Data&),
 			const Type& that
 		) noexcept {
 		const Type* OprtPtr = &that;
@@ -122,7 +122,7 @@ namespace LL {
 
 
 	template<class inNode, class outNode, auto inRadix, auto outRadix, bool Destroy = true>
-	outNode MY_LIBRARY Transform(inNode & in)noexcept {
+	outNode MY_LIB Transform(inNode & in)noexcept {
 		static_assert(GetPowerTimes(outRadix, inRadix) != 0);
 		constexpr auto times = GetPowerTimes(outRadix, inRadix);
 		if constexpr (Destroy)

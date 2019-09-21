@@ -45,16 +45,16 @@ template<typename value_type>size_t getBits(const value_type& that)noexcept {
 	return i;
 }
 
-inline long __stdcall Max(long[], long);
-inline long __stdcall Min(long[], long);
-inline long __stdcall Average(long[], long);
+inline long MY_LIB Max(long[], long);
+inline long MY_LIB Min(long[], long);
+inline long MY_LIB Average(long[], long);
 inline long __cdecl Max(long, long, ...);
 inline long __cdecl Min(long, long, ...);
 inline long __cdecl Average(long, long, ...);
-constexpr inline unsigned MY_LIBRARY GetPowerTimes(unsigned long long,const unsigned int&);
-template<typename Data>inline void __stdcall Swap(Data& a,Data& b);
-template<typename Data>constexpr inline bool IsPrime(Data val); 
-template<typename Data>inline std::forward_list<Data> PrimeList(Data Max);
+constexpr inline unsigned MY_LIB GetPowerTimes(unsigned long long,const unsigned int&);
+template<typename Data>inline void MY_LIB Swap(Data& a,Data& b);
+template<typename Data>constexpr inline bool MY_LIB IsPrime(Data val);
+template<typename Data>inline std::forward_list<Data> MY_LIB PrimeList(Data Max);
 
 
 
@@ -156,7 +156,7 @@ inline SubData* __stdcall GetSubArray(
 
 //0 for not.
 template<typename VAL,typename BASE>
-constexpr unsigned inline MY_LIBRARY GetPowerTimes(
+constexpr unsigned inline MY_LIB GetPowerTimes(
 	VAL val,
 	const BASE& base
 ) {
@@ -243,4 +243,13 @@ template<typename Data>inline Data MinConti(const std::forward_list<Data>& BigTo
 		}
 	}
 	return PreData;
+}
+
+template<size_t... pack>
+constexpr size_t product();
+
+template<size_t head, size_t... pack>
+constexpr size_t product() {
+	static_assert(head > std::numeric_limits<size_t>::max() / product<pack...>());
+	return head * product<pack...>();
 }

@@ -11,17 +11,17 @@ namespace LargeInteger {
 	class BaseSet<char_type, int_type, BeginIndex>
 	{
 	public:
-		MY_LIBRARY BaseSet() = delete;
-		MY_LIBRARY ~BaseSet() = delete;
+		MY_LIB BaseSet() = delete;
+		MY_LIB ~BaseSet() = delete;
 		using CharType=char_type;
 		using IntType=int_type;
-		constexpr static int_type MY_LIBRARY to_int_type(char_type Char)noexcept {
+		constexpr static int_type MY_LIB to_int_type(char_type Char)noexcept {
 			return int_type('?');
 		}
-		constexpr static char_type MY_LIBRARY to_char_type(int_type Int)noexcept {
+		constexpr static char_type MY_LIB to_char_type(int_type Int)noexcept {
 			return char_type('?');
 		}
-		constexpr static int_type MY_LIBRARY getRadix()noexcept {
+		constexpr static int_type MY_LIB getRadix()noexcept {
 			return BeginIndex;
 		}
 	private:
@@ -33,11 +33,11 @@ namespace LargeInteger {
 	class BaseSet<char_type, int_type, BeginIndex, Head, Remained...> :public BaseSet<char_type, int_type, BeginIndex + 1, Remained...>
 	{
 	public:
-		MY_LIBRARY BaseSet() = delete;
-		MY_LIBRARY ~BaseSet() = delete;
+		MY_LIB BaseSet() = delete;
+		MY_LIB ~BaseSet() = delete;
 		using CharType=char_type;
 		using IntType=int_type;
-		constexpr static int_type MY_LIBRARY to_int_type(char_type Char)noexcept {
+		constexpr static int_type MY_LIB to_int_type(char_type Char)noexcept {
 			if (Char == Head)
 			{
 				return int_type(BeginIndex);
@@ -47,7 +47,7 @@ namespace LargeInteger {
 				return BaseSet<char_type, int_type, BeginIndex + 1, Remained...>::to_int_type(Char);
 			}
 		}
-		constexpr static char_type MY_LIBRARY to_char_type(int_type Int)noexcept {
+		constexpr static char_type MY_LIB to_char_type(int_type Int)noexcept {
 			if (Int == BeginIndex)
 			{
 				return char_type(Head);
@@ -57,7 +57,7 @@ namespace LargeInteger {
 				return BaseSet<char_type, int_type, BeginIndex + 1, Remained...>::to_char_type(Int);
 			}
 		}
-		constexpr static int_type MY_LIBRARY getRadix()noexcept {
+		constexpr static int_type MY_LIB getRadix()noexcept {
 			return BaseSet<char_type, int_type, BeginIndex + 1, Remained...>::getRadix();
 		}
 	private:
@@ -94,7 +94,7 @@ namespace LargeInteger {
 
 
 		template<typename iter, typename Iter, auto radix>
-		static void MY_LIBRARY store(iter temp, Iter str)noexcept {
+		static void MY_LIB store(iter temp, Iter str)noexcept {
 			static_assert(
 				std::is_same_v<
 				decltype(std::remove_cvref_t<*temp>),
@@ -159,10 +159,10 @@ namespace LargeInteger {
 
 		~basic_ostream() = default;
 
-		MY_LIBRARY operator std::basic_ostream<_Elem>& () noexcept { return os; }
+		MY_LIB operator std::basic_ostream<_Elem>& () noexcept { return os; }
 
 		template<typename Iter>
-		auto& MY_LIBRARY operator<<(Iter it) {
+		auto& MY_LIB operator<<(Iter it) {
 			static_assert(GetPowerTimes(Iter::getRadix(), charset::getRadix()) != 0 || Iter::getRadix() == charset::getRadix());
 			std::ostream_iterator<_Elem> o(os);
 			if constexpr (Iter::getRadix() == charset::getRadix())

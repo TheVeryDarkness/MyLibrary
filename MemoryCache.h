@@ -7,9 +7,9 @@ template<size_t CacheSize>
 class MemorryCache
 {
 public:
-	MY_LIBRARY MemorryCache()noexcept{}
+	MY_LIB MemorryCache()noexcept{}
 
-	MY_LIBRARY ~MemorryCache()noexcept{
+	MY_LIB ~MemorryCache()noexcept{
 		for (auto& var : Cache)
 		{
 			if (var!=nullptr)
@@ -34,7 +34,7 @@ public:
 		return malloc(Block);
 	}
 
-	void MY_LIBRARY push(void* block)noexcept {
+	void MY_LIB push(void* block)noexcept {
 		for (auto& val : Cache)
 		{
 			if (val == nullptr)

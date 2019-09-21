@@ -4,7 +4,7 @@
 
 namespace LargeInteger {
 	template<size_t sz>
-	constexpr std::pair<size_t, size_t> MY_LIBRARY IntelligentLength()noexcept {
+	constexpr std::pair<size_t, size_t> MY_LIB IntelligentLength()noexcept {
 		if constexpr (sz >= 8)
 		{
 			return std::pair<size_t, size_t>(sz - 8, 8);
@@ -80,12 +80,12 @@ namespace LargeInteger {
 		constexpr bool MinusOne()noexcept {
 			return true;
 		}
-		template<typename Val>constexpr MY_LIBRARY _Bytes(Val val) {}
+		template<typename Val>constexpr MY_LIB _Bytes(Val val) {}
 		template<typename Val> void Maker(Val& val)noexcept { return; }
 	public:
-		constexpr size_t MY_LIBRARY GetBits()const noexcept { return 0; }
-		constexpr MY_LIBRARY _Bytes() = default;
-		MY_LIBRARY ~_Bytes() = default;
+		constexpr size_t MY_LIB GetBits()const noexcept { return 0; }
+		constexpr MY_LIB _Bytes() = default;
+		MY_LIB ~_Bytes() = default;
 		constexpr bool operator>(const _Bytes& that)const noexcept {
 			return false;
 		}
@@ -236,14 +236,14 @@ namespace LargeInteger {
 		}
 	public:
 		template<typename Val, typename... Vals>
-		constexpr explicit MY_LIBRARY _Bytes(Val val, Vals... vals)
+		constexpr explicit MY_LIB _Bytes(Val val, Vals... vals)
 			noexcept : Byte(val), _Bytes<IntelligentLength<Length>().first>(vals...) {
 			static_assert(std::is_integral_v<Val>);
 		}; //= default;
-		constexpr explicit MY_LIBRARY _Bytes() noexcept :Byte(0), _Bytes<IntelligentLength<Length>().first>() {};
+		constexpr explicit MY_LIB _Bytes() noexcept :Byte(0), _Bytes<IntelligentLength<Length>().first>() {};
 
-		MY_LIBRARY _Bytes(const _Bytes& that) = default;
-		MY_LIBRARY _Bytes(_Bytes&& that) = default;
+		MY_LIB _Bytes(const _Bytes& that) = default;
+		MY_LIB _Bytes(_Bytes&& that) = default;
 
 		template<typename Val> 
 		constexpr _Bytes Make(Val val)noexcept {
@@ -256,21 +256,21 @@ namespace LargeInteger {
 			_Bytes res;
 			return res.Make(val);
 		}
-		explicit constexpr MY_LIBRARY _Bytes(value_type&& val)
+		explicit constexpr MY_LIB _Bytes(value_type&& val)
 			noexcept :Byte(static_cast<value_type>(val)){
 			static_assert(std::is_integral_v<std::decay_t<value_type>>);
 			static_assert(sizeof(val) == Length);
 		}
-		//constexpr explicit MY_LIBRARY _Bytes(value_type val)noexcept :Byte(val) {}
+		//constexpr explicit MY_LIB _Bytes(value_type val)noexcept :Byte(val) {}
 
 		template<typename Val>
-		constexpr MY_LIBRARY operator Val()
+		constexpr MY_LIB operator Val()
 			noexcept{
 			static_assert (IntelligentLength<Length>().first == 0);
 			assert(this->Byte < std::numeric_limits<Val>::max());
 			return Val(this->Byte);
 		};
-		MY_LIBRARY ~_Bytes() = default;
+		MY_LIB ~_Bytes() = default;
 		constexpr _Bytes& Comple()noexcept {
 			this->Comp();
 			return *this;
@@ -308,7 +308,7 @@ namespace LargeInteger {
 			this->MinusOne();
 			return *this;
 		}
-		constexpr _Bytes& MY_LIBRARY operator*=(const _Bytes& that)noexcept {
+		constexpr _Bytes& MY_LIB operator*=(const _Bytes& that)noexcept {
 			_Bytes This = *this;
 			memset(this, 0, Length);
 			auto temp = that;
@@ -322,7 +322,7 @@ namespace LargeInteger {
 			}
 			return *this;
 		}
-		constexpr size_t MY_LIBRARY GetBits()const noexcept {
+		constexpr size_t MY_LIB GetBits()const noexcept {
 			if (this->Byte == 0) {
 				return this->_Bytes<IntelligentLength<Length>().first>::GetBits();
 			}
@@ -330,7 +330,7 @@ namespace LargeInteger {
 				return (IntelligentLength<Length>().first * LargeInteger::BitsPerByte + getBits(this->Byte));
 			}
 		}
-		constexpr _Bytes MY_LIBRARY Divide(const _Bytes& that)noexcept {
+		constexpr _Bytes MY_LIB Divide(const _Bytes& that)noexcept {
 			if constexpr (IntelligentLength<Length>().first == 0) {
 				_Bytes&& Quo = _Bytes(static_cast<value_type>(this->Byte / that.Byte));
 				this->Byte %= that.Byte;

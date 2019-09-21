@@ -8,18 +8,18 @@ namespace Algorithm {
 	template<typename Gene, class Fitness>
 	class GA {
 	public:
-		constexpr INLINED MY_LIBRARY GA() noexcept { 
+		constexpr INLINED MY_LIB GA() noexcept { 
 			time_t t;
 			time(&t);
 			srand(static_cast<unsigned>(t));
 			srand(rand());
 		}
-		INLINED MY_LIBRARY ~GA() noexcept { }
-		constexpr INLINED void MY_LIBRARY func() noexcept {
+		INLINED MY_LIB ~GA() noexcept { }
+		constexpr INLINED void MY_LIB func() noexcept {
 
 			return;
 		}
-		constexpr INLINED void MY_LIBRARY revolute() noexcept {
+		constexpr INLINED void MY_LIB revolute() noexcept {
 			Fitness f;
 			return;
 		}

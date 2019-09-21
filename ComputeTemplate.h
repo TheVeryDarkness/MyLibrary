@@ -30,14 +30,14 @@ namespace LargeInteger{
 		class AppositionIterator
 		{
 		public:
-			MY_LIBRARY AppositionIterator(Iterator1 a, Iterator2 b)noexcept
+			MY_LIB AppositionIterator(Iterator1 a, Iterator2 b)noexcept
 				:a(a), b(b),Result(c(Data(0), *(a), *(b))) {
 				static_assert(std::is_same_v<Data, std::remove_cvref_t<decltype(*(b))>>, "It should be the same type");
 			}
-			MY_LIBRARY ~AppositionIterator()noexcept {}
+			MY_LIB ~AppositionIterator()noexcept {}
 			//Notice:
 			//	this function move the iterator to its next place
-			void MY_LIBRARY operator++() noexcept {
+			void MY_LIB operator++() noexcept {
 				++a;
 				++b;
 
@@ -47,7 +47,7 @@ namespace LargeInteger{
 				return Result.first;
 			}
 			//return true if the iterator is still working
-			bool MY_LIBRARY operator!()const noexcept {
+			bool MY_LIB operator!()const noexcept {
 				return (
 					a == nullptr
 					&&
@@ -70,24 +70,24 @@ namespace LargeInteger{
 		class LineIterator
 		{
 		public:
-			MY_LIBRARY LineIterator(Data a, Iterator b)noexcept :a(a), b(b), c(), Result(c(Data(0), a, *b)) {
+			MY_LIB LineIterator(Data a, Iterator b)noexcept :a(a), b(b), c(), Result(c(Data(0), a, *b)) {
 				static_assert(std::is_same<Data, std::remove_cvref_t<decltype(*b)>>::value, "It should be the same type");
 			}
-			MY_LIBRARY ~LineIterator()noexcept {}
+			MY_LIB ~LineIterator()noexcept {}
 			//Notice:
 			//	this function move the iterator b to its next place
-			void MY_LIBRARY operator++() noexcept {
+			void MY_LIB operator++() noexcept {
 				++b;
 				Result = c(Result.second, a, *b);
 			}
-			constexpr void MY_LIBRARY operator+=(size_t sz) noexcept {
+			constexpr void MY_LIB operator+=(size_t sz) noexcept {
 				for (size_t i = 0; i < sz && b != nullptr; i++)
 				{
 					++b;
 				}
 				Result = c(Result.second, a, *b);
 			}
-			constexpr LineIterator MY_LIBRARY operator+(size_t sz) const noexcept {
+			constexpr LineIterator MY_LIB operator+(size_t sz) const noexcept {
 				LineIterator it(*this);
 				it.b = it.b + sz;
 				return it;
@@ -96,19 +96,19 @@ namespace LargeInteger{
 				return Result.first;
 			}
 			//return true if the iterator is still working
-			bool MY_LIBRARY operator!()const noexcept {
+			bool MY_LIB operator!()const noexcept {
 				return (b == nullptr && Result.first() == 0 && Result.second() == 0);
 			}
-			constexpr bool MY_LIBRARY operator==(const LineIterator& that)const noexcept {
+			constexpr bool MY_LIB operator==(const LineIterator& that)const noexcept {
 				return (this->a == that.a) && (this->b == that.b);
 			}
-			constexpr bool MY_LIBRARY operator!=(const LineIterator& that)const noexcept {
+			constexpr bool MY_LIB operator!=(const LineIterator& that)const noexcept {
 				return (this->a != that.a) || (this->b != that.b);
 			}
-			constexpr bool MY_LIBRARY operator==(nullptr_t null)const noexcept {
+			constexpr bool MY_LIB operator==(nullptr_t null)const noexcept {
 				return (this->b == null) && (Result.second == 0);
 			}
-			constexpr bool MY_LIBRARY operator!=(nullptr_t null)const noexcept {
+			constexpr bool MY_LIB operator!=(nullptr_t null)const noexcept {
 				return !(*this == null);
 			}
 			//result;overflow
@@ -129,24 +129,24 @@ namespace LargeInteger{
 			const Data& operator*()const noexcept {
 				return Result.first;
 			}
-			void MY_LIBRARY operator++() noexcept {
+			void MY_LIB operator++() noexcept {
 				Result = c(Result.second);
 			}
-			void MY_LIBRARY operator+=(size_t sz)noexcept {
+			void MY_LIB operator+=(size_t sz)noexcept {
 				for (size_t i = 0; i < sz; i++)
 				{
 					++*this;
 				}
 			}
-			LayerIterator MY_LIBRARY operator+(size_t sz)const noexcept {
+			LayerIterator MY_LIB operator+(size_t sz)const noexcept {
 				LayerIterator it(*this);
 				it += sz;
 				return it;
 			}
-			bool MY_LIBRARY operator==(std::nullptr_t nul)const noexcept {
+			bool MY_LIB operator==(std::nullptr_t nul)const noexcept {
 				return !*this;
 			}
-			bool MY_LIBRARY operator!()const noexcept {
+			bool MY_LIB operator!()const noexcept {
 				return (Result.second == Data(0) && Result.first == Data(0));
 			}
 
@@ -158,7 +158,7 @@ namespace LargeInteger{
 
 
 		template<typename Compute, typename Iterator1, typename Iterator2>
-		static constexpr INLINED void MY_LIBRARY AppositionComputeTo(Iterator1 a, Iterator2 b)noexcept {
+		static constexpr INLINED void MY_LIB AppositionComputeTo(Iterator1 a, Iterator2 b)noexcept {
 			static_assert(std::is_same_v<
 				typename std::remove_cvref_t<decltype(*a)>, 
 				typename std::remove_cvref_t<decltype(*b)>
@@ -197,7 +197,7 @@ namespace LargeInteger{
 		}
 
 		template<typename Iterator1, typename Iterator2>
-		static constexpr INLINED void MY_LIBRARY AddTo(Iterator1 a, Iterator2 b)noexcept {
+		static constexpr INLINED void MY_LIB AddTo(Iterator1 a, Iterator2 b)noexcept {
 			static_assert(std::is_same_v<
 				typename std::remove_cvref_t<decltype(*a)>,
 				typename std::remove_cvref_t<decltype(*b)>
@@ -206,12 +206,12 @@ namespace LargeInteger{
 		}
 		
 		template<typename Iterator1, typename Iterator2>
-		static constexpr INLINED void MY_LIBRARY SubtractFrom(Iterator1 a, Iterator2 b)noexcept {
+		static constexpr INLINED void MY_LIB SubtractFrom(Iterator1 a, Iterator2 b)noexcept {
 			return AppositionComputeTo<typename _Traits::SubtractFrom, Iterator1, Iterator2>(a, b);
 		}
 
 		template<typename Iterator, typename Data>
-		static INLINED void MY_LIBRARY MultiplyTo(Data a, Iterator b) noexcept {
+		static INLINED void MY_LIB MultiplyTo(Data a, Iterator b) noexcept {
 			Data Carry = Data(0);
 			LineIterator<typename _Traits::Multiply, Iterator, Data> mul(a, b);
 			while (true)
@@ -237,7 +237,7 @@ namespace LargeInteger{
 
 		//Compare a to b.
 		template<typename Iterator1, typename Iterator2>
-		static INLINED Compare MY_LIBRARY CompareTo(const Iterator1& a, const Iterator2& b) noexcept {
+		static INLINED Compare MY_LIB CompareTo(const Iterator1& a, const Iterator2& b) noexcept {
 			static_assert(
 				std::is_same_v<
 				std::remove_cvref_t<decltype(*a)>, 
@@ -272,7 +272,7 @@ namespace LargeInteger{
 		}
 		//Extension for Compare()
 		template<typename Iterator1, typename Iterator2>
-		static INLINED auto MY_LIBRARY _CompareTo(const Iterator1& a, const Iterator2& b) noexcept {
+		static INLINED auto MY_LIB _CompareTo(const Iterator1& a, const Iterator2& b) noexcept {
 			using Data=typename std::remove_cvref<decltype(*a)>::type;
 			using TRUE_TYPE=typename Depack<Data>::TRUE_TYPE;
 			static_assert(std::is_same_v<std::remove_cvref_t<decltype(*a)>, std::remove_cvref_t<decltype(*b)>>);
@@ -326,7 +326,7 @@ namespace LargeInteger{
 			}
 		}
 		template<typename Accumulation, typename Recursion, typename Iterator1, typename Iterator2, typename Data>
-		static INLINED void MY_LIBRARY __DivideInto(Iterator1 _a, Iterator2 _b, Recursion Move, Accumulation Accum)noexcept {
+		static INLINED void MY_LIB __DivideInto(Iterator1 _a, Iterator2 _b, Recursion Move, Accumulation Accum)noexcept {
 			{
 				switch (CompareTo(_a, _b))
 				{
@@ -361,7 +361,7 @@ namespace LargeInteger{
 			}
 		}
 		template<typename Simplify, typename Linear, typename Iterator1, typename Iterator2>
-		static INLINED void MY_LIBRARY DivideInto(Linear& Res, Iterator1 a, Iterator2 b) noexcept {
+		static INLINED void MY_LIB DivideInto(Linear& Res, Iterator1 a, Iterator2 b) noexcept {
 			static_assert(std::is_same< std::remove_cvref<decltype(*a)>::type, std::remove_cvref<decltype(*b)>::type>::value);
 			using Data=typename std::remove_cvref<decltype(*a)>::type;
 			//Regarding of the compatibility, we didn't use any majorization.
@@ -375,7 +375,7 @@ namespace LargeInteger{
 			__DivideInto<decltype(func1), decltype(func2), Iterator1, Iterator2, Data>(a, b, func2, func1);
 		}
 		template<typename Simplify, typename Iterator1, typename Iterator2>
-		static INLINED void MY_LIBRARY DivideInto(Iterator1 a, Iterator2 b) {
+		static INLINED void MY_LIB DivideInto(Iterator1 a, Iterator2 b) {
 			static_assert(std::is_same< std::remove_cvref<decltype(*a)>::type, std::remove_cvref<decltype(*b)>::type>::value);
 			using Data=typename std::remove_cvref<decltype(*a)>::type;
 			//Regarding of the compatibility, we didn't use any majorization.
@@ -398,9 +398,9 @@ namespace LargeInteger{
 		class Add
 		{
 		public:
-			MY_LIBRARY Add()noexcept {}
-			MY_LIBRARY ~Add()noexcept {}
-			std::pair<Data, Data> MY_LIBRARY operator()(Data Carry, const Data& a, const Data& b)noexcept {
+			MY_LIB Add()noexcept {}
+			MY_LIB ~Add()noexcept {}
+			std::pair<Data, Data> MY_LIB operator()(Data Carry, const Data& a, const Data& b)noexcept {
 				return std::pair<Data, Data>(
 					a + b + Carry,
 					Data(
@@ -415,9 +415,9 @@ namespace LargeInteger{
 		class SubtractFrom
 		{
 		public:
-			MY_LIBRARY SubtractFrom()noexcept {}
-			MY_LIBRARY ~SubtractFrom()noexcept {}
-			std::pair<Data, Data> MY_LIBRARY operator()(Data Carry, const Data& a, const Data& b)noexcept {
+			MY_LIB SubtractFrom()noexcept {}
+			MY_LIB ~SubtractFrom()noexcept {}
+			std::pair<Data, Data> MY_LIB operator()(Data Carry, const Data& a, const Data& b)noexcept {
 				return std::pair<Data, Data>(
 					b - a - Carry,
 					Data(
@@ -432,9 +432,9 @@ namespace LargeInteger{
 		class Multiply
 		{
 		public:
-			MY_LIBRARY Multiply()noexcept {}
-			MY_LIBRARY ~Multiply()noexcept {}
-			std::pair<Data, Data> MY_LIBRARY operator()(Data Carry, Data a, Data b)noexcept {
+			MY_LIB Multiply()noexcept {}
+			MY_LIB ~Multiply()noexcept {}
+			std::pair<Data, Data> MY_LIB operator()(Data Carry, Data a, Data b)noexcept {
 				if (a > b)
 				{
 					Data temp = b;
@@ -465,8 +465,8 @@ namespace LargeInteger{
 		class Divide
 		{
 		public:
-			MY_LIBRARY Divide()noexcept{}
-			MY_LIBRARY ~Divide()noexcept{}
+			MY_LIB Divide()noexcept{}
+			MY_LIB ~Divide()noexcept{}
 
 			std::pair<Data, Data> operator()(const Data& that) noexcept{
 				static_assert(std::is_same_v<Depack_t<Data>, Data>, "The type must not be num!");

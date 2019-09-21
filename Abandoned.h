@@ -6,7 +6,7 @@ namespace LL {
 #define NoNext(a) (a->next==nullptr||a==&NullObject)
 	//жиди
 	template<class Class, typename Data, unsigned long Radix>
-	INLINED void MY_LIBRARY add(
+	INLINED void MY_LIB add(
 		Class& a, const Class& b
 	) noexcept {
 		Class NullObject(0, nullptr);
@@ -343,7 +343,7 @@ namespace LL {
 
 	
 	template<class Class, typename Data, unsigned long Radix>
-	void MY_LIBRARY multiply(Class& a, const Class& b) noexcept {
+	void MY_LIB multiply(Class& a, const Class& b) noexcept {
 		a.data = (b.data) ? (a.data) : (!a.data);
 		Class temp(a, true), _temp(false);
 		a.destruct();
@@ -363,7 +363,7 @@ namespace LL {
 		temp.destruct();
 	}
 	template<class Class, typename Data, unsigned long Radix>
-	void MY_LIBRARY multiply(Class& a, int times) noexcept {
+	void MY_LIB multiply(Class& a, int times) noexcept {
 		if constexpr (Radix == 0) {
 			Class* OprtPtr = &a;
 			while (true)
