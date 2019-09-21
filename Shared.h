@@ -1,7 +1,11 @@
 #pragma once
 
 #ifndef _DEBUG
+#ifndef NDEBUG
+
 #define NDEBUG
+
+#endif // !NDEBUG
 #endif // !_DEBUG
 
 

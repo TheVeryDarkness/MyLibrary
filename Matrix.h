@@ -1,6 +1,6 @@
+#include "Statistics.h"
 #include <amp.h>
 #include <omp.h>
-#include "Statistics.h"
 
 namespace Math {
 	enum class Occupation {
@@ -21,9 +21,9 @@ namespace Math {
 	public:
 		using size=int;
 		Concurrency::array<Data, sizeof...(pack)> Element;
-		__stdcall Matrix(size E0, Data* E) :Element(E0, E) { }
+		MY_LIB Matrix(size E0, Data* E) :Element(E0, E) { }
 
-		void operator+=(const Matrix& that)noexcept {
+		void MY_LIB operator+=(const Matrix& that)noexcept {
 			Add add(this->Element, that.Element);
 			Concurrency::parallel_for_each(
 				this->Element.extent,
@@ -34,9 +34,9 @@ namespace Math {
 		class Add {
 		public:
 			using arr=Concurrency::array<Data, sizeof...(pack)>;
-			Add(arr& a, const arr & b) :a(a), b(b) { }
-			~Add() = default;
-			void operator()(concurrency::index<sizeof...(pack)> idx)const restrict(amp) {
+			MY_LIB Add(arr& a, const arr & b) :a(a), b(b) { }
+			MY_LIB ~Add() = default;
+			void MY_LIB operator()(concurrency::index<sizeof...(pack)> idx)const restrict(amp) {
 				a[idx] += b[idx];
 			}
 		private:
@@ -47,26 +47,50 @@ namespace Math {
 
 
 	template<typename Data, size_t... pack>
-	class Matrix<Data, Occupation::CPU, pack...> {
+	class Matrix<Data, Occupation::CPU, pack...>  {
+	private:
+		template<size_t... _pack>
+		class Index {
+		public:
+			Index() { }
+			~Index() { }
+			constexpr static size_t index()noexcept {
+				return 
+			}
+		private:
+
+		};
 	public:
+		Data Element[product<pack...>::value()];
 		using size=size_t;
-		Data Element[product<pack...>()];
-		__stdcall Matrix(size E0, Data* E) :Element(E0, E) { }
+		static_assert(sizeof...(pack) != 0, "The length of parameter pack should not be 0");
+
+
+		MY_LIB Matrix(size E0, Data* E) :Element(E0, E) { }
+
+		constexpr size_t numElems()noexcept {
+			return product<pack...>::value();
+		}
 
 		template<class induce>
-		__stdcall Matrix
-
-		void operator+=(const Matrix& that)noexcept {
+		MY_LIB Matrix(induce ind) {
 		#pragma omp parallel for
-			for (size_t i = 0; i < product<pack...>(); i++) {
-				Element[i] += that.Element[i];
+			for (size_t i = 0; i < numElems(); ++i) {
+				Element[i] = ind(i);
+			}
+		}
+
+		void MY_LIB operator+=(const Matrix& that)noexcept {
+		#pragma omp parallel for
+			for (size_t i = 0; i < numElems(); i++) {
+				this->Element[i] += that.Element[i];
 			}
 		}
 
 		template<typename out>
-		friend out& operator<<(out& o, const Matrix& m)noexcept {
-			for (auto i : Element) {
-				o << m;
+		friend out& MY_LIB operator<<(out& o, const Matrix& m)noexcept {
+			for (auto i : m.Element) {
+				o << i << ',' << ' ';
 			}
 			return o;
 		}

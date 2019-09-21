@@ -1,5 +1,8 @@
 #pragma once
 
+#define NOMINMAX 1
+#undef min
+#undef max
 #include "Shared.h"
 #include <forward_list>
 
@@ -193,13 +196,13 @@ constexpr Data Power(Data in,size_t times) noexcept{
 }
 
 //不判断两数相等
-template<typename Data>inline void __stdcall Swap(Data& a, Data& b) {
+template<typename Data>inline void MY_LIB Swap(Data& a, Data& b) {
 	a ^= b;
 	b ^= a;
 	a ^= b;
 }
 
-template<typename Data>constexpr inline bool IsPrime(Data val){
+template<typename Data>constexpr inline bool MY_LIB IsPrime(Data val){
 	for (Data i = 2; i * i <= val; i++)
 	{
 		if (val % i == 0)
@@ -210,7 +213,7 @@ template<typename Data>constexpr inline bool IsPrime(Data val){
 	return true;
 }
 
-template<typename Data>inline std::forward_list<Data> PrimeList(Data Max){
+template<typename Data>inline std::forward_list<Data> MY_LIB PrimeList(Data Max){
 	std::forward_list<Data> List;
 	for (Data i = 1; i < Max; i++)
 	{
@@ -245,11 +248,32 @@ template<typename Data>inline Data MinConti(const std::forward_list<Data>& BigTo
 	return PreData;
 }
 
-template<size_t... pack>
-constexpr size_t product();
+template<size_t... pack> class product;
 
-template<size_t head, size_t... pack>
-constexpr size_t product() {
-	static_assert(head > std::numeric_limits<size_t>::max() / product<pack...>());
-	return head * product<pack...>();
-}
+template<size_t head, size_t ...pack>
+class product<head,pack...> {
+public:
+	static constexpr size_t value()noexcept {
+		return head * product<pack...>::value();
+	}
+};
+
+template<size_t head>
+class product<head> {
+public:
+	static constexpr size_t value()noexcept {
+		return head;
+	}
+};
+
+template<typename... Para>
+class varPara;
+
+template<typename T, typename ...Para>
+class varPara<T, Para...> {
+public:
+	varPara() { }
+	~varPara() { }
+private:
+
+};
