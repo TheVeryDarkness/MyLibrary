@@ -1,4 +1,5 @@
 #include "Statistics.h"
+#include "VariableParameterTemplate.h"
 #include <amp.h>
 #include <omp.h>
 
@@ -45,21 +46,8 @@ namespace Math {
 		};
 	};
 
-
 	template<typename Data, size_t... pack>
 	class Matrix<Data, Occupation::CPU, pack...>  {
-	private:
-		template<size_t... _pack>
-		class Index {
-		public:
-			Index() { }
-			~Index() { }
-			constexpr static size_t index()noexcept {
-				return 
-			}
-		private:
-
-		};
 	public:
 		Data Element[product<pack...>::value()];
 		using size=size_t;
@@ -68,7 +56,7 @@ namespace Math {
 
 		MY_LIB Matrix(size E0, Data* E) :Element(E0, E) { }
 
-		constexpr size_t numElems()noexcept {
+		constexpr static size_t numElems()noexcept {
 			return product<pack...>::value();
 		}
 

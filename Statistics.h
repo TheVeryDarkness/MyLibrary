@@ -247,33 +247,3 @@ template<typename Data>inline Data MinConti(const std::forward_list<Data>& BigTo
 	}
 	return PreData;
 }
-
-template<size_t... pack> class product;
-
-template<size_t head, size_t ...pack>
-class product<head,pack...> {
-public:
-	static constexpr size_t value()noexcept {
-		return head * product<pack...>::value();
-	}
-};
-
-template<size_t head>
-class product<head> {
-public:
-	static constexpr size_t value()noexcept {
-		return head;
-	}
-};
-
-template<typename... Para>
-class varPara;
-
-template<typename T, typename ...Para>
-class varPara<T, Para...> {
-public:
-	varPara() { }
-	~varPara() { }
-private:
-
-};
