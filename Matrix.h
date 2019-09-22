@@ -1,5 +1,6 @@
 #include "Statistics.h"
 #include "VariableParameterTemplate.h"
+#include "ConstructedArray.h"
 #include <intrin.h>
 #include <amp.h>
 #include <omp.h>
@@ -51,7 +52,8 @@ namespace Math {
 	class Matrix<Data, Occupation::CPU, pack...>  {
 	protected:
 		using product=Template::product<pack...>;
-		Data Element[product::value()];
+
+		Array<Data, product::value()> Element;
 	public:
 		using size=size_t;
 		static_assert(sizeof...(pack) != 0, "The length of parameter pack should not be 0");
@@ -64,12 +66,7 @@ namespace Math {
 		}
 
 		template<class induce>
-		MY_LIB Matrix(induce ind) {
-		#pragma omp parallel for
-			for (size_t i = 0; i < numElems(); ++i) {
-				Element[i] = ind(i);
-			}
-		}
+		MY_LIB Matrix(induce ind) :Element(ind, 0) { }
 
 		Matrix& MY_LIB operator+=(const Matrix& that)noexcept {
 		#pragma omp parallel for
@@ -110,10 +107,7 @@ namespace Math {
 
 		template<typename out>
 		friend out& MY_LIB operator<<(out& o, const Matrix& m)noexcept {
-			for (auto i : m.Element) {
-				o << i << ',' << ' ';
-			}
-			return o;
+			return o << m.Element;
 		}
 	private:
 	};
@@ -134,6 +128,7 @@ namespace Math {
 			}
 		}
 	};
+	/*
 	template<size_t... pack>
 	class Matrix<__int32, Occupation::CPU, pack...> 
 		:protected Matrix<
@@ -142,11 +137,16 @@ namespace Math {
 		floor(Template::product<pack...>::value(),sizeof(__m512i) / sizeof(__int32))
 		> {
 	public:
+		using super=Matrix<__m512i, Occupation::CPU, floor(Template::product<pack...>::value(), sizeof(__m512i) / sizeof(__int32))>;
 		template<class induce>
 		MY_LIB Matrix(induce ind) {
 		#pragma omp parallel for
 			for (size_t i = 0; i < numElems(); ++i) {
-				Element[i] = ind(i);
+				this->super::Element[i] = _mm512_set_epi32(
+					ind(i), ind(++i), ind(++i), ind(++i),
+					ind(++i), ind(++i), ind(++i), ind(++i), 
+					ind(++i), ind(++i), ind(++i), ind(++i),
+					ind(++i), ind(++i), ind(++i), ind(++i));
 			}
 		}
 		Matrix& MY_LIB operator+=(const Matrix& that)noexcept {
@@ -186,5 +186,5 @@ namespace Math {
 			}
 			return *this;
 		}
-	};
+	};*/
 };
