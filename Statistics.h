@@ -247,3 +247,7 @@ template<typename Data>inline Data MinConti(const std::forward_list<Data>& BigTo
 	}
 	return PreData;
 }
+
+template<typename T>constexpr inline T floor(T a, T b)noexcept{
+	return (a - 1) / b + 1;
+}
