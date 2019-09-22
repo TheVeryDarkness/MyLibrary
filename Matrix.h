@@ -1,5 +1,6 @@
 #include "Statistics.h"
 #include "VariableParameterTemplate.h"
+#include <intrin.h>
 #include <amp.h>
 #include <omp.h>
 
@@ -49,7 +50,8 @@ namespace Math {
 	template<typename Data, size_t... pack>
 	class Matrix<Data, Occupation::CPU, pack...>  {
 	public:
-		Data Element[product<pack...>::value()];
+		using product=Template::product<pack...>;
+		Data Element[product::value()];
 		using size=size_t;
 		static_assert(sizeof...(pack) != 0, "The length of parameter pack should not be 0");
 
@@ -57,7 +59,7 @@ namespace Math {
 		MY_LIB Matrix(size E0, Data* E) :Element(E0, E) { }
 
 		constexpr static size_t numElems()noexcept {
-			return product<pack...>::value();
+			return product::value();
 		}
 
 		template<class induce>
