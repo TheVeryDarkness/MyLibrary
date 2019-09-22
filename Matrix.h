@@ -70,11 +70,41 @@ namespace Math {
 			}
 		}
 
-		void MY_LIB operator+=(const Matrix& that)noexcept {
+		Matrix& MY_LIB operator+=(const Matrix& that)noexcept {
 		#pragma omp parallel for
 			for (size_t i = 0; i < numElems(); i++) {
 				this->Element[i] += that.Element[i];
 			}
+			return *this;
+		}
+		Matrix& MY_LIB operator-=(const Matrix& that)noexcept {
+		#pragma omp parallel for
+			for (size_t i = 0; i < numElems(); i++) {
+				this->Element[i] -= that.Element[i];
+			}
+			return *this;
+		}
+		Matrix& MY_LIB operator*=(const Matrix& that)noexcept {
+		#pragma omp parallel for
+			for (size_t i = 0; i < numElems(); i++) {
+				this->Element[i] *= that.Element[i];
+			}
+			return *this;
+		}
+		Matrix& MY_LIB operator/=(const Matrix& that)noexcept {
+		#pragma omp parallel for
+			for (size_t i = 0; i < numElems(); i++) {
+				this->Element[i] /= that.Element[i];
+			}
+			return *this;
+		}
+		Matrix& MY_LIB operator%=(const Matrix& that)noexcept {
+			static_assert(std::is_integral_v<Data>,"Integral type required.");
+		#pragma omp parallel for
+			for (size_t i = 0; i < numElems(); i++) {
+				this->Element[i] %= that.Element[i];
+			}
+			return *this;
 		}
 
 		template<typename out>
@@ -86,4 +116,6 @@ namespace Math {
 		}
 	private:
 	};
+
+
 };
