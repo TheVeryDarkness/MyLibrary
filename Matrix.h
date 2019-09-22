@@ -1,7 +1,7 @@
 #include "Statistics.h"
 #include "VariableParameterTemplate.h"
 #include "ConstructedArray.h"
-#include <intrin.h>
+#include "InstructionSet.h"
 #include <amp.h>
 #include <omp.h>
 
@@ -128,6 +128,7 @@ namespace Math {
 			}
 		}
 	};
+
 	/*
 	template<size_t... pack>
 	class Matrix<__int32, Occupation::CPU, pack...> 
