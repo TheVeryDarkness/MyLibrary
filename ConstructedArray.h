@@ -9,7 +9,8 @@ namespace Math {
 	public:
 		Array() = delete;
 		~Array() = default;
-		template<typename... pack_t>Array(T head, pack_t... pack)noexcept:data(head), super(pack...) {}
+		template<typename... pack_t>
+		constexpr Array(T head, pack_t... pack)noexcept:data(head), super(pack...) {}
 
 		template<class induce>
 		constexpr Array(induce ind, size_t index):data(ind(index)),super(ind, index + 1) {}
@@ -58,10 +59,10 @@ namespace Math {
 	public:
 		Array() = delete;
 		~Array() = default;
-		Array(T head)noexcept :data(head) { }
+		constexpr Array(T head)noexcept :data(head) { }
 
 		template<class induce>
-		Array(induce ind, size_t index) : data(ind(index)) { }
+		constexpr Array(induce ind, size_t index) : data(ind(index)) { }
 
 		template<size_t index>
 		constexpr T& get()noexcept {
