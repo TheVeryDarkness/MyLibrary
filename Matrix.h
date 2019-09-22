@@ -49,9 +49,10 @@ namespace Math {
 
 	template<typename Data, size_t... pack>
 	class Matrix<Data, Occupation::CPU, pack...>  {
-	public:
+	protected:
 		using product=Template::product<pack...>;
 		Data Element[product::value()];
+	public:
 		using size=size_t;
 		static_assert(sizeof...(pack) != 0, "The length of parameter pack should not be 0");
 
@@ -117,5 +118,73 @@ namespace Math {
 	private:
 	};
 
-
+	template<size_t... pack>
+	class Matrix<__int64, Occupation::CPU, pack...> 
+		:protected Matrix<
+		__m512i, 
+		Occupation::CPU, 
+		floor(Template::product<pack...>::value(),sizeof(__m512i) / sizeof(__int64))
+		> {
+	public:
+		template<class induce>
+		MY_LIB Matrix(induce ind) {
+		#pragma omp parallel for
+			for (size_t i = 0; i < numElems(); ++i) {
+				Element[i] = ind(i);
+			}
+		}
+	};
+	template<size_t... pack>
+	class Matrix<__int32, Occupation::CPU, pack...> 
+		:protected Matrix<
+		__m512i,
+		Occupation::CPU, 
+		floor(Template::product<pack...>::value(),sizeof(__m512i) / sizeof(__int32))
+		> {
+	public:
+		template<class induce>
+		MY_LIB Matrix(induce ind) {
+		#pragma omp parallel for
+			for (size_t i = 0; i < numElems(); ++i) {
+				Element[i] = ind(i);
+			}
+		}
+		Matrix& MY_LIB operator+=(const Matrix& that)noexcept {
+		#pragma omp parallel for
+			for (size_t i = 0; i < numElems(); i++) {
+				
+				this->Element[i] += that.Element[i];
+			}
+			return *this;
+		}
+		Matrix& MY_LIB operator-=(const Matrix& that)noexcept {
+		#pragma omp parallel for
+			for (size_t i = 0; i < numElems(); i++) {
+				this->Element[i] -= that.Element[i];
+			}
+			return *this;
+		}
+		Matrix& MY_LIB operator*=(const Matrix& that)noexcept {
+		#pragma omp parallel for
+			for (size_t i = 0; i < numElems(); i++) {
+				this->Element[i] *= that.Element[i];
+			}
+			return *this;
+		}
+		Matrix& MY_LIB operator/=(const Matrix& that)noexcept {
+		#pragma omp parallel for
+			for (size_t i = 0; i < numElems(); i++) {
+				this->Element[i] /= that.Element[i];
+			}
+			return *this;
+		}
+		Matrix& MY_LIB operator%=(const Matrix& that)noexcept {
+			static_assert(std::is_integral_v<Data>, "Integral type required.");
+		#pragma omp parallel for
+			for (size_t i = 0; i < numElems(); i++) {
+				this->Element[i] %= that.Element[i];
+			}
+			return *this;
+		}
+	};
 };
