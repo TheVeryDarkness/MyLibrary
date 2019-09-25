@@ -10,11 +10,14 @@ namespace Math {
 		Array() = delete;
 		~Array() = default;
 		template<typename... pack_t>
-		constexpr Array(T head, pack_t... pack)noexcept:data(head), super(pack...) {}
-
+		constexpr Array(T head, pack_t... pack)noexcept:super(pack...), data(head) {}
 		template<class induce>
 		constexpr Array(induce& ind):data(ind()), super(ind){ }
 
+
+		constexpr static auto getSize()noexcept {
+			return sz;
+		}
 
 		template<size_t index>
 		constexpr T& get()noexcept {
@@ -26,7 +29,7 @@ namespace Math {
 			return ((index == 0) ? (this->data) : (this->super::operator[](index - 1)));
 		}
 		constexpr explicit operator T* ()noexcept {
-			return this;
+			return reinterpret_cast<T*>(this);
 		}
 		template<size_t index>
 		constexpr const T& get()const noexcept {
@@ -38,12 +41,12 @@ namespace Math {
 			return ((index == 0) ? (this->data) : (this->super::operator[](index - 1)));
 		}
 		constexpr explicit operator const T* ()const noexcept {
-			return this;
+			return reinterpret_cast<const T*>(this);
 		}
 
 		template<typename out>
 		friend out& MY_LIB operator<<(out& o, const Array& m)noexcept {
-			return o << m.data << ',' << ' ' << *static_cast<const super*>(&m);
+			return o << *static_cast<const super*>(&m) << ',' << ' ' << m.data;
 		}
 	};
 	template<typename T>class Array<T, 1>{
@@ -52,9 +55,13 @@ namespace Math {
 		Array() = delete;
 		~Array() = default;
 		constexpr Array(T head)noexcept :data(head) { }
-
 		template<class induce>
 		constexpr Array(induce& ind) : data(ind()) { }
+
+
+		constexpr static auto getSize()noexcept {
+			return sz;
+		}
 
 		template<size_t index>
 		constexpr T& get()noexcept {
@@ -66,7 +73,7 @@ namespace Math {
 			return (this->data);
 		}
 		constexpr explicit operator T* ()noexcept {
-			return this;
+			return reinterpret_cast<T*>(this);
 		}
 		template<size_t index>
 		constexpr const T& get()const noexcept {
@@ -78,7 +85,7 @@ namespace Math {
 			return (this->data);
 		}
 		constexpr explicit operator const T* ()const noexcept {
-			return this;
+			return reinterpret_cast<const T*>(this);
 		}
 
 		template<typename out>
