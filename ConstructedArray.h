@@ -13,15 +13,7 @@ namespace Math {
 		constexpr Array(T head, pack_t... pack)noexcept:data(head), super(pack...) {}
 
 		template<class induce>
-		constexpr Array(induce ind, size_t index):data(ind(index)),super(ind, index + 1) {}
-
-		template<class induce>
-		constexpr Array(induce ind):data(ind(index)){
-		#pragma omp parallel for
-			for (size_t i = 0; i < numElems(); ++i) {
-				(&data)[i] = ind(i);
-			}
-		}
+		constexpr Array(induce& ind):data(ind()), super(ind){ }
 
 
 		template<size_t index>
@@ -62,7 +54,7 @@ namespace Math {
 		constexpr Array(T head)noexcept :data(head) { }
 
 		template<class induce>
-		constexpr Array(induce ind, size_t index) : data(ind(index)) { }
+		constexpr Array(induce& ind) : data(ind()) { }
 
 		template<size_t index>
 		constexpr T& get()noexcept {
