@@ -257,4 +257,17 @@ namespace Math {
 
 	};
 
+	template<Align align, typename T>
+	class _mm_cpp {
+	public:
+		using Basic=Store<T, align>;
+		typename Basic::type data;
+		template<typename Induct>_mm_cpp(Induct ind)noexcept:data(Basic::store(ind)) { }
+
+		~_mm_cpp() { }
+
+	private:
+
+	};
+
 }
