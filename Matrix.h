@@ -66,7 +66,7 @@ namespace Math {
 		}
 
 		template<class induce>
-		MY_LIB Matrix(induce ind) :Element(ind, 0) { }
+		MY_LIB Matrix(induce ind) :Element(ind) { }
 
 		Matrix& MY_LIB operator+=(const Matrix& that)noexcept {
 		#pragma omp parallel for
