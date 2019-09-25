@@ -17,22 +17,22 @@ namespace Math {
 	};
 
 	//__int8
-	class Store<__int8,Align::_64> {
+	template<>class Store<__int8,Align::_64> {
 	public:
 		using type=__m64;
 		static constexpr size_t getNum()noexcept { return 8; }
 	};
-	class Store<__int8, Align::_128> {
+	template<>class Store<__int8, Align::_128> {
 	public:
 		using type=__m128i;
 		static constexpr size_t getNum()noexcept { return 16; }
 	};
-	class Store<__int8, Align::_256> {
+	template<>class Store<__int8, Align::_256> {
 	public:
 		using type=__m256i;
 		static constexpr size_t getNum()noexcept { return 32; }
 	};
-	class Store<__int8, Align::_512> {
+	template<>class Store<__int8, Align::_512> {
 	public:
 		using type=__m512i;
 		static constexpr size_t getNum()noexcept { return 64; }
@@ -40,22 +40,22 @@ namespace Math {
 
 
 	//unsigned __int8
-	class Store<unsigned __int8,Align::_64> {
+	template<>class Store<unsigned __int8,Align::_64> {
 	public:
 		using type=__m64;
 		static constexpr size_t getNum()noexcept { return 8; }
 	};
-	class Store<unsigned __int8, Align::_128> {
+	template<>class Store<unsigned __int8, Align::_128> {
 	public:
 		using type=__m128i;
 		static constexpr size_t getNum()noexcept { return 16; }
 	};
-	class Store<unsigned __int8, Align::_256> {
+	template<>class Store<unsigned __int8, Align::_256> {
 	public:
 		using type=__m256i;
 		static constexpr size_t getNum()noexcept { return 32; }
 	};
-	class Store<unsigned __int8, Align::_512> {
+	template<>class Store<unsigned __int8, Align::_512> {
 	public:
 		using type=__m512i;
 		static constexpr size_t getNum()noexcept { return 64; }
@@ -63,22 +63,27 @@ namespace Math {
 
 
 	//__int16
-	class Store<__int16,Align::_64> {
+	template<>class Store<__int16,Align::_64> {
 	public:
 		using type=__m64;
 		static constexpr size_t getNum()noexcept { return 4; }
 	};
-	class Store<__int16, Align::_128> {
+	template<>class Store<__int16, Align::_128> {
 	public:
 		using type=__m128i;
 		static constexpr size_t getNum()noexcept { return 8; }
+		template<typename Induct>
+		static constexpr type store(Induct& ind)noexcept {
+			static_assert(std::is_same_v<decltype(ind()), __int16>, "Type not matched.");
+			return _mm_set_epi16(ind(), ind(), ind(), ind(), ind(), ind(), ind(), ind());
+		}
 	};
-	class Store<__int16,Align::_256> {
+	template<>class Store<__int16,Align::_256> {
 	public:
 		using type=__m256i;
 		static constexpr size_t getNum()noexcept { return 16; }
 	};
-	class Store<__int16, Align::_512> {
+	template<>class Store<__int16, Align::_512> {
 	public:
 		using type=__m512i;
 		static constexpr size_t getNum()noexcept { return 32; }
@@ -86,22 +91,22 @@ namespace Math {
 
 
 	//unsigned __int16
-	class Store<unsigned __int16,Align::_64> {
+	template<>class Store<unsigned __int16,Align::_64> {
 	public:
 		using type=__m64;
 		static constexpr size_t getNum()noexcept { return 4; }
 	};
-	class Store<unsigned __int16, Align::_128> {
+	template<>class Store<unsigned __int16, Align::_128> {
 	public:
 		using type=__m128i;
 		static constexpr size_t getNum()noexcept { return 8; }
 	};
-	class Store<unsigned __int16,Align::_256> {
+	template<>class Store<unsigned __int16,Align::_256> {
 	public:
 		using type=__m256i;
 		static constexpr size_t getNum()noexcept { return 16; }
 	};
-	class Store<unsigned __int16, Align::_512> {
+	template<>class Store<unsigned __int16, Align::_512> {
 	public:
 		using type=__m512i;
 		static constexpr size_t getNum()noexcept { return 32; }
@@ -109,22 +114,27 @@ namespace Math {
 
 
 	//__int32
-	class Store<__int32,Align::_64> {
+	template<>class Store<__int32,Align::_64> {
 	public:
 		using type=__m64;
 		static constexpr size_t getNum()noexcept { return 2; }
 	};
-	class Store<__int32, Align::_128> {
+	template<>class Store<__int32, Align::_128> {
 	public:
 		using type=__m128i;
 		static constexpr size_t getNum()noexcept { return 4; }
+		template<typename Induct>
+		static constexpr type store(Induct& ind)noexcept {
+			static_assert(std::is_same_v<decltype(ind()), __int32>, "Type not matched.");
+			return _mm_set_epi32(ind(), ind(), ind(), ind());
+		}
 	};
-	class Store<__int32, Align::_256> {
+	template<>class Store<__int32, Align::_256> {
 	public:
 		using type=__m256i;
 		static constexpr size_t getNum()noexcept { return 8; }
 	};
-	class Store<__int32, Align::_512> {
+	template<>class Store<__int32, Align::_512> {
 	public:
 		using type=__m512i;
 		static constexpr size_t getNum()noexcept { return 16; }
@@ -132,22 +142,22 @@ namespace Math {
 
 
 	//unsigned __int32
-	class Store<unsigned __int32,Align::_64> {
+	template<>class Store<unsigned __int32,Align::_64> {
 	public:
 		using type=__m64;
 		static constexpr size_t getNum()noexcept { return 2; }
 	};
-	class Store<unsigned __int32, Align::_128> {
+	template<>class Store<unsigned __int32, Align::_128> {
 	public:
 		using type=__m128i;
 		static constexpr size_t getNum()noexcept { return 4; }
 	};
-	class Store<unsigned __int32, Align::_256> {
+	template<>class Store<unsigned __int32, Align::_256> {
 	public:
 		using type=__m256i;
 		static constexpr size_t getNum()noexcept { return 8; }
 	};
-	class Store<unsigned __int32, Align::_512> {
+	template<>class Store<unsigned __int32, Align::_512> {
 	public:
 		using type=__m512i;
 		static constexpr size_t getNum()noexcept { return 16; }
@@ -155,17 +165,22 @@ namespace Math {
 
 
 	//__int64
-	class Store<__int64,Align::_128> {
+	template<>class Store<__int64,Align::_128> {
 	public:
 		using type=__m128i;
 		static constexpr size_t getNum()noexcept { return 2; }
 	};
-	class Store<__int64,Align::_256> {
+	template<>class Store<__int64,Align::_256> {
 	public:
 		using type=__m256i;
 		static constexpr size_t getNum()noexcept { return 4; }
+		template<typename Induct>
+		static constexpr type store(Induct& ind)noexcept {
+			static_assert(std::is_same_v<decltype(ind()), __int64>, "Type not matched.");
+			return _mm_set_epi64(ind(), ind());
+		}
 	};
-	class Store<__int64,Align::_512> {
+	template<>class Store<__int64,Align::_512> {
 	public:
 		using type=__m512i;
 		static constexpr size_t getNum()noexcept { return 8; }
@@ -173,17 +188,17 @@ namespace Math {
 
 
 	//unsigned __int64
-	class Store<unsigned __int64,Align::_128> {
+	template<>class Store<unsigned __int64,Align::_128> {
 	public:
 		using type=__m128i;
 		static constexpr size_t getNum()noexcept { return 2; }
 	};
-	class Store<unsigned __int64,Align::_256> {
+	template<>class Store<unsigned __int64,Align::_256> {
 	public:
 		using type=__m256i;
 		static constexpr size_t getNum()noexcept { return 4; }
 	};
-	class Store<unsigned __int64,Align::_512> {
+	template<>class Store<unsigned __int64,Align::_512> {
 	public:
 		using type=__m512i;
 		static constexpr size_t getNum()noexcept { return 8; }
@@ -191,17 +206,17 @@ namespace Math {
 
 
 	//double
-	class Store<double,Align::_128> {
+	template<>class Store<double,Align::_128> {
 	public:
 		using type=__m128d;
 		static constexpr size_t getNum()noexcept { return 2; }
 	};
-	class Store<double,Align::_256> {
+	template<>class Store<double,Align::_256> {
 	public:
 		using type=__m256d;
 		static constexpr size_t getNum()noexcept { return 4; }
 	};
-	class Store<double,Align::_512> {
+	template<>class Store<double,Align::_512> {
 	public:
 		using type=__m512d;
 		static constexpr size_t getNum()noexcept { return 8; }
@@ -209,17 +224,17 @@ namespace Math {
 
 
 	//float
-	class Store<float, Align::_128> {
+	template<>class Store<float, Align::_128> {
 	public:
 		using type=__m128;
 		static constexpr size_t getNum()noexcept { return 4; }
 	};
-	class Store<float, Align::_256> {
+	template<>class Store<float, Align::_256> {
 	public:
 		using type=__m256;
 		static constexpr size_t getNum()noexcept { return 8; }
 	};
-	class Store<float, Align::_512> {
+	template<>class Store<float, Align::_512> {
 	public:
 		using type=__m512;
 		static constexpr size_t getNum()noexcept { return 16; }
@@ -233,7 +248,7 @@ namespace Math {
 	public:
 		Compute() = delete;
 		~Compute() = delete;
-		using target=Store<T, align>::type;
+		using target=typename Store<T, align>::type;
 		using source=T;
 
 
