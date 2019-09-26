@@ -58,9 +58,6 @@ namespace Math {
 		using size=size_t;
 		static_assert(sizeof...(pack) != 0, "The length of parameter pack should not be 0");
 
-
-		MY_LIB Matrix(size E0, Data* E) :Element(E0, E) { }
-
 		constexpr static size_t numElems()noexcept {
 			return product::value();
 		}
