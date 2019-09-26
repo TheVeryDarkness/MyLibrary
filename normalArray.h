@@ -7,7 +7,7 @@ namespace Math {
 		template<typename induce>
 		constexpr arr(induce& ind) noexcept {
 			for (auto& i : data) {
-				if constexpr (std::is_same_v<std::remove_cv_t<T>, std::remove_cv_t<decltype(ind())>>) {
+				if constexpr (std::is_arithmetic_v<T> && std::is_arithmetic_v<decltype(ind())>) {
 					i = ind();
 				}
 				else {
@@ -16,6 +16,15 @@ namespace Math {
 			}
 		}
 		~arr() { }
+
+		template<size_t index>
+		constexpr T& get()noexcept {
+			return data[index];
+		}
+		template<size_t index>
+		constexpr const T& get()const noexcept {
+			return data[index];
+		}
 		
 
 		constexpr T& operator[](size_t index)noexcept {
