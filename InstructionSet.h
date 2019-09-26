@@ -257,15 +257,22 @@ namespace Math {
 
 	};
 
+
 	template<Align align, typename T>
 	class _mm_cpp {
 	public:
 		using Basic=Store<T, align>;
 		typename Basic::type data;
 		template<typename Induct>_mm_cpp(Induct ind)noexcept:data(Basic::store(ind)) { }
+		static void* operator new(size_t sz) {
 
+		}
 		~_mm_cpp() { }
 
+		template<typename out>
+		friend out& MY_LIB operator<<(out& o, const _mm_cpp& m)noexcept {
+			return o << m.data;
+		}
 	private:
 
 	};
