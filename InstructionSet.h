@@ -180,6 +180,9 @@ namespace Math {
 		static type add(const type& a, const type& b)noexcept { 
 			return _mm256_add_epi32(a, b);
 		}
+		static type load(const type& that)noexcept {
+			return _mm256_load_si256(&that);
+		}
 	};
 	template<>class base<__int32, Align::_512> {
 	public:
@@ -254,11 +257,53 @@ namespace Math {
 	public:
 		using type=__m256i;
 		static constexpr size_t getNum()noexcept { return 4; }
+		template<typename Induct>
+		static constexpr type store(Induct& ind)noexcept {
+			static_assert(std::is_same_v<std::remove_cv_t<decltype(ind())>, __int64>, "Type not matched.");
+			type mm256;
+			for (auto& i : mm256.m256i_i64) {
+				i = ind();
+			}
+			return mm256;
+		}
+		static constexpr __int64* depack(type& t)noexcept {
+			return t.m256i_i64;
+		}
+		static constexpr const __int64* depack(const type& t)noexcept {
+			return t.m256i_i64;
+		}
+		static type add(const type& a, const type& b)noexcept {
+			return _mm256_add_epi64(a, b);
+		}
+		static type load(const type& that)noexcept {
+			return _mm256_load_si256(&that);
+		}
 	};
 	template<>class base<__int64,Align::_512> {
 	public:
 		using type=__m512i;
 		static constexpr size_t getNum()noexcept { return 8; }
+		template<typename Induct>
+		static constexpr type store(Induct& ind)noexcept {
+			static_assert(std::is_same_v<std::remove_cv_t<decltype(ind())>, __int64>, "Type not matched.");
+			type mm512;
+			for (auto &i : mm512.m512i_i64) {
+				i = ind();
+			}
+			return mm512;
+		}
+		static constexpr __int64* depack(type& t)noexcept {
+			return t.m512i_i64;
+		}
+		static constexpr const __int64* depack(const type& t)noexcept {
+			return t.m512i_i64;
+		}
+		static type add(const type& a, const type& b)noexcept {
+			return _mm512_add_epi64(a, b);
+		}
+		static type load(const type& that)noexcept {
+			return _mm512_load_si512(&that);
+		}
 	};
 
 
@@ -347,7 +392,7 @@ namespace Math {
 		}
 		~_mm_cpp() { }
 
-		_mm_cpp& operator= (const _mm_cpp & that)noexcept{
+		_mm_cpp& operator=(const _mm_cpp & that)noexcept{
 			this->data = Basic::load(that.data);
 			return *this;
 		}
