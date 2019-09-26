@@ -7,7 +7,7 @@ namespace Math {
 	};
 
 	template<typename T, Align align>
-	class Store {
+	class base {
 	public:
 		using type=T;
 		static constexpr size_t getNum()noexcept { 
@@ -17,22 +17,22 @@ namespace Math {
 	};
 
 	//__int8
-	template<>class Store<__int8,Align::_64> {
+	template<>class base<__int8,Align::_64> {
 	public:
 		using type=__m64;
 		static constexpr size_t getNum()noexcept { return 8; }
 	};
-	template<>class Store<__int8, Align::_128> {
+	template<>class base<__int8, Align::_128> {
 	public:
 		using type=__m128i;
 		static constexpr size_t getNum()noexcept { return 16; }
 	};
-	template<>class Store<__int8, Align::_256> {
+	template<>class base<__int8, Align::_256> {
 	public:
 		using type=__m256i;
 		static constexpr size_t getNum()noexcept { return 32; }
 	};
-	template<>class Store<__int8, Align::_512> {
+	template<>class base<__int8, Align::_512> {
 	public:
 		using type=__m512i;
 		static constexpr size_t getNum()noexcept { return 64; }
@@ -40,22 +40,22 @@ namespace Math {
 
 
 	//unsigned __int8
-	template<>class Store<unsigned __int8,Align::_64> {
+	template<>class base<unsigned __int8,Align::_64> {
 	public:
 		using type=__m64;
 		static constexpr size_t getNum()noexcept { return 8; }
 	};
-	template<>class Store<unsigned __int8, Align::_128> {
+	template<>class base<unsigned __int8, Align::_128> {
 	public:
 		using type=__m128i;
 		static constexpr size_t getNum()noexcept { return 16; }
 	};
-	template<>class Store<unsigned __int8, Align::_256> {
+	template<>class base<unsigned __int8, Align::_256> {
 	public:
 		using type=__m256i;
 		static constexpr size_t getNum()noexcept { return 32; }
 	};
-	template<>class Store<unsigned __int8, Align::_512> {
+	template<>class base<unsigned __int8, Align::_512> {
 	public:
 		using type=__m512i;
 		static constexpr size_t getNum()noexcept { return 64; }
@@ -63,12 +63,12 @@ namespace Math {
 
 
 	//__int16
-	template<>class Store<__int16,Align::_64> {
+	template<>class base<__int16,Align::_64> {
 	public:
 		using type=__m64;
 		static constexpr size_t getNum()noexcept { return 4; }
 	};
-	template<>class Store<__int16, Align::_128> {
+	template<>class base<__int16, Align::_128> {
 	public:
 		using type=__m128i;
 		static constexpr size_t getNum()noexcept { return 8; }
@@ -78,12 +78,12 @@ namespace Math {
 			return _mm_set_epi16(ind(), ind(), ind(), ind(), ind(), ind(), ind(), ind());
 		}
 	};
-	template<>class Store<__int16,Align::_256> {
+	template<>class base<__int16,Align::_256> {
 	public:
 		using type=__m256i;
 		static constexpr size_t getNum()noexcept { return 16; }
 	};
-	template<>class Store<__int16, Align::_512> {
+	template<>class base<__int16, Align::_512> {
 	public:
 		using type=__m512i;
 		static constexpr size_t getNum()noexcept { return 32; }
@@ -91,22 +91,22 @@ namespace Math {
 
 
 	//unsigned __int16
-	template<>class Store<unsigned __int16,Align::_64> {
+	template<>class base<unsigned __int16,Align::_64> {
 	public:
 		using type=__m64;
 		static constexpr size_t getNum()noexcept { return 4; }
 	};
-	template<>class Store<unsigned __int16, Align::_128> {
+	template<>class base<unsigned __int16, Align::_128> {
 	public:
 		using type=__m128i;
 		static constexpr size_t getNum()noexcept { return 8; }
 	};
-	template<>class Store<unsigned __int16,Align::_256> {
+	template<>class base<unsigned __int16,Align::_256> {
 	public:
 		using type=__m256i;
 		static constexpr size_t getNum()noexcept { return 16; }
 	};
-	template<>class Store<unsigned __int16, Align::_512> {
+	template<>class base<unsigned __int16, Align::_512> {
 	public:
 		using type=__m512i;
 		static constexpr size_t getNum()noexcept { return 32; }
@@ -114,12 +114,12 @@ namespace Math {
 
 
 	//__int32
-	template<>class Store<__int32,Align::_64> {
+	template<>class base<__int32,Align::_64> {
 	public:
 		using type=__m64;
 		static constexpr size_t getNum()noexcept { return 2; }
 	};
-	template<>class Store<__int32, Align::_128> {
+	template<>class base<__int32, Align::_128> {
 	public:
 		using type=__m128i;
 		static constexpr size_t getNum()noexcept { return 4; }
@@ -129,12 +129,12 @@ namespace Math {
 			return _mm_set_epi32(ind(), ind(), ind(), ind());
 		}
 	};
-	template<>class Store<__int32, Align::_256> {
+	template<>class base<__int32, Align::_256> {
 	public:
 		using type=__m256i;
 		static constexpr size_t getNum()noexcept { return 8; }
 	};
-	template<>class Store<__int32, Align::_512> {
+	template<>class base<__int32, Align::_512> {
 	public:
 		using type=__m512i;
 		static constexpr size_t getNum()noexcept { return 16; }
@@ -142,22 +142,22 @@ namespace Math {
 
 
 	//unsigned __int32
-	template<>class Store<unsigned __int32,Align::_64> {
+	template<>class base<unsigned __int32,Align::_64> {
 	public:
 		using type=__m64;
 		static constexpr size_t getNum()noexcept { return 2; }
 	};
-	template<>class Store<unsigned __int32, Align::_128> {
+	template<>class base<unsigned __int32, Align::_128> {
 	public:
 		using type=__m128i;
 		static constexpr size_t getNum()noexcept { return 4; }
 	};
-	template<>class Store<unsigned __int32, Align::_256> {
+	template<>class base<unsigned __int32, Align::_256> {
 	public:
 		using type=__m256i;
 		static constexpr size_t getNum()noexcept { return 8; }
 	};
-	template<>class Store<unsigned __int32, Align::_512> {
+	template<>class base<unsigned __int32, Align::_512> {
 	public:
 		using type=__m512i;
 		static constexpr size_t getNum()noexcept { return 16; }
@@ -165,12 +165,12 @@ namespace Math {
 
 
 	//__int64
-	template<>class Store<__int64,Align::_128> {
+	template<>class base<__int64,Align::_128> {
 	public:
 		using type=__m128i;
 		static constexpr size_t getNum()noexcept { return 2; }
 	};
-	template<>class Store<__int64,Align::_256> {
+	template<>class base<__int64,Align::_256> {
 	public:
 		using type=__m256i;
 		static constexpr size_t getNum()noexcept { return 4; }
@@ -180,7 +180,7 @@ namespace Math {
 			return _mm_set_epi64(ind(), ind());
 		}
 	};
-	template<>class Store<__int64,Align::_512> {
+	template<>class base<__int64,Align::_512> {
 	public:
 		using type=__m512i;
 		static constexpr size_t getNum()noexcept { return 8; }
@@ -188,17 +188,17 @@ namespace Math {
 
 
 	//unsigned __int64
-	template<>class Store<unsigned __int64,Align::_128> {
+	template<>class base<unsigned __int64,Align::_128> {
 	public:
 		using type=__m128i;
 		static constexpr size_t getNum()noexcept { return 2; }
 	};
-	template<>class Store<unsigned __int64,Align::_256> {
+	template<>class base<unsigned __int64,Align::_256> {
 	public:
 		using type=__m256i;
 		static constexpr size_t getNum()noexcept { return 4; }
 	};
-	template<>class Store<unsigned __int64,Align::_512> {
+	template<>class base<unsigned __int64,Align::_512> {
 	public:
 		using type=__m512i;
 		static constexpr size_t getNum()noexcept { return 8; }
@@ -206,17 +206,17 @@ namespace Math {
 
 
 	//double
-	template<>class Store<double,Align::_128> {
+	template<>class base<double,Align::_128> {
 	public:
 		using type=__m128d;
 		static constexpr size_t getNum()noexcept { return 2; }
 	};
-	template<>class Store<double,Align::_256> {
+	template<>class base<double,Align::_256> {
 	public:
 		using type=__m256d;
 		static constexpr size_t getNum()noexcept { return 4; }
 	};
-	template<>class Store<double,Align::_512> {
+	template<>class base<double,Align::_512> {
 	public:
 		using type=__m512d;
 		static constexpr size_t getNum()noexcept { return 8; }
@@ -224,17 +224,17 @@ namespace Math {
 
 
 	//float
-	template<>class Store<float, Align::_128> {
+	template<>class base<float, Align::_128> {
 	public:
 		using type=__m128;
 		static constexpr size_t getNum()noexcept { return 4; }
 	};
-	template<>class Store<float, Align::_256> {
+	template<>class base<float, Align::_256> {
 	public:
 		using type=__m256;
 		static constexpr size_t getNum()noexcept { return 8; }
 	};
-	template<>class Store<float, Align::_512> {
+	template<>class base<float, Align::_512> {
 	public:
 		using type=__m512;
 		static constexpr size_t getNum()noexcept { return 16; }
@@ -248,7 +248,7 @@ namespace Math {
 	public:
 		Compute() = delete;
 		~Compute() = delete;
-		using target=typename Store<T, align>::type;
+		using target=typename base<T, align>::type;
 		using source=T;
 
 
@@ -261,7 +261,7 @@ namespace Math {
 	template<Align align, typename T>
 	class _mm_cpp {
 	public:
-		using Basic=Store<T, align>;
+		using Basic=base<T, align>;
 		typename Basic::type data;
 		template<typename Induct>_mm_cpp(Induct ind)noexcept:data(Basic::store(ind)) { }
 		static void* operator new(size_t sz) {
