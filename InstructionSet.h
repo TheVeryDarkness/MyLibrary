@@ -10,7 +10,7 @@ namespace Math {
 	}
 	template<Align align>
 	constexpr size_t alignToSize()noexcept {
-		static_assert(supported(align));;
+		static_assert(supported(align));
 		return static_cast<size_t>(align);
 	}
 	constexpr size_t alignToSize(Align align)noexcept {
@@ -163,11 +163,50 @@ namespace Math {
 	public:
 		using type=__m256i;
 		static constexpr size_t getNum()noexcept { return 8; }
+		template<typename Induct>
+		static constexpr type store(Induct& ind)noexcept {
+			static_assert(std::is_same_v<decltype(ind()), __int32>, "Type not matched.");
+			return _mm256_set_epi32(
+				ind(), ind(), ind(), ind(),
+				ind(), ind(), ind(), ind()
+			);
+		}
+		static constexpr __int32* depack(type& t)noexcept {
+			return t.m256i_i32;
+		}
+		static constexpr const __int32* depack(const type& t)noexcept {
+			return t.m256i_i32;
+		}
+		static type add(const type& a, const type& b)noexcept { 
+			return _mm256_add_epi32(a, b);
+		}
 	};
 	template<>class base<__int32, Align::_512> {
 	public:
 		using type=__m512i;
 		static constexpr size_t getNum()noexcept { return 16; }
+		template<typename Induct>
+		static constexpr type store(Induct& ind)noexcept {
+			static_assert(std::is_same_v<decltype(ind()), __int32>, "Type not matched.");
+			return _mm512_set_epi32(
+				ind(), ind(), ind(), ind(),
+				ind(), ind(), ind(), ind(),
+				ind(), ind(), ind(), ind(),
+				ind(), ind(), ind(), ind()
+			);
+		}
+		static constexpr __int32* depack(type& t)noexcept {
+			return t.m512i_i32;
+		}
+		static constexpr const __int32* depack(const type& t)noexcept {
+			return t.m512i_i32;
+		}
+		static type add(const type& a, const type& b)noexcept {
+			return _mm512_add_epi32(a, b);
+		}
+		static type load(const type& that)noexcept {
+			return _mm512_load_si512(&that);
+		}
 	};
 
 
@@ -276,37 +315,47 @@ namespace Math {
 		static constexpr size_t getNum()noexcept { return 16; }
 	};
 
-
-
-
-	template<typename T, Align align>
-	class Compute {
-	public:
-		Compute() = delete;
-		~Compute() = delete;
-		using target=typename base<T, align>::type;
-		using source=T;
-
-
-
-	private:
-
-	};
-
-
 	template<Align align, typename T>
 	class _mm_cpp {
 	public:
 		using Basic=base<T, align>;
 		typename Basic::type data;
-		template<typename Induct>_mm_cpp(Induct ind)noexcept:data(Basic::store(ind)) { }
+		/*[[deprecated("Not initialized")]]*/ _mm_cpp()noexcept { }
+		template<typename Induct>_mm_cpp(Induct& ind)noexcept:data(Basic::store(ind)) { }
+		_mm_cpp(const _mm_cpp& ind) = default;
+		_mm_cpp(_mm_cpp&& ind) = default;
 		static void* operator new(size_t sz) {
-			return _aligned_malloc(sz, alignToSize<align>());
+			return
+			#ifdef _DEBUG
+				_aligned_malloc_dbg(sz, alignToSize<align>(), __FILE__, __LINE__)
+			#else
+				_aligned_malloc(sz, alignToSize<align>())
+			#endif // _DEBUG
+				;
 		}
-		static void operator delete(void* ptr,size_t sz) {
-			return _aligned_free(ptr);
+		static void operator delete(void* ptr, size_t sz) {
+			return
+			#ifdef _DEBUG
+				_aligned_free_dbg(ptr)
+			#else
+				_aligned_free(ptr)
+			#endif // _DEBUG
+				;
 		}
 		~_mm_cpp() { }
+
+		_mm_cpp& operator= (const _mm_cpp & that)noexcept{
+			this->data = Basic::load(that.data);
+			return *this;
+		}
+
+
+		_mm_cpp operator+(const _mm_cpp& that) const noexcept{
+			return Basic::add(this->data, that.data);
+		}
+		_mm_cpp& operator+=(const _mm_cpp& that) noexcept{
+			return (*this = (*this + that));
+		}
 
 		template<typename out>
 		friend out& MY_LIB operator<<(out& o, const _mm_cpp& m)noexcept {
