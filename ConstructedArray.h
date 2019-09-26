@@ -10,7 +10,9 @@ namespace Math {
 		Array() = delete;
 		~Array() = default;
 		template<typename... pack_t>
-		constexpr Array(T head, pack_t... pack)noexcept:super(pack...), data(head) {}
+		constexpr Array(T head, pack_t... pack)noexcept:super(pack...), data(head) {
+			static_assert(sizeof...(pack) == sz - 1, "Parameter is not enough");
+		}
 		template<class induce>
 		constexpr Array(induce& ind):data(ind()), super(ind){ }
 
