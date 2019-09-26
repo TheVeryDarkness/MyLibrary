@@ -60,6 +60,7 @@ namespace Math {
 			return o << *static_cast<const super*>(&m) << ',' << ' ' << m.data;
 		}
 	};
+	//********* 1 *********
 	template<typename T>class Array<T, 1>{
 		T data;
 	public:
