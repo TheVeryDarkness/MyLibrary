@@ -361,7 +361,7 @@ namespace Math {
 	};
 
 	template<Align align, typename T>
-	class _mm_cpp {
+	class alignas(alignToSize(align)) _mm_cpp {
 	public:
 		using Basic=base<T, align>;
 		using type=typename Basic::type;
