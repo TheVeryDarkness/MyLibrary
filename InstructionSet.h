@@ -11,8 +11,14 @@ namespace Math {
 	public:
 		using type=T;
 		static constexpr size_t getNum()noexcept { 
-			static_assert(false);
+			static_assert(false, "No matched type");
 			return 1; 
+		}
+		static constexpr type store(T t)noexcept {
+			return t;
+		}
+		static constexpr T* depack(type& t)noexcept {
+			return &t;
 		}
 	};
 
@@ -77,6 +83,12 @@ namespace Math {
 			static_assert(std::is_same_v<decltype(ind()), __int16>, "Type not matched.");
 			return _mm_set_epi16(ind(), ind(), ind(), ind(), ind(), ind(), ind(), ind());
 		}
+		static constexpr __int16* depack(type& t)noexcept {
+			return t.m128i_i16;
+		}
+		static constexpr const __int16* depack(const type& t)noexcept {
+			return t.m128i_i16;
+		}
 	};
 	template<>class base<__int16,Align::_256> {
 	public:
@@ -128,6 +140,12 @@ namespace Math {
 			static_assert(std::is_same_v<decltype(ind()), __int32>, "Type not matched.");
 			return _mm_set_epi32(ind(), ind(), ind(), ind());
 		}
+		static constexpr __int32* depack(type& t)noexcept {
+			return t.m128i_i32;
+		}
+		static constexpr const __int32* depack(const type& t)noexcept {
+			return t.m128i_i32;
+		}
 	};
 	template<>class base<__int32, Align::_256> {
 	public:
@@ -169,16 +187,22 @@ namespace Math {
 	public:
 		using type=__m128i;
 		static constexpr size_t getNum()noexcept { return 2; }
-	};
-	template<>class base<__int64,Align::_256> {
-	public:
-		using type=__m256i;
-		static constexpr size_t getNum()noexcept { return 4; }
 		template<typename Induct>
 		static constexpr type store(Induct& ind)noexcept {
 			static_assert(std::is_same_v<decltype(ind()), __int64>, "Type not matched.");
 			return _mm_set_epi64(ind(), ind());
 		}
+		static constexpr __int64* depack(type& t)noexcept {
+			return t.m128i_i64;
+		}
+		static constexpr const __int64* depack(const type& t)noexcept {
+			return t.m128i_i64;
+		}
+	};
+	template<>class base<__int64,Align::_256> {
+	public:
+		using type=__m256i;
+		static constexpr size_t getNum()noexcept { return 4; }
 	};
 	template<>class base<__int64,Align::_512> {
 	public:
@@ -271,7 +295,10 @@ namespace Math {
 
 		template<typename out>
 		friend out& MY_LIB operator<<(out& o, const _mm_cpp& m)noexcept {
-			return o << m.data;
+			for (size_t i = 0; i < Basic::getNum() && o << ' '; ++i) {
+				o << Basic::depack(m.data)[i];
+			}
+			return o;
 		}
 	private:
 
