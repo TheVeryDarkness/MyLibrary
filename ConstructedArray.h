@@ -24,24 +24,33 @@ namespace Math {
 			static_assert(index < sz, "The index is out of range");
 			return ((index == 0) ? (this->data) : (get<index - 1>()));
 		}
-		constexpr T& operator[](size_t index)noexcept {
-			assert(index < sz);
-			return ((index == 0) ? (this->data) : (this->super::operator[](index - 1)));
-		}
-		constexpr explicit operator T* ()noexcept {
-			return reinterpret_cast<T*>(this);
-		}
 		template<size_t index>
 		constexpr const T& get()const noexcept {
 			static_assert(index < sz, "The index is out of range");
 			return ((index == 0) ? (this->data) : (get<index - 1>()));
 		}
+
+		constexpr T& operator[](size_t index)noexcept {
+			assert(index < sz);
+			return ((index == 0) ? (this->data) : (this->super::operator[](index - 1)));
+		}
 		constexpr const T& operator[](size_t index)const noexcept {
 			assert(index < sz);
 			return ((index == 0) ? (this->data) : (this->super::operator[](index - 1)));
 		}
+
+		constexpr explicit operator T* ()noexcept {
+			return reinterpret_cast<T*>(this);
+		}
 		constexpr explicit operator const T* ()const noexcept {
 			return reinterpret_cast<const T*>(this);
+		}
+
+		constexpr auto decay()noexcept {
+			return this->operator T * ();
+		}
+		constexpr auto decay()const noexcept {
+			return this->operator const T * ();
 		}
 
 		template<typename out>
