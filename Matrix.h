@@ -51,7 +51,7 @@ namespace Math {
 	};
 
 	template<typename Data, size_t... pack>
-	class Matrix<Data, Occupation::CPU, pack...>  {
+	class alignas(Data) Matrix<Data, Occupation::CPU, pack...>  {
 	protected:
 		using product=Template::product<pack...>;
 
@@ -62,6 +62,13 @@ namespace Math {
 
 		constexpr static size_t numElems()noexcept {
 			return product::value();
+		}
+
+		void* operator new(size_t sz) {
+			return _aligned_malloc(sz, alignof(Data));
+		}
+		void operator delete(void* ptr, size_t sz) {
+			return _aligned_free(ptr);
 		}
 
 		template<class induce>
