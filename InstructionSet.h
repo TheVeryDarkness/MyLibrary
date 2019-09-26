@@ -2,9 +2,21 @@
 
 #include <intrin.h>
 namespace Math {
-	enum class Align {
-		_512, _256, _128, _64
+	enum class Align :size_t {
+		_512 = 64, _256 = 32, _128 = 16, _64 = 8
 	};
+	constexpr bool supported(Align align)noexcept {
+		return align == Align::_64 || align == Align::_128 || align == Align::_256 || align == Align::_512;
+	}
+	template<Align align>
+	constexpr size_t alignToSize()noexcept {
+		static_assert(supported(align));;
+		return static_cast<size_t>(align);
+	}
+	constexpr size_t alignToSize(Align align)noexcept {
+		assert(supported(align));
+		return static_cast<size_t>(align);
+	}
 
 	template<typename T, Align align>
 	class base {
@@ -289,14 +301,20 @@ namespace Math {
 		typename Basic::type data;
 		template<typename Induct>_mm_cpp(Induct ind)noexcept:data(Basic::store(ind)) { }
 		static void* operator new(size_t sz) {
-
+			return _aligned_malloc(sz, alignToSize<align>());
+		}
+		static void operator delete(void* ptr,size_t sz) {
+			return _aligned_free(ptr);
 		}
 		~_mm_cpp() { }
 
 		template<typename out>
 		friend out& MY_LIB operator<<(out& o, const _mm_cpp& m)noexcept {
-			for (size_t i = 0; i < Basic::getNum() && o << ' '; ++i) {
+			for (size_t i = 0;; ++i) {
 				o << Basic::depack(m.data)[i];
+				if (i < Basic::getNum() - 1)
+					o << ' ';
+				else break;
 			}
 			return o;
 		}
