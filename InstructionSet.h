@@ -187,7 +187,7 @@ namespace Math {
 		static constexpr size_t getNum()noexcept { return 16; }
 		template<typename Induct>
 		static constexpr type store(Induct& ind)noexcept {
-			static_assert(std::is_same_v<decltype(ind()), __int32>, "Type not matched.");
+			static_assert(std::is_same_v<std::remove_cv_t<decltype(ind())>, __int32>, "Type not matched.");
 			return _mm512_set_epi32(
 				ind(), ind(), ind(), ind(),
 				ind(), ind(), ind(), ind(),
@@ -319,11 +319,14 @@ namespace Math {
 	class _mm_cpp {
 	public:
 		using Basic=base<T, align>;
-		typename Basic::type data;
+		using type=typename Basic::type;
+		type data;
 		/*[[deprecated("Not initialized")]]*/ _mm_cpp()noexcept { }
-		template<typename Induct>_mm_cpp(Induct& ind)noexcept:data(Basic::store(ind)) { }
-		_mm_cpp(const _mm_cpp& ind) = default;
-		_mm_cpp(_mm_cpp&& ind) = default;
+		_mm_cpp(const _mm_cpp& m) :data(m.data) { }
+		_mm_cpp(const type& m) :data(m) { }
+		_mm_cpp(_mm_cpp&& m) :data(m..data) { }
+		template<typename Induct>_mm_cpp(Induct& ind)noexcept
+			:data(Basic::store(ind)) { }
 		static void* operator new(size_t sz) {
 			return
 			#ifdef _DEBUG
