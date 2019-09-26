@@ -7,7 +7,7 @@ namespace Math {
 		template<typename induce>
 		constexpr arr(induce& ind) noexcept {
 			for (auto& i : data) {
-				if constexpr (std::is_same_v<T, decltype(ind())>) {
+				if constexpr (std::is_same_v<std::remove_cv_t<T>, std::remove_cv_t<decltype(ind())>>) {
 					i = ind();
 				}
 				else {
