@@ -1,6 +1,6 @@
 #include "Statistics.h"
 #include "VariableParameterTemplate.h"
-#include "ConstructedArray.h"
+#include "normalArray.h"
 #include "InstructionSet.h"
 #include <amp.h>
 #include <omp.h>
@@ -10,10 +10,10 @@ namespace Math {
 		CPU,GPU
 	};
 
-	using concurrency::array;
-	using concurrency::array_view;
-	using concurrency::index;
-	using concurrency::parallel_for_each;
+	//using concurrency::array;
+	//using concurrency::array_view;
+	//using concurrency::index;
+	//using concurrency::parallel_for_each;
 
 
 
@@ -24,7 +24,9 @@ namespace Math {
 	public:
 		using size=int;
 		Concurrency::array<Data, sizeof...(pack)> Element;
-		MY_LIB Matrix(size E0, Data* E) :Element(E0, E) { }
+		MY_LIB Matrix(size E0, Data* E) :Element(E0, E) { 
+
+		}
 
 		void MY_LIB operator+=(const Matrix& that)noexcept {
 			Add add(this->Element, that.Element);
@@ -53,7 +55,7 @@ namespace Math {
 	protected:
 		using product=Template::product<pack...>;
 
-		Array<Data, product::value()> Element;
+		arr<Data, product::value()> Element;
 	public:
 		using size=size_t;
 		static_assert(sizeof...(pack) != 0, "The length of parameter pack should not be 0");
@@ -108,81 +110,4 @@ namespace Math {
 		}
 	private:
 	};
-
-	template<size_t... pack>
-	class Matrix<__int64, Occupation::CPU, pack...> 
-		:protected Matrix<
-		__m512i, 
-		Occupation::CPU, 
-		floor(Template::product<pack...>::value(),sizeof(__m512i) / sizeof(__int64))
-		> {
-	public:
-		template<class induce>
-		MY_LIB Matrix(induce ind) {
-		#pragma omp parallel for
-			for (size_t i = 0; i < numElems(); ++i) {
-				Element[i] = ind(i);
-			}
-		}
-	};
-
-	/*
-	template<size_t... pack>
-	class Matrix<__int32, Occupation::CPU, pack...> 
-		:protected Matrix<
-		__m512i,
-		Occupation::CPU, 
-		floor(Template::product<pack...>::value(),sizeof(__m512i) / sizeof(__int32))
-		> {
-	public:
-		using super=Matrix<__m512i, Occupation::CPU, floor(Template::product<pack...>::value(), sizeof(__m512i) / sizeof(__int32))>;
-		template<class induce>
-		MY_LIB Matrix(induce ind) {
-		#pragma omp parallel for
-			for (size_t i = 0; i < numElems(); ++i) {
-				this->super::Element[i] = _mm512_set_epi32(
-					ind(i), ind(++i), ind(++i), ind(++i),
-					ind(++i), ind(++i), ind(++i), ind(++i), 
-					ind(++i), ind(++i), ind(++i), ind(++i),
-					ind(++i), ind(++i), ind(++i), ind(++i));
-			}
-		}
-		Matrix& MY_LIB operator+=(const Matrix& that)noexcept {
-		#pragma omp parallel for
-			for (size_t i = 0; i < numElems(); i++) {
-				
-				this->Element[i] += that.Element[i];
-			}
-			return *this;
-		}
-		Matrix& MY_LIB operator-=(const Matrix& that)noexcept {
-		#pragma omp parallel for
-			for (size_t i = 0; i < numElems(); i++) {
-				this->Element[i] -= that.Element[i];
-			}
-			return *this;
-		}
-		Matrix& MY_LIB operator*=(const Matrix& that)noexcept {
-		#pragma omp parallel for
-			for (size_t i = 0; i < numElems(); i++) {
-				this->Element[i] *= that.Element[i];
-			}
-			return *this;
-		}
-		Matrix& MY_LIB operator/=(const Matrix& that)noexcept {
-		#pragma omp parallel for
-			for (size_t i = 0; i < numElems(); i++) {
-				this->Element[i] /= that.Element[i];
-			}
-			return *this;
-		}
-		Matrix& MY_LIB operator%=(const Matrix& that)noexcept {
-			static_assert(std::is_integral_v<Data>, "Integral type required.");
-		#pragma omp parallel for
-			for (size_t i = 0; i < numElems(); i++) {
-				this->Element[i] %= that.Element[i];
-			}
-			return *this;
-		}
-	};*/
 };
