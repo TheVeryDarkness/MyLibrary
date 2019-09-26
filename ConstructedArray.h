@@ -66,6 +66,7 @@ namespace Math {
 		Array() = delete;
 		~Array() = default;
 		constexpr Array(T head)noexcept :data(head) { }
+
 		template<class induce>
 		constexpr Array(induce& ind) : data(ind()) { }
 
