@@ -58,6 +58,7 @@ namespace Math {
 		arr<Data, product::value()> Element;
 	public:
 		using size=size_t;
+		using ELEMENT_TYPE=decltype(Element);
 		static_assert(sizeof...(pack) != 0, "The length of parameter pack should not be 0");
 
 		constexpr static size_t numElems()noexcept {
@@ -65,14 +66,28 @@ namespace Math {
 		}
 
 		void* operator new(size_t sz) {
-			return _aligned_malloc(sz, alignof(Data));
+			return
+			#ifdef _DEBUG
+				_aligned_malloc_dbg(sz, alignof(Data), __FILE__, __LINE__)
+			#else
+				_aligned_malloc(sz, alignof(Data))
+			#endif // _DEBUG
+				;
 		}
-		void operator delete(void* ptr, size_t sz) {
-			return _aligned_free(ptr);
+		void operator delete(void* ptr) {
+			return 
+			#ifdef _DEBUG
+				_aligned_free_dbg(ptr)
+			#else
+				_aligned_free(ptr)
+			#endif // _DEBUG
+				;
 		}
 
 		template<class induce>
 		MY_LIB Matrix(induce ind) :Element(ind) { }
+
+		MY_LIB ~Matrix()noexcept = default;
 
 		Matrix& MY_LIB operator+=(const Matrix& that)noexcept {
 		#pragma omp parallel for
