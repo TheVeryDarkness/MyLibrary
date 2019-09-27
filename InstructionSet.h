@@ -259,12 +259,11 @@ namespace Math {
 		static constexpr size_t getNum()noexcept { return 4; }
 		template<typename Induct>
 		static constexpr type store(Induct& ind)noexcept {
-			static_assert(std::is_same_v<std::remove_cv_t<decltype(ind())>, __int64>, "Type not matched.");
-			type mm256;
-			for (auto& i : mm256.m256i_i64) {
-				i = ind();
-			}
-			return mm256;
+			static_assert(std::is_arithmetic_v<std::remove_cv_t<decltype(ind())>>, "Type not matched.");
+			return _mm256_set_epi64x(ind(), ind(), ind(), ind());
+		}
+		static type store(__int64 E0,__int64 E1,__int64 E2,__int64 E3)noexcept {
+			return _mm256_set_epi64x(E0, E1, E2, E3);
 		}
 		static constexpr __int64* depack(type& t)noexcept {
 			return t.m256i_i64;
@@ -361,7 +360,7 @@ namespace Math {
 	};
 
 	template<Align align, typename T>
-	class alignas(alignToSize(align)) _mm_cpp {
+	class alignas(alignToSize(align)) _mm_cpp:public base<T ,align> {
 	public:
 		using Basic=base<T, align>;
 		using type=typename Basic::type;
