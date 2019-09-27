@@ -54,11 +54,11 @@ namespace Math {
 	class alignas(Data) Matrix<Data, Occupation::CPU, pack...>  {
 	protected:
 		using product=Template::product<pack...>;
-
-		arr<Data, product::value()> Element;
+		constexpr MY_LIB Matrix()noexcept { }
+		Data Element[product::value()];
 	public:
 		using size=size_t;
-		using ELEMENT_TYPE=decltype(Element);
+		using ELEMENT_TYPE=Data;
 		static_assert(sizeof...(pack) != 0, "The length of parameter pack should not be 0");
 
 		constexpr static size_t numElems()noexcept {
@@ -85,7 +85,21 @@ namespace Math {
 		}
 
 		template<class induce>
-		MY_LIB Matrix(induce ind) :Element(ind) { }
+		constexpr MY_LIB Matrix(induce ind) noexcept {
+			for (size_t i = 0; i < numElems(); ++i) {
+				this->Element[i] = Data(ind());
+			}
+		}
+
+		template<class induce>
+		static constexpr Matrix MY_LIB ParallelMake(induce ind)noexcept {
+			Matrix m;
+		#pragma omp parallel for
+			for (size_t i = 0; i < numElems(); ++i) {
+				m.Element[i] = Data(ind(i));
+			}
+			return m;
+		}
 
 		MY_LIB ~Matrix()noexcept = default;
 
