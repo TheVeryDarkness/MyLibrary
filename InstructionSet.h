@@ -23,13 +23,16 @@ namespace Math {
 	public:
 		using type=T;
 		static constexpr size_t getNum()noexcept { 
-			static_assert(false, "No matched type");
+			static_assert(std::is_arithmetic_v<T>, "No matched type");
 			return 1; 
 		}
 		static constexpr type store(T t)noexcept {
 			return t;
 		}
 		static constexpr T* depack(type& t)noexcept {
+			return &t;
+		}
+		static constexpr const T* depack(const type& t)noexcept {
 			return &t;
 		}
 	};
@@ -140,8 +143,20 @@ namespace Math {
 	//__int32
 	template<>class base<__int32,Align::_64> {
 	public:
-		using type=__m64;
+		using type=__int64;
 		static constexpr size_t getNum()noexcept { return 2; }
+		static __int32* depack(type& t)noexcept {
+			return reinterpret_cast<__int32*>(&t);
+		}
+		static const __int32* depack(const type& t)noexcept {
+			return reinterpret_cast<const __int32*>(&t);
+		}
+		static type add(const type& a, const type& b)noexcept {
+			return (a + b);
+		}
+		static type load(const type& that)noexcept {
+			return that;
+		}
 	};
 	template<>class base<__int32, Align::_128> {
 	public:
@@ -365,6 +380,9 @@ namespace Math {
 		using Basic=base<T, align>;
 		using type=typename Basic::type;
 		type data;
+		static constexpr size_t lenArray(size_t len)noexcept {
+			return ((len - 1) / Basic::getNum() + 1);
+		}
 		/*[[deprecated("Not initialized")]]*/ _mm_cpp()noexcept { }
 		_mm_cpp(const _mm_cpp& m) :data(m.data) { }
 		_mm_cpp(const type& m) :data(m) { }
@@ -380,7 +398,7 @@ namespace Math {
 			#endif // _DEBUG
 				;
 		}
-		static void operator delete(void* ptr, size_t sz) {
+		static void operator delete(void* ptr) {
 			return
 			#ifdef _DEBUG
 				_aligned_free_dbg(ptr)
