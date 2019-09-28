@@ -61,13 +61,12 @@ namespace Math {
 		constexpr static size_t numArrayElem()noexcept {
 			return ElemType::lenArray(product::value());
 		}
+		using ElemType=_mm_cpp<align, Data>;
 	protected:
 		constexpr MY_LIB MatrixCPU()noexcept { }
-		using ElemType=_mm_cpp<align, Data>;
 		ElemType Element[numArrayElem()];
 	public:
 		using size=size_t;
-		using ELEMENT_TYPE=Data;
 		static_assert(sizeof...(pack) != 0, "The length of parameter pack should not be 0");
 		static_assert(std::is_arithmetic_v<Data>, "Arithmetic type required");
 
