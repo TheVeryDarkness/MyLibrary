@@ -17,18 +17,19 @@ namespace Math {
 
 
 
-	template<typename Data, Occupation, size_t... pack>class Matrix;
+	template<typename Data, size_t... pack>class MatrixGPU;
+	template<typename Data, Align align, size_t... pack>class MatrixCPU;
 
 	template<typename Data, size_t... pack>
-	class Matrix<Data, Occupation::GPU, pack...> {
+	class MatrixGPU {
 	public:
 		using size=int;
 		Concurrency::array<Data, sizeof...(pack)> Element;
-		MY_LIB Matrix(size E0, Data* E) :Element(E0, E) { 
+		MY_LIB MatrixGPU(size E0, Data* E) :Element(E0, E) {
 
 		}
 
-		void MY_LIB operator+=(const Matrix& that)noexcept {
+		void MY_LIB operator+=(const MatrixGPU& that)noexcept {
 			Add add(this->Element, that.Element);
 			Concurrency::parallel_for_each(
 				this->Element.extent,
@@ -50,20 +51,25 @@ namespace Math {
 		};
 	};
 
-	template<typename Data, size_t... pack>
-	class alignas(Data) Matrix<Data, Occupation::CPU, pack...>  {
-	protected:
+	template<typename Data, Align align, size_t... pack>
+	class alignas(alignToSize(align)) MatrixCPU  {
+	public:
 		using product=Template::product<pack...>;
-		constexpr MY_LIB Matrix()noexcept { }
-		Data Element[product::value()];
+		constexpr static size_t numRawData()noexcept {
+			return product::value();
+		}
+		constexpr static size_t numArrayElem()noexcept {
+			return ElemType::lenArray(product::value());
+		}
+	protected:
+		constexpr MY_LIB MatrixCPU()noexcept { }
+		using ElemType=_mm_cpp<align, Data>;
+		ElemType Element[numArrayElem()];
 	public:
 		using size=size_t;
 		using ELEMENT_TYPE=Data;
 		static_assert(sizeof...(pack) != 0, "The length of parameter pack should not be 0");
-
-		constexpr static size_t numElems()noexcept {
-			return product::value();
-		}
+		static_assert(std::is_arithmetic_v<Data>, "Arithmetic type required");
 
 		void* operator new(size_t sz) {
 			return
@@ -84,65 +90,82 @@ namespace Math {
 				;
 		}
 
+		constexpr MY_LIB MatrixCPU(const MatrixCPU& that)noexcept :Element(that.Element) { }
+		constexpr MY_LIB MatrixCPU(MatrixCPU&&)noexcept = default;
+
 		template<class induce>
-		constexpr MY_LIB Matrix(induce ind) noexcept {
-			for (size_t i = 0; i < numElems(); ++i) {
-				this->Element[i] = Data(ind());
+		constexpr explicit MY_LIB MatrixCPU(induce& ind) noexcept {
+			for (size_t i = 0; i < numRawData(); ++i) {
+				reinterpret_cast<Data*>(this->Element)[i] = Data(ind());
+			}
+		}
+		template<class induce>
+		constexpr explicit MY_LIB MatrixCPU(size_t start, induce& ind) noexcept {
+			for (size_t i = 0; i < numRawData(); ++i) {
+				reinterpret_cast<Data*>(this->Element)[i] = Data(ind(i + start));
 			}
 		}
 
 		template<class induce>
-		static constexpr Matrix MY_LIB ParallelMake(induce ind)noexcept {
-			Matrix m;
+		static constexpr void MY_LIB ParallelMake(MatrixCPU& m,induce& ind)noexcept {
 		#pragma omp parallel for
-			for (size_t i = 0; i < numElems(); ++i) {
-				m.Element[i] = Data(ind(i));
+			for (size_t i = 0; i < numRawData(); ++i) {
+				reinterpret_cast<Data*>(m.Element)[i] = Data(ind(i));
 			}
 			return m;
 		}
+		template<class induce>
+		static constexpr MatrixCPU MY_LIB ParallelMake(induce& ind)noexcept { 
+			MatrixCPU m;
+			ParallelMake(m, ind);
+			return m;
+		}
 
-		MY_LIB ~Matrix()noexcept = default;
+		MY_LIB ~MatrixCPU()noexcept = default;
 
-		Matrix& MY_LIB operator+=(const Matrix& that)noexcept {
+		MatrixCPU& MY_LIB operator+=(const MatrixCPU& that)noexcept {
 		#pragma omp parallel for
-			for (size_t i = 0; i < numElems(); ++i) {
+			for (size_t i = 0; i < numArrayElem(); ++i) {
 				this->Element[i] += that.Element[i];
 			}
 			return *this;
 		}
-		Matrix& MY_LIB operator-=(const Matrix& that)noexcept {
+		MatrixCPU& MY_LIB operator-=(const MatrixCPU& that)noexcept {
 		#pragma omp parallel for
-			for (size_t i = 0; i < numElems(); ++i) {
+			for (size_t i = 0; i < numArrayElem(); ++i) {
 				this->Element[i] -= that.Element[i];
 			}
 			return *this;
 		}
-		Matrix& MY_LIB operator*=(const Matrix& that)noexcept {
+		MatrixCPU& MY_LIB operator*=(const MatrixCPU& that)noexcept {
 		#pragma omp parallel for
-			for (size_t i = 0; i < numElems(); ++i) {
+			for (size_t i = 0; i < numArrayElem(); ++i) {
 				this->Element[i] *= that.Element[i];
 			}
 			return *this;
 		}
-		Matrix& MY_LIB operator/=(const Matrix& that)noexcept {
+		MatrixCPU& MY_LIB operator/=(const MatrixCPU& that)noexcept {
 		#pragma omp parallel for
-			for (size_t i = 0; i < numElems(); ++i) {
+			for (size_t i = 0; i < numArrayElem(); ++i) {
 				this->Element[i] /= that.Element[i];
 			}
 			return *this;
 		}
-		Matrix& MY_LIB operator%=(const Matrix& that)noexcept {
+		MatrixCPU& MY_LIB operator%=(const MatrixCPU& that)noexcept {
 			static_assert(std::is_integral_v<Data>,"Integral type required.");
 		#pragma omp parallel for
-			for (size_t i = 0; i < numElems(); ++i) {
+			for (size_t i = 0; i < numArrayElem(); ++i) {
 				this->Element[i] %= that.Element[i];
 			}
 			return *this;
 		}
 
 		template<typename out>
-		friend out& MY_LIB operator<<(out& o, const Matrix& m)noexcept {
-			return o << m.Element;
+		friend out& MY_LIB operator<<(out& o, const MatrixCPU& m)noexcept {
+			for (size_t i = 0; i < numArrayElem(); ++i) {
+				o << m.Element[i] << ' ';
+			}
+			return o;
 		}
 	private:
 	};
