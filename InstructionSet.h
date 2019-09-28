@@ -186,6 +186,11 @@ namespace Math {
 				ind(), ind(), ind(), ind()
 			);
 		}
+		static type store(__int32 E0, __int32 E1, __int32 E2, __int32 E3, __int32 E4, __int32 E5, __int32 E6, __int32 E7)noexcept {
+			return _mm256_set_epi32(
+				E0, E1, E2, E3, E4, E5, E6, E7
+			);
+		}
 		static constexpr __int32* depack(type& t)noexcept {
 			return t.m256i_i32;
 		}
