@@ -1,6 +1,5 @@
 #include "Statistics.h"
 #include "VariableParameterTemplate.h"
-#include "normalArray.h"
 #include "InstructionSet.h"
 #include <amp.h>
 #include <omp.h>
@@ -52,7 +51,7 @@ namespace Math {
 	};
 
 	template<typename Data, Align align, size_t... pack>
-	class alignas(alignToSize(align)) MatrixCPU  {
+	class alignas(alignToSize<align>()) MatrixCPU  {
 	public:
 		using product=Template::product<pack...>;
 		constexpr static size_t numRawData()noexcept {
@@ -66,6 +65,7 @@ namespace Math {
 		constexpr MY_LIB MatrixCPU()noexcept { }
 		ElemType Element[numArrayElem()];
 	public:
+		static constexpr Align getAlign()noexcept { return align; }
 		using size=size_t;
 		static_assert(sizeof...(pack) != 0, "The length of parameter pack should not be 0");
 		static_assert(std::is_arithmetic_v<Data>, "Arithmetic type required");
@@ -121,6 +121,11 @@ namespace Math {
 		}
 
 		MY_LIB ~MatrixCPU()noexcept = default;
+
+		template<size_t index>constexpr const ElemType& get()const noexcept {
+			return this->Element[index];
+		}
+
 
 		MatrixCPU& MY_LIB operator+=(const MatrixCPU& that)noexcept {
 		#pragma omp parallel for
