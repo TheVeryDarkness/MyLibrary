@@ -100,6 +100,7 @@ namespace Math {
 		}
 		template<class induce>
 		constexpr explicit MY_LIB MatrixCPU(size_t start, induce& ind) noexcept {
+		#pragma omp parallel for
 			for (size_t i = 0; i < numRawData(); ++i) {
 				reinterpret_cast<Data*>(this->Element)[i] = Data(ind(i + start));
 			}
