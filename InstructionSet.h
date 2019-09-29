@@ -3,14 +3,14 @@
 #include <intrin.h>
 namespace Math {
 	enum class Align :size_t {
-		_512 = 64, _256 = 32, _128 = 16, _64 = 8
+		_512 = 64, _256 = 32, _128 = 16, _64 = 8, _32 = 4
 	};
 	constexpr bool supported(Align align)noexcept {
-		return align == Align::_64 || align == Align::_128 || align == Align::_256 || align == Align::_512;
+		return align == Align::_32 || align == Align::_64 || align == Align::_128 || align == Align::_256 || align == Align::_512;
 	}
 	template<Align align>
 	constexpr size_t alignToSize()noexcept {
-		static_assert(supported(align));
+		static_assert(supported(align), "The alignment is not supported");
 		return static_cast<size_t>(align);
 	}
 	constexpr size_t alignToSize(Align align)noexcept {
@@ -34,6 +34,12 @@ namespace Math {
 		}
 		static constexpr const T* depack(const type& t)noexcept {
 			return &t;
+		}
+		static constexpr type add(const type& a, const type& b)noexcept {
+			return (a + b);
+		}
+		static type load(const type& that)noexcept {
+			return that;
 		}
 	};
 
@@ -188,7 +194,7 @@ namespace Math {
 		}
 		static type store(__int32 E0, __int32 E1, __int32 E2, __int32 E3, __int32 E4, __int32 E5, __int32 E6, __int32 E7)noexcept {
 			return _mm256_set_epi32(
-				E0, E1, E2, E3, E4, E5, E6, E7
+				E7, E6, E5, E4, E3, E2, E1, E0
 			);
 		}
 		static constexpr __int32* depack(type& t)noexcept {
@@ -283,7 +289,7 @@ namespace Math {
 			return _mm256_set_epi64x(ind(), ind(), ind(), ind());
 		}
 		static type store(__int64 E0,__int64 E1,__int64 E2,__int64 E3)noexcept {
-			return _mm256_set_epi64x(E0, E1, E2, E3);
+			return _mm256_set_epi64x(E3, E2, E1, E0);
 		}
 		static constexpr __int64* depack(type& t)noexcept {
 			return t.m256i_i64;
@@ -384,6 +390,7 @@ namespace Math {
 	public:
 		using Basic=base<T, align>;
 		using type=typename Basic::type;
+		using baseType=T;
 		type data;
 		static constexpr size_t lenArray(size_t len)noexcept {
 			return ((len - 1) / Basic::getNum() + 1);
@@ -391,7 +398,7 @@ namespace Math {
 		/*[[deprecated("Not initialized")]]*/ _mm_cpp()noexcept { }
 		_mm_cpp(const _mm_cpp& m) :data(m.data) { }
 		_mm_cpp(const type& m) :data(m) { }
-		_mm_cpp(_mm_cpp&& m) :data(m..data) { }
+		_mm_cpp(_mm_cpp&& m) :data(m.data) { }
 		template<typename Induct>_mm_cpp(Induct& ind)noexcept
 			:data(Basic::store(ind)) { }
 		static void* operator new(size_t sz) {
@@ -415,7 +422,9 @@ namespace Math {
 		~_mm_cpp() { }
 
 		_mm_cpp& operator=(const _mm_cpp & that)noexcept{
-			this->data = Basic::load(that.data);
+		#pragma warning "?"
+			this->data = that.data;
+			//this->data = Basic::load(that.data);
 			return *this;
 		}
 
@@ -424,7 +433,8 @@ namespace Math {
 			return Basic::add(this->data, that.data);
 		}
 		_mm_cpp& operator+=(const _mm_cpp& that) noexcept{
-			return (*this = (*this + that));
+			this->data = Basic::add(this->data, that.data);
+			return *this;
 		}
 
 		template<typename out>
