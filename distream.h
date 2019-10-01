@@ -14,8 +14,8 @@ namespace LargeInteger {
 		din() noexcept { }
 		~din() noexcept { }
 
-		template<typename Iter>
-		din& operator>>(Iter it) {
+		template<typename Cntnr>
+		din& operator>>(Cntnr it) {
 			while (true) {
 				auto&& c = _getch();
 				switch (c) {
