@@ -63,7 +63,7 @@ namespace LargeInteger {
 
 
 	typedef BaseSet < char, unsigned char, 0, '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'> Set16;
-	typedef BaseSet < char, unsigned char, 0, '0', '1', '2', '3', '4', '5', '6', '7', '8'> Set8;
+	typedef BaseSet < char, unsigned char, 0, '0', '1', '2', '3', '4', '5', '6', '7'> Set8;
 	typedef BaseSet < char, unsigned char, 0, '0', '1'> Set2;
 	typedef BaseSet < char, unsigned char, 0, '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'> Set10;
 
