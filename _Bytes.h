@@ -292,6 +292,20 @@ namespace LargeInteger {
 			}
 			return *this;
 		}
+		constexpr _Bytes operator<<(size_t sz)const noexcept {
+			_Bytes copy(*this);
+			for (size_t i = 0; i < sz; i++) {
+				copy.SHL();
+			}
+			return copy;
+		}
+		constexpr _Bytes operator>>(size_t sz)const noexcept {
+			_Bytes copy(*this);
+			for (size_t i = 0; i < sz; i++) {
+				copy.SHR();
+			}
+			return copy;
+		}
 		constexpr _Bytes& operator+=(const _Bytes& that)noexcept {
 			this->add_o(that);
 			return *this;
