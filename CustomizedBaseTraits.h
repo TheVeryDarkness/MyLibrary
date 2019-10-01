@@ -1,27 +1,27 @@
 #pragma once
 
-#include <istream>
+#include <iostream>
 
 namespace LargeInteger {
 
-	template<typename char_type, typename int_type, size_t BeginIndex, char_type... set>
+	template<typename _Elem, typename index_type, index_type BeginIndex, _Elem... set>
 	class BaseSet;
 
-	template<typename char_type, typename int_type, size_t BeginIndex>
-	class BaseSet<char_type, int_type, BeginIndex>
+	template<typename _Elem, typename index_type, index_type BeginIndex>
+	class BaseSet<_Elem, index_type, BeginIndex>
 	{
 	public:
 		MY_LIB BaseSet() = delete;
 		MY_LIB ~BaseSet() = delete;
-		using CharType=char_type;
-		using IntType=int_type;
-		constexpr static int_type MY_LIB to_int_type(char_type Char)noexcept {
-			return int_type('?');
+		using CharType=_Elem;
+		using IntType=index_type;
+		constexpr static index_type MY_LIB to_int_type(_Elem Char)noexcept {
+			return index_type('?');
 		}
-		constexpr static char_type MY_LIB to_char_type(int_type Int)noexcept {
-			return char_type('?');
+		constexpr static _Elem MY_LIB to_char_type(index_type Int)noexcept {
+			return _Elem('?');
 		}
-		constexpr static int_type MY_LIB getRadix()noexcept {
+		constexpr static index_type MY_LIB getRadix()noexcept {
 			return BeginIndex;
 		}
 	private:
@@ -29,22 +29,24 @@ namespace LargeInteger {
 	};
 
 	//Mind that '?' is reserved for unknown input
-	template<typename char_type, typename int_type, size_t BeginIndex, char_type Head, char_type... Remained>
-	class BaseSet<char_type, int_type, BeginIndex, Head, Remained...> :public BaseSet<char_type, int_type, BeginIndex + 1, Remained...>
+	template<typename _Elem, typename index_type, index_type BeginIndex, _Elem Head, _Elem... Remained>
+	class BaseSet<_Elem, index_type, BeginIndex, Head, Remained...> :public BaseSet<_Elem, index_type, BeginIndex + 1, Remained...>
 	{
 	public:
 		MY_LIB BaseSet() = delete;
 		MY_LIB ~BaseSet() = delete;
-		using CharType=char_type;
-		using IntType=int_type;
-		constexpr static int_type MY_LIB to_int_type(char_type Char)noexcept {
+		using CharType=_Elem;
+		using IntType=index_type;
+		using char_type=_Elem;
+		using int_type=index_type;
+		constexpr static index_type MY_LIB to_int_type(char_type Char)noexcept {
 			if (Char == Head)
 			{
-				return int_type(BeginIndex);
+				return index_type(BeginIndex);
 			}
 			else
 			{
-				return BaseSet<char_type, int_type, BeginIndex + 1, Remained...>::to_int_type(Char);
+				return BaseSet<char_type, index_type, BeginIndex + 1, Remained...>::to_int_type(Char);
 			}
 		}
 		constexpr static char_type MY_LIB to_char_type(int_type Int)noexcept {
@@ -54,11 +56,11 @@ namespace LargeInteger {
 			}
 			else
 			{
-				return BaseSet<char_type, int_type, BeginIndex + 1, Remained...>::to_char_type(Int);
+				return BaseSet<char_type, index_type, BeginIndex + 1, Remained...>::to_char_type(Int);
 			}
 		}
 		constexpr static int_type MY_LIB getRadix()noexcept {
-			return BaseSet<char_type, int_type, BeginIndex + 1, Remained...>::getRadix();
+			return BaseSet<char_type, index_type, BeginIndex + 1, Remained...>::getRadix();
 		}
 	private:
 
@@ -83,18 +85,18 @@ namespace LargeInteger {
 	template<>class Set<10> :public Set10{ public:	Set() = delete;	~Set() = delete; };
 	template<>class Set<16> :public Set16{ public:	Set() = delete;	~Set() = delete; };
 
-	template<typename _Elem, typename char_type, typename int_type, size_t BeginIndex, char_type... set>
-	class std::basic_istream<_Elem, BaseSet<char_type, int_type, BeginIndex, set...>>
+	template<typename _Elem, typename index_type, size_t BeginIndex, _Elem... set>
+	class std::basic_istream<_Elem, BaseSet<_Elem, index_type, BeginIndex, set...>>
 	{
-		using charset=LargeInteger::BaseSet<char_type, int_type, BeginIndex, set...>;
+		using charset=LargeInteger::BaseSet<_Elem, index_type, BeginIndex, set...>;
 	public:
 		basic_istream(std::basic_istream<_Elem>& i)noexcept :is(i) {}
 
 		~basic_istream() = default;
 
 
-		template<typename iter, typename Iter, auto radix>
-		static void MY_LIB store(iter temp, Iter str)noexcept {
+		template<typename iter, typename Cntnr, auto radix>
+		static void MY_LIB store(iter temp, Cntnr str)noexcept {
 			static_assert(
 				std::is_same_v<
 				decltype(std::remove_cvref_t<*temp>),
@@ -150,48 +152,72 @@ namespace LargeInteger {
 		std::basic_istream<_Elem>& is;
 	};
 	
-	template<typename _Elem, typename char_type, typename int_type, size_t BeginIndex, char_type... set>
-	class std::basic_ostream<_Elem, BaseSet<char_type, int_type, BeginIndex, set...>>
+	template<typename _Elem, typename index_type, index_type BeginIndex, _Elem... set>
+	class std::basic_ostream<_Elem, BaseSet<_Elem, index_type, BeginIndex, set...>>
 	{
-		using charset=LargeInteger::BaseSet<char_type, int_type, BeginIndex, set...>;
+		using charset=LargeInteger::BaseSet<_Elem, index_type, BeginIndex, set...>;
 	public:
 		basic_ostream(std::basic_ostream<_Elem>& o)noexcept :os(o) {}
 
 		~basic_ostream() = default;
 
 		MY_LIB operator std::basic_ostream<_Elem>& () noexcept { return os; }
+		MY_LIB operator const std::basic_ostream<_Elem>& () const noexcept { return os; }
 
-		template<typename Iter>
-		auto& MY_LIB operator<<(Iter it) {
-			static_assert(GetPowerTimes(Iter::getRadix(), charset::getRadix()) != 0 || Iter::getRadix() == charset::getRadix());
-			std::ostream_iterator<_Elem> o(os);
-			if constexpr (Iter::getRadix() == charset::getRadix())
-			{
-				for (auto i = it.cbegin(); i != it.cend(); ++i) {
-					auto c = charset::to_char_type(*i);
-					if (c != '?')
-					{
-						++o;
-						*o = c;
-					}
+		template<typename Cntnr>
+		std::basic_ostream<_Elem, charset> &MY_LIB Print(Cntnr &that) {
+			if constexpr(std::is_arithmetic_v<Cntnr>) {
+				auto &&res = that / charset::getRadix();
+				if (res != 0) {
+					Print(res);
 				}
-				return *this;
+				os << that % charset::getRadix();
 			}
-			else
-			{
-				for (auto i = it.cbegin(); i != it.cend(); ++i) {
-					auto val = *i;
-					for (decltype(GetPowerTimes(Iter::getRadix(), charset::getRadix())) j = 0; j < GetPowerTimes(Iter::getRadix(), charset::getRadix()); j++) {
-						auto c = charset::to_char_type(val() % charset::getRadix());
-						val /= charset::getRadix();
-						if (c != '?')
-						{
+			else {
+				auto &&res = that.Divide(charset::getRadix());
+				if (res != 0) {
+					Print(res);
+				}
+				os << that.GetValue<size_t>();
+				res.destruct();
+			}
+			return *this;
+		}
+
+		template<typename Cntnr>
+		auto &MY_LIB operator<<(const Cntnr& it) {
+			if constexpr (GetPowerTimes(Cntnr::getRadix(), charset::getRadix()) != 0 || Cntnr::getRadix() == charset::getRadix()) {
+				std::ostream_iterator<_Elem> o(os);
+				if constexpr (Cntnr::getRadix() == charset::getRadix()) {
+					for (auto i = it.crbegin(); i != it.crend(); ++i) {
+						auto c = charset::to_char_type(*i);
+						if (c != '?') {
 							++o;
 							*o = c;
 						}
-						else --j;
 					}
+					return *this;
 				}
+				else {
+					for (auto i = it.crbegin(); i != it.crend(); ++i) {
+						auto val = *i;
+						for (decltype(GetPowerTimes(Cntnr::getRadix(), charset::getRadix())) j = 0; j < GetPowerTimes(Cntnr::getRadix(), charset::getRadix()); j++) {
+							auto c = charset::to_char_type(val % charset::getRadix());
+							val /= charset::getRadix();
+							if (c != '?') {
+								++o;
+								*o = c;
+							}
+							else --j;
+						}
+					}
+					return *this;
+				}
+			}
+			else {
+				Cntnr copy = Cntnr::Copy(it);
+				Print(copy);
+				copy.destruct();
 				return *this;
 			}
 		}
@@ -199,4 +225,4 @@ namespace LargeInteger {
 	private:
 		std::basic_ostream<_Elem>& os;
 	};
-};
+}
