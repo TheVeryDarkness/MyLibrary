@@ -20,7 +20,17 @@ namespace LargeInteger {
 			MY_LIB Add()noexcept { }
 			MY_LIB ~Add()noexcept { }
 			std::pair<Data, Data> MY_LIB operator()(Data Carry, const Data& a, const Data& b)noexcept {
-				return std::pair<Data, Data>(
+				if (Radix == 0)
+					return std::pair<Data, Data>(
+						a + b + Carry,
+						Data(
+						(Carry > 0) ?
+							(((a > (static_cast<Data>(~1) - b)) || (b > static_cast<Data>(Radix - 1))) ? 1 : 0)
+							:
+							((a > static_cast<Data>(~b) ? 1 : 0))
+						)
+						);
+				else return std::pair<Data, Data>(
 					(a + b + Carry) % Radix,
 					Data(
 					(Carry > 0) ?
@@ -36,8 +46,17 @@ namespace LargeInteger {
 		public:
 			MY_LIB SubtractFrom()noexcept { }
 			MY_LIB ~SubtractFrom()noexcept { }
-			std::pair<Data, Data> MY_LIB operator()(Data Carry, const Data& a, const Data& b)noexcept {
-				return std::pair<Data, Data>(
+			std::pair<Data, Data> MY_LIB operator()(Data Carry, const Data &a, const Data &b)noexcept {
+				if constexpr (Radix == 0)
+					return std::pair<Data, Data>(
+						(b - a - Carry),
+						Data(
+						(Carry > 0) ?
+							((b <= a) ? 1 : 0)
+							:
+							((b < a) ? 1 : 0))
+						);
+				else return std::pair<Data, Data>(
 					(b - a - Carry) % Radix,
 					Data(
 					(Carry > 0) ?
@@ -75,8 +94,8 @@ namespace LargeInteger {
 							);
 					}
 					else {
-						a.data *= b.data;
-						a.data += Carry.data;
+						a *= b;
+						a += Carry;
 						return std::pair<Num, Num>(Num(a % Radix), Num(a / Radix));
 					}
 				}
@@ -87,11 +106,11 @@ namespace LargeInteger {
 		};
 	};
 
-	template<typename Iter, typename BaseType>
+	template<typename Cntnr, typename BaseType>
 	//简单输出到控制台窗口
 	//需要用户补换行
 	INLINED void MY_LIB SinglePrint(
-		const Iter& that,
+		const Cntnr& that,
 		std::ostream& out = std::cout,
 		bool ShowComma = true,
 		unsigned MinLength = 0,
@@ -128,8 +147,8 @@ namespace LargeInteger {
 		using radix_t=decltype(radix);
 		using Data=radix_t;
 
-		template<typename Iter>
-		/*INLINED*/void MY_LIB mul(Iter b) noexcept {
+		template<typename Cntnr>
+		/*INLINED*/void MY_LIB mul(Cntnr b) noexcept {
 			LargeUnsigned This(*this);
 			this->next = nullptr;
 			this->data = Data(radix_t(0));
@@ -160,6 +179,24 @@ namespace LargeInteger {
 		constexpr INLINED auto cend() const noexcept {
 			return this->LL::cend();
 		}
+		constexpr INLINED auto rbegin() noexcept {
+			return this->LL::rbegin();
+		}
+		constexpr INLINED auto rbegin()const noexcept {
+			return this->LL::rbegin();
+		}
+		constexpr INLINED auto crbegin()const noexcept {
+			return this->LL::crbegin();
+		}
+		constexpr INLINED auto rend() noexcept {
+			return this->LL::rend();
+		}
+		constexpr INLINED auto rend() const noexcept {
+			return this->LL::rend();
+		}
+		constexpr INLINED auto crend() const noexcept {
+			return this->LL::crend();
+		}
 		template<typename val>
 		explicit MY_LIB LargeUnsigned(val Val)noexcept :LL(0) {
 			static_assert(std::is_integral_v<val>);
@@ -175,7 +212,7 @@ namespace LargeInteger {
 			}
 			return;
 		}
-		explicit MY_LIB LargeUnsigned(LL ll)noexcept:LL(ll) { }
+		explicit MY_LIB LargeUnsigned(LL& ll)noexcept:LL(ll) { }
 		static constexpr LargeUnsigned MY_LIB Copy(const LargeUnsigned& that)noexcept {
 			LargeUnsigned This(0);
 			auto j = This.begin();
@@ -199,11 +236,11 @@ namespace LargeInteger {
 			) noexcept {
 			return _Print<decltype(l.cbegin()), radix>(l.cbegin(), out);
 		}
-		template<typename Iter, auto Radix = 0>
+		template<typename Cntnr, auto Radix = 0>
 		//二进制输出到控制台窗口
 		//不再自动换行
 		static /*INLINED*/std::ostream & MY_LIB _Print(
-			const Iter & that,
+			const Cntnr & that,
 			std::ostream & out = std::cout
 		) noexcept {
 			if (that == 0) {
@@ -457,10 +494,10 @@ namespace LargeInteger {
 			LargeUnsigned T = LargeUnsigned(that);
 			return (*this >= T);
 		}
-		template<typename Iter>
+		template<typename Cntnr>
 		class Sim {
 		public:
-			MY_LIB Sim(Iter it)noexcept {
+			MY_LIB Sim(Cntnr it)noexcept {
 				it->Simplify();
 			}
 
@@ -468,7 +505,7 @@ namespace LargeInteger {
 		};
 		void MY_LIB operator%=(const LargeUnsigned& that)noexcept {
 			assert(that != 0);
-
+			
 			LargeInteger::LongCmpt<LLCmptTraits<radix>>::template DivideInto<Sim<decltype(this->begin())>, decltype(that.begin()), decltype(this->begin())>(that.begin(), this->begin());
 			this->Simplify();
 		}
@@ -478,6 +515,14 @@ namespace LargeInteger {
 			LargeInteger::LongCmpt<LLCmptTraits<radix>>::template DivideInto<Sim<decltype(this->begin())>, decltype(Res), decltype(that.begin()), decltype(this->begin())>(Res, that.begin(), this->begin());
 			*this = Res;
 			this->Simplify();
+		}
+		LargeUnsigned MY_LIB Divide(const LargeUnsigned& that)noexcept {
+			assert(that != 0);
+			LargeUnsigned Res(0);
+			LargeInteger::LongCmpt<LLCmptTraits<radix>>::template DivideInto<Sim<decltype(this->begin())>, decltype(Res), decltype(that.begin()), decltype(this->begin())>(Res, that.begin(), this->begin());
+			
+			this->Simplify();
+			return Res;
 		}
 		template<typename Int>
 		void MY_LIB operator%=(const Int& that)noexcept {
@@ -492,6 +537,14 @@ namespace LargeInteger {
 			LargeUnsigned temp(that);
 			*this /= temp;
 			temp.destruct();
+		}
+		template<typename Int>
+		LargeUnsigned MY_LIB Divide(const Int& that)noexcept {
+			static_assert(std::is_integral_v<Int>);
+			LargeUnsigned temp(that);
+			auto &&res = this->Divide(temp);
+			temp.destruct();
+			return res;
 		}
 
 		//位移运算
@@ -545,8 +598,11 @@ namespace LargeInteger {
 			}
 			return (value);
 		}
+		const auto& MY_LIB GetThis()const noexcept {
+			return this->data;
+		}
 
-		~LargeUnsigned() { }
+		~LargeUnsigned() = default;
 	};
 	template<typename LL, auto radix>
 	class LargeSigned :protected LargeUnsigned<LL, radix> {
@@ -860,6 +916,10 @@ namespace LargeInteger {
 				value = -value;
 			}
 			return value;
+		}
+
+		const auto &MY_LIB GetThis()const noexcept {
+			return this->data;
 		}
 
 		//二进制输出到控制台窗口
