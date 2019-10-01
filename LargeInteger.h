@@ -20,7 +20,7 @@ namespace LargeInteger {
 			MY_LIB Add()noexcept { }
 			MY_LIB ~Add()noexcept { }
 			std::pair<Data, Data> MY_LIB operator()(Data Carry, const Data& a, const Data& b)noexcept {
-				if (Radix == 0)
+				if constexpr(Radix == 0)
 					return std::pair<Data, Data>(
 						a + b + Carry,
 						Data(
