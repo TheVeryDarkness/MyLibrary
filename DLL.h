@@ -55,6 +55,25 @@ namespace LL {
 		constexpr INLINED std::iterator<std::bidirectional_iterator_tag, const DLL> cend()const noexcept {
 			return std::iterator<std::bidirectional_iterator_tag, const DLL>(nullptr);
 		}
+
+		constexpr INLINED std::iterator<std::bidirectional_iterator_tag, DLL> rbegin() noexcept {
+			return std::iterator<std::bidirectional_iterator_tag, DLL>(this->GetEnd());
+		}
+		constexpr INLINED std::iterator<std::bidirectional_iterator_tag, DLL> rend() noexcept {
+			return std::iterator<std::bidirectional_iterator_tag, DLL>(nullptr);
+		}
+		constexpr INLINED std::iterator<std::bidirectional_iterator_tag, const DLL> rbegin()const noexcept {
+			return std::iterator<std::bidirectional_iterator_tag, const DLL>(this->GetEnd());
+		}
+		constexpr INLINED std::iterator<std::bidirectional_iterator_tag, const DLL> rend()const noexcept {
+			return std::iterator<std::bidirectional_iterator_tag, const DLL>(nullptr);
+		}
+		constexpr INLINED std::iterator<std::bidirectional_iterator_tag, const DLL> crbegin()const noexcept {
+			return std::iterator<std::bidirectional_iterator_tag, const DLL>(this->GetEnd());
+		}
+		constexpr INLINED std::iterator<std::bidirectional_iterator_tag, const DLL> crend()const noexcept {
+			return std::iterator<std::bidirectional_iterator_tag, const DLL>(nullptr);
+		}
 		Data data;
 		DLL* next = nullptr;
 		DLL* last = nullptr;
@@ -678,7 +697,7 @@ namespace LL {
 
 
 template<typename Data>
-class std::iterator<std::bidirectional_iterator_tag, LL::DLL<Data>>
+struct std::iterator<std::bidirectional_iterator_tag, LL::DLL<Data>>
 {
 	using in=LL::DLL<Data>;
 public:
@@ -771,13 +790,13 @@ public:
 
 private:
 	in* ptr;
-	friend class std::iterator<std::bidirectional_iterator_tag, LL::DLL<Data>>;
+	friend struct std::iterator<std::bidirectional_iterator_tag, LL::DLL<Data>>;
 	friend struct std::iterator<std::bidirectional_iterator_tag, const LL::DLL<Data>>;
 	static inline Data NullData = 0;
 };
 
 template<typename Data>
-class std::iterator<std::bidirectional_iterator_tag, const LL::DLL<Data>>
+struct std::iterator<std::bidirectional_iterator_tag, const LL::DLL<Data>>
 {
 	using in=const LL::DLL<Data>;
 public:
