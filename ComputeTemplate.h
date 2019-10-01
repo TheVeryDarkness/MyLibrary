@@ -471,7 +471,7 @@ namespace LargeInteger{
 
 			std::pair<Data, Data> operator()(const Data& that) noexcept{
 				static_assert(std::is_same_v<Depack_t<Data>, Data>, "The type must not be num!");
-				if (radix == 0) {
+				if constexpr(radix == 0) {
 					if constexpr (sizeof(radix) >= sizeof(Data)) {
 						return std::pair<Data, Data>(that, 0);
 					}
