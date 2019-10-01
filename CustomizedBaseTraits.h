@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include "LargeInteger.h"
 
 namespace LargeInteger {
 
@@ -167,8 +168,9 @@ namespace LargeInteger {
 			return *this;
 		}
 
-		template<typename Cntnr>
-		auto &MY_LIB operator<<(const Cntnr &it) {
+		template<typename LL,auto radix>
+		auto &MY_LIB operator<<(const LargeInteger::LargeUnsigned<LL, radix> &it) noexcept{
+			using Cntnr=LargeInteger::LargeUnsigned<LL, radix>;
 			if constexpr (GetPowerTimes(Cntnr::getRadix(), charset::getRadix()) != 0 || Cntnr::getRadix() == charset::getRadix()) {
 				std::ostream_iterator<_Elem> o(os);
 				if constexpr (Cntnr::getRadix() == charset::getRadix()) {
@@ -204,11 +206,12 @@ namespace LargeInteger {
 				return *this;
 			}
 		}
+		/*
 		template<typename T>
-		std::ostream &operator<<(T &that)noexcept {
+		std::ostream &MY_LIB operator<<(T &&that)noexcept {
 			os << that;
 			return *this;
-		}
+		}*/
 	private:
 		std::basic_ostream<_Elem> &os;
 	};
