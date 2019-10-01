@@ -465,12 +465,19 @@ namespace LargeInteger{
 		class Divide
 		{
 		public:
+			using radix_t =decltype(radix);
 			MY_LIB Divide()noexcept{}
 			MY_LIB ~Divide()noexcept{}
 
 			std::pair<Data, Data> operator()(const Data& that) noexcept{
 				static_assert(std::is_same_v<Depack_t<Data>, Data>, "The type must not be num!");
-				return std::pair<Data, Data>(that % radix, that / radix);
+				if (radix == 0) {
+					if constexpr (sizeof(radix) >= sizeof(Data)) {
+						return std::pair<Data, Data>(that, 0);
+					}
+					else return std::pair<Data, Data>(static_cast<radix_t>(that), that >> (LargeInteger::BitsPerByte * sizeof(radix)));
+				}
+				else return std::pair<Data, Data>(that % radix, that / radix);
 			}
 		};
 
