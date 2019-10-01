@@ -49,21 +49,24 @@ namespace LargeInteger {
 			std::pair<Data, Data> MY_LIB operator()(Data Carry, const Data &a, const Data &b)noexcept {
 				if constexpr (Radix == 0)
 					return std::pair<Data, Data>(
-						(b - a - Carry),
+					(b - a - Carry),
 						Data(
 						(Carry > 0) ?
 							((b <= a) ? 1 : 0)
 							:
 							((b < a) ? 1 : 0))
 						);
-				else return std::pair<Data, Data>(
-					(b - a - Carry) % Radix,
-					Data(
-					(Carry > 0) ?
-						((b <= a) ? 1 : 0)
+				else {
+					const bool &&underFlow =
+						(Carry > 0) ?
+						((b <= a) ? true : false)
 						:
-						((b < a) ? 1 : 0))
-					);
+						((b < a) ? true : false);
+					return std::pair<Data, Data>(
+						underFlow ? (b + (Radix - a - Carry)) : (b - a - Carry),
+						Data(underFlow)
+						);
+				}
 			}
 		};
 		class Multiply {
