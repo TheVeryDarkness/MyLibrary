@@ -139,10 +139,9 @@ namespace LargeInteger {
 
 	template<typename _Elem, typename index_type, index_type BeginIndex, _Elem... set>
 	class std::basic_ostream<_Elem, BaseSet<_Elem, index_type, BeginIndex, set...>> {
-		using charset=LargeInteger::BaseSet<_Elem, index_type, BeginIndex, set...>;
 	public:
+		using charset=LargeInteger::BaseSet<_Elem, index_type, BeginIndex, set...>;
 		basic_ostream(std::basic_ostream<_Elem> &o)noexcept :os(o) { }
-
 		~basic_ostream() = default;
 
 		MY_LIB operator std::basic_ostream<_Elem> &() noexcept { return os; }
@@ -206,12 +205,12 @@ namespace LargeInteger {
 				return *this;
 			}
 		}
-		/*
-		template<typename T>
-		std::ostream &MY_LIB operator<<(T &&that)noexcept {
-			os << that;
+		
+
+		std::ostream &MY_LIB operator<<(basic_ostream<_Elem> &__CLRCALL_OR_CDECL MANIPULATORS(basic_ostream<_Elem> &_Ostr))noexcept {
+			os << MANIPULATORS;
 			return *this;
-		}*/
+		}
 	private:
 		std::basic_ostream<_Elem> &os;
 	};
