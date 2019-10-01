@@ -19,16 +19,16 @@ namespace Math {
 		decltype(data) operator()()const noexcept {
 			return this->data;
 		}
-		constexpr friend auto operator<(const Pack &a, const Pack &b)noexcept {
+		friend auto operator<(const Pack &a, const Pack &b)noexcept {
 			return Comparator<T, CmprT::smaller>(a, b);
 		}
-		constexpr friend auto operator>(const Pack &a, const Pack &b)noexcept {
+		friend auto operator>(const Pack &a, const Pack &b)noexcept {
 			return Comparator<T, CmprT::larger>(a, b);
 		}
-		constexpr friend auto operator>=(const Pack &a, const Pack &b)noexcept {
+		friend auto operator>=(const Pack &a, const Pack &b)noexcept {
 			return Comparator<T, CmprT::notSmaller>(a, b);
 		}
-		constexpr friend auto operator<=(const Pack &a, const Pack &b)noexcept {
+		friend auto operator<=(const Pack &a, const Pack &b)noexcept {
 			return Comparator<T, CmprT::notLarger>(a, b);
 		}
 	};
@@ -38,17 +38,49 @@ namespace Math {
 	private:
 		const Pack<T> &a, &b;
 		bool Val;
+	protected:
+		constexpr static bool cmpr(const Pack<T> &a, const Pack<T> &b)noexcept {
+			return cmpr(a(), b());
+		}
+		constexpr static bool cmpr(const T &a, const T &b)noexcept {
+			if constexpr (comp == CmprT::smaller) {
+				return a < b;
+			}if constexpr (comp == CmprT::larger) {
+				return a > b;
+			}if constexpr (comp == CmprT::notSmaller) {
+				return a >= b;
+			}if constexpr (comp == CmprT::notLarger) {
+				return a <= b;
+			}
+		}
 	public:
-		Comparator(const Pack<T> &a, const Pack<T> &b, bool Val = true)noexcept :a(a), b(b), Val(Val) { }
+		Comparator(const Pack<T> &a, const Pack<T> &b, bool Val)noexcept
+			:a(a), b(b), Val(Val) { }
+		Comparator(const Pack<T> &a, const Pack<T> &b)noexcept
+			:a(a), b(b), Val(cmpr(a, b)) { }
 		~Comparator() { }
 		operator bool() const noexcept {
 			return Val;
 		}
-		friend Comparator operator <(const Comparator &This,const Pack<T> &That) noexcept {
-			if (!This.Val) {
+		friend Comparator operator<(const Comparator &This, const Pack<T> &That) noexcept {
+			if (!This.Val)
 				return Comparator(This.a, That, false);
-			}
-			return Comparator(This.a, That, (This.a() < This.b() && This.b() < That()));
+			return Comparator(This.a, That, (This.Val && This.b() < That()));
+		}
+		friend Comparator operator>(const Comparator &This, const Pack<T> &That) noexcept {
+			if (!This.Val)
+				return Comparator(This.a, That, false);
+			return Comparator(This.a, That, (This.Val && This.b() > That()));
+		}
+		friend Comparator operator>=(const Comparator &This, const Pack<T> &That) noexcept {
+			if (!This.Val)
+				return Comparator(This.a, That, false);
+			return Comparator(This.a, That, (This.Val && This.b() >= That()));
+		}
+		friend Comparator operator<=(const Comparator &This, const Pack<T> &That) noexcept {
+			if (!This.Val)
+				return Comparator(This.a, That, false);
+			return Comparator(This.a, That, (This.Val && This.b() <= That()));
 		}
 	};
 }
