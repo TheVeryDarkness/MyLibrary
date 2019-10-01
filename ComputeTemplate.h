@@ -310,7 +310,7 @@ namespace LargeInteger{
 						return std::pair<TRUE_TYPE, Compare>(1, Compare::Larger);
 					}
 					else if (temp == Compare::Smaller) {
-						if (*_a < (*_b)) {
+						if (*_a < *_b) {
 							if (!HasChanged && ((*_a) != 0))
 							{
 								return std::pair<TRUE_TYPE, Compare>(TRUE_TYPE(*_b / (*_a)), Compare::Smaller);
