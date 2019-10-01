@@ -8,8 +8,7 @@ namespace LargeInteger {
 	class BaseSet;
 
 	template<typename _Elem, typename index_type, index_type BeginIndex>
-	class BaseSet<_Elem, index_type, BeginIndex>
-	{
+	class BaseSet<_Elem, index_type, BeginIndex> {
 	public:
 		MY_LIB BaseSet() = delete;
 		MY_LIB ~BaseSet() = delete;
@@ -30,8 +29,7 @@ namespace LargeInteger {
 
 	//Mind that '?' is reserved for unknown input
 	template<typename _Elem, typename index_type, index_type BeginIndex, _Elem Head, _Elem... Remained>
-	class BaseSet<_Elem, index_type, BeginIndex, Head, Remained...> :public BaseSet<_Elem, index_type, BeginIndex + 1, Remained...>
-	{
+	class BaseSet<_Elem, index_type, BeginIndex, Head, Remained...> :public BaseSet<_Elem, index_type, BeginIndex + 1, Remained...> {
 	public:
 		MY_LIB BaseSet() = delete;
 		MY_LIB ~BaseSet() = delete;
@@ -40,22 +38,18 @@ namespace LargeInteger {
 		using char_type=_Elem;
 		using int_type=index_type;
 		constexpr static index_type MY_LIB to_int_type(char_type Char)noexcept {
-			if (Char == Head)
-			{
+			if (Char == Head) {
 				return index_type(BeginIndex);
 			}
-			else
-			{
+			else {
 				return BaseSet<char_type, index_type, BeginIndex + 1, Remained...>::to_int_type(Char);
 			}
 		}
 		constexpr static char_type MY_LIB to_char_type(int_type Int)noexcept {
-			if (Int == BeginIndex)
-			{
+			if (Int == BeginIndex) {
 				return char_type(Head);
 			}
-			else
-			{
+			else {
 				return BaseSet<char_type, index_type, BeginIndex + 1, Remained...>::to_char_type(Int);
 			}
 		}
@@ -73,24 +67,22 @@ namespace LargeInteger {
 	typedef BaseSet < char, unsigned char, 0, '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'> Set10;
 
 	template<auto Radix>
-	class Set
-	{
+	class Set {
 	public:
 		Set() = delete;
 		~Set() = delete;
 	};
 
 	template<>class Set<2> :public Set2 { public:	Set() = delete;	~Set() = delete; };
-	template<>class Set<8> :public Set8{ public:	Set() = delete;	~Set() = delete; };
-	template<>class Set<10> :public Set10{ public:	Set() = delete;	~Set() = delete; };
-	template<>class Set<16> :public Set16{ public:	Set() = delete;	~Set() = delete; };
+	template<>class Set<8> :public Set8 { public:	Set() = delete;	~Set() = delete; };
+	template<>class Set<10> :public Set10 { public:	Set() = delete;	~Set() = delete; };
+	template<>class Set<16> :public Set16 { public:	Set() = delete;	~Set() = delete; };
 
 	template<typename _Elem, typename index_type, size_t BeginIndex, _Elem... set>
-	class std::basic_istream<_Elem, BaseSet<_Elem, index_type, BeginIndex, set...>>
-	{
+	class std::basic_istream<_Elem, BaseSet<_Elem, index_type, BeginIndex, set...>> {
 		using charset=LargeInteger::BaseSet<_Elem, index_type, BeginIndex, set...>;
 	public:
-		basic_istream(std::basic_istream<_Elem>& i)noexcept :is(i) {}
+		basic_istream(std::basic_istream<_Elem> &i)noexcept :is(i) { }
 
 		~basic_istream() = default;
 
@@ -103,43 +95,35 @@ namespace LargeInteger {
 				decltype(std::remove_cvref_t<*str>)
 				>);
 			static_assert(GetPowerTimes(radix, charset::getRadix()) != 0 || radix == charset::getRadix());
-			if constexpr (radix == charset::getRadix())
-			{
+			if constexpr (radix == charset::getRadix()) {
 				for (auto i = temp.crbegin(); i != temp.crend(); ++i) {
 					auto c = charset::to_int_type(*i);
-					if (c != '?')
-					{
+					if (c != '?') {
 						*str = c;
-						if (i + 1 != temp.crend())
-						{
+						if (i + 1 != temp.crend()) {
 							++str;
 						}
 					}
 				}
 				return;
 			}
-			else
-			{
+			else {
 				for (auto i = temp.crbegin(); i != temp.crend();) {
 					typename std::remove_reference<decltype(*str)>::type sum = std::remove_reference<decltype(*str)>::type(0);
 					for (decltype(GetPowerTimes(radix, charset::getRadix())) j = 0; j < GetPowerTimes(radix, charset::getRadix()); j++) {
 						auto c = charset::to_int_type(*i);
-						if (c != charset::IntType('?'))
-						{
+						if (c != charset::IntType('?')) {
 							sum += c * static_cast<decltype(radix)>(Power(static_cast<decltype(radix)>(charset::getRadix()), j));
 						}
 						else --j;
 						++i;
-						if (i == temp.crend())
-						{
+						if (i == temp.crend()) {
 							break;
 						}
 					}
-					if (sum != static_cast<decltype(sum)>(0))
-					{
+					if (sum != static_cast<decltype(sum)>(0)) {
 						*str = sum;
-						if (i != temp.crend())
-						{
+						if (i != temp.crend()) {
 							++str;
 						}
 					}
@@ -149,24 +133,23 @@ namespace LargeInteger {
 		}
 
 	private:
-		std::basic_istream<_Elem>& is;
+		std::basic_istream<_Elem> &is;
 	};
-	
+
 	template<typename _Elem, typename index_type, index_type BeginIndex, _Elem... set>
-	class std::basic_ostream<_Elem, BaseSet<_Elem, index_type, BeginIndex, set...>>
-	{
+	class std::basic_ostream<_Elem, BaseSet<_Elem, index_type, BeginIndex, set...>> {
 		using charset=LargeInteger::BaseSet<_Elem, index_type, BeginIndex, set...>;
 	public:
-		basic_ostream(std::basic_ostream<_Elem>& o)noexcept :os(o) {}
+		basic_ostream(std::basic_ostream<_Elem> &o)noexcept :os(o) { }
 
 		~basic_ostream() = default;
 
-		MY_LIB operator std::basic_ostream<_Elem>& () noexcept { return os; }
-		MY_LIB operator const std::basic_ostream<_Elem>& () const noexcept { return os; }
+		MY_LIB operator std::basic_ostream<_Elem> &() noexcept { return os; }
+		MY_LIB operator const std::basic_ostream<_Elem> &() const noexcept { return os; }
 
 		template<typename Cntnr>
 		std::basic_ostream<_Elem, charset> &MY_LIB Print(Cntnr &that) {
-			if constexpr(std::is_arithmetic_v<Cntnr>) {
+			if constexpr (std::is_arithmetic_v<Cntnr>) {
 				auto &&res = that / charset::getRadix();
 				if (res != 0) {
 					Print(res);
@@ -185,7 +168,7 @@ namespace LargeInteger {
 		}
 
 		template<typename Cntnr>
-		auto &MY_LIB operator<<(const Cntnr& it) {
+		auto &MY_LIB operator<<(const Cntnr &it) {
 			if constexpr (GetPowerTimes(Cntnr::getRadix(), charset::getRadix()) != 0 || Cntnr::getRadix() == charset::getRadix()) {
 				std::ostream_iterator<_Elem> o(os);
 				if constexpr (Cntnr::getRadix() == charset::getRadix()) {
@@ -221,8 +204,12 @@ namespace LargeInteger {
 				return *this;
 			}
 		}
-
+		template<typename T>
+		std::ostream &operator<<(T &that)noexcept {
+			os << that;
+			return *this;
+		}
 	private:
-		std::basic_ostream<_Elem>& os;
+		std::basic_ostream<_Elem> &os;
 	};
 }
