@@ -6,7 +6,9 @@
 
 #ifdef _WIN32
 
-#define NOMINMAX
+#ifndef NOMINMAX
+#define NOMINMAX 1
+#endif // !NOMINMAX
 #include <Windows.h>
 
 #else
@@ -23,7 +25,10 @@
 #endif // _DEBUG
 
 #ifdef _DEBUG
-#define NOMINMAX
+
+#ifndef NOMINMAX
+#define NOMINMAX 1
+#endif // NOMINMAX
 #include <crtdbg.h>
 #ifndef DBG_NEW
 #if 1
