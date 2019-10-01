@@ -274,7 +274,6 @@ namespace LargeInteger{
 		template<typename Iterator1, typename Iterator2>
 		static INLINED auto MY_LIB _CompareTo(const Iterator1& a, const Iterator2& b) noexcept {
 			using Data=typename std::remove_cvref<decltype(*a)>::type;
-			using TRUE_TYPE=typename Depack<Data>::TRUE_TYPE;
 			static_assert(std::is_same_v<std::remove_cvref_t<decltype(*a)>, std::remove_cvref_t<decltype(*b)>>);
 			{
 				bool HasChanged = false;
@@ -303,24 +302,24 @@ namespace LargeInteger{
 						if (*_a > *_b) {
 							if (!HasChanged && ((*_a) != 0))
 							{
-								return std::pair<TRUE_TYPE, Compare>(TRUE_TYPE(*_a / (*_b)), Compare::Larger);
+								return std::pair<Data, Compare>(Data(*_a / (*_b)), Compare::Larger);
 							}
-							return std::pair<TRUE_TYPE, Compare>(TRUE_TYPE(*_a / (*_b + Data(1))), Compare::Larger);
+							return std::pair<Data, Compare>(Data(*_a / (*_b + Data(1))), Compare::Larger);
 						}
-						return std::pair<TRUE_TYPE, Compare>(1, Compare::Larger);
+						return std::pair<Data, Compare>(1, Compare::Larger);
 					}
 					else if (temp == Compare::Smaller) {
 						if (*_a < *_b) {
 							if (!HasChanged && ((*_a) != 0))
 							{
-								return std::pair<TRUE_TYPE, Compare>(TRUE_TYPE(*_b / (*_a)), Compare::Smaller);
+								return std::pair<Data, Compare>(Data(*_b / (*_a)), Compare::Smaller);
 							}
-							return std::pair<TRUE_TYPE, Compare>(TRUE_TYPE(*_b / (*_a + Data(1))), Compare::Smaller);
+							return std::pair<Data, Compare>(Data(*_b / (*_a + Data(1))), Compare::Smaller);
 						}
-						return std::pair<TRUE_TYPE, Compare>((1), Compare::Smaller);
+						return std::pair<Data, Compare>((1), Compare::Smaller);
 					}
 					else {
-						return std::pair<TRUE_TYPE, Compare>((1), Compare::Equal);
+						return std::pair<Data, Compare>((1), Compare::Equal);
 					}
 				}
 			}
