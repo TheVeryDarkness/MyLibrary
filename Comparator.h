@@ -15,7 +15,7 @@ namespace Math {
 		const T &data;
 	public:
 		explicit Pack(const T &data)noexcept :data(data) { }
-		~Pack() { }
+		~Pack() = default;
 		decltype(data) operator()()const noexcept {
 			return this->data;
 		}
@@ -58,7 +58,7 @@ namespace Math {
 			:a(a), b(b), Val(Val) { }
 		Comparator(const Pack<T> &a, const Pack<T> &b)noexcept
 			:a(a), b(b), Val(cmpr(a, b)) { }
-		~Comparator() { }
+		~Comparator() = default;
 		operator bool() const noexcept {
 			return Val;
 		}
