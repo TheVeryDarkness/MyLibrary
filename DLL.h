@@ -727,7 +727,7 @@ public:
 		}
 		return *this;
 	}
-	constexpr iterator& MY_LIB operator-(size_t sz)const noexcept {
+	constexpr iterator MY_LIB operator-(size_t sz)const noexcept {
 		iterator it(*this);
 		for (size_t i = 0; i < sz; i++) {
 			if (it.ptr != nullptr) {
