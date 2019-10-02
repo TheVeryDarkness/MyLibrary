@@ -28,10 +28,13 @@ namespace LargeInteger {
 				case '\r':
 					putch(' ');
 					return *this;
-				case '\x7f':
-					--it;
-					putch('\b');
-					putch(' ');
+				case '\x8':
+					if (it - 1 != nullptr) {
+						--it;
+						putch('\b');
+						putch(' ');
+						putch('\b');
+					}
 					continue;
 				default:
 					auto&& i = charset::to_int_type(c);
