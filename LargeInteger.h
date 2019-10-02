@@ -688,7 +688,7 @@ namespace LargeInteger {
 			}
 			else {
 				assert((!this->PosSign) && (!that.PosSign));
-				return this->LargeUnsigned<LL, radix>::operator>(*static_cast<const LargeUnsigned<LL, radix>*>(&that));
+				return this->LargeUnsigned<LL, radix>::operator>=(*static_cast<const LargeUnsigned<LL, radix>*>(&that));
 			}
 		}
 		bool MY_LIB operator>(const LargeSigned& that)const noexcept {
@@ -699,11 +699,11 @@ namespace LargeInteger {
 				return true;
 			}
 			if (this->PosSign && that.PosSign) {
-				return this->LargeUnsigned<LL, radix>::operator>(that);
+				return this->LargeUnsigned<LL, radix>::operator>(*static_cast<const LargeUnsigned<LL, radix> *>(&that));
 			}
 			else {
 				assert((!this->PosSign) && (!that.PosSign));
-				return this->LargeUnsigned<LL, radix>::operator<(that);
+				return this->LargeUnsigned<LL, radix>::operator<=(*static_cast<const LargeUnsigned<LL, radix> *>(&that));
 			}
 		}
 		bool MY_LIB operator<=(const LargeSigned& that)const noexcept {
