@@ -784,6 +784,9 @@ public:
 	constexpr void cut(iterator& it) {
 		it.ptr->cut();
 	}
+	constexpr void pop(iterator& it) {
+		it.ptr->_pop();
+	}
 
 protected:
 	in* ptr;
