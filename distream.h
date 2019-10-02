@@ -13,9 +13,11 @@ namespace LargeInteger {
 
 	template<typename charset>
 	class din<source::kb,charset>{
+		bool isGood = true;
 	public:
 		din() noexcept { }
 		~din() noexcept { }
+		bool good()noexcept { return isGood; }
 
 		template<typename Cntnr>
 		din& operator>>(const Cntnr& head) {
@@ -23,7 +25,6 @@ namespace LargeInteger {
 			while (true) {
 				auto c = _getch();
 				switch (c) {
-				case ' ':
 				case '\n':
 				case '\r':
 					putch(' ');
