@@ -155,7 +155,7 @@ namespace LargeInteger {
 			LargeUnsigned This(*this);
 			this->next = nullptr;
 			this->data = Data(radix_t(0));
-			for (auto OprtPtr = b; OprtPtr != nullptr; ++OprtPtr) {
+			for (auto& OprtPtr = b; OprtPtr != nullptr; ++OprtPtr) {
 				typename LargeInteger::LongCmpt<typename LargeInteger::LLCmptTraits<radix>>::template LineIterator<typename LargeInteger::LLCmptTraits<radix>::Multiply, decltype(This.cbegin()), Data> temp(*OprtPtr, This.cbegin());
 				LargeInteger::LongCmpt<typename LargeInteger::LLCmptTraits<radix>>::AddTo(temp, this->begin());
 				This <<= 1;
