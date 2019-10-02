@@ -45,27 +45,21 @@ namespace LargeInteger {
 		public:
 			MY_LIB Add()noexcept { }
 			MY_LIB ~Add()noexcept { }
-			std::pair<Data, Data> MY_LIB operator()(Data Carry, const Data& a, const Data& b)noexcept {
-				if constexpr(Radix == 0)
-					return std::pair<Data, Data>(
-						a + b + Carry,
-						Data(
-						(Carry > 0) ?
-							(((a > (static_cast<Data>(~1) - b)) || (b > static_cast<Data>(Radix - 1))) ? 1 : 0)
-							:
-							((a > static_cast<Data>(~b) ? 1 : 0))
-						)
-						);
-				else return std::pair<Data, Data>(
-					(a + b + Carry) % Radix,
-					Data(
-					(Carry > 0) ?
-						(((a > static_cast<Data>((Radix - 1) - b)) || (b > static_cast<Data>(Radix - 1))) ? 1 : 0)
-						:
-						((a > static_cast<Data>(Radix - b) ? 1 : 0))
-					)
+			std::pair<Data, Data> MY_LIB operator()(Data Carry, const Data &a, const Data &b)noexcept {
+				const bool &&overflow = ((Carry > 0) ?
+					(
+					((a >= static_cast<Data>((Radix - 1) - b)) || (b > static_cast<Data>(Radix - 1)))
+						? true : false)
+					:
+					(a >= static_cast<Data>(Radix - b) 
+						? true : false));
+				auto &&res= std::pair<Data, Data>(
+					overflow ? (a - (Radix - b - Carry)) : (a + b + Carry),
+					Data(overflow)
 					);
-			}
+				assert(res.first < Radix);
+				return res;
+			};
 		};
 
 		class SubtractFrom {
@@ -73,26 +67,15 @@ namespace LargeInteger {
 			MY_LIB SubtractFrom()noexcept { }
 			MY_LIB ~SubtractFrom()noexcept { }
 			std::pair<Data, Data> MY_LIB operator()(Data Carry, const Data &a, const Data &b)noexcept {
-				if constexpr (Radix == 0)
-					return std::pair<Data, Data>(
-					(b - a - Carry),
-						Data(
-						(Carry > 0) ?
-							((b <= a) ? 1 : 0)
-							:
-							((b < a) ? 1 : 0))
-						);
-				else {
-					const bool &&underFlow =
-						(Carry > 0) ?
-						((b <= a) ? true : false)
-						:
-						((b < a) ? true : false);
-					return std::pair<Data, Data>(
-						underFlow ? (b + (Radix - a - Carry)) : (b - a - Carry),
-						Data(underFlow)
-						);
-				}
+				const bool &&underFlow =
+					(Carry > 0) ?
+					((b <= a) ? true : false)
+					:
+					((b < a) ? true : false);
+				return std::pair<Data, Data>(
+					underFlow ? (b + (Radix - a - Carry)) : (b - a - Carry),
+					Data(underFlow)
+					);
 			}
 		};
 		class Multiply {
