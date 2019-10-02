@@ -781,6 +781,9 @@ public:
 	constexpr void insert(iterator& it, Data d) {
 		it.ptr->insert(d);
 	}
+	constexpr void cut(iterator& it) {
+		it.ptr->cut();
+	}
 
 protected:
 	in* ptr;
