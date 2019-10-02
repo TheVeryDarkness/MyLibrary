@@ -3,6 +3,7 @@
 
 #ifdef _WIN32
 #include <conio.h>
+#include <Windows.h>
 
 namespace LargeInteger {
 	enum class source {
@@ -29,9 +30,25 @@ namespace LargeInteger {
 				case '\r':
 					putch(' ');
 					return *this;
+				case 224:
+					if (it - 1 != nullptr) {
+						--it;
+						putch('\b');
+					}
+					continue;
+				case 77:
+					if (it + 1 != nullptr) {
+						++it;
+						putch(charset::to_char_type(*it));
+					}
+					continue;
+				case 27:
+					isGood = false;
+					return *this;
 				case '\x8':
 					if (it - 1 != nullptr) {
 						--it;
+						it.pop(it);
 						putch('\b');
 						putch(' ');
 						putch('\b');
@@ -46,7 +63,6 @@ namespace LargeInteger {
 					}
 					else { 
 						continue;
-						return *this; 
 					}
 				}
 			}
