@@ -117,12 +117,7 @@ namespace LargeInteger {
 
 		};
 	};
-	/*
-	template<> class LLCmptTraits<0> :public LargeInteger::StdCmptTraits<decltype(0)>{ };
-	template<> class LLCmptTraits<0U> :public LargeInteger::StdCmptTraits<decltype(0U)>{ };
-	template<> class LLCmptTraits<0LL> :public LargeInteger::StdCmptTraits<decltype(0LL)>{ };
-	template<> class LLCmptTraits<0ULL> :public LargeInteger::StdCmptTraits<decltype(0ULL)>{ };
-	*/
+	
 
 	template<typename Cntnr, typename BaseType>
 	//简单输出到控制台窗口
