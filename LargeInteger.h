@@ -9,13 +9,38 @@
 namespace LargeInteger {
 	template<typename LL, auto radix> class LargeUnsigned;
 	template<typename LL, auto radix> class LargeSigned;
+	template<auto Radix> class _LLCmptTraits;
+	template<auto Radix, bool is0>
+	class helper;
+
+	template<typename T>constexpr bool isZero(T t)noexcept {
+		return t == T(0);
+	}
+
+	template<auto Radix> using LLCmptTraits=typename helper<Radix, isZero(Radix)>::trts;
+
 	template<auto Radix>
-	class LLCmptTraits :public LargeInteger::StdCmptTraits<decltype(Radix)> {
+	class helper<Radix, true> {
+	public:
+		using trts=StdCmptTraits<decltype(Radix)>;
+	};
+
+	template<auto Radix>
+	class helper<Radix, false> {
+	public:
+		using trts=_LLCmptTraits<Radix>;
+	};
+
+
+
+	template<auto Radix>
+	class _LLCmptTraits :public LargeInteger::StdCmptTraits<decltype(Radix)> {
 	public:
 		using Std=LargeInteger::StdCmptTraits<decltype(Radix)>;
 		using Data=decltype(Radix);
-		MY_LIB LLCmptTraits() = delete;
-		MY_LIB ~LLCmptTraits() = delete;
+		MY_LIB _LLCmptTraits() = delete;
+		MY_LIB ~_LLCmptTraits() = delete;
+
 		class Add {
 		public:
 			MY_LIB Add()noexcept { }
