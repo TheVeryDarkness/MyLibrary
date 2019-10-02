@@ -144,6 +144,7 @@ namespace LargeInteger {
 		basic_ostream(std::basic_ostream<_Elem> &o)noexcept :os(o) { }
 		~basic_ostream() = default;
 
+		std::basic_ostream<_Elem> &MY_LIB operator()()noexcept { return os; }
 		MY_LIB operator std::basic_ostream<_Elem> &() noexcept { return os; }
 		MY_LIB operator const std::basic_ostream<_Elem> &() const noexcept { return os; }
 
