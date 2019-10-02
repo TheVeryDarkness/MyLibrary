@@ -48,7 +48,7 @@ namespace LargeInteger {
 			std::pair<Data, Data> MY_LIB operator()(Data Carry, const Data &a, const Data &b)noexcept {
 				const bool &&overflow = ((Carry > 0) ?
 					(
-					((a >= static_cast<Data>((Radix - 1) - b)) || (b > static_cast<Data>(Radix - 1)))
+					(a >= static_cast<Data>((Radix - 1) - b))
 						? true : false)
 					:
 					(a >= static_cast<Data>(Radix - b) 
