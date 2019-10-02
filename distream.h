@@ -18,19 +18,25 @@ namespace LargeInteger {
 		~din() noexcept { }
 
 		template<typename Cntnr>
-		din& operator>>(Cntnr it) {
+		din& operator>>(const Cntnr& head) {
+			Cntnr it(head);
 			while (true) {
-				auto&& c = _getch();
+				auto c = _getch();
 				switch (c) {
 				case ' ':
 				case '\n':
 				case '\r':
 					putch(' ');
 					return *this;
+				case '\x7f':
+					--it;
+					putch('\b');
+					putch(' ');
+					continue;
 				default:
 					auto&& i = charset::to_int_type(c);
 					if (i != '?') {
-						*it = i;
+						it.insert(it, i);
 						++it;
 						putch(c);
 					}
