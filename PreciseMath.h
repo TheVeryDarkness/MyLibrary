@@ -133,6 +133,7 @@ namespace LargeInteger {
 		void MY_LIB operator-=(const Q& that) {
 			this->Numerator *= that.Denominator;
 			this->Numerator -= (that.Numerator * this->Denominator);
+			this->Denominator *= that.Denominator;
 			this->Simplify();
 		}
 		Q MY_LIB operator+(const Q& that)const {
