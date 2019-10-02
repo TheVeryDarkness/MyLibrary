@@ -5,11 +5,14 @@
 #include <conio.h>
 
 namespace LargeInteger {
-	enum source {
+	enum class source {
 		kb
 	};
 	template<source s,typename charset>
-	class din {
+	class din;
+
+	template<typename charset>
+	class din<source::kb,charset>{
 	public:
 		din() noexcept { }
 		~din() noexcept { }
