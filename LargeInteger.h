@@ -214,7 +214,7 @@ namespace LargeInteger {
 		}
 		template<typename val>
 		explicit MY_LIB LargeUnsigned(val Val)noexcept :LL(0) {
-			static_assert(std::is_integral_v<val>);
+			static_assert(std::is_integral_v<val>, "Integral type required.");
 			static_assert(radix != radix_t(1));
 			static_assert(!std::is_same_v<val, bool>, "Never use bool type");
 			typename LongCmpt<StdCmptTraits<val>>::template LayerIterator<typename StdCmptTraits<val>::template Divide<radix>, val> it(Val);
