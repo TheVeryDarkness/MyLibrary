@@ -22,21 +22,23 @@ namespace LargeInteger {
 			while (true) {
 				auto&& c = _getch();
 				switch (c) {
+				case ' ':
 				case '\n':
 				case '\r':
+					putch(' ');
 					return *this;
 				default:
 					auto&& i = charset::to_int_type(c);
 					if (i != '?') {
 						*it = i;
 						++it;
+						putch(c);
 					}
 					else { 
-						putch(' ');
+						continue;
 						return *this; 
 					}
 				}
-				putch(c);
 			}
 			return *this;
 		}
