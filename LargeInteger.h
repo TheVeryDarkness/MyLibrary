@@ -12,6 +12,7 @@ namespace LargeInteger {
 	template<auto Radix>
 	class LLCmptTraits :public LargeInteger::StdCmptTraits<decltype(Radix)> {
 	public:
+		using Std=LargeInteger::StdCmptTraits<decltype(Radix)>;
 		using Data=decltype(Radix);
 		MY_LIB LLCmptTraits() = delete;
 		MY_LIB ~LLCmptTraits() = delete;
@@ -108,6 +109,12 @@ namespace LargeInteger {
 
 		};
 	};
+	/*
+	template<> class LLCmptTraits<0> :public LargeInteger::StdCmptTraits<decltype(0)>{ };
+	template<> class LLCmptTraits<0U> :public LargeInteger::StdCmptTraits<decltype(0U)>{ };
+	template<> class LLCmptTraits<0LL> :public LargeInteger::StdCmptTraits<decltype(0LL)>{ };
+	template<> class LLCmptTraits<0ULL> :public LargeInteger::StdCmptTraits<decltype(0ULL)>{ };
+	*/
 
 	template<typename Cntnr, typename BaseType>
 	//简单输出到控制台窗口
@@ -154,10 +161,12 @@ namespace LargeInteger {
 		/*INLINED*/void MY_LIB mul(Cntnr b) noexcept {
 			LargeUnsigned This(*this);
 			this->next = nullptr;
-			this->data = Data(radix_t(0));
+			this->data = Data(radix_t(0)); 
 			for (auto& OprtPtr = b; OprtPtr != nullptr; ++OprtPtr) {
 				typename LargeInteger::LongCmpt<typename LargeInteger::LLCmptTraits<radix>>::template LineIterator<typename LargeInteger::LLCmptTraits<radix>::Multiply, decltype(This.cbegin()), Data> temp(*OprtPtr, This.cbegin());
 				LargeInteger::LongCmpt<typename LargeInteger::LLCmptTraits<radix>>::AddTo(temp, this->begin());
+				//std::cout << *this << std::endl;
+				//std::cout << This << std::endl;
 				This <<= 1;
 			}
 			This.release();
