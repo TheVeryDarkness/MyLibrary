@@ -174,6 +174,19 @@ namespace LargeInteger {
 		bool MY_LIB operator==(const Q& that)const {
 			return ((this->Numerator == that.Numerator) && (this->Denominator == that.Denominator));
 		}
+		bool MY_LIB operator>(const Q& that)const {
+			if (this->Numerator.PosSign && !that.Numerator.PosSign) {
+				return true;
+			}
+			if (!this->Numerator.PosSign && that.Numerator.PosSign) {
+				return false;
+			}
+			Z &&temp1 = this->Numerator * that.Denominator, &&temp2 = this->Denominator * that.Numerator;
+			bool &&res = temp1 > temp2;
+			temp1.destruct();
+			temp2.destruct();
+			return res;
+		}
 		std::ostream& Print(std::ostream& o)const {
 			if (this->Denominator == 1)
 				return Numerator.Print();
