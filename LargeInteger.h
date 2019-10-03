@@ -252,7 +252,7 @@ namespace LargeInteger {
 			) noexcept {
 			return _Print<decltype(l.cbegin()), radix>(l.cbegin(), out);
 		}
-		template<typename Cntnr, auto Radix = 0>
+		template<typename Cntnr, auto Radix>
 		//二进制输出到控制台窗口
 		//不再自动换行
 		static /*INLINED*/std::ostream & MY_LIB _Print(
@@ -309,7 +309,7 @@ namespace LargeInteger {
 			return out;
 		}
 		INLINED std::ostream& MY_LIB Print(std::ostream& o = std::cout) const noexcept {
-			return _Print(this->cbegin(), o);
+			return _Print<decltype(this->cbegin()), radix>(this->cbegin(), o);
 		}
 		template<typename Int>
 		/*INLINED*/ void MY_LIB operator*=(const Int& that) noexcept {
