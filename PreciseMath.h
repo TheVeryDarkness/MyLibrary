@@ -13,7 +13,7 @@ namespace LargeInteger {
 
 	//ÓĞÀíÊı
 	//Rational Number
-	//negative sign on denominator will be ignored
+	//negative sign on numerator and denominator will be ignored
 	class Q {
 	protected:
 		using Data=unsigned int;
