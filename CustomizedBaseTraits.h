@@ -247,5 +247,6 @@ namespace LargeInteger {
 				}
 			}
 		}
+		return '?';
 	}
 }
