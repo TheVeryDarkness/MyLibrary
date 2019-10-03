@@ -108,10 +108,11 @@ namespace LargeInteger {
 	{
 	private:
 		typename _Int<IntelligentLength<Length>().second>::type Byte;
+		using super=_Bytes<IntelligentLength<Length>().first>;
 	protected:
 		using value_type=decltype(Byte);
 		constexpr bool add_o(const _Bytes& that)noexcept {
-			bool Carry = this->_Bytes<IntelligentLength<Length>().first>::add_o(*static_cast<const _Bytes<IntelligentLength<Length>().first>*>(&that));
+			bool Carry = this->super::add_o(*static_cast<const super*>(&that));
 			//If (a + b) overflows, then a > ~b.
 			if (Carry) {
 				if (Byte == std::numeric_limits<value_type>::max()) {
@@ -130,7 +131,7 @@ namespace LargeInteger {
 			return Carry;
 		}
 		constexpr bool sub_u(const _Bytes& that)noexcept {
-			bool Carry = this->_Bytes<IntelligentLength<Length>().first>::sub_u(*static_cast<const _Bytes<IntelligentLength<Length>().first>*>(&that));
+			bool Carry = this->super::sub_u(*static_cast<const super*>(&that));
 			//If (a - b) underflows, then a < b.
 			if (Carry) {
 				if (Byte == 0) {
@@ -150,7 +151,7 @@ namespace LargeInteger {
 		}
 		constexpr bool Comp()noexcept {
 			this->Byte = ~this->Byte;
-			if (this->_Bytes<IntelligentLength<Length>().first>::Comp())
+			if (this->super::Comp())
 			{
 				bool Carry = (this->Byte == std::numeric_limits<value_type>::max());
 				this->Byte += 1;
@@ -160,18 +161,18 @@ namespace LargeInteger {
 		}
 		constexpr void And(const _Bytes* that)noexcept {
 			this->Byte &= that->Byte;
-			this->_Bytes<IntelligentLength<Length>().first>::And(static_cast<const _Bytes<IntelligentLength<Length>().first>*>(that));
+			this->super::And(static_cast<const super*>(that));
 		}
 		constexpr void Or(const _Bytes* that)noexcept {
 			this->Byte |= that->Byte;
-			this->_Bytes<IntelligentLength<Length>().first>::Or(static_cast<const _Bytes<IntelligentLength<Length>().first>*>(that));
+			this->super::Or(static_cast<const super*>(that));
 		}
 		constexpr void XOr(const _Bytes* that)noexcept {
 			this->Byte ^= that->Byte;
-			this->_Bytes<IntelligentLength<Length>().first>::XOr(static_cast<const _Bytes<IntelligentLength<Length>().first>*>(that));
+			this->super::XOr(static_cast<const super*>(that));
 		}
 		constexpr bool SHL()noexcept {
-			bool&& temp = this->_Bytes<IntelligentLength<Length>().first>::SHL();
+			bool&& temp = this->super::SHL();
 			bool Fill = (this->Byte >> (sizeof(value_type) * LargeInteger::BitsPerByte - 1)) & 0x1;
 			this->Byte <<= 1;
 			if (temp)
@@ -187,12 +188,12 @@ namespace LargeInteger {
 			{
 				this->Byte |= value_type(value_type(1) << (sizeof(value_type) * LargeInteger::BitsPerByte - 1));
 			}
-			this->_Bytes<IntelligentLength<Length>().first>::SHR(temp);
+			this->super::SHR(temp);
 		}
 		constexpr void SHR()noexcept {
 			bool temp = this->Byte & 0x1;
 			this->Byte >>= 1;
-			this->_Bytes<IntelligentLength<Length>().first>::SHR(temp);
+			this->super::SHR(temp);
 		}
 		constexpr void _SHR(bool fill, bool& tail)noexcept {
 			bool temp = this->Byte & 0x1;
@@ -202,15 +203,15 @@ namespace LargeInteger {
 				this->Byte |= value_type(value_type(1) << (sizeof(value_type) * LargeInteger::BitsPerByte - 1));
 			}
 			tail = this->Byte & 0x1;
-			return this->_Bytes<IntelligentLength<Length>().first>::_SHR(temp, tail);
+			return this->super::_SHR(temp, tail);
 		}
 		constexpr bool Odd()noexcept {
 			if constexpr (IntelligentLength<Length>().first == 0)
 				return (this->Byte & 0x1);
-			else return this->_Bytes<IntelligentLength<Length>().first>::Odd();
+			else return this->super::Odd();
 		}
 		constexpr bool PlusOne()noexcept {
-			if (this->_Bytes<IntelligentLength<Length>().first>::PlusOne())
+			if (this->super::PlusOne())
 			{
 				bool temp = (this->Byte == std::numeric_limits<value_type>::max());
 				this->Byte += 1;
@@ -219,7 +220,7 @@ namespace LargeInteger {
 			else return false;
 		}
 		constexpr bool MinusOne()noexcept {
-			if (this->_Bytes<IntelligentLength<Length>().first>::MinusOne())
+			if (this->super::MinusOne())
 			{
 				bool temp = (this->Byte == 0);
 				this->Byte -= 1;
@@ -228,7 +229,7 @@ namespace LargeInteger {
 			else return false;
 		}
 		template<typename Val> void Maker(Val& val)noexcept {
-			this->_Bytes<IntelligentLength<Length>().first>::Maker(val);
+			this->super::Maker(val);
 			this->Byte = static_cast<value_type>(val); 
 			val = ((sizeof(Val) > sizeof(value_type)) ?
 				(val >>= (sizeof(value_type) * LargeInteger::BitsPerByte))
@@ -237,10 +238,10 @@ namespace LargeInteger {
 	public:
 		template<typename Val, typename... Vals>
 		constexpr explicit MY_LIB _Bytes(Val val, Vals... vals)
-			noexcept : Byte(val), _Bytes<IntelligentLength<Length>().first>(vals...) {
+			noexcept : Byte(val), super(vals...) {
 			static_assert(std::is_integral_v<Val>);
 		}; //= default;
-		constexpr explicit MY_LIB _Bytes() noexcept :Byte(0), _Bytes<IntelligentLength<Length>().first>() {};
+		constexpr explicit MY_LIB _Bytes() noexcept :Byte(0), super() {};
 
 		MY_LIB _Bytes(const _Bytes& that) = default;
 		MY_LIB _Bytes(_Bytes&& that) = default;
@@ -278,7 +279,7 @@ namespace LargeInteger {
 		constexpr bool NonZero()const noexcept {
 			return (this->Byte != 0)?
 				true
-				: (this->_Bytes<IntelligentLength<Length>().first>::NonZero());
+				: (this->super::NonZero());
 		}
 		constexpr _Bytes& operator<<=(size_t sz)noexcept {
 			for (size_t i = 0; i < sz; i++) {
@@ -338,7 +339,7 @@ namespace LargeInteger {
 		}
 		constexpr size_t MY_LIB GetBits()const noexcept {
 			if (this->Byte == 0) {
-				return this->_Bytes<IntelligentLength<Length>().first>::GetBits();
+				return this->super::GetBits();
 			}
 			else {
 				return (IntelligentLength<Length>().first * LargeInteger::BitsPerByte + getBits(this->Byte));
@@ -387,7 +388,7 @@ namespace LargeInteger {
 				true
 				: ((this->Byte < that.Byte) ?
 					false
-					: (this->_Bytes<IntelligentLength<Length>().first>::operator>(*static_cast<const _Bytes<IntelligentLength<Length>().first>*>(&that)))));
+					: (this->super::operator>(*static_cast<const super*>(&that)))));
 		}
 		constexpr bool operator<(const _Bytes& that)const noexcept {
 			return (
@@ -395,7 +396,7 @@ namespace LargeInteger {
 				true
 				: ((this->Byte > that.Byte) ?
 					false
-					: (this->_Bytes<IntelligentLength<Length>().first>::operator<(*static_cast<const _Bytes<IntelligentLength<Length>().first>*>(&that)))));
+					: (this->super::operator<(*static_cast<const super*>(&that)))));
 		}
 		constexpr bool operator>=(const _Bytes& that)const noexcept {
 			return !(*this < that);
@@ -407,7 +408,7 @@ namespace LargeInteger {
 			return (
 				(this->Byte != that.Byte) ?
 				false
-				: (this->_Bytes<IntelligentLength<Length>().first>::operator==(*static_cast<const _Bytes<IntelligentLength<Length>().first>*>(&that))));
+				: (this->super::operator==(*static_cast<const super*>(&that))));
 		}
 		constexpr bool operator!=(const _Bytes& that)const noexcept {
 			return !(*this == that);
@@ -424,10 +425,10 @@ namespace LargeInteger {
 			this->XOr(&that);
 			return *this;
 		}
-		constexpr static size_t getAccount()noexcept { return (_Bytes<IntelligentLength<Length>().first>::getAccount() + 1); }
+		constexpr static size_t getAccount()noexcept { return (super::getAccount() + 1); }
 		constexpr friend std::ostream& operator<<(std::ostream& o, const _Bytes& b)noexcept {
 			o << std::hex << "type = " << typeid(decltype(b.Byte)).name() << ", data = " << (size_t)b.Byte << std::dec << ".";
-			return o << *static_cast<const _Bytes<IntelligentLength<Length>().first>*>(&b);
+			return o << *static_cast<const super*>(&b);
 		}
 	};
 }
