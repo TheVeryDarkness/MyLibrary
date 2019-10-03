@@ -99,14 +99,14 @@ namespace LargeInteger {
 		}
 		template<typename Int>
 		void MY_LIB operator+=(Int that) {
-			Z Product(this->Denominator * that);
+			N Product(this->Denominator * that);
 			this->Numerator += Product;
 			Product.destruct();
 			this->Simplify();
 		}
 		template<typename Int>
 		void MY_LIB operator-=(Int that) {
-			Z Product = this->Denominator * that;
+			N Product = this->Denominator * that;
 			this->Numerator -= Product;
 			Product.destruct();
 			this->Simplify();
