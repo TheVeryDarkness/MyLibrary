@@ -85,31 +85,59 @@ namespace LargeInteger {
 			Multiply() = default;
 			~Multiply() = default;
 
+			//remain, ratio
 			std::pair<Num, Num> MY_LIB operator()(Num Carry, Num a, Num b)const noexcept {
-				using LargeInteger::_Bytes;
-				
-				if constexpr (Radix == Data(0)) {
-					_Bytes<sizeof(Data) * 2> This(a);
-					This *= _Bytes<sizeof(Data) * 2>::Make_s(b);
-					This += _Bytes<sizeof(Data) * 2>::Make_s(Carry);
-					return std::pair<Num, Num>(Num(Data(This)), Num(Data(This >> LargeInteger::BitsPerByte * sizeof(Num))));
-				}
-				else {
-					if constexpr (Radix > std::numeric_limits<Data>::max() / Radix) {
-						_Bytes<GetMinLength(Radix) * 2> This = _Bytes<GetMinLength(Radix) * 2>::Make_s(a);
-						This *= _Bytes<GetMinLength(Radix) * 2>::Make_s(b);
-						This += _Bytes<GetMinLength(Radix) * 2>::Make_s(Carry);
-						_Bytes<GetMinLength(Radix) * 2> radix = _Bytes<GetMinLength(Radix) * 2>::Make_s(Radix);
-						_Bytes<GetMinLength(Radix) * 2> Res = This.Divide(radix);
-						return std::pair<Num, Num>(
-							Num(Data(This)),
-							Num(Data(Res))
-							);
+				using namespace LargeInteger;
+				if constexpr(IntelligentLength<2 * GetMinLength(Radix)>().first == 0) {
+					using wT=typename _Int<IntelligentLength<2 * GetMinLength(Radix) * 2>().second>::type;
+					if constexpr (Radix == Data(0)) {
+						wT This(a);
+						This *= wT(b);
+						This += wT(Carry);
+						return std::pair<Num, Num>(Num(Data(This)), Num(Data(This >> LargeInteger::BitsPerByte * sizeof(Num))));
 					}
 					else {
-						a *= b;
-						a += Carry;
-						return std::pair<Num, Num>(Num(a % Radix), Num(a / Radix));
+						if constexpr (Radix > std::numeric_limits<Data>::max() / Radix) {
+							wT This = wT(a);
+							This *= wT(b);
+							This += wT(Carry);
+							wT radix(Radix);
+							return std::pair<Num, Num>(
+								Num(This % radix),
+								Num(This / radix)
+								);
+						}
+						else {
+							a *= b;
+							a += Carry;
+							return std::pair<Num, Num>(Num(a % Radix), Num(a / Radix));
+						}
+					}
+				}
+				else {
+					if constexpr (Radix == Data(0)) {
+						_Bytes<sizeof(Data) * 2> This(a);
+						This *= _Bytes<sizeof(Data) * 2>::Make_s(b);
+						This += _Bytes<sizeof(Data) * 2>::Make_s(Carry);
+						return std::pair<Num, Num>(Num(Data(This)), Num(Data(This >> LargeInteger::BitsPerByte * sizeof(Num))));
+					}
+					else {
+						if constexpr (Radix > std::numeric_limits<Data>::max() / Radix) {
+							_Bytes<GetMinLength(Radix) * 2> This = _Bytes<GetMinLength(Radix) * 2>::Make_s(a);
+							This *= _Bytes<GetMinLength(Radix) * 2>::Make_s(b);
+							This += _Bytes<GetMinLength(Radix) * 2>::Make_s(Carry);
+							_Bytes<GetMinLength(Radix) * 2> radix = _Bytes<GetMinLength(Radix) * 2>::Make_s(Radix);
+							_Bytes<GetMinLength(Radix) * 2> Res = This.Divide(radix);
+							return std::pair<Num, Num>(
+								Num(Data(This)),
+								Num(Data(Res))
+								);
+						}
+						else {
+							a *= b;
+							a += Carry;
+							return std::pair<Num, Num>(Num(a % Radix), Num(a / Radix));
+						}
 					}
 				}
 			}
