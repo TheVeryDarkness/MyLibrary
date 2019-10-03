@@ -117,11 +117,11 @@ namespace LargeInteger {
 			return Res;
 		}
 
-		void MY_LIB operator+=(const Z& that) {
+		void MY_LIB operator+=(const N& that) {
 			this->Numerator += that * this->Denominator;
 			this->Simplify();
 		}
-		void MY_LIB operator-=(const Z& that) {
+		void MY_LIB operator-=(const N& that) {
 			this->Numerator -= that * this->Denominator;
 			this->Simplify();
 		}
