@@ -27,6 +27,7 @@ namespace LargeInteger {
 			Numerator(static_cast<unsigned long>(abs(n))),
 			Denominator(static_cast<unsigned long>(d)) { }
 		MY_LIB Q(const Q &that) noexcept :
+			PosSign(that.PosSign),
 			Numerator(that.Numerator),
 			Denominator(that.Denominator) { }
 		explicit MY_LIB Q(bool sign, const N &Numerator, const N &Denominator) noexcept :
