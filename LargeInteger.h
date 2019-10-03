@@ -87,6 +87,7 @@ namespace LargeInteger {
 
 			std::pair<Num, Num> MY_LIB operator()(Num Carry, Num a, Num b)const noexcept {
 				using LargeInteger::_Bytes;
+				
 				if constexpr (Radix == Data(0)) {
 					_Bytes<sizeof(Data) * 2> This(a);
 					This *= _Bytes<sizeof(Data) * 2>::Make_s(b);
@@ -258,10 +259,6 @@ namespace LargeInteger {
 			const Cntnr & that,
 			std::ostream & out = std::cout
 		) noexcept {
-			if (that == 0) {
-				out << "0";
-				return out;
-			}
 			if (Radix == static_cast<decltype(Radix)>(0)) {
 				out << "0x"
 					<< std::setbase(16);
