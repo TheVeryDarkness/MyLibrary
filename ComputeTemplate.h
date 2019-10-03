@@ -143,9 +143,7 @@ namespace LargeInteger{
 				it += sz;
 				return it;
 			}
-			//if this iterator doesn't work,
-			//it equals nullptr
-			bool MY_LIB operator==(std::nullptr_t)const noexcept {
+			bool MY_LIB operator==(std::nullptr_t nul)const noexcept {
 				return !*this;
 			}
 			bool MY_LIB operator!()const noexcept {
