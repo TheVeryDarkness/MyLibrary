@@ -51,8 +51,8 @@ template<typename value_type>size_t getBits(const value_type& that)noexcept {
 inline long MY_LIB Max(long[], long);
 inline long MY_LIB Min(long[], long);
 inline long MY_LIB Average(long[], long);
-inline long __cdecl Max(long, long, ...);
-inline long __cdecl Min(long, long, ...);
+template<typename T>inline T __cdecl Max(long, T, ...);
+template<typename T>inline T __cdecl Min(long, T, ...);
 inline long __cdecl Average(long, long, ...);
 template<typename VAL, typename BASE>constexpr inline unsigned MY_LIB GetPowerTimes(VAL,const BASE&);
 template<typename Data>inline void MY_LIB Swap(Data& a,Data& b);
@@ -67,11 +67,11 @@ template<typename Data,Data dt> inline constexpr bool CheckUnsigned() {
 }
 
 //数组版求最大值
-inline long __stdcall Max(
-	long argument[],
+template<typename T>inline T __stdcall Max(
+	T argument[],
 	long MaxIndex//数组最大索引值
 ) {
-	long MaxNumber = argument[0];
+	T MaxNumber = argument[0];
 	if (MaxIndex == 0)
 	{
 		return MaxNumber;
@@ -87,11 +87,11 @@ inline long __stdcall Max(
 
 
 //数组版求最小值
-inline long __stdcall Min(
-	long argument[],
+template<typename T>inline T __stdcall Min(
+	T argument[],
 	long MaxIndex//数组最大索引值
 ) {
-	long MinNumber = argument[0];
+	T MinNumber = argument[0];
 	if (MaxIndex == 0)
 	{
 		return MinNumber;
@@ -121,15 +121,15 @@ inline long __stdcall Average(
 }
 
 //不定参数
-inline long __cdecl Max(
-	long num, long data, ...
+template<typename T>inline T __cdecl Max(
+	long num, T data, ...
 ) {
 	return Max(&data, num);
 }
 
 //不定参数
-inline long __cdecl Min(
-	long num, long data, ...
+template<typename T>inline T __cdecl Min(
+	long num, T data, ...
 ) {
 	return Min(&data, num);
 }
