@@ -98,10 +98,10 @@ namespace LargeInteger {
 					}
 					else {
 						if constexpr (Radix > std::numeric_limits<Data>::max() / Radix) {
-							wT This = wT(a);
+							wT This(a);
 							This *= wT(b);
 							This += wT(Carry);
-							wT radix(Radix);
+							wT &&radix = static_cast<wT>(Radix);
 							return std::pair<Num, Num>(
 								Num(This % radix),
 								Num(This / radix)
