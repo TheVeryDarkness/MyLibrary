@@ -165,7 +165,6 @@ namespace LargeInteger{
 			>,
 				"They should have the same type.");
 			using Data=std::remove_cvref_t<decltype(*a)>;
-			Data Carry = Data(0);
 			AppositionIterator<Compute, Iterator1, Iterator2, Data> compute(a, b);
 			while (true)
 			{
