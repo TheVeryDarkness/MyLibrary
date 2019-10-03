@@ -50,7 +50,7 @@ namespace LargeInteger {
 			this->Numerator.destruct();
 		}
 		//Ô¼·Ö
-		void MY_LIB Simplify() {
+		void MY_LIB Simplify() noexcept {
 			if (Numerator == Denominator) {
 				Numerator = 1;
 				Denominator = 1;
@@ -93,87 +93,87 @@ namespace LargeInteger {
 				}
 			}
 		}
-		void MY_LIB operator=(long that) {
+		void MY_LIB operator=(long that) noexcept {
 			this->Denominator = 1;
 			this->Numerator = that;
 		}
 		template<typename Int>
-		void MY_LIB operator+=(Int that) {
+		void MY_LIB operator+=(Int that) noexcept {
 			N Product(this->Denominator * that);
 			this->Numerator += Product;
 			Product.destruct();
 			this->Simplify();
 		}
 		template<typename Int>
-		void MY_LIB operator-=(Int that) {
+		void MY_LIB operator-=(Int that) noexcept {
 			N Product = this->Denominator * that;
 			this->Numerator -= Product;
 			Product.destruct();
 			this->Simplify();
 		}
-		Q MY_LIB operator-(const Q &that)const {
+		Q MY_LIB operator-(const Q &that)const noexcept {
 			Q Res = Copy(*this);
 			Res -= that;
 			return Res;
 		}
 
-		void MY_LIB operator+=(const N &that) {
+		void MY_LIB operator+=(const N &that) noexcept {
 			this->Numerator += that * this->Denominator;
 			this->Simplify();
 		}
-		void MY_LIB operator-=(const N &that) {
+		void MY_LIB operator-=(const N &that) noexcept {
 			this->Numerator -= that * this->Denominator;
 			this->Simplify();
 		}
 
-		void MY_LIB operator+=(const Q &that) {
+		void MY_LIB operator+=(const Q &that) noexcept {
 			this->Numerator *= that.Denominator;
 			this->Numerator += (that.Numerator * this->Denominator);
 			this->Simplify();
 		}
-		void MY_LIB operator-=(const Q &that) {
+		void MY_LIB operator-=(const Q &that) noexcept {
 			this->Numerator *= that.Denominator;
 			this->Numerator -= (that.Numerator * this->Denominator);
 			this->Denominator *= that.Denominator;
 			this->Simplify();
 		}
-		Q MY_LIB operator+(const Q &that)const {
+		Q MY_LIB operator+(const Q &that)const noexcept {
 			Q Res = Q::Copy(*this);
 			Res += that;
 			return Res;
 		}
-		void MY_LIB operator*=(const Q &that) {
+		void MY_LIB operator*=(const Q &that) noexcept {
 			this->Denominator *= that.Denominator;
 			this->Numerator *= that.Numerator;
 			this->Simplify();
 		}
-		void MY_LIB operator/=(const Q &that) {
+		void MY_LIB operator/=(const Q &that) noexcept {
 			this->PosSign = that.PosSign ? (this->PosSign) : (!this->PosSign);
 			this->Denominator *= that.Numerator;
 			this->Numerator *= that.Denominator;
 			this->Simplify();
 		}
-		Q MY_LIB operator*(const Q &that)const {
+		Q MY_LIB operator*(const Q &that)const noexcept {
 			Q Res = Q::Copy(*this);
 			Res *= that;
 			return Res;
 		}
-		Q MY_LIB operator/(const Q &that)const {
+		Q MY_LIB operator/(const Q &that)const noexcept {
 			Q Res = Q::Copy(*this);
 			Res /= that;
 			return Res;
 		}
 		template<typename Int>
-		bool MY_LIB operator==(Int that)const {
+		bool MY_LIB operator==(Int that)const noexcept {
 			Z temp = this->Denominator * that;
 			bool ret = (temp == this->Numerator);
 			temp.destruct();
 			return ret;
 		}
-		bool MY_LIB operator==(const Q &that)const {
+		bool MY_LIB operator==(const Q &that)const noexcept {
 			return ((this->Numerator == that.Numerator) && (this->Denominator == that.Denominator));
 		}
-		bool MY_LIB operator>(const Q &that)const {
+		bool MY_LIB operator>(const Q &that)const noexcept {
 			if (this->PosSign && !that.PosSign) {
 				return true;
 			}
@@ -186,7 +186,7 @@ namespace LargeInteger {
 			temp2.destruct();
 			return res;
 		}
-		bool MY_LIB operator<(const Q &that)const {
+		bool MY_LIB operator<(const Q &that)const noexcept {
 			if (this->PosSign && !that.PosSign) {
 				return false;
 			}
@@ -199,9 +199,9 @@ namespace LargeInteger {
 			temp2.destruct();
 			return res;
 		}
-		bool MY_LIB operator<=(const Q &that)const { return !(*this > that); }
-		bool MY_LIB operator>=(const Q &that)const { return !(*this < that); }
-		std::ostream &Print(std::ostream &o)const {
+		bool MY_LIB operator<=(const Q &that)const noexcept { return !(*this > that); }
+		bool MY_LIB operator>=(const Q &that)const noexcept { return !(*this < that); }
+		std::ostream &Print(std::ostream &o)const noexcept {
 			if (this->Denominator == 1)
 				return Numerator.Print();
 			return Denominator.Print((Numerator.Print(o) << '/'));
@@ -210,7 +210,7 @@ namespace LargeInteger {
 			return q.Print(o);
 		}
 	};
-	INLINED MY_LIB Q::~Q() { }
+	INLINED MY_LIB Q::~Q() noexcept = default;
 }
 #ifdef Z_MAX
 #undef Z_MAX
