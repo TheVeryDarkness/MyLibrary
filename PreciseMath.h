@@ -22,7 +22,7 @@ namespace LargeInteger {
 		N Denominator;//·ÖÄ¸
 	public:
 		//MY_LIB Q();
-		template<typename Val>explicit MY_LIB Q(bool sign, const Val&& n, const Val&& d = 1)noexcept :
+		template<typename Val1,typename Val2>explicit MY_LIB Q(bool sign, const Val1&& n, const Val2&& d = 1)noexcept :
 			PosSign(sign),
 			Numerator(n),
 			Denominator(d) { }
