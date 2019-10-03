@@ -326,7 +326,7 @@ namespace LargeInteger {
 			LargeUnsigned res = Copy(*this), temp(that);
 			res *= temp;
 			temp.destruct();
-			retun res;
+			return res;
 		}
 		constexpr void MY_LIB Swap(LargeUnsigned& that)noexcept {
 			{
