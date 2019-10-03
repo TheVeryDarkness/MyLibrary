@@ -334,7 +334,7 @@ namespace LargeInteger {
 			{
 				Data temp = that.data;
 				that.data = this->data;
-				this->data = that.data;
+				this->data = temp;
 			}
 		}
 		/*INLINED*/void MY_LIB operator*=(const LargeUnsigned& b) noexcept {
