@@ -123,8 +123,8 @@ namespace LL {
 
 	template<class inNode, class outNode, auto inRadix, auto outRadix, bool Destroy = true>
 	outNode MY_LIB Transform(inNode & in)noexcept {
-		static_assert(GetPowerTimes(outRadix, inRadix) != 0);
-		constexpr auto times = GetPowerTimes(outRadix, inRadix);
+		static_assert(Math::GetPowerTimes(outRadix, inRadix) != 0);
+		constexpr auto times = Math::GetPowerTimes(outRadix, inRadix);
 		if constexpr (Destroy)
 		{
 			outNode out(0);
@@ -133,7 +133,7 @@ namespace LL {
 				decltype(out.data) temp = 0;
 				for (typename std::remove_const<decltype(times)>::type i = 0; i < times; i++)
 				{
-					temp += static_cast<decltype(temp)>(in._pop()) * Power(inRadix, i);
+					temp += static_cast<decltype(temp)>(in._pop()) * Math::Power(inRadix, i);
 					if (in.next == nullptr)
 						break;
 				}
