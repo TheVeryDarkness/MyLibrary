@@ -647,6 +647,7 @@ namespace LargeInteger {
 	};
 	template<typename LL, auto radix>
 	class LargeSigned :protected LargeUnsigned<LL, radix> {
+		using super=LargeUnsigned<LL, radix>;
 		using radix_t=decltype(radix);
 		using Data=radix_t;
 		friend class Q;
@@ -670,6 +671,7 @@ namespace LargeInteger {
 		constexpr INLINED auto cend() const noexcept {
 			return this->LargeUnsigned<LL, radix>::cend();
 		}
+		explicit MY_LIB LargeSigned(LL &&ll)noexcept :super(std::move(ll)) { }
 		template<typename val> explicit MY_LIB LargeSigned(val Val)noexcept
 			:PosSign(Val > 0), LargeUnsigned<LL, radix>(ABS(Val)) { }
 		template<typename val> explicit MY_LIB LargeSigned(bool Pos, val Val)noexcept
