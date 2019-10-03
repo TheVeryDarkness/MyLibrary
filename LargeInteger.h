@@ -312,7 +312,7 @@ namespace LargeInteger {
 			return out;
 		}
 		INLINED std::ostream& MY_LIB Print(std::ostream& o = std::cout) const noexcept {
-			return _Print<LL, radix>(static_cast<LL>(*this), o);
+			return _Print(this->cbegin(), o);
 		}
 		template<typename Int>
 		/*INLINED*/ void MY_LIB operator*=(const Int& that) noexcept {
