@@ -217,7 +217,7 @@ namespace LargeInteger {
 
 	template<char...set>char __stdcall getline(std::istream &in, std::string &str)noexcept {
 		using charset=BaseSet<char, char, 0, set...>;
-		while (true) {
+		while (in.good()) {
 			std::string tmp;
 			in >> tmp;
 			auto &&a1 = tmp.find('+'), a2 = tmp.find('-'), a3 = tmp.find('*'), a4 = tmp.find('/');
@@ -228,9 +228,9 @@ namespace LargeInteger {
 				auto &&a = Math::fMin(a1, a2, a3, a4);
 				str += tmp.substr(0, a);
 				auto &&res = tmp.substr(a + 1);
-				for (auto c : res) {
-					if (charset::exist(c)) {
-						in.putback(c);
+				for (auto c = res.crbegin(); c != res.crend(); ++c) {
+					if (charset::exist(*c)) {
+						in.putback(*c);
 					}
 				}
 				if (a == a1) {
