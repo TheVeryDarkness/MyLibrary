@@ -22,10 +22,10 @@ namespace LargeInteger {
 		N Denominator;//·ÖÄ¸
 	public:
 		//MY_LIB Q();
-		explicit MY_LIB Q(bool sign, long n, unsigned short d = 1)noexcept :
+		template<typename Val>explicit MY_LIB Q(bool sign, const Val&& n, const Val&& d = 1)noexcept :
 			PosSign(sign),
-			Numerator(static_cast<unsigned long>(abs(n))),
-			Denominator(static_cast<unsigned long>(d)) { }
+			Numerator(n),
+			Denominator(d) { }
 		MY_LIB Q(const Q &that) noexcept :
 			PosSign(that.PosSign),
 			Numerator(that.Numerator),
@@ -35,8 +35,7 @@ namespace LargeInteger {
 			Numerator(Numerator),
 			Denominator(Denominator) { }
 		static Q MY_LIB Copy(const Q &that)noexcept {
-			Q temp = Q(that.PosSign, N::Copy(that.Numerator), N::Copy(that.Denominator));
-			return temp;
+			return Q(that.PosSign, N::Copy(that.Numerator), N::Copy(that.Denominator));
 		}
 		Q &MY_LIB toReciprocal()noexcept {
 			this->Numerator.Swap(this->Denominator);
