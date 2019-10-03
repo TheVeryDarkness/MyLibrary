@@ -48,8 +48,8 @@ template<typename value_type>size_t getBits(const value_type& that)noexcept {
 	return i;
 }
 
-inline long MY_LIB Max(long[], long);
-inline long MY_LIB Min(long[], long);
+template<typename T>inline T MY_LIB Max(T[], long);
+template<typename T>inline T MY_LIB Min(T[], long);
 inline long MY_LIB Average(long[], long);
 template<typename T>inline T __cdecl Max(long, T, ...);
 template<typename T>inline T __cdecl Min(long, T, ...);
