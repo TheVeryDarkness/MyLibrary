@@ -136,6 +136,35 @@ namespace Math {
 	) {
 		return Average(&data, num);
 	}
+#ifdef __cplusplus
+
+	//cpp不定参数
+	template<typename T>inline T __stdcall fMax(
+		T data
+	) {
+		return data;
+	}
+	//cpp不定参数
+	template<typename T,typename... res>inline T __stdcall fMax(
+		T data, T head, res... r
+	) {
+		fMax((data > head) ? data, head, r...);
+	}
+
+	//cpp不定参数
+	template<typename T>inline T __stdcall fMin(
+		T data
+	) {
+		return data;
+	}
+	//cpp不定参数
+	template<typename T, typename... res>inline T __stdcall fMin(
+		T data, T head, res... r
+	) {
+		fMin((data < head) ? data, head, r...);
+	}
+
+#endif // __cplusplus
 
 	template<typename Type, typename SubData>
 	//Remember to delete this array
