@@ -468,15 +468,16 @@ namespace LargeInteger{
 			MY_LIB Divide()noexcept{}
 			MY_LIB ~Divide()noexcept{}
 
-			std::pair<Data, Data> operator()(const Data& that) noexcept{
+			std::pair<radix_t, Data> operator()(const Data& that) noexcept{
+				using resT=std::pair<radix_t, Data>;
 				static_assert(std::is_same_v<Depack_t<Data>, Data>, "The type must not be num!");
 				if constexpr(radix == 0) {
 					if constexpr (sizeof(radix) >= sizeof(Data)) {
-						return std::pair<Data, Data>(that, 0);
+						return resT(that, 0);
 					}
-					else return std::pair<Data, Data>(static_cast<radix_t>(that), that >> (LargeInteger::BitsPerByte * sizeof(radix)));
+					else return resT(static_cast<radix_t>(that), that >> (LargeInteger::BitsPerByte * sizeof(radix)));
 				}
-				else return std::pair<Data, Data>(that % radix, that / radix);
+				else return resT(static_cast<radix_t>(that % radix), that / radix);
 			}
 		};
 

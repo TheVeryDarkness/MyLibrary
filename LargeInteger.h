@@ -217,7 +217,7 @@ namespace LargeInteger {
 			static_assert(std::is_integral_v<val>, "Integral type required.");
 			static_assert(radix != radix_t(1));
 			static_assert(!std::is_same_v<val, bool>, "Never use bool type");
-			typename LongCmpt<StdCmptTraits<val>>::template LayerIterator<typename StdCmptTraits<val>::template Divide<radix>, val> it(Val);
+			typename LongCmpt<StdCmptTraits<val>>::template LayerIterator<typename StdCmptTraits<val>::template Divide<radix>, radix_t> it(Val);
 			for (auto index = this->begin(); !!it; ) {
 				*index = *it;
 				++it;
