@@ -324,18 +324,23 @@ namespace LargeInteger {
 			return *this;
 		}
 		constexpr _Bytes& MY_LIB operator*=(const _Bytes& that)noexcept {
-			_Bytes This = *this;
-			memset(this, 0, Length);
-			auto temp = that;
-			for (size_t j = 0; j < Length * LargeInteger::BitsPerByte && temp.NonZero(); ++j)
-			{
-				if (temp.Odd()) {
-					*this += This;
-				}
-				This.SHL();
-				temp.SHR(false);
+			if constexpr(IntelligentLength<Length>().first==0) {
+				this->Byte *= that.Byte;
+				return *this;
 			}
-			return *this;
+			else {
+				_Bytes This = *this;
+				memset(this, 0, Length);
+				auto temp = that;
+				for (size_t j = 0; j < Length * LargeInteger::BitsPerByte && temp.NonZero(); ++j) {
+					if (temp.Odd()) {
+						*this += This;
+					}
+					This.SHL();
+					temp.SHR(false);
+				}
+				return *this;
+			}
 		}
 		constexpr size_t MY_LIB GetBits()const noexcept {
 			if (this->Byte == 0) {
