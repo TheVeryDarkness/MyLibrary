@@ -26,18 +26,18 @@ namespace LargeInteger {
 			PosSign(sign),
 			Numerator(static_cast<unsigned long>(abs(n))),
 			Denominator(static_cast<unsigned long>(d)) { }
-		MY_LIB Q(const Q& that) noexcept :
+		MY_LIB Q(const Q &that) noexcept :
 			Numerator(that.Numerator),
 			Denominator(that.Denominator) { }
-		explicit MY_LIB Q(bool sign, const N& Numerator, const N& Denominator) noexcept :
+		explicit MY_LIB Q(bool sign, const N &Numerator, const N &Denominator) noexcept :
 			PosSign(sign),
 			Numerator(Numerator),
 			Denominator(Denominator) { }
-		static Q MY_LIB Copy(const Q& that)noexcept {
+		static Q MY_LIB Copy(const Q &that)noexcept {
 			Q temp = Q(that.PosSign, N::Copy(that.Numerator), N::Copy(that.Denominator));
 			return temp;
 		}
-		Q& MY_LIB toReciprocal()noexcept {
+		Q &MY_LIB toReciprocal()noexcept {
 			this->Numerator.Swap(this->Denominator);
 		}
 		template<typename val = double> val MY_LIB estim()const noexcept {
@@ -111,54 +111,54 @@ namespace LargeInteger {
 			Product.destruct();
 			this->Simplify();
 		}
-		Q MY_LIB operator-(const Q& that)const {
+		Q MY_LIB operator-(const Q &that)const {
 			Q Res = Copy(*this);
 			Res -= that;
 			return Res;
 		}
 
-		void MY_LIB operator+=(const N& that) {
+		void MY_LIB operator+=(const N &that) {
 			this->Numerator += that * this->Denominator;
 			this->Simplify();
 		}
-		void MY_LIB operator-=(const N& that) {
+		void MY_LIB operator-=(const N &that) {
 			this->Numerator -= that * this->Denominator;
 			this->Simplify();
 		}
 
-		void MY_LIB operator+=(const Q& that) {
+		void MY_LIB operator+=(const Q &that) {
 			this->Numerator *= that.Denominator;
 			this->Numerator += (that.Numerator * this->Denominator);
 			this->Simplify();
 		}
-		void MY_LIB operator-=(const Q& that) {
+		void MY_LIB operator-=(const Q &that) {
 			this->Numerator *= that.Denominator;
 			this->Numerator -= (that.Numerator * this->Denominator);
 			this->Denominator *= that.Denominator;
 			this->Simplify();
 		}
-		Q MY_LIB operator+(const Q& that)const {
+		Q MY_LIB operator+(const Q &that)const {
 			Q Res = Q::Copy(*this);
 			Res += that;
 			return Res;
 		}
-		void MY_LIB operator*=(const Q& that) {
+		void MY_LIB operator*=(const Q &that) {
 			this->Denominator *= that.Denominator;
 			this->Numerator *= that.Numerator;
 			this->Simplify();
 		}
-		void MY_LIB operator/=(const Q& that) {
+		void MY_LIB operator/=(const Q &that) {
 			this->PosSign = that.PosSign ? (this->PosSign) : (!this->PosSign);
 			this->Denominator *= that.Numerator;
 			this->Numerator *= that.Denominator;
 			this->Simplify();
 		}
-		Q MY_LIB operator*(const Q& that)const {
+		Q MY_LIB operator*(const Q &that)const {
 			Q Res = Q::Copy(*this);
 			Res *= that;
 			return Res;
 		}
-		Q MY_LIB operator/(const Q& that)const {
+		Q MY_LIB operator/(const Q &that)const {
 			Q Res = Q::Copy(*this);
 			Res /= that;
 			return Res;
@@ -170,10 +170,10 @@ namespace LargeInteger {
 			temp.destruct();
 			return ret;
 		}
-		bool MY_LIB operator==(const Q& that)const {
+		bool MY_LIB operator==(const Q &that)const {
 			return ((this->Numerator == that.Numerator) && (this->Denominator == that.Denominator));
 		}
-		bool MY_LIB operator>(const Q& that)const {
+		bool MY_LIB operator>(const Q &that)const {
 			if (this->PosSign && !that.PosSign) {
 				return true;
 			}
@@ -186,12 +186,12 @@ namespace LargeInteger {
 			temp2.destruct();
 			return res;
 		}
-		std::ostream& Print(std::ostream& o)const {
+		std::ostream &Print(std::ostream &o)const {
 			if (this->Denominator == 1)
 				return Numerator.Print();
 			return Denominator.Print((Numerator.Print(o) << '/'));
 		}
-		friend std::ostream& operator<<(std::ostream& o, const Q& q) {
+		friend std::ostream &operator<<(std::ostream &o, const Q &q) {
 			return q.Print(o);
 		}
 	};
