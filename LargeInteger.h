@@ -267,14 +267,14 @@ namespace LargeInteger {
 			else {
 				bool temp = false;
 				unsigned int Length = 0;
-				Length = Math::GetPowerTimes(Radix, 10);
+				Length = Math::GetPowerTimes(Radix, 10U);
 				decltype(Radix) OutBase = 0;
 				if (Length == 0) {
-					Length = Math::GetPowerTimes(Radix, 16);
+					Length = Math::GetPowerTimes(Radix, 16U);
 					if (Length == 0) {
-						Length = Math::GetPowerTimes(Radix, 8);
+						Length = Math::GetPowerTimes(Radix, 8U);
 						if (Length == 0) {
-							Length = Math::GetPowerTimes(Radix, 2);
+							Length = Math::GetPowerTimes(Radix, 2U);
 							if (Length == 0) {
 								Length = 1;
 								OutBase = Radix;
