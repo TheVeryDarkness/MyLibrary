@@ -605,7 +605,7 @@ namespace LargeInteger {
 				return 0;
 			}
 			while (true) {
-				value += ((Val)((*OprtPtr))) * Power(static_cast<Val>(radix), n);
+				value += ((Val)((*OprtPtr))) * Math::Power(static_cast<Val>(radix), n);
 				if (OprtPtr + 1 != nullptr) {
 					++OprtPtr;
 					++n;
