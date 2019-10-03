@@ -145,10 +145,10 @@ namespace Math {
 		return data;
 	}
 	//cpp不定参数
-	template<typename T,typename... res>inline T __stdcall fMax(
-		T data, T head, res... r
+	template<typename T, typename _T, typename... res>inline T __stdcall fMax(
+		T data, _T head, res... r
 	) {
-		fMax((data > head) ? data, head, r...);
+		return fMax((data > head) ? data: head, r...);
 	}
 
 	//cpp不定参数
@@ -158,10 +158,10 @@ namespace Math {
 		return data;
 	}
 	//cpp不定参数
-	template<typename T, typename... res>inline T __stdcall fMin(
-		T data, T head, res... r
+	template<typename T, typename _T, typename... res>inline T __stdcall fMin(
+		T data, _T head, res... r
 	) {
-		fMin((data < head) ? data, head, r...);
+		return fMin((data < head) ? data: head, r...);
 	}
 
 #endif // __cplusplus
