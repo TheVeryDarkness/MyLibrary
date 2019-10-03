@@ -187,6 +187,21 @@ namespace LargeInteger {
 			temp2.destruct();
 			return res;
 		}
+		bool MY_LIB operator<(const Q &that)const {
+			if (this->PosSign && !that.PosSign) {
+				return false;
+			}
+			if (!this->PosSign && that.PosSign) {
+				return true;
+			}
+			N &&temp1 = this->Numerator * that.Denominator, &&temp2 = this->Denominator * that.Numerator;
+			bool &&res = ((temp1 < temp2) ? (this->PosSign) : (!this->PosSign));
+			temp1.destruct();
+			temp2.destruct();
+			return res;
+		}
+		bool MY_LIB operator<=(const Q &that)const { return !(*this > that); }
+		bool MY_LIB operator>=(const Q &that)const { return !(*this < that); }
 		std::ostream &Print(std::ostream &o)const {
 			if (this->Denominator == 1)
 				return Numerator.Print();
