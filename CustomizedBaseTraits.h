@@ -213,4 +213,39 @@ namespace LargeInteger {
 	private:
 		std::basic_ostream<_Elem> &os;
 	};
+
+
+	template<char...set>char __stdcall getline(std::istream &in, std::string &str)noexcept {
+		using charset=BaseSet<char, char, 0, set...>;
+		while (true) {
+			std::string tmp;
+			in >> tmp;
+			auto &&a1 = tmp.find('+'), a2 = tmp.find('-'), a3 = tmp.find('*'), a4 = tmp.find('/');
+			if (a1 == tmp.npos && a2 == tmp.npos && a3 == tmp.npos && a4 == tmp.npos) {
+				str += tmp;
+			}
+			else {
+				auto &&a = Math::fMin(a1, a2, a3, a4);
+				str += tmp.substr(0, a);
+				auto &&res = tmp.substr(a + 1);
+				for (auto c : res) {
+					if (charset::exist(c)) {
+						in.putback(c);
+					}
+				}
+				if (a == a1) {
+					return'+';
+				}
+				else if (a == a2) {
+					return'-';
+				}
+				else if (a == a3) {
+					return'*';
+				}
+				else if (a == a4) {
+					return'/';
+				}
+			}
+		}
+	}
 }
