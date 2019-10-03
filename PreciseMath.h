@@ -17,25 +17,28 @@ namespace LargeInteger {
 	class Q {
 	protected:
 		using Data=unsigned int;
-		Z Numerator;//分子
-		Z Denominator;//分母
+		bool PosSign;
+		N Numerator;//分子
+		N Denominator;//分母
 	public:
 		//MY_LIB Q();
-		explicit MY_LIB Q(long n, unsigned short d = 1)noexcept :
-			Numerator(((n > 0) ? 1 : 0), static_cast<unsigned long>(abs(n))),
-			Denominator(true, static_cast<unsigned long>(d)) { }
+		explicit MY_LIB Q(bool sign, long n, unsigned short d = 1)noexcept :
+			PosSign(sign),
+			Numerator(static_cast<unsigned long>(abs(n))),
+			Denominator(static_cast<unsigned long>(d)) { }
 		MY_LIB Q(const Q& that) noexcept :
 			Numerator(that.Numerator),
 			Denominator(that.Denominator) { }
-		explicit MY_LIB Q(const Z& Numerator, const Z& Denominator) noexcept :
+		explicit MY_LIB Q(bool sign, const N& Numerator, const N& Denominator) noexcept :
+			PosSign(sign),
 			Numerator(Numerator),
 			Denominator(Denominator) { }
 		static Q MY_LIB Copy(const Q& that)noexcept {
-			Q temp = Q(Z::Copy(that.Numerator), Z::Copy(that.Denominator));
+			Q temp = Q(that.PosSign, N::Copy(that.Numerator), N::Copy(that.Denominator));
 			return temp;
 		}
 		Q& MY_LIB toReciprocal()noexcept {
-			this->Numerator._Swap(this->Denominator);
+			this->Numerator.Swap(this->Denominator);
 		}
 		template<typename val = double> val MY_LIB estim()const noexcept {
 			static_assert(std::is_arithmetic_v<val> && !std::is_integral_v<val>);
@@ -60,9 +63,7 @@ namespace LargeInteger {
 				Numerator = 1;
 			}
 			else {
-				Z a = Z::Copy(Numerator), b = Z::Copy(Denominator);
-				a.PosSign = true;
-				b.PosSign = true;
+				N a = N::Copy(Numerator), b = N::Copy(Denominator);
 				while (true) {
 					if (a == 0) {
 						this->Numerator /= b;
@@ -147,13 +148,10 @@ namespace LargeInteger {
 			this->Simplify();
 		}
 		void MY_LIB operator/=(const Q& that) {
+			this->PosSign = that.PosSign ? (this->PosSign) : (!this->PosSign);
 			this->Denominator *= that.Numerator;
 			this->Numerator *= that.Denominator;
 			this->Simplify();
-			if (this->Numerator > 0 && !(this->Denominator > 0)) {
-				this->Numerator.SetToContradict();
-				this->Denominator.SetToContradict();
-			}
 		}
 		Q MY_LIB operator*(const Q& that)const {
 			Q Res = Q::Copy(*this);
@@ -176,14 +174,14 @@ namespace LargeInteger {
 			return ((this->Numerator == that.Numerator) && (this->Denominator == that.Denominator));
 		}
 		bool MY_LIB operator>(const Q& that)const {
-			if (this->Numerator.PosSign && !that.Numerator.PosSign) {
+			if (this->PosSign && !that.PosSign) {
 				return true;
 			}
-			if (!this->Numerator.PosSign && that.Numerator.PosSign) {
+			if (!this->PosSign && that.PosSign) {
 				return false;
 			}
-			Z &&temp1 = this->Numerator * that.Denominator, &&temp2 = this->Denominator * that.Numerator;
-			bool &&res = temp1 > temp2;
+			N &&temp1 = this->Numerator * that.Denominator, &&temp2 = this->Denominator * that.Numerator;
+			bool &&res = ((temp1 > temp2) ? (this->PosSign) : (!this->PosSign));
 			temp1.destruct();
 			temp2.destruct();
 			return res;
