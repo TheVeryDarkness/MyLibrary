@@ -54,6 +54,9 @@ namespace LargeInteger {
 				return BaseSet<char_type, index_type, BeginIndex + 1, Remained...>::to_char_type(Int);
 			}
 		}
+		constexpr static bool MY_LIB exist(char_type c)noexcept {
+			return to_int_type(c) != index_type('?');
+		}
 		constexpr static int_type MY_LIB getRadix()noexcept {
 			return BaseSet<char_type, index_type, BeginIndex + 1, Remained...>::getRadix();
 		}
@@ -90,12 +93,7 @@ namespace LargeInteger {
 
 		template<typename iter, typename Cntnr, auto radix>
 		static void MY_LIB store(iter temp, Cntnr str)noexcept {
-			static_assert(
-				std::is_same_v<
-				decltype(std::remove_cvref_t<*temp>),
-				decltype(std::remove_cvref_t<*str>)
-				>);
-			static_assert(GetPowerTimes(radix, charset::getRadix()) != 0 || radix == charset::getRadix());
+			static_assert(Math::GetPowerTimes(radix, charset::getRadix()) != 0 || radix == charset::getRadix());
 			if constexpr (radix == charset::getRadix()) {
 				for (auto i = temp.crbegin(); i != temp.crend(); ++i) {
 					auto c = charset::to_int_type(*i);
@@ -111,10 +109,10 @@ namespace LargeInteger {
 			else {
 				for (auto i = temp.crbegin(); i != temp.crend();) {
 					typename std::remove_reference<decltype(*str)>::type sum = std::remove_reference<decltype(*str)>::type(0);
-					for (decltype(GetPowerTimes(radix, charset::getRadix())) j = 0; j < GetPowerTimes(radix, charset::getRadix()); j++) {
+					for (decltype(Math::GetPowerTimes(radix, charset::getRadix())) j = 0; j < Math::GetPowerTimes(radix, charset::getRadix()); j++) {
 						auto c = charset::to_int_type(*i);
 						if (c != charset::IntType('?')) {
-							sum += c * static_cast<decltype(radix)>(Power(static_cast<decltype(radix)>(charset::getRadix()), j));
+							sum += c * static_cast<decltype(radix)>(Math::Power(static_cast<decltype(radix)>(charset::getRadix()), j));
 						}
 						else --j;
 						++i;
