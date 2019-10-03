@@ -672,8 +672,8 @@ namespace LargeInteger {
 			return this->LargeUnsigned<LL, radix>::cend();
 		}
 		explicit MY_LIB LargeSigned(bool sign, LL &&ll)noexcept :PosSign(sign), super(std::move(ll)) { }
-		template<typename val> explicit MY_LIB LargeSigned(bool sign, val Val)noexcept
-			:PosSign(sign), LargeUnsigned<LL, radix>(Val) { }
+		template<typename val> explicit MY_LIB LargeSigned(val Val)noexcept
+			:PosSign(Val > 0), LargeUnsigned<LL, radix>(ABS(Val)) { }
 		template<typename val> explicit MY_LIB LargeSigned(bool Pos, val Val)noexcept
 			:PosSign(Pos), LargeUnsigned<LL, radix>(Val) {
 			assert(Val >= 0);
