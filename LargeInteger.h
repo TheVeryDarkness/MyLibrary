@@ -321,7 +321,7 @@ namespace LargeInteger {
 			this->mul(it);
 		}
 		template<typename Int>
-		/*INLINED*/LargeUnsigned MY_LIB operator*(const Int& that)const noexcept {
+		/*INLINED*/LargeUnsigned MY_LIB operator*(const Int& that) noexcept {
 			static_assert(std::is_integral_v<Int>);
 			LargeUnsigned temp(that);
 			*this *= temp;
