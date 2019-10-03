@@ -52,25 +52,25 @@ namespace LargeInteger {
 		constexpr bool Comp()noexcept {
 			return true;
 		}
-		constexpr bool add_o(const _Bytes& that)noexcept {
+		constexpr bool add_o(const _Bytes&)noexcept {
 			return false;
 		}
-		constexpr bool sub_u(const _Bytes& that)noexcept {
+		constexpr bool sub_u(const _Bytes&)noexcept {
 			return false;
 		}
-		constexpr void And(const _Bytes* that)noexcept { return; }
-		constexpr void Or(const _Bytes* that)noexcept { return; }
-		constexpr void XOr(const _Bytes* that)noexcept { return; }
+		constexpr void And(const _Bytes*)noexcept { return; }
+		constexpr void Or(const _Bytes*)noexcept { return; }
+		constexpr void XOr(const _Bytes*)noexcept { return; }
 		constexpr bool SHL()noexcept { 
 			return false;
 		}
-		constexpr void SHR(bool fill)noexcept {
+		constexpr void SHR(bool)noexcept {
 			return; 
 		}
-		constexpr void _SHR(bool fill, bool& tail)noexcept {
+		constexpr void _SHR(bool, bool&)noexcept {
 			return;
 		}
-		constexpr void Odd(bool& buf)noexcept {}
+		constexpr void Odd(bool&)noexcept {}
 		constexpr bool NonZero()const noexcept {
 			return false;
 		}
@@ -80,25 +80,25 @@ namespace LargeInteger {
 		constexpr bool MinusOne()noexcept {
 			return true;
 		}
-		template<typename Val>constexpr MY_LIB _Bytes(Val val) {}
-		template<typename Val> void Maker(Val& val)noexcept { return; }
+		template<typename Val>constexpr MY_LIB _Bytes(Val) {}
+		template<typename Val> void Maker(Val&)noexcept { return; }
 	public:
 		constexpr size_t MY_LIB GetBits()const noexcept { return 0; }
 		constexpr MY_LIB _Bytes() = default;
 		MY_LIB ~_Bytes() = default;
-		constexpr bool operator>(const _Bytes& that)const noexcept {
+		constexpr bool operator>(const _Bytes&)const noexcept {
 			return false;
 		}
-		constexpr bool operator<(const _Bytes& that)const noexcept {
+		constexpr bool operator<(const _Bytes&)const noexcept {
 			return false;
 		}
-		constexpr bool operator==(const _Bytes& that)const noexcept {
+		constexpr bool operator==(const _Bytes&)const noexcept {
 			return true;
 		}
 		static constexpr size_t getAccount()noexcept {
 			return 0;
 		}
-		constexpr friend std::ostream& operator<<(std::ostream& o, const _Bytes& b)noexcept {
+		constexpr friend std::ostream& operator<<(std::ostream& o, const _Bytes&)noexcept {
 			return o;
 		}
 	};
