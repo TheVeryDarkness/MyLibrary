@@ -259,7 +259,7 @@ namespace LargeInteger {
 			const Cntnr & that,
 			std::ostream & out = std::cout
 		) noexcept {
-			if (Radix == static_cast<decltype(Radix)>(0)) {
+			if constexpr (Radix == static_cast<decltype(Radix)>(0)) {
 				out << "0x"
 					<< std::setbase(16);
 				LargeInteger::SinglePrint(that, out, false, 2 * sizeof(Radix), 16);
