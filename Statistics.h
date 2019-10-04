@@ -29,6 +29,22 @@ namespace LargeInteger {
 }
 
 namespace Math {
+	template<typename Data>constexpr inline Data ABS(Data a) noexcept;
+	template<typename value_type>size_t getBits(const value_type &that)noexcept;
+	template<typename Data, Data dt> inline constexpr bool CheckUnsigned();
+	template<typename T>inline T MY_LIB Max(T[], long);
+	template<typename T>inline T MY_LIB Min(T[], long);
+	inline long MY_LIB Average(long[], long);
+	template<typename T>inline T __cdecl Max(long, T, ...);
+	template<typename T>inline T __cdecl Min(long, T, ...);
+	inline long __cdecl Average(long, long, ...);
+	template<typename VAL, typename BASE>constexpr inline unsigned MY_LIB GetPowerTimes(VAL, const BASE &);
+	template<typename Data>inline void MY_LIB Swap(Data &a, Data &b);
+	template<typename Data>constexpr inline bool MY_LIB IsPrime(Data val);
+	template<typename Data>inline std::forward_list<Data> MY_LIB PrimeList(Data Max);
+	template<typename T>class Match;
+
+
 	template<typename Data>
 	constexpr inline Data ABS(Data a) noexcept {
 		if constexpr (Data(-1) > 0) {
@@ -49,17 +65,6 @@ namespace Math {
 		}
 		return i;
 	}
-
-	template<typename T>inline T MY_LIB Max(T[], long);
-	template<typename T>inline T MY_LIB Min(T[], long);
-	inline long MY_LIB Average(long[], long);
-	template<typename T>inline T __cdecl Max(long, T, ...);
-	template<typename T>inline T __cdecl Min(long, T, ...);
-	inline long __cdecl Average(long, long, ...);
-	template<typename VAL, typename BASE>constexpr inline unsigned MY_LIB GetPowerTimes(VAL, const BASE &);
-	template<typename Data>inline void MY_LIB Swap(Data &a, Data &b);
-	template<typename Data>constexpr inline bool MY_LIB IsPrime(Data val);
-	template<typename Data>inline std::forward_list<Data> MY_LIB PrimeList(Data Max);
 
 
 
@@ -263,4 +268,18 @@ namespace Math {
 	template<typename T>constexpr inline T floor(T a, T b)noexcept {
 		return (a - 1) / b + 1;
 	}
+
+
+	template<typename T>class Match {
+	public:
+		bool value = false;
+		MY_LIB Match() = default;
+		MY_LIB ~Match() = default;
+		void MY_LIB operator()(T a, T b)noexcept {
+			value = ((a == b) ? true : value);
+		}
+		template<T a, T b>void MY_LIB match()noexcept {
+			value = ((a == b) ? true : value);
+		}
+	};
 }
