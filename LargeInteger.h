@@ -401,7 +401,7 @@ namespace LargeInteger {
 		template<typename Int>
 		/*INLINED*/ void MY_LIB operator*=(const Int& that) noexcept {
 			static_assert(std::is_integral_v<Int>);
-			typename LongCmpt<StdCmptTraits<Int>>::template LayerIterator<typename StdCmptTraits<Int>::template Divide<radix>, Int> it(that);
+			typename LongCmpt<StdCmptTraits<Int>>::template LayerIterator<typename StdCmptTraits<Int>::template Divide<radix>, radix_t> it(that);
 			this->mul(it);
 		}
 		template<typename Int>
@@ -494,7 +494,7 @@ namespace LargeInteger {
 				*this = that;
 				return;
 			}
-			typename LongCmpt<StdCmptTraits<Int>>::template LayerIterator<typename StdCmptTraits<Int>::template Divide<radix>, Int> it(that);
+			typename LongCmpt<StdCmptTraits<Int>>::template LayerIterator<typename StdCmptTraits<Int>::template Divide<radix>, radix_t> it(that);
 			LargeInteger::LongCmpt<LLCmptTraits<radix>>::AddTo(it, this->begin());
 		}
 		template<typename Int>
@@ -666,7 +666,7 @@ namespace LargeInteger {
 			if (Val == 0) {
 				this->destruct();
 			}
-			typename LongCmpt<StdCmptTraits<Int>>::template LayerIterator<typename StdCmptTraits<Int>::template Divide<radix>, Int> it(Val);
+			typename LongCmpt<StdCmptTraits<Int>>::template LayerIterator<typename StdCmptTraits<Int>::template Divide<radix>, radix_t> it(Val);
 			for (auto index = this->begin(); !!it; ) {
 				*index = Data(*it);
 				++it;
