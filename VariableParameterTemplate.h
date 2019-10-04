@@ -2,9 +2,9 @@
 
 namespace Template{
 	template<size_t, typename T, T, T...> constexpr static T get()noexcept;
-	template<typename func, typename T, T head, T...>constexpr static void for_each()noexcept;
+	template<typename, typename T, T, T...>constexpr static void for_each()noexcept;
+	template<typename, typename T, T...>constexpr static void parallel_for_each()noexcept;
 	template<size_t...> class product;
-
 
 	template<size_t index, typename T, T head, T... pack>
 	constexpr static T get()noexcept {
@@ -28,6 +28,12 @@ namespace Template{
 			for_each<Func, T, pack...>();
 		}
 		return;
+	}
+
+
+	template<typename Func, typename T, T... pack>constexpr static void parallel_for_each()noexcept {
+		Func f;
+		(f(pack), ...);
 	}
 
 	template<size_t head, size_t ...pack>
