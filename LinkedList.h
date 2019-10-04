@@ -60,7 +60,7 @@ namespace LL {
 		bool ShowComma = true
 	) noexcept {
 		if (that.next != nullptr) {
-			SinglePrint(*that.next, out, ShowComma, MinLength);
+			SinglePrint(*that.next, out, ShowComma);
 			out << ((ShowComma) ? ',' : ' ');
 		}
 		out << that.data;
