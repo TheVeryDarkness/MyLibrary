@@ -470,8 +470,8 @@ namespace LargeInteger{
 			MY_LIB ~Divide()noexcept{}
 
 			std::pair<radix_t, radix_t> operator()(const Data& that) noexcept{
-				static_assert(sizeof(divisor) * 2 >= sizeof(Data),"It can't be stored safely!");
-				using resT=std::pair<radix_t, Data>;
+				static_assert(sizeof(radix_t) * 2 >= sizeof(Data),"It can't be stored safely!");
+				using resT=std::pair<radix_t, radix_t>;
 				static_assert(std::is_same_v<Depack_t<Data>, Data>, "The type must not be num!");
 				if constexpr(divisor == 0) {
 					if constexpr (sizeof(divisor) >= sizeof(Data)) {
