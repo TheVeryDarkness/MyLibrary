@@ -7,8 +7,8 @@
 #include <cassert>
 
 namespace LargeInteger {
-	template<typename LL, auto radix> class LargeUnsigned;
-	template<typename LL, auto radix> class LargeSigned;
+	template<typename LL, typename LL::value_type radix> class LargeUnsigned;
+	template<typename LL, typename LL::value_type radix> class LargeSigned;
 	template<auto Radix> class _LLCmptTraits;
 	template<auto Radix, bool is0>
 	class helper;
@@ -218,7 +218,7 @@ namespace LargeInteger {
 		return;
 	}
 
-	template<typename LL, auto radix>
+	template<typename LL, typename LL::value_type radix>
 	class LargeUnsigned :protected LL {
 	protected:
 		using radix_t=decltype(radix);
@@ -707,7 +707,7 @@ namespace LargeInteger {
 
 		~LargeUnsigned() noexcept{ }
 	};
-	template<typename LL, auto radix>
+	template<typename LL, typename LL::value_type radix>
 	class LargeSigned :protected LargeUnsigned<LL, radix> {
 		using super=LargeUnsigned<LL, radix>;
 		using radix_t=decltype(radix);
