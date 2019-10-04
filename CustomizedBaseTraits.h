@@ -218,30 +218,15 @@ namespace LargeInteger {
 
 	template<char...Delim>char __stdcall getline(std::istream &in, std::string &str)noexcept {
 		using charset=BaseSet<char, char, 0, Delim...>;
+		static_assert(sizeof...(Delim) > 0, "Delim should be given");
 		while (in.good()) {
-			std::string tmp;
+			char tmp;
 			in >> tmp;
-			size_t a[sizeof...(Delim)];
-			bool found = false;
-			for (size_t i = 0; i < sizeof...(Delim); ++i) {
-				a[i] = tmp.find(Template::get<i, char, Delim...>());
-				found = ((a[i] == tmp.npos) ? found : true);
-			}
-			if (!found) {
-				str += tmp;
+			if (charset::exist(tmp)) {
+				return tmp;
 			}
 			else {
-				auto &&pos = Math::Min(a, sizeof...(Delim));
-				str += tmp.substr(0, pos);
-				auto &&res = tmp.substr(pos + 1);
-				for (auto c = res.crbegin(); c != res.crend(); ++c) {
-					in.putback(*c);
-				}
-				for (size_t i = 0; i < sizeof...(Delim); ++i) {
-					if (a[i] == pos) {
-						return Template::Index<char, Delim...>::get<i>();
-					}
-				}
+				str.push_back(tmp);
 			}
 		}
 		return '?';
