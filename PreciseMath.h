@@ -176,13 +176,13 @@ namespace LargeInteger {
 			return Res;
 		}
 		void MY_LIB operator*=(const Q &that) noexcept {
-			this->PosSign = that.PosSign ^ this->PosSign;
+			this->PosSign = !(that.PosSign ^ this->PosSign);
 			this->Denominator *= that.Denominator;
 			this->Numerator *= that.Numerator;
 			this->Simplify();
 		}
 		void MY_LIB operator/=(const Q &that) noexcept {
-			this->PosSign = that.PosSign ^ this->PosSign;
+			this->PosSign = !(that.PosSign ^ this->PosSign);
 			this->Denominator *= that.Numerator;
 			this->Numerator *= that.Denominator;
 			this->Simplify();
