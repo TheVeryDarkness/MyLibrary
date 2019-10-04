@@ -463,19 +463,19 @@ namespace LargeInteger {
 			}
 			LargeInteger::LongCmpt<LLCmptTraits<radix>>::AddTo(that.begin(), this->begin());
 		}
-		//重载LinkedList链表加号
 		INLINED LargeUnsigned MY_LIB operator+(
 			const LargeUnsigned& b//操作数
 			)  const noexcept {
-			LargeUnsigned Result(*this, true);//存储结果
+			LargeUnsigned Result = Copy(*this);//存储结果
 			Result += b;
 			return Result;
 		}
-		//重载LinkedList链表减号
 		/*INLINED*/LargeUnsigned MY_LIB operator-(
 			const LargeUnsigned& b//操作数
 			)const noexcept {
-			return (*this -= b);
+			LargeUnsigned Result = Copy(*this);//存储结果
+			Result -= b;
+			return Result;
 		}
 		void MY_LIB operator++() {
 			*this += 1;
