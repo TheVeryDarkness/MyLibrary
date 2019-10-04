@@ -13,10 +13,8 @@
 #endif // !_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING
 
 namespace LL {
-	template <typename Data>class OLL;
-
 	//Data为数据类型，勿将其置为指针
-	template <typename Data>
+	template <typename Data, size_t CacheSize = 50>
 		//单向（oneway）链表（linked list）（基类）
 		//Notice:
 		//The head of the linked list should be in the stack or heap,
@@ -47,7 +45,7 @@ namespace LL {
 		friend struct std::iterator<std::forward_iterator_tag, OLL>;
 		friend struct std::iterator<std::forward_iterator_tag, const OLL>;
 
-		MEMORY_CACHE(50);
+		MEMORY_CACHE(CacheSize);
 	public:
 		using value_type = Data;
 		constexpr INLINED std:: iterator<std::forward_iterator_tag, OLL> begin() noexcept {

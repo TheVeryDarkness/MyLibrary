@@ -3,7 +3,7 @@
 #include "LinkedList.h"
 namespace LL {
 
-	template<typename Data>
+	template<typename Data, size_t CacheSize = 50>
 	class DLL
 	{
 		/*
@@ -27,7 +27,7 @@ namespace LL {
 		template<class inNode, class outNode, auto inRadix, auto outRadix, bool Destroy>
 		friend outNode MY_LIB Transform(inNode& in)noexcept;
 
-		MEMORY_CACHE(50);
+		MEMORY_CACHE(CacheSize);
 	public:
 		using value_type = Data;
 		constexpr INLINED std::iterator<std::bidirectional_iterator_tag, DLL> begin() noexcept {
