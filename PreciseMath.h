@@ -132,7 +132,22 @@ namespace LargeInteger {
 
 		void MY_LIB operator+=(const Q &that) noexcept {
 			this->Numerator *= that.Denominator;
-			this->Numerator += (that.Numerator * this->Denominator);
+			N &&tmp = that.Numerator * this->Denominator;
+			if (that.PosSign ^ this->PosSign) {
+				if (this->Numerator > tmp) {
+					this->Numerator -= tmp;
+				}
+				else {
+					N &&res = tmp - this->Numerator;
+					this->Numerator.Swap(res);
+					res.destruct();
+				}
+			}
+			else {
+				this->Numerator += tmp;
+			}
+			tmp.destruct();
+			this->Denominator *= that.Denominator;
 			this->Simplify();
 		}
 		void MY_LIB operator-=(const Q &that) noexcept {
@@ -161,12 +176,13 @@ namespace LargeInteger {
 			return Res;
 		}
 		void MY_LIB operator*=(const Q &that) noexcept {
+			this->PosSign = that.PosSign ^ this->PosSign;
 			this->Denominator *= that.Denominator;
 			this->Numerator *= that.Numerator;
 			this->Simplify();
 		}
 		void MY_LIB operator/=(const Q &that) noexcept {
-			this->PosSign = that.PosSign ? (this->PosSign) : (!this->PosSign);
+			this->PosSign = that.PosSign ^ this->PosSign;
 			this->Denominator *= that.Numerator;
 			this->Numerator *= that.Denominator;
 			this->Simplify();
@@ -200,8 +216,8 @@ namespace LargeInteger {
 			}
 			N &&temp1 = this->Numerator * that.Denominator, &&temp2 = this->Denominator * that.Numerator;
 			bool &&res = ((temp1 > temp2) ? (this->PosSign) : (!this->PosSign));
-			temp1.release();
-			temp2.release();
+			temp1.destruct();
+			temp2.destruct();
 			return res;
 		}
 		bool MY_LIB operator<(const Q &that)const noexcept {
@@ -213,8 +229,8 @@ namespace LargeInteger {
 			}
 			N &&temp1 = this->Numerator * that.Denominator, &&temp2 = this->Denominator * that.Numerator;
 			bool &&res = ((temp1 < temp2) ? (this->PosSign) : (!this->PosSign));
-			temp1.release();
-			temp2.release();
+			temp1.destruct();
+			temp2.destruct();
 			return res;
 		}
 		bool MY_LIB operator<=(const Q &that)const noexcept { return !(*this > that); }
