@@ -34,6 +34,7 @@ namespace LargeInteger {
 			PosSign(sign),
 			Numerator(Numerator),
 			Denominator(Denominator) { }
+		INLINED MY_LIB ~Q() noexcept = default;
 		static Q MY_LIB Copy(const Q &that)noexcept {
 			return Q(that.PosSign, N::Copy(that.Numerator), N::Copy(that.Denominator));
 		}
@@ -48,7 +49,6 @@ namespace LargeInteger {
 				-(this->Numerator.GetValue<val>() / (this->Denominator.GetValue<val>()))
 				);
 		}
-		MY_LIB ~Q();
 		INLINED void MY_LIB destruct() noexcept {
 			this->Denominator.destruct();
 			this->Numerator.destruct();
@@ -244,7 +244,6 @@ namespace LargeInteger {
 			return q.Print(o);
 		}
 	};
-	INLINED MY_LIB Q::~Q() noexcept = default;
 }
 #ifdef Z_MAX
 #undef Z_MAX
