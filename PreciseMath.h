@@ -157,10 +157,11 @@ namespace LargeInteger {
 				this->Numerator += tmp;
 			}
 			else {
-				if (this->Numerator > tmp) {
+				if (this->Numerator >= tmp) {
 					this->Numerator -= tmp;
 				}
 				else {
+					this->PosSign = !this->PosSign;
 					N &&res = tmp - this->Numerator;
 					this->Numerator.Swap(res);
 					res.destruct();
