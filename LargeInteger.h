@@ -183,6 +183,43 @@ namespace LargeInteger {
 		return;
 	}
 
+	template<
+		typename Cntnr, 
+		typename BaseType, 
+		bool ShowComma = true,
+		unsigned MinLength = 0,
+		BaseType base = 10>
+	//简单输出到控制台窗口
+	//需要用户补换行
+	INLINED void MY_LIB SinglePrint(
+		const Cntnr& that,
+		std::ostream& out = std::cout
+	) noexcept {
+		if (that + 1 != nullptr) {
+			SinglePrint(that + 1, out, ShowComma, MinLength, base);
+			out << ((ShowComma) ? "," : "");
+			char* c = DBG_NEW char[MinLength + static_cast<size_t>(1)]();
+			assert(base < BaseType(INT_MAX));
+			std::to_chars_result rs = std::to_chars(c, &(c[MinLength]), (*that), base);
+			assert(rs.ec == std::errc());
+			std::string str = c;
+			delete[] c;
+			if (str.length() < MinLength) {
+				std::string nStr;
+				for (size_t index = MinLength - str.length(); index > 0; index--) {
+					nStr.push_back('0');
+				}
+				nStr += str;
+				out << nStr;
+			}
+			else out << str;
+		}
+		else {
+			out << *that;
+		}
+		return;
+	}
+
 	template<typename LL, auto radix>
 	class LargeUnsigned :protected LL {
 	protected:
@@ -280,6 +317,45 @@ namespace LargeInteger {
 			) noexcept {
 			return _Print<decltype(l.cbegin()), radix>(l.cbegin(), out);
 		}
+		template<auto Radix>
+		class FoolCPP {
+		public:
+			using Radix_t=decltype(Radix);
+			FoolCPP() = delete;
+			~FoolCPP() = delete;
+			constexpr static Radix_t MY_LIB a()noexcept {
+				if constexpr (Math::GetPowerTimes(Radix, 10U) != 0) {
+					return 10;
+				}
+				if constexpr (Math::GetPowerTimes(Radix, 16U) != 0) {
+					return 16;
+				}
+				if constexpr (Math::GetPowerTimes(Radix, 8U) != 0) {
+					return 8;
+				}
+				if constexpr (Math::GetPowerTimes(Radix, 2U) != 0) {
+					return 2;
+				}
+				return Radix;
+			}
+			constexpr static Radix_t MY_LIB b()noexcept {
+				if constexpr (Math::GetPowerTimes(Radix, 10U) != 0) {
+					return Math::GetPowerTimes(Radix, 10U);
+				}
+				if constexpr (Math::GetPowerTimes(Radix, 16U) != 0) {
+					return Math::GetPowerTimes(Radix, 16U);
+				}
+				if constexpr (Math::GetPowerTimes(Radix, 8U) != 0) {
+					return Math::GetPowerTimes(Radix, 8U);
+				}
+				if constexpr (Math::GetPowerTimes(Radix, 2U) != 0) {
+					return Math::GetPowerTimes(Radix, 2U);
+				}
+				return 1;
+			}
+		private:
+
+		};
 		template<typename Cntnr, auto Radix>
 		//二进制输出到控制台窗口
 		//不再自动换行
@@ -293,46 +369,33 @@ namespace LargeInteger {
 				LargeInteger::SinglePrint(that, out, false, 2 * sizeof(Radix), 16);
 			}
 			else {
-				bool temp = false;
-				unsigned int Length = 0;
-				Length = Math::GetPowerTimes(Radix, 10U);
-				decltype(Radix) OutBase = 0;
-				if (Length == 0) {
-					Length = Math::GetPowerTimes(Radix, 16U);
-					if (Length == 0) {
-						Length = Math::GetPowerTimes(Radix, 8U);
-						if (Length == 0) {
-							Length = Math::GetPowerTimes(Radix, 2U);
-							if (Length == 0) {
-								Length = 1;
-								OutBase = Radix;
-								out << "(Base:"
-									<< Radix
-									<< ")";
-								temp = true;
-							}
-							else {
-								OutBase = 2;
-								out << "0b" << std::setbase(2);
-							}
-						}
-						else {
-							OutBase = 8;
-							out << "0" << std::setbase(8);
-						}
-					}
-					else {
-						OutBase = 16;
-						out << "0x"
-							<< std::setbase(16);
-					}
+				constexpr auto a = FoolCPP<Radix>::a();
+				constexpr auto b = FoolCPP<Radix>::b();
+
+
+				if constexpr (a == 10) {
+					LargeInteger::SinglePrint<decltype(that), int, false, b, 10>(that, out);
+				}
+				else if constexpr (a == 16) {
+					out << "0x"
+						<< std::setbase(16);
+					LargeInteger::SinglePrint<decltype(that), int, false, b, 16>(that, out);
+				}
+				else if constexpr (a == 8) {
+					out << "0" << std::setbase(8);
+					LargeInteger::SinglePrint<decltype(that), int, false, b, 8>(that, out);
+				}
+				else if constexpr (a == 2) {
+					out << "0b" << std::setbase(2);
+					LargeInteger::SinglePrint<decltype(that), int, false, b, 2>(that, out);
 				}
 				else {
-					OutBase = 10;
+					out << "(Base:"
+						<< Radix
+						<< ")";
+					LargeInteger::SinglePrint<decltype(that), int, true, b, a>(that, out);
 				}
-				LargeInteger::SinglePrint(that, out, temp, Length, OutBase);
 			}
-
 			out << std::setbase(10);
 			return out;
 		}
