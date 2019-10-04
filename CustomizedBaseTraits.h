@@ -172,7 +172,7 @@ namespace LargeInteger {
 		template<typename LL,auto radix>
 		auto &MY_LIB operator<<(const LargeInteger::LargeUnsigned<LL, radix> &it) noexcept{
 			using Cntnr=LargeInteger::LargeUnsigned<LL, radix>;
-			if constexpr (GetPowerTimes(Cntnr::getRadix(), charset::getRadix()) != 0 || Cntnr::getRadix() == charset::getRadix()) {
+			if constexpr (Math::GetPowerTimes(Cntnr::getRadix(), charset::getRadix()) != 0 || Cntnr::getRadix() == charset::getRadix()) {
 				std::ostream_iterator<_Elem> o(os);
 				if constexpr (Cntnr::getRadix() == charset::getRadix()) {
 					for (auto i = it.crbegin(); i != it.crend(); ++i) {
