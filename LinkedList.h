@@ -54,7 +54,7 @@ namespace LL {
 	template<typename Type>
 	//简单输出到控制台窗口
 	//需要用户补换行
-	INLINED void MY_LIB SinglePrint(
+	[[deprecated]] INLINED void MY_LIB SinglePrint(
 		const Type& that,
 		std::ostream& out = std::cout,
 		bool ShowComma = true,
