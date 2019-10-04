@@ -159,7 +159,8 @@ namespace LargeInteger {
 				os << that % charset::getRadix();
 			}
 			else {
-				auto &&res = that.Divide(charset::getRadix());
+				using radix_t=decltype(Cntnr::getRadix());
+				auto &&res = that.Divide(static_cast<radix_t>(charset::getRadix()));
 				if (res != 0) {
 					Print(res);
 				}
