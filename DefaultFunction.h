@@ -77,9 +77,9 @@ namespace Function {
 	class num<vari::DEF> :public function {
 	public:
 		template<typename Val>
-		MY_LIB num(Val val)noexcept :q(val) { }
+		MY_LIB num(bool sign, const Val &&val)noexcept :q(sign, std::move(val), 1) { }
 		template<typename Val>
-		MY_LIB num(Val val1, Val val2)noexcept :q(val1, val2) { }
+		MY_LIB num(bool sign, Val val1, Val val2)noexcept :q(sign, val1, val2) { }
 		MY_LIB num(const LargeInteger::Q& val)noexcept :q(val) { }
 
 		MY_LIB ~num()noexcept {
@@ -408,7 +408,7 @@ namespace Function {
 	}
 	INLINED void MY_LIB f_ln::diff(function*& f) noexcept {
 		assert(this == f);
-		f = new f_power(inner, new num<vari::DEF>(-1));
+		f = new f_power(inner, new num<vari::DEF>(false, 1));
 		inner = nullptr;
 		delete this;
 		return;
