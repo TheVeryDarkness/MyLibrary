@@ -37,6 +37,7 @@ namespace LargeInteger {
 	class _LLCmptTraits :public LargeInteger::StdCmptTraits<decltype(Radix)> {
 	public:
 		using Std=LargeInteger::StdCmptTraits<decltype(Radix)>;
+		static_assert(Radix != 0, "This is not aimed at dealed with 0 radix.");
 		using Data=decltype(Radix);
 		MY_LIB _LLCmptTraits() = delete;
 		MY_LIB ~_LLCmptTraits() = delete;
@@ -88,30 +89,22 @@ namespace LargeInteger {
 			//remain, ratio
 			std::pair<Num, Num> MY_LIB operator()(Num Carry, Num a, Num b)const noexcept {
 				using namespace LargeInteger;
-				if constexpr(IntelligentLength<2 * GetMinLength(Radix)>().first == 0) {
+				if constexpr (IntelligentLength<2 * GetMinLength(Radix)>().first == 0) {
 					using wT=typename _Int<IntelligentLength<2 * GetMinLength(Radix) * 2>().second>::type;
-					if constexpr (Radix == Data(0)) {
+					if constexpr (Radix > std::numeric_limits<Data>::max() / Radix) {
 						wT This(a);
 						This *= wT(b);
 						This += wT(Carry);
-						return std::pair<Num, Num>(Num(Data(This)), Num(Data(This >> LargeInteger::BitsPerByte * sizeof(Num))));
+						wT &&radix = static_cast<wT>(Radix);
+						return std::pair<Num, Num>(
+							Num(This % radix),
+							Num(This / radix)
+							);
 					}
 					else {
-						if constexpr (Radix > std::numeric_limits<Data>::max() / Radix) {
-							wT This(a);
-							This *= wT(b);
-							This += wT(Carry);
-							wT &&radix = static_cast<wT>(Radix);
-							return std::pair<Num, Num>(
-								Num(This % radix),
-								Num(This / radix)
-								);
-						}
-						else {
-							a *= b;
-							a += Carry;
-							return std::pair<Num, Num>(Num(a % Radix), Num(a / Radix));
-						}
+						a *= b;
+						a += Carry;
+						return std::pair<Num, Num>(Num(a % Radix), Num(a / Radix));
 					}
 				}
 				else {
@@ -203,13 +196,19 @@ namespace LargeInteger {
 				out << std::setbase(base) << std::setw(MinLength) << std::setfill('0') << *that;
 			}
 			else {
-				char c[MinLength + static_cast<size_t>(1)] = {};
-				std::to_chars_result rs = std::to_chars(c, &(c[MinLength]), (*that), base);
-				assert(rs.ec == std::errc());
-				if (std::strlen(c) < MinLength) {
-					out << std::setw(MinLength) << std::setfill('0');
+				static_assert(MinLength == 1, "Error");
+				if constexpr (MinLength == 1) {
+					out << *that;
 				}
-				out << c;
+				else {
+					char c[MinLength + static_cast<size_t>(1)] = {};
+					std::to_chars_result rs = std::to_chars(c, &(c[MinLength]), (*that), base);
+					assert(rs.ec == std::errc());
+					if (std::strlen(c) < MinLength) {
+						out << std::setw(MinLength) << std::setfill('0');
+					}
+					out << c;
+				}
 			}
 		}
 		else {
