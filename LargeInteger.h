@@ -324,34 +324,34 @@ namespace LargeInteger {
 			FoolCPP() = delete;
 			~FoolCPP() = delete;
 			constexpr static Radix_t MY_LIB a()noexcept {
-				if constexpr (Math::GetPowerTimes(Radix, Radix_t(10U)) != 0) {
+				if constexpr (Math::GetPowerTimes(Radix, static_cast<Radix_t>(10U)) != 0) {
 					return 10;
 				}
-				if constexpr (Math::GetPowerTimes(Radix, Radix_t(16U)) != 0) {
+				if constexpr (Math::GetPowerTimes(Radix, static_cast<Radix_t>(16U)) != 0) {
 					return 16;
 				}
-				if constexpr (Math::GetPowerTimes(Radix, Radix_t(8U)) != 0) {
+				if constexpr (Math::GetPowerTimes(Radix, static_cast<Radix_t>(8U)) != 0) {
 					return 8;
 				}
-				if constexpr (Math::GetPowerTimes(Radix, Radix_t(2U)) != 0) {
+				if constexpr (Math::GetPowerTimes(Radix, static_cast<Radix_t>(2U)) != 0) {
 					return 2;
 				}
 				return Radix;
 			}
 			constexpr static Radix_t MY_LIB b()noexcept {
-				if constexpr (Math::GetPowerTimes(Radix, 10U) != 0) {
-					return Math::GetPowerTimes(Radix, 10U);
+				if constexpr (Math::GetPowerTimes(Radix, static_cast<Radix_t>(10U)) != 0) {
+					return Math::GetPowerTimes(Radix, static_cast<Radix_t>(10U));
 				}
-				if constexpr (Math::GetPowerTimes(Radix, 16U) != 0) {
-					return Math::GetPowerTimes(Radix, 16U);
+				if constexpr (Math::GetPowerTimes(Radix, static_cast<Radix_t>(16U)) != 0) {
+					return Math::GetPowerTimes(Radix, static_cast<Radix_t>(16U));
 				}
-				if constexpr (Math::GetPowerTimes(Radix, 8U) != 0) {
-					return Math::GetPowerTimes(Radix, 8U);
+				if constexpr (Math::GetPowerTimes(Radix, static_cast<Radix_t>(8U)) != 0) {
+					return Math::GetPowerTimes(Radix, static_cast<Radix_t>(8U));
 				}
-				if constexpr (Math::GetPowerTimes(Radix, 2U) != 0) {
-					return Math::GetPowerTimes(Radix, 2U);
+				if constexpr (Math::GetPowerTimes(Radix, static_cast<Radix_t>(2U)) != 0) {
+					return Math::GetPowerTimes(Radix, static_cast<Radix_t>(2U));
 				}
-				return 1;
+				return Radix_t(1);
 			}
 		private:
 
