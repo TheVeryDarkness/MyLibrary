@@ -6,7 +6,6 @@ namespace LL {
 	template<typename Data>
 	class DLL
 	{
-
 		/*
 		template<class node, typename _Data, _Data Radix>
 		friend class LLComputeTraits;*/
@@ -30,6 +29,7 @@ namespace LL {
 
 		MEMORY_CACHE(50);
 	public:
+		using value_type = Data;
 		constexpr INLINED std::iterator<std::bidirectional_iterator_tag, DLL> begin() noexcept {
 			return std::iterator<std::bidirectional_iterator_tag, DLL>(this);
 		}
