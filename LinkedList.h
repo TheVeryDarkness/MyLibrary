@@ -61,7 +61,7 @@ namespace LL {
 	) noexcept {
 		if (that.next != nullptr) {
 			SinglePrint(*that.next, out, ShowComma, MinLength);
-			out << ((ShowComma) ? "," : "");
+			out << ((ShowComma) ? ',' : ' ');
 		}
 		out << that.data;
 		return;
