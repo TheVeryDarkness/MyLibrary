@@ -475,7 +475,7 @@ namespace LargeInteger{
 				static_assert(std::is_same_v<Depack_t<Data>, Data>, "The type must not be num!");
 				if constexpr(divisor == 0) {
 					if constexpr (sizeof(divisor) >= sizeof(Data)) {
-						return resT(that, 0);
+						return resT(static_cast<radix_t>(that), static_cast <radix_t>(0));
 					}
 					else return resT(
 						static_cast<radix_t>(that), 
