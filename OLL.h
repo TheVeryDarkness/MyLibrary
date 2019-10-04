@@ -31,13 +31,6 @@ namespace LL {
 		INLINED friend std::ostream& MY_LIB out(
 			std::ostream& out, const Type& b
 		)noexcept;
-		template<typename Type>
-		INLINED friend void MY_LIB SinglePrint(
-			const Type& that,
-			std::ostream& out,
-			bool ShowComma,
-			unsigned MinLength
-		)noexcept;
 		template<
 			typename Data,
 			typename SubData,
@@ -56,6 +49,7 @@ namespace LL {
 
 		MEMORY_CACHE(50);
 	public:
+		using value_type = Data;
 		constexpr INLINED std:: iterator<std::forward_iterator_tag, OLL> begin() noexcept {
 			return std::iterator<std::forward_iterator_tag, OLL>(this);
 		}
