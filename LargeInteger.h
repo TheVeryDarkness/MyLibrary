@@ -10,8 +10,7 @@ namespace LargeInteger {
 	template<typename LL, typename LL::value_type radix> class LargeUnsigned;
 	template<typename LL, typename LL::value_type radix> class LargeSigned;
 	template<auto Radix> class _LLCmptTraits;
-	template<auto Radix, bool is0>
-	class helper;
+	template<auto Radix, bool is0> class helper;
 
 	template<typename T>constexpr bool isZero(T t)noexcept {
 		return t == T(0);
