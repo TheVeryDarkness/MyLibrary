@@ -57,34 +57,13 @@ namespace LL {
 	[[deprecated]] INLINED void MY_LIB SinglePrint(
 		const Type& that,
 		std::ostream& out = std::cout,
-		bool ShowComma = true,
-		unsigned MinLength = 0
+		bool ShowComma = true
 	) noexcept {
-		if (that.next != nullptr)
-		{
+		if (that.next != nullptr) {
 			SinglePrint(*that.next, out, ShowComma, MinLength);
 			out << ((ShowComma) ? "," : "");
-			char* c = DBG_NEW char[MinLength + 1ULL]();
-			std::to_chars_result rs = std::to_chars(c, &(c[MinLength]), that.data());
-
-			std::string str = c;
-			delete[] c;
-			if (str.length() < MinLength)
-			{
-				std::string nStr;
-				for (size_t i = MinLength - str.length(); i > 0; i--)
-				{
-					nStr.push_back('0');
-				}
-				nStr += str;
-				out << nStr;
-			}
-			else out << str;
 		}
-		else
-		{
-			out << that.data;
-		}
+		out << that.data;
 		return;
 	}
 	//回调接口
