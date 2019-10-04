@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Shared.h"
 #include "CODNT.h"
 
 //直线参数（一般式）

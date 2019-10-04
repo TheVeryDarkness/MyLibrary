@@ -38,7 +38,8 @@ extern inline Line __stdcall GetLine(
 		line.B = 1L;
 		line.C = -Start.y;
 	}
-	else if (Start.x != End.x && Start.y != End.y) {//一般位置曲线
+	else /*if (Start.x != End.x && Start.y != End.y)*/ {//一般位置曲线
+		assert(Start.x != End.x && Start.y != End.y);
 		line.A = End.y - Start.y;
 		line.B = -(End.x - Start.x);
 		line.C = -End.x * line.A - End.y * line.B;
