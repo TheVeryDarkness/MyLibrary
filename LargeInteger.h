@@ -221,6 +221,7 @@ namespace LargeInteger {
 		using radix_t=decltype(radix);
 		static_assert(radix != radix_t(1), "Radix can't be 1");
 		static_assert(radix > 0, "Positive radix required.");
+		static_assert(std::is_same_v<radix_t, LL::value_type>, "Value type should be the same");
 		using Data=radix_t;
 
 		template<typename Cntnr>
