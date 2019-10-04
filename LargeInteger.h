@@ -220,7 +220,7 @@ namespace LargeInteger {
 	protected:
 		using radix_t=decltype(radix);
 		static_assert(radix != radix_t(1), "Radix can't be 1");
-		static_assert(radix > 0, "Positive radix required.");
+		static_assert(radix >= 0, "Positive radix required.");
 		static_assert(std::is_same_v<radix_t, LL::value_type>, "Value type should be the same");
 		using Data=radix_t;
 
@@ -371,20 +371,19 @@ namespace LargeInteger {
 
 
 				if constexpr (a == 10) {
-					LargeInteger::SinglePrint<decltype(that), int, false, b, 10>(that, out);
+					LargeInteger::SinglePrint<decltype(that), int, false, b, a>(that, out);
 				}
 				else if constexpr (a == 16) {
-					out << "0x"
-						<< std::setbase(16);
-					LargeInteger::SinglePrint<decltype(that), int, false, b, 16>(that, out);
+					out << "0x" << std::setbase(10);
+					LargeInteger::SinglePrint<decltype(that), int, false, b, a>(that, out);
 				}
 				else if constexpr (a == 8) {
 					out << "0" << std::setbase(8);
-					LargeInteger::SinglePrint<decltype(that), int, false, b, 8>(that, out);
+					LargeInteger::SinglePrint<decltype(that), int, false, b, a>(that, out);
 				}
 				else if constexpr (a == 2) {
 					out << "0b" << std::setbase(2);
-					LargeInteger::SinglePrint<decltype(that), int, false, b, 2>(that, out);
+					LargeInteger::SinglePrint<decltype(that), int, false, b, a>(that, out);
 				}
 				else {
 					out << "(Base:"
