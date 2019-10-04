@@ -324,16 +324,16 @@ namespace LargeInteger {
 			FoolCPP() = delete;
 			~FoolCPP() = delete;
 			constexpr static Radix_t MY_LIB a()noexcept {
-				if constexpr (Math::GetPowerTimes(Radix, 10U) != 0) {
+				if constexpr (Math::GetPowerTimes(Radix, Radix_t(10U)) != 0) {
 					return 10;
 				}
-				if constexpr (Math::GetPowerTimes(Radix, 16U) != 0) {
+				if constexpr (Math::GetPowerTimes(Radix, Radix_t(16U)) != 0) {
 					return 16;
 				}
-				if constexpr (Math::GetPowerTimes(Radix, 8U) != 0) {
+				if constexpr (Math::GetPowerTimes(Radix, Radix_t(8U)) != 0) {
 					return 8;
 				}
-				if constexpr (Math::GetPowerTimes(Radix, 2U) != 0) {
+				if constexpr (Math::GetPowerTimes(Radix, Radix_t(2U)) != 0) {
 					return 2;
 				}
 				return Radix;
