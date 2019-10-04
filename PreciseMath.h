@@ -8,8 +8,8 @@ constexpr unsigned int Z_MAX = 1000000000U;
 
 namespace LargeInteger {
 
-	typedef LargeInteger::LargeSigned<LL::DLL<unsigned int>, Z_MAX> Z;
-	typedef LargeInteger::LargeUnsigned<LL::DLL<unsigned int>, Z_MAX> N;
+	typedef LargeInteger::LargeSigned<LL::OLL<unsigned int>, Z_MAX> Z;
+	typedef LargeInteger::LargeUnsigned<LL::OLL<unsigned int>, Z_MAX> N;
 
 	//有理数
 	//Rational Number
@@ -22,7 +22,7 @@ namespace LargeInteger {
 		N Denominator;//分母
 	public:
 		//MY_LIB Q();
-		template<typename Val1,typename Val2>explicit MY_LIB Q(bool sign, const Val1&& n, const Val2&& d = 1)noexcept :
+		template<typename Val1, typename Val2>explicit MY_LIB Q(bool sign, const Val1 &&n, const Val2 &&d = 1)noexcept :
 			PosSign(sign),
 			Numerator(n),
 			Denominator(d) { }
@@ -157,7 +157,7 @@ namespace LargeInteger {
 				this->Numerator += tmp;
 			}
 			else {
-				if (this->Numerator>tmp) {
+				if (this->Numerator > tmp) {
 					this->Numerator -= tmp;
 				}
 				else {
