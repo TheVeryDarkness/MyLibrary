@@ -1,6 +1,7 @@
 #pragma once
 
 #include "LinkedList.h"
+#include "OLL.h"
 #include "CODNT.h"
 
 namespace LL {
