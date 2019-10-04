@@ -702,7 +702,7 @@ namespace LargeInteger {
 			return this->data;
 		}
 
-		~LargeUnsigned() = default;
+		~LargeUnsigned() noexcept{ }
 	};
 	template<typename LL, auto radix>
 	class LargeSigned :protected LargeUnsigned<LL, radix> {
