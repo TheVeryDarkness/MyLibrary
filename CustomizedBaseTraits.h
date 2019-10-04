@@ -187,7 +187,7 @@ namespace LargeInteger {
 				else {
 					for (auto i = it.crbegin(); i != it.crend(); ++i) {
 						auto val = *i;
-						for (decltype(GetPowerTimes(Cntnr::getRadix(), charset::getRadix())) j = 0; j < GetPowerTimes(Cntnr::getRadix(), charset::getRadix()); j++) {
+						for (decltype(Math::GetPowerTimes(Cntnr::getRadix(), charset::getRadix())) j = 0; j < Math::GetPowerTimes(Cntnr::getRadix(), charset::getRadix()); j++) {
 							auto c = charset::to_char_type(val % charset::getRadix());
 							val /= charset::getRadix();
 							if (c != '?') {
