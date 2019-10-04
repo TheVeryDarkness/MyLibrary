@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include "VariableParameterTemplate.h"
 #include "LargeInteger.h"
 
 namespace LargeInteger {
@@ -215,35 +216,31 @@ namespace LargeInteger {
 	};
 
 
-	template<char...set>char __stdcall getline(std::istream &in, std::string &str)noexcept {
-		using charset=BaseSet<char, char, 0, set...>;
+	template<char...Delim>char __stdcall getline(std::istream &in, std::string &str)noexcept {
+		using charset=BaseSet<char, char, 0, Delim...>;
 		while (in.good()) {
 			std::string tmp;
 			in >> tmp;
-			auto &&a1 = tmp.find('+'), a2 = tmp.find('-'), a3 = tmp.find('*'), a4 = tmp.find('/');
-			if (a1 == tmp.npos && a2 == tmp.npos && a3 == tmp.npos && a4 == tmp.npos) {
+			size_t a[sizeof...(Delim)];
+			bool found = false;
+			for (size_t i = 0; i < sizeof...(Delim); ++i) {
+				a[i] = tmp.find(Template::get<i, char, Delim...>());
+				found = ((a[i] == tmp.npos) ? found : true);
+			}
+			if (!found) {
 				str += tmp;
 			}
 			else {
-				auto &&a = Math::fMin(a1, a2, a3, a4);
-				str += tmp.substr(0, a);
-				auto &&res = tmp.substr(a + 1);
+				auto &&pos = Math::Min(a, sizeof...(Delim));
+				str += tmp.substr(0, pos);
+				auto &&res = tmp.substr(pos + 1);
 				for (auto c = res.crbegin(); c != res.crend(); ++c) {
-					if (charset::exist(*c)) {
-						in.putback(*c);
+					in.putback(*c);
+				}
+				for (size_t i = 0; i < sizeof...(Delim); ++i) {
+					if (a[i] == pos) {
+						return Template::Index<char, Delim...>::get<i>();
 					}
-				}
-				if (a == a1) {
-					return'+';
-				}
-				else if (a == a2) {
-					return'-';
-				}
-				else if (a == a3) {
-					return'*';
-				}
-				else if (a == a4) {
-					return'/';
 				}
 			}
 		}
