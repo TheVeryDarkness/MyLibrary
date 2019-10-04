@@ -461,24 +461,33 @@ namespace LargeInteger{
 			}
 		};
 
-		template<auto radix>
+		template<auto divisor>
 		class Divide
 		{
 		public:
-			using radix_t =decltype(radix);
+			using radix_t =decltype(divisor);
 			MY_LIB Divide()noexcept{}
 			MY_LIB ~Divide()noexcept{}
 
-			std::pair<radix_t, Data> operator()(const Data& that) noexcept{
+			std::pair<radix_t, radix_t> operator()(const Data& that) noexcept{
+				static_assert(sizeof(divisor) * 2 >= sizeof(Data),"It can't be stored safely!");
 				using resT=std::pair<radix_t, Data>;
 				static_assert(std::is_same_v<Depack_t<Data>, Data>, "The type must not be num!");
-				if constexpr(radix == 0) {
-					if constexpr (sizeof(radix) >= sizeof(Data)) {
+				if constexpr(divisor == 0) {
+					if constexpr (sizeof(divisor) >= sizeof(Data)) {
 						return resT(that, 0);
 					}
-					else return resT(static_cast<radix_t>(that), that >> (LargeInteger::BitsPerByte * sizeof(radix)));
+					else return resT(
+						static_cast<radix_t>(that), 
+						static_cast<radix_t>(
+							that >> (LargeInteger::BitsPerByte * sizeof(divisor))
+							)
+					);
 				}
-				else return resT(static_cast<radix_t>(that % radix), that / radix);
+				else return resT(
+					static_cast<radix_t>(that % divisor), 
+					static_cast<radix_t>(that / divisor)
+				);
 			}
 		};
 
