@@ -195,17 +195,19 @@ namespace LargeInteger {
 		const Cntnr& that,
 		std::ostream& out = std::cout
 	) noexcept {
+		static_assert(base < BaseType(INT_MAX), "Base not supprted");
 		if (that + 1 != nullptr) {
 			SinglePrint<Cntnr, BaseType, ShowComma, MinLength, base>(that + 1, out);
 			out << ((ShowComma) ? "," : "");
-			char c[MinLength + static_cast<size_t>(1)];
-			assert(base < BaseType(INT_MAX));
-			std::to_chars_result rs = std::to_chars(c, &(c[MinLength]), (*that), base);
-			assert(rs.ec == std::errc());
-			if (std::strlen(c) < MinLength) {
-				out << std::setw(MinLength);
+			{
+				char c[MinLength + static_cast<size_t>(1)];
+				std::to_chars_result rs = std::to_chars(c, &(c[MinLength]), (*that), base);
+				assert(rs.ec == std::errc());
+				if (std::strlen(c) < MinLength) {
+					out << std::setw(MinLength);
+				}
+				out << c;
 			}
-			out << c;
 		}
 		else {
 			out << *that;
@@ -217,6 +219,8 @@ namespace LargeInteger {
 	class LargeUnsigned :protected LL {
 	protected:
 		using radix_t=decltype(radix);
+		static_assert(radix != radix_t(1), "Radix can't be 1");
+		static_assert(radix > 0, "Positive radix required.");
 		using Data=radix_t;
 
 		template<typename Cntnr>
@@ -274,7 +278,6 @@ namespace LargeInteger {
 		template<typename val>
 		explicit MY_LIB LargeUnsigned(val Val)noexcept :LL(0) {
 			static_assert(std::is_integral_v<val>, "Integral type required.");
-			static_assert(radix != radix_t(1));
 			static_assert(!std::is_same_v<val, bool>, "Never use bool type");
 			typename LongCmpt<StdCmptTraits<val>>::template LayerIterator<typename StdCmptTraits<val>::template Divide<radix>, radix_t> it(Val);
 			for (auto index = this->begin(); !!it; ) {
