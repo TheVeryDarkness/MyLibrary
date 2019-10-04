@@ -38,7 +38,7 @@ namespace Math {
 	template<typename T>inline T __cdecl Max(long, T, ...);
 	template<typename T>inline T __cdecl Min(long, T, ...);
 	inline long __cdecl Average(long, long, ...);
-	template<typename VAL, typename BASE>constexpr inline unsigned MY_LIB GetPowerTimes(VAL, const BASE &);
+	template<typename VAL, typename BASE>constexpr inline VAL MY_LIB GetPowerTimes(VAL, const BASE &);
 	template<typename Data>inline void MY_LIB Swap(Data &a, Data &b);
 	template<typename Data>constexpr inline bool MY_LIB IsPrime(Data val);
 	template<typename Data>inline std::forward_list<Data> MY_LIB PrimeList(Data Max);
@@ -187,7 +187,7 @@ namespace Math {
 
 	//0 for not.
 	template<typename VAL, typename BASE>
-	constexpr inline unsigned MY_LIB GetPowerTimes(
+	constexpr inline VAL MY_LIB GetPowerTimes(
 		VAL val,
 		const BASE &base
 	) {
