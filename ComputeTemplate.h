@@ -79,14 +79,13 @@ namespace LargeInteger {
 				Result = c(Result.second, a, *b);
 			}
 			constexpr void MY_LIB operator+=(size_t sz) noexcept {
-				for (size_t i = 0; i < sz && b != nullptr; i++) {
+				for (size_t i = 0; i < sz && b != nullptr; ++i) {
 					++b;
 				}
 				Result = c(Result.second, a, *b);
 			}
 			constexpr LineIterator MY_LIB operator+(size_t sz) const noexcept {
-				LineIterator it(*this);
-				it.b = it.b + sz;
+				LineIterator it(this->a, this->b + sz);
 				return it;
 			}
 			const Data &operator*()const noexcept {
