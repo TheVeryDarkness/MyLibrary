@@ -202,7 +202,7 @@ namespace LargeInteger{
 			static_assert(std::is_same_v<
 				typename std::remove_cvref_t<decltype(*a)>,
 				typename std::remove_cvref_t<decltype(*b)>
-			>);
+			>, "They should have the same type.");
 			return AppositionComputeTo<typename _Traits::Add, Iterator1, Iterator2>(a, b);
 		}
 		
