@@ -200,7 +200,7 @@ namespace LargeInteger {
 			SinglePrint<Cntnr, BaseType, ShowComma, MinLength, base>(that + 1, out);
 			out << ((ShowComma) ? "," : "");
 			{
-				char c[MinLength + static_cast<size_t>(1)];
+				char c[MinLength + static_cast<size_t>(1)] = {};
 				std::to_chars_result rs = std::to_chars(c, &(c[MinLength]), (*that), base);
 				assert(rs.ec == std::errc());
 				if (std::strlen(c) < MinLength) {
@@ -312,7 +312,7 @@ namespace LargeInteger {
 			std::ostream& out,
 			const LargeUnsigned& l
 			) noexcept {
-			return _Print<decltype(l.cbegin()), radix>(l.cbegin(), out);
+			return l._Print<decltype(l.cbegin()), radix>(l.cbegin(), out);
 		}
 		template<auto Radix>
 		class FoolCPP {
