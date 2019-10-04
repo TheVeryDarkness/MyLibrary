@@ -410,7 +410,7 @@ namespace LargeInteger {
 			static_assert(std::is_integral_v<Int>);
 			LargeUnsigned res = Copy(*this), temp(that);
 			res *= temp;
-			temp.destruct();
+			temp.release();
 			return res;
 		}
 		constexpr void MY_LIB Swap(LargeUnsigned& that)noexcept {
@@ -503,7 +503,7 @@ namespace LargeInteger {
 			static_assert(std::is_integral_v<Int>, "integral type required.");
 			LargeUnsigned temp(that);
 			*this -= temp;
-			temp.destruct();
+			temp.release();
 		}
 		template<typename Int>
 		INLINED LargeUnsigned MY_LIB operator+(const Int& that)const noexcept {
@@ -572,7 +572,7 @@ namespace LargeInteger {
 			static_assert(std::is_integral_v<Int>, "integral type required.");
 			LargeUnsigned temp(that);
 			bool&& Res = (*this < temp);
-			temp.destruct();
+			temp.release();
 			return Res;
 		}
 		template<typename Int>
@@ -580,7 +580,7 @@ namespace LargeInteger {
 			static_assert(std::is_integral_v<Int>, "integral type required.");
 			LargeUnsigned temp(that);
 			bool&& Res = (*this > temp);
-			temp.destruct();
+			temp.release();
 			return Res;
 		}
 		template<typename Int>
@@ -630,21 +630,21 @@ namespace LargeInteger {
 			static_assert(std::is_integral_v<Int>, "integral type required.");
 			LargeUnsigned temp(that);
 			*this %= temp;
-			temp.destruct();
+			temp.release();
 		}
 		template<typename Int>
 		void MY_LIB operator/=(const Int& that)noexcept {
 			static_assert(std::is_integral_v<Int>, "integral type required.");
 			LargeUnsigned temp(that);
 			*this /= temp;
-			temp.destruct();
+			temp.release();
 		}
 		template<typename Int>
 		LargeUnsigned MY_LIB Divide(const Int& that)noexcept {
 			static_assert(std::is_integral_v<Int>, "integral type required.");
 			LargeUnsigned temp(that);
 			auto &&res = this->Divide(temp);
-			temp.destruct();
+			temp.release();
 			return res;
 		}
 
