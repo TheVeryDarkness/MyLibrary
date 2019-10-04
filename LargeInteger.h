@@ -196,23 +196,16 @@ namespace LargeInteger {
 		std::ostream& out = std::cout
 	) noexcept {
 		if (that + 1 != nullptr) {
-			SinglePrint(that + 1, out, ShowComma, MinLength, base);
+			SinglePrint<Cntnr, BaseType, ShowComma, MinLength, base>(that + 1, out);
 			out << ((ShowComma) ? "," : "");
-			char* c = DBG_NEW char[MinLength + static_cast<size_t>(1)]();
+			char c[MinLength + static_cast<size_t>(1)];
 			assert(base < BaseType(INT_MAX));
 			std::to_chars_result rs = std::to_chars(c, &(c[MinLength]), (*that), base);
 			assert(rs.ec == std::errc());
-			std::string str = c;
-			delete[] c;
-			if (str.length() < MinLength) {
-				std::string nStr;
-				for (size_t index = MinLength - str.length(); index > 0; index--) {
-					nStr.push_back('0');
-				}
-				nStr += str;
-				out << nStr;
+			if (std::strlen(c) < MinLength) {
+				out << std::setw(MinLength);
 			}
-			else out << str;
+			out << c;
 		}
 		else {
 			out << *that;
