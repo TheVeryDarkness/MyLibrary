@@ -199,12 +199,15 @@ namespace LargeInteger {
 		if (that + 1 != nullptr) {
 			SinglePrint<Cntnr, BaseType, ShowComma, MinLength, base>(that + 1, out);
 			out << ((ShowComma) ? "," : "");
-			{
+			if constexpr (base == 10 || base == 16 || base == 8) {
+				out << std::setbase(base) << std::setw(MinLength) << std::setfill('0') << *that;
+			}
+			else {
 				char c[MinLength + static_cast<size_t>(1)] = {};
 				std::to_chars_result rs = std::to_chars(c, &(c[MinLength]), (*that), base);
 				assert(rs.ec == std::errc());
 				if (std::strlen(c) < MinLength) {
-					out << std::setw(MinLength);
+					out << std::setw(MinLength) << std::setfill('0');
 				}
 				out << c;
 			}
