@@ -56,7 +56,9 @@ namespace LargeInteger {
 			}
 		}
 		constexpr static bool MY_LIB exist(char_type c)noexcept {
-			return to_int_type(c) != index_type('?');
+			Math::Match<char_type> m;
+			m(c, Head), (m(c, Remained), ...);
+			return m.value;
 		}
 		constexpr static int_type MY_LIB getRadix()noexcept {
 			return BaseSet<char_type, index_type, BeginIndex + 1, Remained...>::getRadix();
