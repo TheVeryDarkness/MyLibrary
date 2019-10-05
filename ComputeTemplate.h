@@ -65,8 +65,8 @@ namespace LargeInteger {
 			const Data &operator*()const noexcept {
 				return Result.first;
 			}
-			bool MY_LIB operator==(std::nullptr_t null)const noexcept {
-				return (Result.second == 0) && (a == null || ((a + 1) == null));
+			bool MY_LIB operator==(end_ptr_t)const noexcept {
+				return (Result.second == 0) && (a == nullptr || ((a + 1) == nullptr));
 			}
 		};
 
@@ -154,13 +154,9 @@ namespace LargeInteger {
 			SubPrincIterator<Compute, subIterator, Iterator, Data> compute(a, b);
 			//This element
 			for (;
-				*(compute.b) = *compute, 
-				compute != nullptr;
+				*(compute.b) = *compute,
+				compute != end_ptr;
 				++compute) {
-				if (compute.a + 1 == nullptr && compute.Result.second != 0) {
-					compute.b.insert(compute.b, compute.Result.second);
-					break;
-				}
 			}
 		}
 
