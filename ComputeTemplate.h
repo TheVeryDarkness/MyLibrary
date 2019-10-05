@@ -46,7 +46,7 @@ namespace LargeInteger {
 				return Result.first;
 			}
 			bool MY_LIB operator==(std::nullptr_t null)const noexcept {
-				return ((a + 1) == null && (b + 1) == null);
+				return (a == null && (b + 1) == null);
 			}
 			//result;overflow
 			std::pair<Data, Data> Result;
@@ -141,7 +141,14 @@ namespace LargeInteger {
 			using Data=std::remove_cvref_t<decltype(*a)>;
 			AppositionIterator<Compute, Iterator1, Iterator2, Data> compute(a, b);
 			//This element
-			for (; *(compute.b) = compute.Result.first, compute != nullptr; ++compute) { }
+			for (;
+				*(compute.b) = compute.Result.first, compute != nullptr;
+				++compute) {
+				if (compute.a + 1 == nullptr && compute.Result.second != 0) {
+					compute.b.insert(compute.b, compute.Result.second);
+					break;
+				}
+			}
 		}
 
 		template<typename Iterator1, typename Iterator2>
