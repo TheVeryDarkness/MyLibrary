@@ -1,16 +1,7 @@
 #pragma once
 
-#ifndef _SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING
-#define _SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING 1
-#endif // !_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING
-
 #include "LinkedList.h"
-
-#pragma warning(disable : 4996)
-
-#ifndef _SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING
-#define _SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING 1
-#endif // !_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING
+#include "ConstantBuffer.h"
 
 namespace LL {
 	//Data为数据类型，勿将其置为指针
@@ -470,8 +461,7 @@ public:
 			return this->ptr->data;
 		}
 		else {
-			assert((NullData == 0));
-			return (NullData = 0);
+			return ConstantBuffer<Data, 0>::get();
 		}
 	}
 	constexpr void insert(iterator& it, Data d) {
@@ -481,7 +471,6 @@ public:
 private:
 	in* ptr;
 	friend struct std::iterator<std::forward_iterator_tag, const LL::OLL<Data>>;
-	static inline Data NullData = 0;
 };
 
 template<typename Data>
@@ -522,13 +511,12 @@ public:
 		return it;
 	}
 
-	constexpr auto& MY_LIB operator*()const noexcept {
+	constexpr const Data& MY_LIB operator*()const noexcept {
 		if (this->ptr != nullptr) {
 			return this->ptr->data;
 		}
 		else {
-			assert((std::iterator<std::forward_iterator_tag, LL::OLL<Data>>::NullData == 0));
-			return static_cast<const Data&>(std::iterator<std::forward_iterator_tag, LL::OLL<Data>>::NullData = 0);
+			return ConstantBuffer<Data, 0>::get();
 		}
 	}
 
