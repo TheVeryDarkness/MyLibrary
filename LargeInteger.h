@@ -221,22 +221,42 @@ namespace LargeInteger {
 		}
 		return;
 	}
-
+	std::mutex out;
+	using flagType=size_t;
 	class ParallelMultiplier {
 	public:
-		MY_LIB ParallelMultiplier(const bool& prior, size_t *next, size_t *now) :prior(prior), next(next), now(now) {
-			while (!prior && *next == *now) { };
+		MY_LIB ParallelMultiplier(
+			const bool& prior, flagType *next, flagType *now
+		) :prior(prior), next(next), now(now) {
+			using namespace std::this_thread;
+			using namespace std::literals::chrono_literals;
+			assert(prior || *next >= *now);
+			while (!prior && *next <= *now) { std::this_thread::sleep_for(100ns); };
 		}
 		MY_LIB ~ParallelMultiplier() = default;
-		void MY_LIB clear(){ if (!prior)delete next; }
+		void MY_LIB clear() {
+			if (!prior) {
+				delete next;
+				out.lock();
+				std::cout << next << " deleted, and " << now << " out " << std::endl;
+				out.unlock();
+			}
+		}
 		void MY_LIB operator()()noexcept {
+			using namespace std::this_thread;
+			using namespace std::literals::chrono_literals;
 			assert(prior || *next >= *now);
-			while (!prior && *next == *now) { };
+			while (!prior && *next <= *now) { 
+				std::this_thread::sleep_for(100ns);
+			};
 			++ *now;
+			out.lock();
+			std::cout << now << ' ' << *now << std::endl;
+			out.unlock();
 		}
 	private:
-		const size_t *const next;
-		size_t *const now;
+		const flagType *const next;
+		flagType *const now;
 		const bool &prior;
 	};
 
@@ -258,11 +278,15 @@ namespace LargeInteger {
 			this->data = Data(radix_t(0));
 			auto Ptr = this->begin();
 			auto OprtPtr = b;
-			size_t *thisData = new size_t(), *nextData, *tail = thisData;
+			flagType *thisData = new flagType(), *nextData, *tail = thisData;
+			std::cout << thisData << std::endl;
 			bool ending = (OprtPtr == nullptr);
 			for (size_t i = 0; !ending; ++OprtPtr, ++Ptr, ++i) {
 				ending = (OprtPtr + 1 == nullptr);
-				nextData = ending ? nullptr : new size_t();
+				nextData = ending ? nullptr : new flagType();
+				out.lock();
+				std::cout << nextData <<" got" << std::endl;
+				out.unlock();
 				std::thread thr([OprtPtr, This, Ptr, i, ending, thisData, nextData]() {
 					ParallelMultiplier p(ending, nextData, thisData);
 					typename LargeInteger
@@ -282,6 +306,9 @@ namespace LargeInteger {
 			}
 			while (*tail != -1);
 			delete tail;
+			out.lock();
+			std::cout << tail << " deleted." << std::endl;
+			out.unlock();
 			This.release();
 		}
 	public:
