@@ -101,7 +101,6 @@ namespace LargeInteger {
 			constexpr bool MY_LIB operator==(nullptr_t null)const noexcept {
 				return (this->b == null) && (Result.second == 0);
 			}
-			}
 			//result;overflow
 			std::pair<Data, Data> Result;
 			Data a;
