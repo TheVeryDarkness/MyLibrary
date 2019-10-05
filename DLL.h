@@ -1,6 +1,8 @@
 #pragma once
 
 #include "LinkedList.h"
+#include "ConstantBuffer.h"
+
 namespace LL {
 
 	template<typename Data, size_t CacheSize = 50>
@@ -756,8 +758,7 @@ public:
 			return this->ptr->data;
 		}
 		else {
-			assert((NullData == 0));
-			return (NullData = 0);
+			return ConstantBuffer<Data, 0>::get();
 		}
 	}
 	constexpr auto MY_LIB operator*()const noexcept {
@@ -765,8 +766,7 @@ public:
 			return this->ptr->data;
 		}
 		else {
-			assert((NullData == 0));
-			return static_cast<Data>(NullData = 0);
+			return ConstantBuffer<Data, 0>::get();
 		}
 	}
 
@@ -786,7 +786,6 @@ protected:
 	friend struct std::iterator<std::bidirectional_iterator_tag, const LL::DLL<Data>>;
 	friend class std::reverse_iterator<std::iterator<std::bidirectional_iterator_tag, LL::DLL<Data>>>;
 	friend class std::reverse_iterator<std::iterator<std::bidirectional_iterator_tag, const LL::DLL<Data>>>;
-	static inline Data NullData = 0;
 };
 
 template<typename Data>
@@ -850,22 +849,20 @@ public:
 		return it;
 	}
 
-	constexpr auto& MY_LIB operator*()noexcept {
+	constexpr const Data& MY_LIB operator*()noexcept {
 		if (this->ptr != nullptr) {
 			return this->ptr->data;
 		}
 		else {
-			assert((std::iterator<std::bidirectional_iterator_tag, LL::DLL<Data>>::NullData == 0));
-			return static_cast<const Data&>(std::iterator<std::bidirectional_iterator_tag, LL::DLL<Data>>::NullData = 0);
+			return ConstantBuffer<Data, 0>::get();
 		}
 	}
-	constexpr auto MY_LIB operator*()const noexcept {
+	constexpr const Data& MY_LIB operator*()const noexcept {
 		if (this->ptr != nullptr) {
 			return this->ptr->data;
 		}
 		else {
-			assert((std::iterator<std::bidirectional_iterator_tag, LL::DLL<Data>>::NullData == 0));
-			return static_cast<const Data&>(std::iterator<std::bidirectional_iterator_tag, LL::DLL<Data>>::NullData = 0);
+			return ConstantBuffer<Data, 0>::get();
 		}
 	}
 
