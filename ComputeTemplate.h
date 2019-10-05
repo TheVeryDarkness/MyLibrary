@@ -161,33 +161,31 @@ namespace LargeInteger {
 
 
 		template<typename Compute, typename subIterator, typename Iterator, typename CallBack = Empty>
-		static constexpr INLINED void MY_LIB SubPrinComputeTo(subIterator a, Iterator b)noexcept {
+		static constexpr INLINED void MY_LIB SubPrinComputeTo(subIterator a, Iterator b, CallBack c = CallBack())noexcept {
 			static_assert(std::is_same_v<
 				typename std::remove_cvref_t<decltype(*a)>,
 				typename std::remove_cvref_t<decltype(*b)>>,
 				"They should have the same type.");
 			using Data=std::remove_cvref_t<decltype(*a)>;
-			CallBack c;
 			//This element
 			for (
 				SubPrincIterator<Compute, subIterator, Iterator, Data> compute(a, b);
 				c(), *(compute.b) = *compute, compute != end_ptr;
-				++compute) {
-			};
+				++compute);
 		}
 
 		template<typename subIterator, typename Iterator, typename CallBack = Empty>
-		static constexpr INLINED void MY_LIB AddTo(subIterator a, Iterator b)noexcept {
+		static constexpr INLINED void MY_LIB AddTo(subIterator a, Iterator b, CallBack c = CallBack())noexcept {
 			static_assert(std::is_same_v<
 				typename std::remove_cvref_t<decltype(*a)>,
 				typename std::remove_cvref_t<decltype(*b)>
 			>, "They should have the same type.");
-			return SubPrinComputeTo<typename _Traits::Add, subIterator, Iterator>(a, b);
+			return SubPrinComputeTo<typename _Traits::Add, subIterator, Iterator, CallBack>(a, b, c);
 		}
 
-		template<typename subIterator, typename Iterator>
-		static constexpr INLINED void MY_LIB SubtractFrom(subIterator a, Iterator b)noexcept {
-			return SubPrinComputeTo<typename _Traits::SubtractFrom, subIterator, Iterator>(a, b);
+		template<typename subIterator, typename Iterator, typename CallBack = Empty>
+		static constexpr INLINED void MY_LIB SubtractFrom(subIterator a, Iterator b, CallBack c = CallBack())noexcept {
+			return SubPrinComputeTo<typename _Traits::SubtractFrom, subIterator, Iterator, CallBack>(a, b, c);
 		}
 
 		template<typename Iterator, typename Data>
