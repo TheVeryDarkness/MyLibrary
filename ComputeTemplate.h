@@ -47,8 +47,8 @@ namespace LargeInteger {
 			//result;overflow
 			std::pair<Data, Data> Result;
 			subIterator a;
-			Iterator b;
 		public:
+			Iterator b;
 			MY_LIB SubPrincIterator(subIterator a, Iterator b)noexcept
 				:a(a), b(b), Result(c(Data(0), *(a), *(b))) {
 				static_assert(std::is_same_v<Data, std::remove_cvref_t<decltype(*(a))>>, "It should be the same type");
@@ -154,7 +154,7 @@ namespace LargeInteger {
 			SubPrincIterator<Compute, subIterator, Iterator, Data> compute(a, b);
 			//This element
 			for (;
-				*(compute.b) = compute.Result.first, 
+				*(compute.b) = *compute, 
 				compute != nullptr;
 				++compute) {
 				if (compute.a + 1 == nullptr && compute.Result.second != 0) {
