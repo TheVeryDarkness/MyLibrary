@@ -243,13 +243,19 @@ namespace LargeInteger {
 					else if (*_a < *_b) {
 						temp = Compare::Smaller;
 					}
-					if ((_a + 1 == nullptr) && (_b + 1 == nullptr)) {
+					if ((_a + 1 == nullptr) || (_b + 1 == nullptr)) {
+						break;
+					}
+					else if (_a + 1 == nullptr) {
+						temp = Compare::Smaller;
+						break;
+					}
+					else if (_b + 1 == nullptr) {
+						temp = Compare::Larger;
 						break;
 					}
 				}
-				{
-					return temp;
-				}
+				return temp;
 			}
 		}
 		//Extension for Compare()
@@ -257,6 +263,7 @@ namespace LargeInteger {
 		static INLINED auto MY_LIB _CompareTo(const Iterator1 &a, const Iterator2 &b) noexcept {
 			using Data=typename std::remove_cvref<decltype(*a)>::type;
 			static_assert(std::is_same_v<std::remove_cvref_t<decltype(*a)>, std::remove_cvref_t<decltype(*b)>>);
+			constexpr auto PracticedRadix = ((_Traits::getRadix() == 0) ? std::numeric_limits<Data>::max() : _Traits::getRadix());
 			{
 				bool HasChanged = false;
 				Compare temp = Compare::Equal;
@@ -272,31 +279,47 @@ namespace LargeInteger {
 					else if (*_a < *_b) {
 						temp = Compare::Smaller;
 					}
-					if ((_a + 1 == nullptr) && (_b + 1 == nullptr)) {
-						break;
-					}
-				}
-				{
-					if (temp == Compare::Larger) {
-						if (*_a > * _b) {
-							if (!HasChanged && ((*_a) != 0)) {
-								return std::pair<Data, Compare>(Data(*_a / (*_b)), Compare::Larger);
+					Iterator1 &&aNext = _a + 1;
+					Iterator2 &&bNext = _b + 1;
+					//I wonder whether I should use if-else or ?:
+					if ((aNext == nullptr) && (bNext == nullptr)) {
+						if (temp == Compare::Larger) {
+							if (*_a > * _b) {
+								if (!HasChanged && ((*_b) != 0)) {
+									return std::pair<Data, Compare>(Data(*_a / (*_b)), Compare::Larger);
+								}
+								return std::pair<Data, Compare>(Data(*_a / (*_b + Data(1))), Compare::Larger);
 							}
-							return std::pair<Data, Compare>(Data(*_a / (*_b + Data(1))), Compare::Larger);
+							return std::pair<Data, Compare>(1, Compare::Larger);
 						}
-						return std::pair<Data, Compare>(1, Compare::Larger);
-					}
-					else if (temp == Compare::Smaller) {
-						if (*_a < *_b) {
-							if (!HasChanged && ((*_a) != 0)) {
-								return std::pair<Data, Compare>(Data(*_b / (*_a)), Compare::Smaller);
+						else if (temp == Compare::Smaller) {
+							if (*_a < *_b) {
+								if (!HasChanged && ((*_a) != 0)) {
+									return std::pair<Data, Compare>(Data(*_b / (*_a)), Compare::Smaller);
+								}
+								return std::pair<Data, Compare>(Data(*_b / (*_a + Data(1))), Compare::Smaller);
 							}
-							return std::pair<Data, Compare>(Data(*_b / (*_a + Data(1))), Compare::Smaller);
+							return std::pair<Data, Compare>((1), Compare::Smaller);
 						}
-						return std::pair<Data, Compare>((1), Compare::Smaller);
+						else {
+							return std::pair<Data, Compare>((1), Compare::Equal);
+						}
 					}
-					else {
-						return std::pair<Data, Compare>((1), Compare::Equal);
+					else if (aNext == nullptr) {
+						if (*bNext >= *_a) {
+							return std::pair<Data, Compare>(PracticedRadix, Compare::Smaller);
+						}
+						else {
+							return std::pair<Data, Compare>(PracticedRadix / *_a * *bNext, Compare::Smaller);
+						}
+					}
+					else if (bNext == nullptr) {
+						if (*aNext >= *_b) {
+							return std::pair<Data, Compare>(PracticedRadix, Compare::Larger);
+						}
+						else {
+							return std::pair<Data, Compare>(PracticedRadix / *_b * *aNext, Compare::Larger);
+						}
 					}
 				}
 			}
@@ -366,6 +389,7 @@ namespace LargeInteger {
 	public:
 		StdCmptTraits() = delete;
 		~StdCmptTraits() = delete;
+		static constexpr Data MY_LIB getRadix()noexcept { return static_cast<Data>(0); }
 		class Add {
 		public:
 			MY_LIB Add()noexcept { }
