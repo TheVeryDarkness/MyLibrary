@@ -231,7 +231,7 @@ namespace LargeInteger {
 
 		//Maybe this is the first function I'd use multi-thread optimization?
 		template<typename Cntnr>
-		/*INLINED*/void MY_LIB mul(const Cntnr& b) noexcept {
+		/*INLINED*/void MY_LIB mul(const Cntnr &b) noexcept {
 			LargeUnsigned This(*this);
 			this->next = nullptr;
 			this->data = Data(radix_t(0));
