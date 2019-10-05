@@ -227,6 +227,7 @@ namespace LargeInteger {
 		static_assert(std::is_same_v<radix_t, LL::value_type>, "Value type should be the same");
 		using Data=radix_t;
 
+		//Maybe this is the first function I'd use multi-thread optimization?
 		template<typename Cntnr>
 		/*INLINED*/void MY_LIB mul(Cntnr b) noexcept {
 			LargeUnsigned This(*this);
