@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Shared.h"
-#include "_Bytes.h"
+#include "end_ptr.h"
 #include <type_traits>
 
 //Hey guy,
@@ -10,12 +10,11 @@
 //	It's set up by myself,
 //	after a lot of struggle.
 //
-//	1.An iterator equals null_ptr only when it has been out of its working range,
+//	1.An iterator equals null_ptr when it is going to be out of its working range,
 //	though it may not result in crash.
-//	2.An iterator may equal false when it is going to move out of its working range,
-//	in other words,
-//	its only value is its value stored in it,
-//	which is actually what differs from a pointer.
+//	2.end_ptr is used for suffiency.
+//	3.Always remember that each iterator below represents a kind of linear list,
+//	difference among them is just how they are induced.
 
 
 
@@ -43,6 +42,12 @@ namespace LargeInteger {
 	public:
 		template<class ComputeFunction, typename Iterator1, typename Iterator2, typename Data>
 		class AppositionIterator {
+		private:
+			ComputeFunction c = ComputeFunction();
+			//result;overflow
+			std::pair<Data, Data> Result;
+			subIterator a;
+			Iterator b;
 		public:
 			MY_LIB AppositionIterator(Iterator1 a, Iterator2 b)noexcept
 				:a(a), b(b), Result(c(Data(0), *(a), *(b))) {
