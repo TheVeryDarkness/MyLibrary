@@ -149,25 +149,34 @@ namespace LargeInteger {
 		};
 
 
-		template<typename Compute, typename subIterator, typename Iterator>
+		class Empty {
+		public:
+			Empty() = default;
+			~Empty() = default;
+			void MY_LIB operator()()noexcept{ }
+		private:
+
+		};
+
+
+
+		template<typename Compute, typename subIterator, typename Iterator, typename CallBack = Empty>
 		static constexpr INLINED void MY_LIB SubPrinComputeTo(subIterator a, Iterator b)noexcept {
 			static_assert(std::is_same_v<
 				typename std::remove_cvref_t<decltype(*a)>,
-				typename std::remove_cvref_t<decltype(*b)>
-			>,
+				typename std::remove_cvref_t<decltype(*b)>>,
 				"They should have the same type.");
 			using Data=std::remove_cvref_t<decltype(*a)>;
+			CallBack c;
 			//This element
 			for (
 				SubPrincIterator<Compute, subIterator, Iterator, Data> compute(a, b);
-				*(compute.b) = *compute,
-				compute != end_ptr;
+				c(), *(compute.b) = *compute, compute != end_ptr;
 				++compute) {
-
-			}
+			};
 		}
 
-		template<typename subIterator, typename Iterator>
+		template<typename subIterator, typename Iterator, typename CallBack = Empty>
 		static constexpr INLINED void MY_LIB AddTo(subIterator a, Iterator b)noexcept {
 			static_assert(std::is_same_v<
 				typename std::remove_cvref_t<decltype(*a)>,
@@ -361,8 +370,8 @@ namespace LargeInteger {
 				SubtractFrom(temp, b);
 				Simplify s(b);
 			};
-			auto null = []()->void { };
-			__DivideInto<decltype(func), decltype(null), subIterator, Iterator, Data>(a, b, null, func);
+			Empty null;
+			__DivideInto<decltype(func), Empty, subIterator, Iterator, Data>(a, b, null, func);
 		}
 	};
 
