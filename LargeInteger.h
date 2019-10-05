@@ -226,36 +226,45 @@ namespace LargeInteger {
 	class ParallelMultiplier {
 	public:
 		MY_LIB ParallelMultiplier(
-			const bool& prior, flagType *next, flagType *now
-		) :prior(prior), next(next), now(now) {
+			const bool& prior, flagType *_last, flagType *_now
+		) :prior(prior), last(_last), now(_now) {
 			using namespace std::this_thread;
 			using namespace std::literals::chrono_literals;
-			assert(prior || *next >= *now);
-			while (!prior && *next <= *now) { std::this_thread::sleep_for(100ns); };
+			while (!prior && *last <= (*now) + 1) {
+				std::this_thread::sleep_for(100ns);
+			};
+			assert(prior || *last >= (*now) + 1);
+			out.lock();
+			if (now != nullptr) {
+				std::cout << now << " in" << std::endl;
+			}
+			out.unlock();
 		}
 		MY_LIB ~ParallelMultiplier() = default;
-		void MY_LIB clear() {
-			if (!prior) {
-				delete next;
-				out.lock();
-				std::cout << next << " deleted, and " << now << " out " << std::endl;
-				out.unlock();
-			}
-		}
 		void MY_LIB operator()()noexcept {
 			using namespace std::this_thread;
 			using namespace std::literals::chrono_literals;
-			assert(prior || *next >= *now);
-			while (!prior && *next <= *now) { 
+			assert(prior || *last >= (*now) + 1);
+			while (!prior && *last <= (*now) + 1) {
 				std::this_thread::sleep_for(100ns);
 			};
+			assert(prior || *last >= (*now) + 1);
 			++ *now;
 			out.lock();
 			std::cout << now << ' ' << *now << std::endl;
 			out.unlock();
 		}
+		void MY_LIB clear() {
+			if (!prior && (*last == -1)) {
+				delete last;
+			}
+			out.lock();
+			std::cout << now << " out " << std::endl;
+			out.unlock();
+			*now = -1;
+		}
 	private:
-		const flagType *const next;
+		const flagType *const last;
 		flagType *const now;
 		const bool &prior;
 	};
@@ -273,22 +282,18 @@ namespace LargeInteger {
 		//Maybe this is the first function I'd use multi-thread optimization?
 		template<typename Cntnr>
 		/*INLINED*/void MY_LIB mul(const Cntnr &b) noexcept {
+			using namespace std::literals::chrono_literals;
 			LargeUnsigned This(*this);
 			this->next = nullptr;
 			this->data = Data(radix_t(0));
 			auto Ptr = this->begin();
 			auto OprtPtr = b;
-			flagType *thisData = new flagType(), *nextData, *tail = thisData;
-			std::cout << thisData << std::endl;
-			bool ending = (OprtPtr == nullptr);
-			for (size_t i = 0; !ending; ++OprtPtr, ++Ptr, ++i) {
-				ending = (OprtPtr + 1 == nullptr);
-				nextData = ending ? nullptr : new flagType();
-				out.lock();
-				std::cout << nextData <<" got" << std::endl;
-				out.unlock();
-				std::thread thr([OprtPtr, This, Ptr, i, ending, thisData, nextData]() {
-					ParallelMultiplier p(ending, nextData, thisData);
+			flagType *thisFlag = new flagType(0), *lastFlag = nullptr , *tail = thisFlag;
+			//std::mutex init;
+
+			for (size_t i = 0; !(OprtPtr == nullptr); ++OprtPtr, ++Ptr, ++i) {
+				std::thread thr([OprtPtr, This, Ptr, i, thisFlag, lastFlag]() {
+					ParallelMultiplier p(i == 0, lastFlag, thisFlag);
 					typename LargeInteger
 						::LongCmpt<typename LargeInteger::LLCmptTraits<radix>>
 						::template LineIterator<typename LargeInteger::LLCmptTraits<radix>::Multiply, decltype(This.cbegin()), Data>
@@ -297,17 +302,20 @@ namespace LargeInteger {
 						::LongCmpt<typename LargeInteger::LLCmptTraits<radix>>
 						::template AddTo<decltype(temp), decltype(Ptr), ParallelMultiplier>(temp, Ptr, p);
 					if (i == 0) {
-						*thisData = -1;
+						*thisFlag = -1;
 					}
 					p.clear();
 					});
 				thr.detach();
-				thisData = nextData;
+				lastFlag = thisFlag;
+
+				std::this_thread::sleep_for(100ns);
 			}
-			while (*tail != -1);
-			delete tail;
+			while (*lastFlag != -1)std::this_thread::sleep_for(100ns);
+			assert(*lastFlag == -1);
+			delete lastFlag;
 			out.lock();
-			std::cout << tail << " deleted." << std::endl;
+			std::cout << "All out" << std::endl;
 			out.unlock();
 			This.release();
 		}
