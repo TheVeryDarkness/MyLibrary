@@ -8,6 +8,7 @@
 #include <cassert>
 #include <thread>
 #include <atomic>
+#include <mutex>
 
 namespace LargeInteger {
 	template<typename LL, typename LL::value_type radix> class LargeUnsigned;
@@ -223,12 +224,13 @@ namespace LargeInteger {
 
 	class ParallelMultiplier {
 	public:
-		ParallelMultiplier(const bool& prior, size_t *next, size_t *now) :prior(prior), next(next), now(now) {
+		MY_LIB ParallelMultiplier(const bool& prior, size_t *next, size_t *now) :prior(prior), next(next), now(now) {
 			while (!prior && *next == *now) { };
 		}
-		~ParallelMultiplier() { if (!prior)delete next; }
+		MY_LIB ~ParallelMultiplier() = default;
+		void MY_LIB clear(){ if (!prior)delete next; }
 		void MY_LIB operator()()noexcept {
-			assert(*next >= *now);
+			assert(prior || *next >= *now);
 			while (!prior && *next == *now) { };
 			++ *now;
 		}
@@ -257,10 +259,11 @@ namespace LargeInteger {
 			auto Ptr = this->begin();
 			auto OprtPtr = b;
 			size_t *thisData = new size_t(), *nextData, *tail = thisData;
-			for (size_t i = 0; OprtPtr != nullptr; ++OprtPtr, ++Ptr, ++i) {
-				bool &&ending = (OprtPtr + 1 == nullptr);
+			bool ending = (OprtPtr == nullptr);
+			for (size_t i = 0; !ending; ++OprtPtr, ++Ptr, ++i) {
+				ending = (OprtPtr + 1 == nullptr);
 				nextData = ending ? nullptr : new size_t();
-				std::thread thr([&OprtPtr, &This, &Ptr, i, &ending, thisData, nextData]() {
+				std::thread thr([OprtPtr, This, Ptr, i, ending, thisData, nextData]() {
 					ParallelMultiplier p(ending, nextData, thisData);
 					typename LargeInteger
 						::LongCmpt<typename LargeInteger::LLCmptTraits<radix>>
@@ -272,6 +275,7 @@ namespace LargeInteger {
 					if (i == 0) {
 						*thisData = -1;
 					}
+					p.clear();
 					});
 				thr.detach();
 				thisData = nextData;
