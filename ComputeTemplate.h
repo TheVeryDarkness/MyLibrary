@@ -150,7 +150,7 @@ namespace LargeInteger {
 
 
 		template<typename Compute, typename subIterator, typename Iterator>
-		static constexpr INLINED void MY_LIB AppositionComputeTo(subIterator a, Iterator b)noexcept {
+		static constexpr INLINED void MY_LIB SubPrinComputeTo(subIterator a, Iterator b)noexcept {
 			static_assert(std::is_same_v<
 				typename std::remove_cvref_t<decltype(*a)>,
 				typename std::remove_cvref_t<decltype(*b)>
@@ -173,12 +173,12 @@ namespace LargeInteger {
 				typename std::remove_cvref_t<decltype(*a)>,
 				typename std::remove_cvref_t<decltype(*b)>
 			>, "They should have the same type.");
-			return AppositionComputeTo<typename _Traits::Add, subIterator, Iterator>(a, b);
+			return SubPrinComputeTo<typename _Traits::Add, subIterator, Iterator>(a, b);
 		}
 
 		template<typename subIterator, typename Iterator>
 		static constexpr INLINED void MY_LIB SubtractFrom(subIterator a, Iterator b)noexcept {
-			return AppositionComputeTo<typename _Traits::SubtractFrom, subIterator, Iterator>(a, b);
+			return SubPrinComputeTo<typename _Traits::SubtractFrom, subIterator, Iterator>(a, b);
 		}
 
 		template<typename Iterator, typename Data>
