@@ -11,9 +11,9 @@
 //	after a lot of struggle.
 //
 //	1.An iterator equals null_ptr only when it has been out of its working range,
-//though it may not result in crash.
+//	though it may not result in crash.
 //	2.An iterator may equal false when it is going to move out of its working range,
-//this is actually what differs from a pointer
+//	this is actually what differs from a pointer.
 
 
 
