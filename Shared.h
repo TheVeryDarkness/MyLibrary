@@ -52,6 +52,13 @@
 #endif // !ASSERT
 
 
+#pragma warning(disable : 4996)
+
+#ifndef _SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING
+#define _SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING 1
+#endif // !_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING
+
+
 template<typename type>
 class Depack {
 public:
