@@ -45,6 +45,8 @@ namespace LargeInteger {
 			const Data &operator*()const noexcept {
 				return Result.first;
 			}
+			bool MY_LIB operator==(std::nullptr_t null)const noexcept {
+				return ((a + 1) == null && (b + 1) == null);
 			}
 			//result;overflow
 			std::pair<Data, Data> Result;
@@ -84,6 +86,7 @@ namespace LargeInteger {
 				return (this->a == that.a) && (this->b == that.b);
 			}
 			constexpr bool MY_LIB operator==(nullptr_t null)const noexcept {
+				return (this->b == null) && (Result.second == 0)&& (Result.first == 0);
 			}
 			//result;overflow
 			std::pair<Data, Data> Result;
@@ -140,24 +143,8 @@ namespace LargeInteger {
 				"They should have the same type.");
 			using Data=std::remove_cvref_t<decltype(*a)>;
 			AppositionIterator<Compute, Iterator1, Iterator2, Data> compute(a, b);
-			while (true) {
-				//This element
-				*(compute.b) = compute.Result.first;
-				if (
-					(compute.b + 1) == nullptr
-					) {
-					if ((compute.a + 1) == nullptr) {
-						if (compute.Result.second != 0) {
-							compute.b.insert(compute.b, compute.Result.second);
-						}
-						break;
-					}
-				}
-				++compute;
-				if (!compute) {
-					break;
-				}
-			}
+			//This element
+			for (; *(compute.b) = compute.Result.first, compute != nullptr; ++compute) { }
 		}
 
 		template<typename Iterator1, typename Iterator2>
