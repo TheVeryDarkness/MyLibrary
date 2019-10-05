@@ -7,6 +7,7 @@
 #include <iostream>
 #include <cassert>
 #include <thread>
+#include <atomic>
 
 namespace LargeInteger {
 	template<typename LL, typename LL::value_type radix> class LargeUnsigned;
@@ -220,6 +221,24 @@ namespace LargeInteger {
 		return;
 	}
 
+	class ParallelMultiplier {
+	public:
+		ParallelMultiplier(const bool& prior, size_t *next, size_t *now) :prior(prior), next(next), now(now) {
+			while (!prior && *next == *now) { };
+		}
+		~ParallelMultiplier() { if (!prior)delete next; }
+		void MY_LIB operator()()noexcept {
+			assert(*next >= *now);
+			while (!prior && *next == *now) { };
+			++ *now;
+		}
+	private:
+		const size_t *const next;
+		size_t *const now;
+		const bool &prior;
+	};
+
+
 	template<typename LL, typename LL::value_type radix>
 	class LargeUnsigned :protected LL {
 	protected:
@@ -237,10 +256,28 @@ namespace LargeInteger {
 			this->data = Data(radix_t(0));
 			auto Ptr = this->begin();
 			auto OprtPtr = b;
-			for (; OprtPtr != nullptr; ++OprtPtr, ++Ptr) {
-				typename LargeInteger::LongCmpt<typename LargeInteger::LLCmptTraits<radix>>::template LineIterator<typename LargeInteger::LLCmptTraits<radix>::Multiply, decltype(This.cbegin()), Data> temp(*OprtPtr, This.cbegin());
-				LargeInteger::LongCmpt<typename LargeInteger::LLCmptTraits<radix>>::AddTo<decltype(temp),decltype(Ptr)>(temp, Ptr);
+			size_t *thisData = new size_t(), *nextData, *tail = thisData;
+			for (size_t i = 0; OprtPtr != nullptr; ++OprtPtr, ++Ptr, ++i) {
+				bool &&ending = (OprtPtr + 1 == nullptr);
+				nextData = ending ? nullptr : new size_t();
+				std::thread thr([&OprtPtr, &This, &Ptr, i, &ending, thisData, nextData]() {
+					ParallelMultiplier p(ending, nextData, thisData);
+					typename LargeInteger
+						::LongCmpt<typename LargeInteger::LLCmptTraits<radix>>
+						::template LineIterator<typename LargeInteger::LLCmptTraits<radix>::Multiply, decltype(This.cbegin()), Data>
+						temp(*OprtPtr, This.cbegin());
+					LargeInteger
+						::LongCmpt<typename LargeInteger::LLCmptTraits<radix>>
+						::template AddTo<decltype(temp), decltype(Ptr), ParallelMultiplier>(temp, Ptr, p);
+					if (i == 0) {
+						*thisData = -1;
+					}
+					});
+				thr.detach();
+				thisData = nextData;
 			}
+			while (*tail != -1);
+			delete tail;
 			This.release();
 		}
 	public:
