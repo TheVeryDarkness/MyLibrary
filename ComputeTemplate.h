@@ -123,6 +123,9 @@ namespace LargeInteger {
 			bool MY_LIB operator!=(std::nullptr_t)const noexcept {
 				return (Result.second == Data(0) && Result.first == Data(0));
 			}
+			bool MY_LIB operator==(std::nullptr_t null)const noexcept {
+				return !(*this == null);
+			}
 
 		private:
 			//Remained, Quotient
