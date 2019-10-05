@@ -2,7 +2,7 @@
 
 
 struct end_ptr_t {
-	template<typename T>constexpr bool __stdcall operator==(T *ptr)noexcept {
+	template<typename iter>constexpr bool __stdcall operator==(iter ptr)noexcept {
 		return !(ptr + 1);
 	}
 };
