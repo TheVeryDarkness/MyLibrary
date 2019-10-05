@@ -414,14 +414,15 @@ namespace LargeInteger {
 		}
 		constexpr void MY_LIB Swap(LargeUnsigned& that)noexcept {
 			{
-				LL* temp = that.next;
+				LL *temp = that.next;
 				that.next = temp;
 				this->next = temp;
 			}
 			{
-				Data temp = that.data;
-				that.data = this->data;
-				this->data = temp;
+				(this->data == that.data) || (this->data ^= that.data ^= this->data ^= that.data);
+				//Data &&temp = std::move(that.data);
+				//that.data = this->data;
+				//this->data = temp;
 			}
 		}
 		/*INLINED*/void MY_LIB operator*=(const LargeUnsigned& b) noexcept {
@@ -442,6 +443,7 @@ namespace LargeInteger {
 				*this = Copy(that);
 				return;
 			}
+			assert(*this >= that);
 			LargeInteger::LongCmpt<LLCmptTraits<radix>>::SubtractFrom(that.begin(), this->begin());
 			this->LL::Simplify();
 		}
