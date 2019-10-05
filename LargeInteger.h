@@ -239,15 +239,6 @@ namespace LargeInteger {
 			for (; OprtPtr != nullptr; ++OprtPtr, ++Ptr) {
 				typename LargeInteger::LongCmpt<typename LargeInteger::LLCmptTraits<radix>>::template LineIterator<typename LargeInteger::LLCmptTraits<radix>::Multiply, decltype(This.cbegin()), Data> temp(*OprtPtr, This.cbegin());
 				LargeInteger::LongCmpt<typename LargeInteger::LLCmptTraits<radix>>::AddTo(temp, Ptr);
-				std::cout << std::endl;
-				for (auto tmp = temp; tmp != nullptr;++tmp) {
-					std::cout << *tmp << ' ';
-				}
-				std::cout
-					<< std::endl
-					<< This << std::endl
-					<< *this << std::endl
-					;
 			}
 			This.release();
 		}
