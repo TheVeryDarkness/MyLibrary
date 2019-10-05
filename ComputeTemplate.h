@@ -40,8 +40,8 @@ namespace LargeInteger {
 	template<typename _Traits>
 	class LongCmpt {
 	public:
-		template<class ComputeFunction, typename Iterator1, typename Iterator2, typename Data>
-		class AppositionIterator {
+		template<class ComputeFunction, typename subIterator, typename Iterator, typename Data>
+		class SubPrincIterator {
 		private:
 			ComputeFunction c = ComputeFunction();
 			//result;overflow
@@ -49,12 +49,12 @@ namespace LargeInteger {
 			subIterator a;
 			Iterator b;
 		public:
-			MY_LIB AppositionIterator(Iterator1 a, Iterator2 b)noexcept
+			MY_LIB SubPrincIterator(subIterator a, Iterator b)noexcept
 				:a(a), b(b), Result(c(Data(0), *(a), *(b))) {
 				static_assert(std::is_same_v<Data, std::remove_cvref_t<decltype(*(a))>>, "It should be the same type");
 				static_assert(std::is_same_v<Data, std::remove_cvref_t<decltype(*(b))>>, "It should be the same type");
 			}
-			MY_LIB ~AppositionIterator()noexcept { }
+			MY_LIB ~SubPrincIterator()noexcept { }
 			//Notice:
 			//	this function move the iterator to its next place
 			void MY_LIB operator++() noexcept {
@@ -66,19 +66,18 @@ namespace LargeInteger {
 				return Result.first;
 			}
 			bool MY_LIB operator==(std::nullptr_t null)const noexcept {
-				return (a == null && (b + 1) == null);
+				return (Result.second == 0) && (a == null || ((a + 1) == null));
 			}
-			bool MY_LIB 
-			//result;overflow
-			std::pair<Data, Data> Result;
-			Iterator1 a;
-			Iterator2 b;
-		private:
-			ComputeFunction c = ComputeFunction();
 		};
 
 		template<class ComputeFunction, typename Iterator, typename Data>
 		class LineIterator {
+		private:
+			//result;overflow
+			std::pair<Data, Data> Result;
+			Data a;
+			Iterator b;
+			ComputeFunction c;
 		public:
 			MY_LIB LineIterator(Data a, Iterator b)noexcept :a(a), b(b), c(), Result(c(Data(0), a, *b)) {
 				static_assert(std::is_same<Data, std::remove_cvref_t<decltype(*b)>>::value, "It should be the same type");
@@ -103,17 +102,9 @@ namespace LargeInteger {
 			const Data &operator*()const noexcept {
 				return Result.first;
 			}
-			constexpr bool MY_LIB operator==(const LineIterator &that)const noexcept {
-				return (this->a == that.a) && (this->b == that.b);
-			}
 			constexpr bool MY_LIB operator==(nullptr_t null)const noexcept {
-				return (this->b == null) && (Result.second == 0);
+				return (Result.second == 0) && (this->b == null || this->b + 1 == null);
 			}
-			//result;overflow
-			std::pair<Data, Data> Result;
-			Data a;
-			Iterator b;
-			ComputeFunction c;
 		};
 
 
@@ -152,15 +143,15 @@ namespace LargeInteger {
 		};
 
 
-		template<typename Compute, typename Iterator1, typename Iterator2>
-		static constexpr INLINED void MY_LIB AppositionComputeTo(Iterator1 a, Iterator2 b)noexcept {
+		template<typename Compute, typename subIterator, typename Iterator>
+		static constexpr INLINED void MY_LIB AppositionComputeTo(subIterator a, Iterator b)noexcept {
 			static_assert(std::is_same_v<
 				typename std::remove_cvref_t<decltype(*a)>,
 				typename std::remove_cvref_t<decltype(*b)>
 			>,
 				"They should have the same type.");
 			using Data=std::remove_cvref_t<decltype(*a)>;
-			AppositionIterator<Compute, Iterator1, Iterator2, Data> compute(a, b);
+			SubPrincIterator<Compute, subIterator, Iterator, Data> compute(a, b);
 			//This element
 			for (;
 				*(compute.b) = compute.Result.first, 
@@ -173,18 +164,18 @@ namespace LargeInteger {
 			}
 		}
 
-		template<typename Iterator1, typename Iterator2>
-		static constexpr INLINED void MY_LIB AddTo(Iterator1 a, Iterator2 b)noexcept {
+		template<typename subIterator, typename Iterator>
+		static constexpr INLINED void MY_LIB AddTo(subIterator a, Iterator b)noexcept {
 			static_assert(std::is_same_v<
 				typename std::remove_cvref_t<decltype(*a)>,
 				typename std::remove_cvref_t<decltype(*b)>
 			>, "They should have the same type.");
-			return AppositionComputeTo<typename _Traits::Add, Iterator1, Iterator2>(a, b);
+			return AppositionComputeTo<typename _Traits::Add, subIterator, Iterator>(a, b);
 		}
 
-		template<typename Iterator1, typename Iterator2>
-		static constexpr INLINED void MY_LIB SubtractFrom(Iterator1 a, Iterator2 b)noexcept {
-			return AppositionComputeTo<typename _Traits::SubtractFrom, Iterator1, Iterator2>(a, b);
+		template<typename subIterator, typename Iterator>
+		static constexpr INLINED void MY_LIB SubtractFrom(subIterator a, Iterator b)noexcept {
+			return AppositionComputeTo<typename _Traits::SubtractFrom, subIterator, Iterator>(a, b);
 		}
 
 		template<typename Iterator, typename Data>
@@ -209,8 +200,8 @@ namespace LargeInteger {
 
 
 		//Compare a to b.
-		template<typename Iterator1, typename Iterator2>
-		static INLINED Compare MY_LIB CompareTo(const Iterator1 &a, const Iterator2 &b) noexcept {
+		template<typename subIterator, typename Iterator>
+		static INLINED Compare MY_LIB CompareTo(const subIterator &a, const Iterator &b) noexcept {
 			static_assert(
 				std::is_same_v<
 				std::remove_cvref_t<decltype(*a)>,
@@ -219,8 +210,8 @@ namespace LargeInteger {
 				"They should have the same type");
 			{
 				Compare temp = Compare::Equal;
-				Iterator1 _a = a;
-				Iterator2 _b = b;
+				subIterator _a = a;
+				Iterator _b = b;
 				for (;
 					;
 					++_a, ++_b
@@ -247,16 +238,16 @@ namespace LargeInteger {
 			}
 		}
 		//Extension for Compare()
-		template<typename Iterator1, typename Iterator2>
-		static INLINED auto MY_LIB _CompareTo(const Iterator1 &a, const Iterator2 &b) noexcept {
+		template<typename subIterator, typename Iterator>
+		static INLINED auto MY_LIB _CompareTo(const subIterator &a, const Iterator &b) noexcept {
 			using Data=typename std::remove_cvref<decltype(*a)>::type;
 			static_assert(std::is_same_v<std::remove_cvref_t<decltype(*a)>, std::remove_cvref_t<decltype(*b)>>);
 			constexpr auto PracticedRadix = ((_Traits::getRadix() == 0) ? std::numeric_limits<Data>::max() : _Traits::getRadix());
 			{
 				bool HasChanged = false;
 				Compare temp = Compare::Equal;
-				Iterator1 _a = a;
-				Iterator2 _b = b;
+				subIterator _a = a;
+				Iterator _b = b;
 				for (;
 					;
 					++_a, ++_b, HasChanged = true
@@ -267,8 +258,8 @@ namespace LargeInteger {
 					else if (*_a < *_b) {
 						temp = Compare::Smaller;
 					}
-					Iterator1 &&aNext = _a + 1;
-					Iterator2 &&bNext = _b + 1;
+					subIterator &&aNext = _a + 1;
+					Iterator &&bNext = _b + 1;
 					//I wonder whether I should use if-else or ?:
 					if ((aNext == nullptr) && (bNext == nullptr)) {
 						if (temp == Compare::Larger) {
@@ -312,8 +303,8 @@ namespace LargeInteger {
 				}
 			}
 		}
-		template<typename Accumulation, typename Recursion, typename Iterator1, typename Iterator2, typename Data>
-		static INLINED void MY_LIB __DivideInto(Iterator1 _a, Iterator2 _b, Recursion Move, Accumulation Accum)noexcept {
+		template<typename Accumulation, typename Recursion, typename subIterator, typename Iterator, typename Data>
+		static INLINED void MY_LIB __DivideInto(subIterator _a, Iterator _b, Recursion Move, Accumulation Accum)noexcept {
 			{
 				switch (CompareTo(_a, _b)) {
 				case Compare::Larger:
@@ -322,7 +313,7 @@ namespace LargeInteger {
 					Accum(_a, _b, 1);
 					return;
 				case Compare::Smaller:
-					__DivideInto<Accumulation, Recursion, Iterator1, Iterator2, Data>(_a, _b + 1, Move, Accum);
+					__DivideInto<Accumulation, Recursion, subIterator, Iterator, Data>(_a, _b + 1, Move, Accum);
 					Move();
 					break;
 				default:
@@ -343,32 +334,32 @@ namespace LargeInteger {
 				}
 			}
 		}
-		template<typename Simplify, typename Linear, typename Iterator1, typename Iterator2>
-		static INLINED void MY_LIB DivideInto(Linear &Res, Iterator1 a, Iterator2 b) noexcept {
+		template<typename Simplify, typename Linear, typename subIterator, typename Iterator>
+		static INLINED void MY_LIB DivideInto(Linear &Res, subIterator a, Iterator b) noexcept {
 			static_assert(std::is_same< std::remove_cvref<decltype(*a)>::type, std::remove_cvref<decltype(*b)>::type>::value);
 			using Data=typename std::remove_cvref<decltype(*a)>::type;
 			//Regarding of the compatibility, we didn't use any majorization.
-			auto func1 = [&Res](const Iterator1 &a, const Iterator2 &b, Data times)->void {
-				LineIterator<_Traits::Multiply, Iterator1, decltype(times)> temp(times, a);
+			auto func1 = [&Res](const subIterator &a, const Iterator &b, Data times)->void {
+				LineIterator<_Traits::Multiply, subIterator, decltype(times)> temp(times, a);
 				SubtractFrom(temp, b);
 				Simplify s(b);
 				Res += times;
 			};
 			auto func2 = [&Res]()->void {Res <<= 1; };
-			__DivideInto<decltype(func1), decltype(func2), Iterator1, Iterator2, Data>(a, b, func2, func1);
+			__DivideInto<decltype(func1), decltype(func2), subIterator, Iterator, Data>(a, b, func2, func1);
 		}
-		template<typename Simplify, typename Iterator1, typename Iterator2>
-		static INLINED void MY_LIB DivideInto(Iterator1 a, Iterator2 b) {
+		template<typename Simplify, typename subIterator, typename Iterator>
+		static INLINED void MY_LIB DivideInto(subIterator a, Iterator b) {
 			static_assert(std::is_same< std::remove_cvref<decltype(*a)>::type, std::remove_cvref<decltype(*b)>::type>::value);
 			using Data=typename std::remove_cvref<decltype(*a)>::type;
 			//Regarding of the compatibility, we didn't use any majorization.
-			auto func = [](const Iterator1 &a, const Iterator2 &b, Data times)->void {
-				LineIterator<_Traits::Multiply, Iterator1, decltype(times)> temp(times, a);
+			auto func = [](const subIterator &a, const Iterator &b, Data times)->void {
+				LineIterator<_Traits::Multiply, subIterator, decltype(times)> temp(times, a);
 				SubtractFrom(temp, b);
 				Simplify s(b);
 			};
 			auto null = []()->void { };
-			__DivideInto<decltype(func), decltype(null), Iterator1, Iterator2, Data>(a, b, null, func);
+			__DivideInto<decltype(func), decltype(null), subIterator, Iterator, Data>(a, b, null, func);
 		}
 	};
 
