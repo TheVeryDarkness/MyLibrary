@@ -6,6 +6,7 @@
 #include "_Bytes.h"
 #include <iostream>
 #include <cassert>
+#include <thread>
 
 namespace LargeInteger {
 	template<typename LL, typename LL::value_type radix> class LargeUnsigned;
@@ -233,7 +234,7 @@ namespace LargeInteger {
 		/*INLINED*/void MY_LIB mul(const Cntnr& b) noexcept {
 			LargeUnsigned This(*this);
 			this->next = nullptr;
-			this->data = Data(radix_t(0)); 
+			this->data = Data(radix_t(0));
 			auto Ptr = this->begin();
 			auto OprtPtr = b;
 			for (; OprtPtr != nullptr; ++OprtPtr, ++Ptr) {
