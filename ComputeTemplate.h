@@ -170,8 +170,8 @@ namespace LargeInteger {
 			//This element
 			for (
 				SubPrincIterator<Compute, subIterator, Iterator, Data> compute(a, b);
-				c(), *(compute.b) = *compute, compute != end_ptr;
-				++compute);
+				*(compute.b) = *compute, compute != end_ptr;
+				++compute)c();
 		}
 
 		template<typename subIterator, typename Iterator, typename CallBack = Empty>
