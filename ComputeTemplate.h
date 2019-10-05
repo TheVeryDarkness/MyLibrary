@@ -4,6 +4,20 @@
 #include "_Bytes.h"
 #include <type_traits>
 
+//Hey guy,
+//	if you were here to edit my source coed,
+//	notice that I now follow a non-standard standard.
+//	It's set up by myself,
+//	after a lot of struggle.
+//
+//	1.An iterator equals null_ptr only when it has been out of its working range,
+//though it may not result in crash.
+//	2.An iterator may equal false when it is going to move out of its working range,
+//this is actually what differs from a pointer
+
+
+
+
 namespace LargeInteger {
 	enum class Compare :signed char {
 		Larger = 0x1, Equal = 0x0, Smaller = -0x1
@@ -142,7 +156,8 @@ namespace LargeInteger {
 			AppositionIterator<Compute, Iterator1, Iterator2, Data> compute(a, b);
 			//This element
 			for (;
-				*(compute.b) = compute.Result.first, compute != nullptr;
+				*(compute.b) = compute.Result.first, 
+				compute != nullptr;
 				++compute) {
 				if (compute.a + 1 == nullptr && compute.Result.second != 0) {
 					compute.b.insert(compute.b, compute.Result.second);
