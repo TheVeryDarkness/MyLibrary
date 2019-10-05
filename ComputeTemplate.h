@@ -174,9 +174,6 @@ namespace LargeInteger {
 						}
 						break;
 					}
-					else {
-						compute.b.insert(compute.b, Data(0));
-					}
 				}
 				++compute;
 				if (!compute) {
