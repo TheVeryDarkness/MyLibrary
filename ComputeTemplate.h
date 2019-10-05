@@ -5,7 +5,7 @@
 #include <type_traits>
 
 //Hey guy,
-//	if you were here to edit my source coed,
+//	if you were here to edit my source code below,
 //	notice that I now follow a non-standard standard.
 //	It's set up by myself,
 //	after a lot of struggle.
@@ -13,7 +13,9 @@
 //	1.An iterator equals null_ptr only when it has been out of its working range,
 //	though it may not result in crash.
 //	2.An iterator may equal false when it is going to move out of its working range,
-//	this is actually what differs from a pointer.
+//	in other words,
+//	its only value is its value stored in it,
+//	which is actually what differs from a pointer.
 
 
 
@@ -53,7 +55,6 @@ namespace LargeInteger {
 			void MY_LIB operator++() noexcept {
 				++a;
 				++b;
-
 				Result = c(Result.second, *(a), *(b));
 			}
 			const Data &operator*()const noexcept {
@@ -62,6 +63,7 @@ namespace LargeInteger {
 			bool MY_LIB operator==(std::nullptr_t null)const noexcept {
 				return (a == null && (b + 1) == null);
 			}
+			bool MY_LIB 
 			//result;overflow
 			std::pair<Data, Data> Result;
 			Iterator1 a;
