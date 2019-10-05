@@ -82,9 +82,9 @@ namespace LargeInteger {
 			Iterator b;
 			ComputeFunction c;
 		public:
-			MY_LIB LineIterator(Data a, Iterator b)noexcept :a(a), b(b), c(), Result(c(Data(0), a, *b)) {
-				static_assert(std::is_same<Data, std::remove_cvref_t<decltype(*b)>>::value, "It should be the same type");
-			}
+			static_assert(std::is_same<Data, std::remove_cvref_t<decltype(*b)>>::value, "It should be the same type");
+			MY_LIB LineIterator(Data a, Iterator b)noexcept :a(a), b(b), c(), Result(c(Data(0), a, *b)) { }
+			MY_LIB LineIterator(Data a, Iterator b, Data Carry)noexcept :a(a), b(b), c(), Result(c(Carry, a, *b)) { }
 			MY_LIB ~LineIterator()noexcept { }
 			//Notice:
 			//	this function move the iterator b to its next place
@@ -99,17 +99,17 @@ namespace LargeInteger {
 				Result = c(Result.second, a, *b);
 			}
 			constexpr LineIterator MY_LIB operator+(size_t sz) const noexcept {
-				LineIterator it(this->a, this->b + sz);
+				LineIterator it(this->a, this->b + sz, Result.second);
 				return it;
 			}
 			const Data &operator*()const noexcept {
 				return Result.first;
 			}
 			constexpr bool MY_LIB operator==(end_ptr_t)const noexcept {
-				return (Result.second == 0) && (this->b == nullptr || this->b + 1 == nullptr);
+				return a == 0 || (Result.second == 0) && (this->b == nullptr || this->b + 1 == nullptr);
 			}
 			constexpr bool MY_LIB operator==(nullptr_t)const noexcept {
-				return  (this->b == nullptr) && (Result.first == 0) && (Result.second == 0);
+				return a == 0 || (this->b == nullptr) && (Result.first == 0) && (Result.second == 0);
 			}
 		};
 
@@ -157,12 +157,14 @@ namespace LargeInteger {
 			>,
 				"They should have the same type.");
 			using Data=std::remove_cvref_t<decltype(*a)>;
-			SubPrincIterator<Compute, subIterator, Iterator, Data> compute(a, b);
 			//This element
-			for (;
+			for (
+				SubPrincIterator<Compute, subIterator, Iterator, Data> compute(a, b);
 				*(compute.b) = *compute,
 				compute != end_ptr;
-				++compute);
+				++compute) {
+
+			}
 		}
 
 		template<typename subIterator, typename Iterator>
