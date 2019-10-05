@@ -3,6 +3,7 @@
 #include "Shared.h"
 #include "Statistics.h"
 #include "ComputeTemplate.h"
+#include "_Bytes.h"
 #include <iostream>
 #include <cassert>
 
