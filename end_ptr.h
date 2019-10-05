@@ -1,10 +1,6 @@
 #pragma once
 
 
-struct end_ptr_t {
-	template<typename iter>constexpr bool __stdcall operator==(iter ptr)noexcept {
-		return !(ptr + 1);
-	}
-};
+struct end_ptr_t { };
 
 static inline end_ptr_t end_ptr;
