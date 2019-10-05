@@ -238,6 +238,15 @@ namespace LargeInteger {
 			for (; OprtPtr != nullptr; ++OprtPtr, ++Ptr) {
 				typename LargeInteger::LongCmpt<typename LargeInteger::LLCmptTraits<radix>>::template LineIterator<typename LargeInteger::LLCmptTraits<radix>::Multiply, decltype(This.cbegin()), Data> temp(*OprtPtr, This.cbegin());
 				LargeInteger::LongCmpt<typename LargeInteger::LLCmptTraits<radix>>::AddTo(temp, Ptr);
+				std::cout << std::endl;
+				for (auto tmp = temp; tmp != nullptr;++tmp) {
+					std::cout << *tmp << ' ';
+				}
+				std::cout
+					<< std::endl
+					<< This << std::endl
+					<< *this << std::endl
+					;
 			}
 			This.release();
 		}
@@ -610,7 +619,7 @@ namespace LargeInteger {
 		};
 		void MY_LIB operator%=(const LargeUnsigned& that)noexcept {
 			assert(that != 0);
-			if (that.next == nullptr) {
+			if (that == 0) {
 				return;
 			}
 			LargeInteger::LongCmpt<LLCmptTraits<radix>>::template DivideInto<Sim<decltype(this->begin())>, decltype(that.begin()), decltype(this->begin())>(that.begin(), this->begin());
@@ -618,7 +627,7 @@ namespace LargeInteger {
 		}
 		void MY_LIB operator/=(const LargeUnsigned& that)noexcept {
 			assert(that != 0);
-			if (that.next == nullptr) {
+			if (that == 0) {
 				return;
 			}
 			LargeUnsigned Res(0);
