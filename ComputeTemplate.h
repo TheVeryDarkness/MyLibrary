@@ -45,17 +45,6 @@ namespace LargeInteger {
 			const Data &operator*()const noexcept {
 				return Result.first;
 			}
-			//return true if the iterator is still working
-			bool MY_LIB operator!()const noexcept {
-				return (
-					a == nullptr
-					&&
-					b == nullptr
-					&&
-					Result.first == 0
-					&&
-					Result.second == 0
-					);
 			}
 			//result;overflow
 			std::pair<Data, Data> Result;
@@ -91,15 +80,10 @@ namespace LargeInteger {
 			const Data &operator*()const noexcept {
 				return Result.first;
 			}
-			//return true if the iterator is still working
-			bool MY_LIB operator!()const noexcept {
-				return (b == nullptr && Result.first() == 0 && Result.second() == 0);
-			}
 			constexpr bool MY_LIB operator==(const LineIterator &that)const noexcept {
 				return (this->a == that.a) && (this->b == that.b);
 			}
 			constexpr bool MY_LIB operator==(nullptr_t null)const noexcept {
-				return (this->b == null) && (Result.second == 0);
 			}
 			//result;overflow
 			std::pair<Data, Data> Result;
