@@ -68,6 +68,9 @@ namespace LargeInteger {
 			bool MY_LIB operator==(end_ptr_t)const noexcept {
 				return (Result.second == 0) && (a == nullptr || ((a + 1) == nullptr));
 			}
+			bool MY_LIB operator==(nullptr_t)const noexcept {
+				return (Result.first == 0) && (Result.second == 0) && a == nullptr;
+			}
 		};
 
 		template<class ComputeFunction, typename Iterator, typename Data>
@@ -102,8 +105,11 @@ namespace LargeInteger {
 			const Data &operator*()const noexcept {
 				return Result.first;
 			}
-			constexpr bool MY_LIB operator==(nullptr_t null)const noexcept {
-				return (Result.second == 0) && (this->b == null || this->b + 1 == null);
+			constexpr bool MY_LIB operator==(end_ptr_t)const noexcept {
+				return (Result.second == 0) && (this->b == nullptr || this->b + 1 == nullptr);
+			}
+			constexpr bool MY_LIB operator==(nullptr_t)const noexcept {
+				return  (this->b == nullptr) && (Result.first == 0) && (Result.second == 0);
 			}
 		};
 
@@ -156,8 +162,7 @@ namespace LargeInteger {
 			for (;
 				*(compute.b) = *compute,
 				compute != end_ptr;
-				++compute) {
-			}
+				++compute);
 		}
 
 		template<typename subIterator, typename Iterator>
@@ -175,7 +180,7 @@ namespace LargeInteger {
 		}
 
 		template<typename Iterator, typename Data>
-		static INLINED void MY_LIB MultiplyTo(Data a, Iterator b) noexcept {
+		[[deprecated]]static INLINED void MY_LIB MultiplyTo(Data a, Iterator b) noexcept {
 			Data Carry = Data(0);
 			LineIterator<typename _Traits::Multiply, Iterator, Data> mul(a, b);
 			while (true) {
