@@ -46,6 +46,9 @@ namespace LargeInteger {
 			MY_LIB Add()noexcept { }
 			MY_LIB ~Add()noexcept { }
 			std::pair<Data, Data> MY_LIB operator()(Data Carry, const Data &a, const Data &b)noexcept {
+				assert(Carry < Radix);
+				assert(a < Radix);
+				assert(b < Radix);
 				const bool &&overflow = ((Carry > 0) ?
 					(
 					(a >= static_cast<Data>((Radix - 1) - b))
@@ -65,6 +68,9 @@ namespace LargeInteger {
 			MY_LIB SubtractFrom()noexcept { }
 			MY_LIB ~SubtractFrom()noexcept { }
 			std::pair<Data, Data> MY_LIB operator()(Data Carry, const Data &a, const Data &b)noexcept {
+				assert(Carry < Radix);
+				assert(a < Radix);
+				assert(b < Radix);
 				const bool &&underFlow =
 					(Carry > 0) ?
 					((b <= a) ? true : false)
@@ -85,6 +91,9 @@ namespace LargeInteger {
 
 			//remain, ratio
 			std::pair<Num, Num> MY_LIB operator()(Num Carry, Num a, Num b)const noexcept {
+				assert(Carry < Radix);
+				assert(a < Radix);
+				assert(b < Radix);
 				using namespace LargeInteger;
 				if constexpr (IntelligentLength<2 * GetMinLength(Radix)>().first == 0) {
 					using wT=typename _Int<IntelligentLength<2 * GetMinLength(Radix) * 2>().second>::type;
