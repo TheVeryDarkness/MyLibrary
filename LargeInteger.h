@@ -40,6 +40,9 @@ namespace LargeInteger {
 		using Data=decltype(Radix);
 		MY_LIB _LLCmptTraits() = delete;
 		MY_LIB ~_LLCmptTraits() = delete;
+		static constexpr Data getRadix()noexcept {
+			return Radix;
+		}
 
 		class Add {
 		public:
@@ -607,12 +610,17 @@ namespace LargeInteger {
 		};
 		void MY_LIB operator%=(const LargeUnsigned& that)noexcept {
 			assert(that != 0);
-			
+			if (that.next == nullptr) {
+				return;
+			}
 			LargeInteger::LongCmpt<LLCmptTraits<radix>>::template DivideInto<Sim<decltype(this->begin())>, decltype(that.begin()), decltype(this->begin())>(that.begin(), this->begin());
 			this->Simplify();
 		}
 		void MY_LIB operator/=(const LargeUnsigned& that)noexcept {
 			assert(that != 0);
+			if (that.next == nullptr) {
+				return;
+			}
 			LargeUnsigned Res(0);
 			LargeInteger::LongCmpt<LLCmptTraits<radix>>::template DivideInto<Sim<decltype(this->begin())>, decltype(Res), decltype(that.begin()), decltype(this->begin())>(Res, that.begin(), this->begin());
 			*this = Res;
