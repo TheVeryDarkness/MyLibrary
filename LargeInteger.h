@@ -229,11 +229,13 @@ namespace LargeInteger {
 
 		//Maybe this is the first function I'd use multi-thread optimization?
 		template<typename Cntnr>
-		/*INLINED*/void MY_LIB mul(Cntnr b) noexcept {
+		/*INLINED*/void MY_LIB mul(const Cntnr& b) noexcept {
 			LargeUnsigned This(*this);
 			this->next = nullptr;
 			this->data = Data(radix_t(0)); 
-			for (auto& OprtPtr = b; OprtPtr != nullptr; ++OprtPtr) {
+			auto Ptr = this->begin();
+			auto OprtPtr = b;
+			for (; OprtPtr != nullptr; ++OprtPtr, ++Ptr) {
 				typename LargeInteger::LongCmpt<typename LargeInteger::LLCmptTraits<radix>>::template LineIterator<typename LargeInteger::LLCmptTraits<radix>::Multiply, decltype(This.cbegin()), Data> temp(*OprtPtr, This.cbegin());
 				LargeInteger::LongCmpt<typename LargeInteger::LLCmptTraits<radix>>::AddTo(temp, this->begin());
 				//std::cout << *this << std::endl;
@@ -285,10 +287,10 @@ namespace LargeInteger {
 			static_assert(std::is_integral_v<val>, "Integral type required.");
 			static_assert(!std::is_same_v<val, bool>, "Never use bool type");
 			typename LongCmpt<StdCmptTraits<val>>::template LayerIterator<typename StdCmptTraits<val>::template Divide<radix>, radix_t> it(Val);
-			for (auto index = this->begin(); !!it; ) {
+			for (auto index = this->begin(); it != nullptr; ) {
 				*index = *it;
 				++it;
-				if (!!it) {
+				if (it != nullptr) {
 					++index;
 				}
 			}
@@ -678,10 +680,10 @@ namespace LargeInteger {
 				this->destruct();
 			}
 			typename LongCmpt<StdCmptTraits<Int>>::template LayerIterator<typename StdCmptTraits<Int>::template Divide<radix>, radix_t> it(Val);
-			for (auto index = this->begin(); !!it; ) {
+			for (auto index = this->begin(); it != nullptr; ) {
 				*index = Data(*it);
 				++it;
-				if (!!it) {
+				if (it != nullptr) {
 					++index;
 				}
 			}
