@@ -51,14 +51,12 @@ namespace LargeInteger {
 					(a >= static_cast<Data>((Radix - 1) - b))
 						? true : false)
 					:
-					(a >= static_cast<Data>(Radix - b) 
+					(a >= static_cast<Data>(Radix - b)
 						? true : false));
-				auto &&res= std::pair<Data, Data>(
+				return std::pair<Data, Data>(
 					overflow ? (a - (Radix - b - Carry)) : (a + b + Carry),
 					Data(overflow)
 					);
-				assert(res.first < Radix);
-				return res;
 			};
 		};
 
@@ -96,9 +94,9 @@ namespace LargeInteger {
 						This += wT(Carry);
 						wT &&radix = static_cast<wT>(Radix);
 						return std::pair<Num, Num>(
-							Num(This % radix),
-							Num(This / radix)
-							);
+								Num(This % radix),
+								Num(This / radix)
+								);
 					}
 					else {
 						a *= b;
@@ -107,29 +105,21 @@ namespace LargeInteger {
 					}
 				}
 				else {
-					if constexpr (Radix == Data(0)) {
-						_Bytes<sizeof(Data) * 2> This(a);
-						This *= _Bytes<sizeof(Data) * 2>::Make_s(b);
-						This += _Bytes<sizeof(Data) * 2>::Make_s(Carry);
-						return std::pair<Num, Num>(Num(Data(This)), Num(Data(This >> LargeInteger::BitsPerByte * sizeof(Num))));
+					if constexpr (Radix > std::numeric_limits<Data>::max() / Radix) {
+						_Bytes<GetMinLength(Radix) * 2> This = _Bytes<GetMinLength(Radix) * 2>::Make_s(a);
+						This *= _Bytes<GetMinLength(Radix) * 2>::Make_s(b);
+						This += _Bytes<GetMinLength(Radix) * 2>::Make_s(Carry);
+						_Bytes<GetMinLength(Radix) * 2> radix = _Bytes<GetMinLength(Radix) * 2>::Make_s(Radix);
+						_Bytes<GetMinLength(Radix) * 2> Res = This.Divide(radix);
+						return std::pair<Num, Num>(
+							Num(Data(This)),
+							Num(Data(Res))
+							);
 					}
 					else {
-						if constexpr (Radix > std::numeric_limits<Data>::max() / Radix) {
-							_Bytes<GetMinLength(Radix) * 2> This = _Bytes<GetMinLength(Radix) * 2>::Make_s(a);
-							This *= _Bytes<GetMinLength(Radix) * 2>::Make_s(b);
-							This += _Bytes<GetMinLength(Radix) * 2>::Make_s(Carry);
-							_Bytes<GetMinLength(Radix) * 2> radix = _Bytes<GetMinLength(Radix) * 2>::Make_s(Radix);
-							_Bytes<GetMinLength(Radix) * 2> Res = This.Divide(radix);
-							return std::pair<Num, Num>(
-								Num(Data(This)),
-								Num(Data(Res))
-								);
-						}
-						else {
-							a *= b;
-							a += Carry;
-							return std::pair<Num, Num>(Num(a % Radix), Num(a / Radix));
-						}
+						a *= b;
+						a += Carry;
+						return std::pair<Num, Num>(Num(a % Radix), Num(a / Radix));
 					}
 				}
 			}
