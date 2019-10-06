@@ -308,12 +308,23 @@ namespace LargeInteger {
 			this->data = Data(radix_t(0));
 			auto Ptr = this->begin();
 			auto OprtPtr = b;
-			flagType *thisFlag, *lastFlag = nullptr;
+			flagType *volatile thisFlag, *volatile lastFlag = nullptr;
 			for (size_t i = 0; !(OprtPtr == nullptr); ++OprtPtr, ++i) {
 				if (i != 0)++Ptr;
 				thisFlag = new flagType(0);
+				std::thread thr;
+			#ifdef _DEBUG
+				om.lock();
+				mlog 
+					<< "Master thread is creating " 
+					<< thisFlag 
+					<< ", its identification is " 
+					<< thr.get_id()
+					<< std::endl;
+				om.unlock();
+			#endif // _DEBUG
 
-				std::thread thr = std::thread([OprtPtr, This, Ptr, i, thisFlag, lastFlag]() {
+				thr = std::thread([OprtPtr, This, Ptr, i, thisFlag, lastFlag]() {
 					ParallelMultiplier pm(i == 0, lastFlag, thisFlag);
 					typename LargeInteger
 						::LongCmpt<typename LargeInteger::LLCmptTraits<radix>>
