@@ -7,35 +7,35 @@
 namespace Darkness {
 	template<typename Data, size_t poolSize>
 	class threadPool {
-	protected:
-		template<typename Data, size_t poolSize>
+	public:
 		class Task {
 		public:
-			template<typename... para>Task(size_t index, para...pa) :index_in_pool(index), data(pa) { }
+			Task(size_t index) :index_in_pool(index) { }
 			~Task() {
 				pool.push(index_in_pool);
-			}
-			auto operator()()noexcept {
-				return t();
 			}
 
 		private:
 			threadPool<Data, poolSize> &pool;
 			size_t index_in_pool;
-			const Data &data;
 		};
-	public:
+
 		threadPool() = default;
 		~threadPool() = default;
-		template<typename T,typename... Para>
-		void pop(Para... para)noexcept {
+		template<typename T, typename... Para>
+		size_t pop(Para... para)noexcept {
+			static_assert(
+				std::is_base_of_v<Task, T>, 
+				"To use the pool safely, you must let your class deprived from my class."
+				);
 			std::unique_lock ul(locked_if_being_used);
 			while (!available()) wait_for_thread.wait(ul);
 			auto &&index = find();
 			occupied[index] = true;
-			Task<Data, poolSize>task(index, para);
+			T task(index, para...);
 
 			pool[index] = std::thread(task);
+			return index;
 		}
 		void wait()noexcept {
 			std::unique_lock ul(locked_if_being_used);
