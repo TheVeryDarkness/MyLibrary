@@ -1,7 +1,15 @@
 #pragma once
 #include <mutex>
 
-namespace LargeInteger {
+namespace Darkness {
+	class Empty {
+	public:
+		Empty(){ }
+		~Empty(){ }
+		constexpr bool operator()()const noexcept { return true; }
+	private:
+
+	};
 	template<typename T>
 	class Signal {
 	public:
@@ -32,7 +40,14 @@ namespace LargeInteger {
 			std::unique_lock ul(locked_if_used);
 			this->data = d;
 		}
-		template<typename _Predicate>void wait(_Predicate&& p)noexcept {
+		template<typename Func> static auto both(Signal& a,Signal& b)noexcept {
+			std::unique_lock ula(a.locked_if_used);
+			std::unique_lock ulb(b.locked_if_used);
+			Func func;
+			auto&& res= func(a.data, b.data);
+			return res;
+		}
+		template<typename _Predicate = Empty>void wait(_Predicate && p = Empty())noexcept {
 			std::unique_lock ul(locked_if_used);
 			changed_signal.wait(ul, p);
 		}
