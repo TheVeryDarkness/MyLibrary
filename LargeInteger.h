@@ -257,25 +257,47 @@ namespace LargeInteger {
 		MY_LIB ParallelMultiplier(
 			const bool& prior, flagType *_last, flagType *_now
 		) :prior(prior), last(_last), now(_now) {
-			using namespace std::this_thread;
-			using namespace std::literals::chrono_literals;
-			while (!prior && (*last) <= (*now) + 1) {
-				std::this_thread::sleep_for(100ns);
-			};
-			assert(prior || (*last) >= (*now) + 1);
 			if (now != nullptr) {
 				out.lock();
 				std::cout << now << " in" << std::endl;
 				out.unlock();
 			}
+			using namespace std::this_thread;
+			using namespace std::literals::chrono_literals;
+			size_t sum = 0;
+			while (!prior && (*last) <= (*now) + 1) {
+				out.lock();
+				std::cout << now << " waiting" << std::endl;
+				out.unlock();
+				std::this_thread::sleep_for(100ns);
+				++sum;
+				if (sum > 10) {
+					out.lock();
+					std::cout << now << " terminating" << std::endl;
+					out.unlock();
+					std::terminate();
+				}
+			};
+			assert(prior || (*last) >= (*now) + 1);
 		}
 		MY_LIB ~ParallelMultiplier() = default;
 		void MY_LIB operator()()noexcept {
 			using namespace std::this_thread;
 			using namespace std::literals::chrono_literals;
 			assert(prior || (*last) >= (*now) + 1);
+			size_t sum = 0;
 			while (!prior && (*last) >= (*now) + 1) {
+				out.lock();
+				std::cout << now << " waiting" << std::endl;
+				out.unlock();
 				std::this_thread::sleep_for(100ns);
+				++sum;
+				if (sum > 10) {
+					out.lock();
+					std::cout << now << " terminating" << std::endl;
+					out.unlock();
+					std::terminate();
+				}
 			};
 			assert(prior || (*last) >= (*now) + 1);
 			++ *now;
@@ -334,14 +356,8 @@ namespace LargeInteger {
 					LargeInteger
 						::LongCmpt<typename LargeInteger::LLCmptTraits<radix>>
 						::template AddTo<decltype(temp), decltype(Ptr), ParallelMultiplier>(temp, Ptr, p);
-					if (i == 0) {
-						(*thisFlag)=(- 1);
-					}
 					p.clear();
 					});
-				out.lock();
-				std::cout << "Thread " << thr.get_id() << " in." << std::endl;
-				out.unlock();
 				thr.detach();
 				lastFlag = thisFlag;
 			}
