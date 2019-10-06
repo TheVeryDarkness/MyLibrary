@@ -221,107 +221,6 @@ namespace LargeInteger {
 		}
 		return;
 	}
-	template<typename T>class safeData {
-	public:
-		safeData(const T &data) { 
-			m.lock();
-			this->data = data;
-			m.unlock();
-		}
-		~safeData() { }
-		T operator()() noexcept {
-			m.lock();
-			T copy = data;
-			m.unlock();
-			return data;
-		}
-		void operator++()noexcept {
-			m.lock();
-			++data;
-			m.unlock();
-		}
-		void set(T d)noexcept {
-			m.lock();
-			data = d;
-			m.unlock();
-		}
-	private:
-		T data;
-		std::mutex m;
-	};
-
-	static inline std::mutex out;
-	using flagType=size_t;
-	class ParallelMultiplier {
-	public:
-		MY_LIB ParallelMultiplier(
-			const bool& prior, flagType *_last, flagType *_now
-		) :prior(prior), last(_last), now(_now) {
-			if (now != nullptr) {
-				out.lock();
-				std::cout << now << " in" << std::endl;
-				out.unlock();
-			}
-			using namespace std::this_thread;
-			using namespace std::literals::chrono_literals;
-			size_t sum = 0;
-			while (!prior && (*last) <= (*now) + 1) {
-				out.lock();
-				std::cout << now << " waiting for " << last << std::endl;
-				out.unlock();
-				std::this_thread::sleep_for(100ns);
-				//++sum;
-				//if (sum > 10) {
-				//	out.lock();
-				//	std::cout << now << " terminating" << std::endl;
-				//	out.unlock();
-				//	std::terminate();
-				//}
-			};
-			assert(prior || (*last) >= (*now) + 1);
-		}
-		MY_LIB ~ParallelMultiplier() = default;
-		void MY_LIB operator()()noexcept {
-			using namespace std::this_thread;
-			using namespace std::literals::chrono_literals;
-			assert(prior || (*last) >= (*now) + 1);
-			size_t sum = 0;
-			while (!prior && (*last) >= (*now) + 1) {
-				out.lock();
-				std::cout << now << " waiting for" << last << std::endl;
-				out.unlock();
-				std::this_thread::sleep_for(100ns);
-				//++sum;
-				//if (sum > 10) {
-				//	out.lock();
-				//	std::cout << now << " terminating" << std::endl;
-				//	out.unlock();
-				//	std::terminate();
-				//}
-			};
-			assert(prior || (*last) >= (*now) + 1);
-			++ *now;
-			out.lock();
-			std::cout << now << ' ' << (*now) << std::endl;
-			out.unlock();
-		}
-		void MY_LIB clear() {
-			if (!prior && ((*last) == -1)) {
-				delete last;
-				out.lock();
-				std::cout << last << " deleted " << std::endl;
-				out.unlock();
-			}
-			out.lock();
-			std::cout << now << " out " << std::endl;
-			out.unlock();
-			(*now)=(-1);
-		}
-	private:
-		const flagType *const last;
-		flagType *const now;
-		const bool &prior;
-	};
 
 
 	template<typename LL, typename LL::value_type radix>
@@ -332,6 +231,70 @@ namespace LargeInteger {
 		static_assert(radix >= 0, "Positive radix required.");
 		static_assert(std::is_same_v<radix_t, LL::value_type>, "Value type should be the same");
 		using Data=radix_t;
+		template<typename T>class safeData {
+		public:
+			safeData(const T &data) {
+				m.lock();
+				this->data = data;
+				m.unlock();
+			}
+			~safeData() { }
+			operator const T && () noexcept {
+				m.lock();
+				T copy = data;
+				m.unlock();
+				return std::move(data);
+			}
+			void operator++()noexcept {
+				m.lock();
+				++data;
+				m.unlock();
+			}
+			void operator=(T d)noexcept {
+				m.lock();
+				data = d;
+				m.unlock();
+			}
+		private:
+			T data;
+			std::mutex m;
+		};
+		using rawType=size_t;
+		using flagType=safeData<rawType>;
+		class ParallelMultiplier {
+		public:
+			MY_LIB ParallelMultiplier(
+				const bool &prior, flagType *_last, flagType *_now
+			) :prior(prior), last(_last), now(_now) {
+				using namespace std::literals::chrono_literals;
+				while (!prior &&
+					(*last) <= rawType((*now) + rawType(1))
+					) {
+				};
+				assert(prior || (*last) >= (*now) + 1);
+			}
+			MY_LIB ~ParallelMultiplier() = default;
+			void MY_LIB operator()()noexcept {
+				using namespace std::literals::chrono_literals;
+				assert(prior || (*last) >= (*now) + 1);
+				while (!prior &&
+					((*last) <= rawType((*now) + rawType(1)))
+					) {
+				};
+				assert(prior || (*last) >= (*now) + 1);
+				++ *now;
+			}
+			void MY_LIB clear() {
+				if (!prior && ((*last) == -1)) {
+					delete last;
+				}
+				(*now) = rawType(-1);
+			}
+		private:
+			flagType *const last;
+			flagType *const now;
+			const bool &prior;
+		};
 
 		//Maybe this is the first function I'd use multi-thread optimization?
 		template<typename Cntnr>
@@ -343,8 +306,6 @@ namespace LargeInteger {
 			auto Ptr = this->begin();
 			auto OprtPtr = b;
 			flagType *thisFlag, *lastFlag = nullptr;
-			//std::mutex init;
-
 			for (size_t i = 0; !(OprtPtr == nullptr); ++OprtPtr, ++Ptr, ++i) {
 				thisFlag = new flagType(0);
 				std::thread thr([OprtPtr, This, Ptr, i, thisFlag, lastFlag]() {
@@ -359,18 +320,13 @@ namespace LargeInteger {
 					p.clear();
 					});
 				thr.detach();
-				lastFlag = thisFlag;
+				lastFlag = thisFlag; 
+				std::this_thread::sleep_for(100ns);
 			}
-			out.lock();
-			std::cout << "Main thread hold" << lastFlag << std::endl;
-			out.unlock();
 			assert(lastFlag != nullptr);
 			while ((*lastFlag) != -1)std::this_thread::sleep_for(100ns);
 			assert((*lastFlag) == -1);
 			delete lastFlag;
-			out.lock();
-			std::cout << "All out" << std::endl;
-			out.unlock();
 			This.release();
 		}
 	public:
