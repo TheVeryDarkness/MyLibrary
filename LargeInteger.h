@@ -270,7 +270,7 @@ namespace LargeInteger {
 			}
 			MY_LIB ~ParallelMultiplier() = default;
 			void MY_LIB operator()()noexcept {
-				flagType::both<safe>(*last, *now);
+				//flagType::both<safe>(*last, *now);
 				if (!prior) {
 					while (!flagType::both<safe>(*last, *now)) {
 						last->wait();
