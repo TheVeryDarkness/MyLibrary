@@ -5,6 +5,7 @@
 #include "ComputeTemplate.h"
 #include "_Bytes.h"
 #include "SignalVariable.h"
+#include "ThreadPool.h"
 #include "mylog.h"
 #include <iostream>
 #include <cassert>
@@ -275,8 +276,8 @@ namespace LargeInteger {
 				}
 				assert(prior || flagType::both<safe>(*last, *now));
 			#ifdef _DEBUG
-				om.lock();
 				rawType tmp = *now;
+				om.lock();
 				mlog << now << " running with " << tmp << std::endl;
 				om.unlock();
 			#endif // _DEBUG
@@ -308,23 +309,12 @@ namespace LargeInteger {
 			this->data = Data(radix_t(0));
 			auto Ptr = this->begin();
 			auto OprtPtr = b;
-			flagType *volatile thisFlag, *volatile lastFlag = nullptr;
+			flagType * thisFlag, * lastFlag = nullptr;
 			for (size_t i = 0; !(OprtPtr == nullptr); ++OprtPtr, ++i) {
 				if (i != 0)++Ptr;
 				thisFlag = new flagType(0);
-				std::thread thr;
-			#ifdef _DEBUG
-				om.lock();
-				mlog 
-					<< "Master thread is creating " 
-					<< thisFlag 
-					<< ", its identification is " 
-					<< thr.get_id()
-					<< std::endl;
-				om.unlock();
-			#endif // _DEBUG
 
-				thr = std::thread([OprtPtr, This, Ptr, i, thisFlag, lastFlag]() {
+				std::thread thr = std::thread([OprtPtr, This, Ptr, i, thisFlag, lastFlag]() {
 					ParallelMultiplier pm(i == 0, lastFlag, thisFlag);
 					typename LargeInteger
 						::LongCmpt<typename LargeInteger::LLCmptTraits<radix>>
@@ -335,6 +325,16 @@ namespace LargeInteger {
 						::template AddTo<decltype(temp), decltype(Ptr), ParallelMultiplier>(temp, Ptr, pm);
 					pm.clear();
 					});
+			#ifdef _DEBUG
+				om.lock();
+				mlog
+					<< "Master thread is creating "
+					<< thisFlag
+					<< ", its identification is "
+					<< thr.get_id()
+					<< std::endl;
+				om.unlock();
+			#endif // _DEBUG
 				thr.detach();
 				lastFlag = thisFlag;
 				thisFlag = nullptr;
