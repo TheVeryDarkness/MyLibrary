@@ -5,6 +5,7 @@
 #include "ComputeTemplate.h"
 #include "_Bytes.h"
 #include "ThreadPool.h"
+#include "SignalVariable.h"
 #include <iostream>
 #include <cassert>
 #include <thread>
@@ -232,58 +233,30 @@ namespace LargeInteger {
 		static_assert(radix >= 0, "Positive radix required.");
 		static_assert(std::is_same_v<radix_t, LL::value_type>, "Value type should be the same");
 		using Data=radix_t;
-		template<typename T>class safeData {
-		public:
-			safeData(const T &data) {
-				m.lock();
-				this->data = data;
-				m.unlock();
-			}
-			~safeData() { }
-			operator const T && () noexcept {
-				m.lock();
-				T copy = data;
-				m.unlock();
-				return std::move(copy);
-			}
-			void operator++()noexcept {
-				m.lock();
-				++data;
-				m.unlock();
-			}
-			void operator=(T d)noexcept {
-				m.lock();
-				data = d;
-				m.unlock();
-			}
-		private:
-			T data;
-			std::mutex m;
-		};
 		using rawType=size_t;
-		using flagType=safeData<rawType>;
+		using flagType=Signal<rawType>;
 		class ParallelMultiplier {
 		public:
 			MY_LIB ParallelMultiplier(
 				const bool &prior, flagType *_last, flagType *_now
 			) :prior(prior), last(_last), now(_now) {
-				using namespace std::literals::chrono_literals;
 				while (!prior &&
-					(*last) <= rawType((*now) + rawType(1))
+					((*last) <= rawType((*now) + rawType(1)))
 					) {
-				};
+					last->wait();
+				}
 				assert(prior || (*last) >= (*now) + 1);
 			}
 			MY_LIB ~ParallelMultiplier() = default;
 			void MY_LIB operator()()noexcept {
-				using namespace std::literals::chrono_literals;
 				assert(prior || (*last) >= (*now) + 1);
 				while (!prior &&
 					((*last) <= rawType((*now) + rawType(1)))
 					) {
-				};
+					last->wait();
+				}
 				assert(prior || (*last) >= (*now) + 1);
-				++ *now;
+				++(*now);
 			}
 			void MY_LIB clear() {
 				if (!prior && ((*last) == -1)) {
@@ -307,22 +280,26 @@ namespace LargeInteger {
 			auto Ptr = this->begin();
 			auto OprtPtr = b;
 			flagType *thisFlag, *lastFlag = nullptr;
-			for (size_t i = 0; !(OprtPtr == nullptr); ++OprtPtr, ++Ptr, ++i) {
+			threadPool<8> p;
+			for (size_t i = 0; !(OprtPtr == nullptr); ++OprtPtr, ++i) {
+				if (i != 0)++Ptr;
 				thisFlag = new flagType(0);
-				std::thread thr([OprtPtr, This, Ptr, i, thisFlag, lastFlag]() {
-					ParallelMultiplier p(i == 0, lastFlag, thisFlag);
+
+				//auto& thr = p.pop();
+				std::thread thr = std::thread([OprtPtr, This, Ptr, i, thisFlag, lastFlag]() {
+					ParallelMultiplier pm(i == 0, lastFlag, thisFlag);
 					typename LargeInteger
 						::LongCmpt<typename LargeInteger::LLCmptTraits<radix>>
 						::template LineIterator<typename LargeInteger::LLCmptTraits<radix>::Multiply, decltype(This.cbegin()), Data>
 						temp(*OprtPtr, This.cbegin());
 					LargeInteger
 						::LongCmpt<typename LargeInteger::LLCmptTraits<radix>>
-						::template AddTo<decltype(temp), decltype(Ptr), ParallelMultiplier>(temp, Ptr, p);
-					p.clear();
+						::template AddTo<decltype(temp), decltype(Ptr), ParallelMultiplier>(temp, Ptr, pm);
+					pm.clear();
 					});
 				thr.detach();
+				//p.push(thr);
 				lastFlag = thisFlag; 
-				std::this_thread::sleep_for(100ns);
 			}
 			assert(lastFlag != nullptr);
 			while ((*lastFlag) != -1)std::this_thread::sleep_for(100ns);
