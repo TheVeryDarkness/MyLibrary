@@ -484,9 +484,7 @@ public:
 
 	constexpr bool MY_LIB operator==(const in* _ptr)const noexcept { return this->ptr == _ptr; }
 	constexpr bool MY_LIB operator==(const iterator _ptr)const noexcept { return this->ptr == _ptr.ptr; }
-	constexpr bool MY_LIB operator!=(const in* _ptr)const noexcept { return this->ptr != _ptr; }
-	constexpr bool MY_LIB operator!=(const iterator _ptr)const noexcept { return this->ptr != _ptr.ptr; }
-
+	constexpr bool MY_LIB operator==(nullptr_t)const noexcept { return this->ptr == nullptr; }
 	MY_LIB ~iterator()noexcept = default;
 
 	constexpr iterator& MY_LIB operator++()noexcept {
