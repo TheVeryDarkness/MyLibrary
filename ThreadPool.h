@@ -10,7 +10,7 @@ private:
 	bool occupied[poolSize] = {};
 	std::thread pool[poolSize];
 	std::mutex locked_if_being_used;
-	std::condition_variable_any wait_for_thread;
+	std::condition_variable wait_for_thread;
 	bool available() const noexcept {
 		for (const auto &b : occupied) if (!b)	return true;
 		return false;
@@ -41,7 +41,7 @@ public:
 	std::thread &pop()noexcept {
 		std::unique_lock ul(locked_if_being_used);
 		while (!available()) {
-			wait_for_thread.wait(locked_if_being_used);
+			wait_for_thread.wait(ul);
 		}
 		auto &&index = find();
 		occupied[index] = true;
