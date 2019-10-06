@@ -4,8 +4,8 @@
 #include "Statistics.h"
 #include "ComputeTemplate.h"
 #include "_Bytes.h"
-#include "ThreadPool.h"
 #include "SignalVariable.h"
+#include "mylog.h"
 #include <iostream>
 #include <cassert>
 #include <thread>
@@ -233,29 +233,50 @@ namespace LargeInteger {
 		static_assert(radix >= 0, "Positive radix required.");
 		static_assert(std::is_same_v<radix_t, LL::value_type>, "Value type should be the same");
 		using Data=radix_t;
+
 		using rawType=size_t;
-		using flagType=Signal<rawType>;
+		using flagType=Darkness::Signal<rawType>;
 		class ParallelMultiplier {
+			class safe {
+			public:
+				safe() { }
+				~safe() { }
+				bool operator()(rawType a, rawType b)noexcept {
+					if (a < rawType(b + 1)) {
+						std::cerr << a << ' ' << rawType(b + 1) << std::endl;
+						assert(false);
+					}
+					return (a > rawType(b + 1));
+				}
+			private:
+
+			};
+
 		public:
 			MY_LIB ParallelMultiplier(
 				const bool &prior, flagType *_last, flagType *_now
 			) :prior(prior), last(_last), now(_now) {
+			#ifdef _DEBUG
+				om.lock();
+				mlog << now << " in at " << clock() << std::endl;
+				om.unlock();
+			#endif // _DEBUG
 				if (!prior) {
-					last->wait([&_last, &_now] {
-						return ((*_last) > rawType((*_now) + rawType(1)));
-						});
+					while (!flagType::both<safe>(*last, *now)) {
+						last->wait();
+					}
 				}
-				assert(prior || (*last) >= (*now) + 1);
+				assert(prior || flagType::both<safe>(*last, *now));
 			}
 			MY_LIB ~ParallelMultiplier() = default;
 			void MY_LIB operator()()noexcept {
-				assert(prior || (*last) >= (*now) + 1);
+				flagType::both<safe>(*last, *now);
 				if (!prior) {
-					last->wait([this] {
-						return ((*last) > rawType((*now) + rawType(1)));
-						});
+					while (!flagType::both<safe>(*last, *now)) {
+						last->wait();
+					}
 				}
-				assert(prior || (*last) >= (*now) + 1);
+				assert(prior || flagType::both<safe>(*last, *now));
 				++(*now);
 			}
 			void MY_LIB clear() {
@@ -263,6 +284,11 @@ namespace LargeInteger {
 					delete last;
 				}
 				(*now) = rawType(-1);
+			#ifdef _DEBUG
+				om.lock();
+				mlog << now << " out at " << clock() << std::endl;
+				om.unlock();
+			#endif // _DEBUG
 			}
 		private:
 			flagType *const last;
@@ -280,13 +306,11 @@ namespace LargeInteger {
 			auto Ptr = this->begin();
 			auto OprtPtr = b;
 			flagType *thisFlag, *lastFlag = nullptr;
-			threadPool<8> p;
 			for (size_t i = 0; !(OprtPtr == nullptr); ++OprtPtr, ++i) {
 				if (i != 0)++Ptr;
 				thisFlag = new flagType(0);
 
-				auto& thr = p.pop();
-				thr = std::thread([OprtPtr, This, Ptr, i, thisFlag, lastFlag]() {
+				std::thread thr = std::thread([OprtPtr, This, Ptr, i, thisFlag, lastFlag]() {
 					ParallelMultiplier pm(i == 0, lastFlag, thisFlag);
 					typename LargeInteger
 						::LongCmpt<typename LargeInteger::LLCmptTraits<radix>>
@@ -298,16 +322,29 @@ namespace LargeInteger {
 					pm.clear();
 					});
 				thr.detach();
-				p.push(thr);
-				lastFlag = thisFlag; 
+				lastFlag = thisFlag;
+				thisFlag = nullptr;
+				while ((i & 010) && (*lastFlag) != rawType(-1)) {
+					lastFlag->wait();
+				}
 			}
 			assert(lastFlag != nullptr);
+		#ifdef _DEBUG
+			om.lock();
+			mlog << "Master thread is waiting for " << lastFlag << std::endl;
+			om.unlock();
+		#endif // _DEBUG
 			while ((*lastFlag) != rawType(-1)) {
-				lastFlag->wait([] { return true; });
+				lastFlag->wait();
 			}
 			assert((*lastFlag) == rawType(-1));
 			delete lastFlag;
 			This.release();
+		#ifdef _DEBUG
+			om.lock();
+			mlog << "Master thread out " << std::endl;
+			om.unlock();
+		#endif // _DEBUG
 		}
 	public:
 		static constexpr radix_t getRadix()noexcept { return radix; }
