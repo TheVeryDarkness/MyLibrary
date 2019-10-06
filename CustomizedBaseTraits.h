@@ -16,10 +16,10 @@ namespace LargeInteger {
 		MY_LIB ~BaseSet() = delete;
 		using CharType=_Elem;
 		using IntType=index_type;
-		constexpr static index_type MY_LIB to_int_type(_Elem Char)noexcept {
+		constexpr static index_type MY_LIB to_int_type(_Elem)noexcept {
 			return index_type('?');
 		}
-		constexpr static _Elem MY_LIB to_char_type(index_type Int)noexcept {
+		constexpr static _Elem MY_LIB to_char_type(index_type)noexcept {
 			return _Elem('?');
 		}
 		constexpr static index_type MY_LIB getRadix()noexcept {
