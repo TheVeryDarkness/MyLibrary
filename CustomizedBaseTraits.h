@@ -98,7 +98,11 @@ namespace LargeInteger {
 		static void MY_LIB store(iter temp, Cntnr str)noexcept {
 			static_assert(Math::GetPowerTimes(radix, charset::getRadix()) != 0 || radix == charset::getRadix());
 			if constexpr (radix == charset::getRadix()) {
-				for (auto i = temp.crbegin(); i != temp.crend(); ++i) {
+				auto i = temp.crbegin();
+				while (*i=='0') {
+					++i;
+				}
+				for (; i != temp.crend(); ++i) {
 					auto c = charset::to_int_type(*i);
 					if (c != '?') {
 						*str = c;
@@ -123,11 +127,9 @@ namespace LargeInteger {
 							break;
 						}
 					}
-					if (sum != static_cast<decltype(sum)>(0)) {
-						*str = sum;
-						if (i != temp.crend()) {
-							++str;
-						}
+					*str = sum;
+					if (i != temp.crend()) {
+						++str;
 					}
 				}
 				return;
