@@ -221,8 +221,37 @@ namespace LargeInteger {
 		}
 		return;
 	}
+	template<typename T>class safeData {
+	public:
+		safeData(const T &data) { 
+			m.lock();
+			this->data = data;
+			m.unlock();
+		}
+		~safeData() { }
+		T operator()() noexcept {
+			m.lock();
+			T copy = data;
+			m.unlock();
+			return data;
+		}
+		void operator++()noexcept {
+			m.lock();
+			++data;
+			m.unlock();
+		}
+		void set(T d)noexcept {
+			m.lock();
+			data = d;
+			m.unlock();
+		}
+	private:
+		T data;
+		std::mutex m;
+	};
+
 	static inline std::mutex out;
-	using flagType=std::atomic<size_t>;
+	using flagType=size_t;
 	class ParallelMultiplier {
 	public:
 		MY_LIB ParallelMultiplier(
@@ -230,32 +259,32 @@ namespace LargeInteger {
 		) :prior(prior), last(_last), now(_now) {
 			using namespace std::this_thread;
 			using namespace std::literals::chrono_literals;
-			while (!prior && *last <= (*now) + 1) {
+			while (!prior && (*last) <= (*now) + 1) {
 				std::this_thread::sleep_for(100ns);
 			};
-			assert(prior || *last >= (*now) + 1);
-			out.lock();
+			assert(prior || (*last) >= (*now) + 1);
 			if (now != nullptr) {
+				out.lock();
 				std::cout << now << " in" << std::endl;
+				out.unlock();
 			}
-			out.unlock();
 		}
 		MY_LIB ~ParallelMultiplier() = default;
 		void MY_LIB operator()()noexcept {
 			using namespace std::this_thread;
 			using namespace std::literals::chrono_literals;
-			assert(prior || *last >= (*now) + 1);
-			while (!prior && *last <= (*now) + 1) {
+			assert(prior || (*last) >= (*now) + 1);
+			while (!prior && (*last) >= (*now) + 1) {
 				std::this_thread::sleep_for(100ns);
 			};
-			assert(prior || *last >= (*now) + 1);
+			assert(prior || (*last) >= (*now) + 1);
 			++ *now;
 			out.lock();
-			std::cout << now << ' ' << *now << std::endl;
+			std::cout << now << ' ' << (*now) << std::endl;
 			out.unlock();
 		}
 		void MY_LIB clear() {
-			if (!prior && (*last == -1)) {
+			if (!prior && ((*last) == -1)) {
 				delete last;
 				out.lock();
 				std::cout << last << " deleted " << std::endl;
@@ -264,10 +293,10 @@ namespace LargeInteger {
 			out.lock();
 			std::cout << now << " out " << std::endl;
 			out.unlock();
-			*now = -1;
+			(*now)=(-1);
 		}
 	private:
-		const flagType *const last;
+		flagType *const last;
 		flagType *const now;
 		const bool &prior;
 	};
@@ -306,16 +335,19 @@ namespace LargeInteger {
 						::LongCmpt<typename LargeInteger::LLCmptTraits<radix>>
 						::template AddTo<decltype(temp), decltype(Ptr), ParallelMultiplier>(temp, Ptr, p);
 					if (i == 0) {
-						*thisFlag = -1;
+						(*thisFlag)=(- 1);
 					}
 					p.clear();
 					});
+				out.lock();
+				std::cout << "Thread " << thr.get_id() << " in." << std::endl;
+				out.unlock();
 				thr.detach();
 				lastFlag = thisFlag;
 			}
 			assert(lastFlag != nullptr);
-			while (*lastFlag != -1)std::this_thread::sleep_for(100ns);
-			assert(*lastFlag == -1);
+			while ((*lastFlag) != -1)std::this_thread::sleep_for(100ns);
+			assert((*lastFlag) == -1);
 			delete lastFlag;
 			out.lock();
 			std::cout << "All out" << std::endl;
