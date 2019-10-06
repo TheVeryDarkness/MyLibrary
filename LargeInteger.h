@@ -267,16 +267,16 @@ namespace LargeInteger {
 			size_t sum = 0;
 			while (!prior && (*last) <= (*now) + 1) {
 				out.lock();
-				std::cout << now << " waiting" << std::endl;
+				std::cout << now << " waiting for " << last << std::endl;
 				out.unlock();
 				std::this_thread::sleep_for(100ns);
-				++sum;
-				if (sum > 10) {
-					out.lock();
-					std::cout << now << " terminating" << std::endl;
-					out.unlock();
-					std::terminate();
-				}
+				//++sum;
+				//if (sum > 10) {
+				//	out.lock();
+				//	std::cout << now << " terminating" << std::endl;
+				//	out.unlock();
+				//	std::terminate();
+				//}
 			};
 			assert(prior || (*last) >= (*now) + 1);
 		}
@@ -288,16 +288,16 @@ namespace LargeInteger {
 			size_t sum = 0;
 			while (!prior && (*last) >= (*now) + 1) {
 				out.lock();
-				std::cout << now << " waiting" << std::endl;
+				std::cout << now << " waiting for" << last << std::endl;
 				out.unlock();
 				std::this_thread::sleep_for(100ns);
-				++sum;
-				if (sum > 10) {
-					out.lock();
-					std::cout << now << " terminating" << std::endl;
-					out.unlock();
-					std::terminate();
-				}
+				//++sum;
+				//if (sum > 10) {
+				//	out.lock();
+				//	std::cout << now << " terminating" << std::endl;
+				//	out.unlock();
+				//	std::terminate();
+				//}
 			};
 			assert(prior || (*last) >= (*now) + 1);
 			++ *now;
@@ -318,7 +318,7 @@ namespace LargeInteger {
 			(*now)=(-1);
 		}
 	private:
-		flagType *const last;
+		const flagType *const last;
 		flagType *const now;
 		const bool &prior;
 	};
@@ -361,6 +361,9 @@ namespace LargeInteger {
 				thr.detach();
 				lastFlag = thisFlag;
 			}
+			out.lock();
+			std::cout << "Main thread hold" << lastFlag << std::endl;
+			out.unlock();
 			assert(lastFlag != nullptr);
 			while ((*lastFlag) != -1)std::this_thread::sleep_for(100ns);
 			assert((*lastFlag) == -1);
