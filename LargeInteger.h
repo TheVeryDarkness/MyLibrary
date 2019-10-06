@@ -237,6 +237,31 @@ namespace LargeInteger {
 
 		using rawType=size_t;
 		using flagType=Darkness::Signal<rawType>;
+
+		template<typename ptr1, typename ptr2, typename head>
+		class Runner :public Darkness::template threadPool<8>::Task{
+		private:
+			ptr1 OprtPtr;
+			const head &This;
+			ptr2 Ptr;
+			flagType *thisFlag;
+			flagType *lastFlag;
+		public:
+			Runner() { }
+
+			~Runner() { }
+			void operator()()noexcept {
+				ParallelMultiplier pm(lastFlag, thisFlag);
+				typename LargeInteger
+					::LongCmpt<typename LargeInteger::LLCmptTraits<radix>>
+					::template LineIterator<typename LargeInteger::LLCmptTraits<radix>::Multiply, decltype(This.cbegin()), Data>
+					temp(*OprtPtr, This.cbegin());
+				LargeInteger
+					::LongCmpt<typename LargeInteger::LLCmptTraits<radix>>
+					::template AddTo<decltype(temp), decltype(Ptr), ParallelMultiplier>(temp, Ptr, pm);
+				pm.clear();
+			};
+		};
 		class ParallelMultiplier {
 			class safe {
 			public:
@@ -250,57 +275,32 @@ namespace LargeInteger {
 
 			};
 
-			class Runner :public Darkness::template threadPool<Darkness::Signal<size_t>, 8>::Task{
-			public:
-				Runner() { }
-
-				~Runner() { }
-				void operator()()noexcept {
-ParallelMultiplier pm(i == 0, lastFlag, thisFlag);
-typename LargeInteger
-	::LongCmpt<typename LargeInteger::LLCmptTraits<radix>>
-	::template LineIterator<typename LargeInteger::LLCmptTraits<radix>::Multiply, decltype(This.cbegin()), Data>
-	temp(*OprtPtr, This.cbegin());
-LargeInteger
-	::LongCmpt<typename LargeInteger::LLCmptTraits<radix>>
-	::template AddTo<decltype(temp), decltype(Ptr), ParallelMultiplier>(temp, Ptr, pm);
-pm.clear();
-};
-private:
-	OprtPtr;
-	This;
-	Ptr;
-	i;
-	thisFlag;
-	lastFlag;
-			};
-
 
 		public:
 			MY_LIB ParallelMultiplier(
-				const bool &prior, flagType *_last, flagType *_now
-			) :prior(prior), last(_last), now(_now) {
+				flagType *_last, flagType *_now
+			) :last(_last), now(_now) {
 			#ifdef _DEBUG
 				om.lock();
 				mlog << now << " in at " << clock() << ", following " << last << std::endl;
 				om.unlock();
 			#endif // _DEBUG
-				if (!prior) {
+				if (!last) {
 					while (!flagType::both<safe>(*last, *now)) {
 						last->wait();
 					}
 				}
-				assert(prior || flagType::both<safe>(*last, *now));
+				assert(last == nullptr || flagType::both<safe>(*last, *now));
 			}
 			MY_LIB ~ParallelMultiplier() = default;
 			void MY_LIB operator()()noexcept {
-				prior || flagType::both<safe>(*last, *now);
-				if (!prior) {
+				last == nullptr || flagType::both<safe>(*last, *now);
+				if (!last) {
 					while (!flagType::both<safe>(*last, *now)) {
 						last->wait();
 					}
 				}
-				assert(prior || flagType::both<safe>(*last, *now));
+				assert(last == nullptr || flagType::both<safe>(*last, *now));
 			#ifdef _DEBUG
 				rawType tmp = *now;
 				om.lock();
@@ -310,7 +310,7 @@ private:
 				++(*now);
 			}
 			void MY_LIB clear() {
-				if (!prior && ((*last) == -1)) {
+				if (!last && ((*last) == -1)) {
 					delete last;
 				}
 				(*now) = rawType(-1);
@@ -323,7 +323,6 @@ private:
 		private:
 			flagType *const last;
 			flagType *const now;
-			const bool &prior;
 		};
 
 		//Maybe this is the first function I'd use multi-thread optimization?
