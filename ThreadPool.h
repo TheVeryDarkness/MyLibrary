@@ -5,7 +5,7 @@
 #include <mutex>
 
 namespace Darkness {
-	template<typename Data, size_t poolSize>
+	template<size_t poolSize>
 	class threadPool {
 	public:
 		class Task {
@@ -16,7 +16,7 @@ namespace Darkness {
 			}
 
 		private:
-			threadPool<Data, poolSize> &pool;
+			threadPool<poolSize> &pool;
 			size_t index_in_pool;
 		};
 
@@ -44,7 +44,6 @@ namespace Darkness {
 	private:
 		bool occupied[poolSize] = {};
 		std::thread pool[poolSize];
-		Data data[poolSize];
 		std::mutex locked_if_being_used;
 		std::condition_variable wait_for_thread;
 		bool available() const noexcept {
