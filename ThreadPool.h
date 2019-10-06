@@ -3,6 +3,7 @@
 #include <thread>
 #include <condition_variable>
 #include <mutex>
+#include <functional>
 
 namespace Darkness {
 	template<size_t poolSize>
@@ -10,7 +11,8 @@ namespace Darkness {
 	public:
 		class Task {
 		public:
-			Task(size_t index) :index_in_pool(index) { }
+			Task(threadPool<poolSize> &p, size_t index)
+				:pool(p), index_in_pool(index) { }
 			~Task() {
 				pool.push(index_in_pool);
 			}
@@ -30,11 +32,11 @@ namespace Darkness {
 				);
 			std::unique_lock ul(locked_if_being_used);
 			while (!available()) wait_for_thread.wait(ul);
-			auto &&index = find();
+			auto index = find();
 			occupied[index] = true;
-			T task(index, para...);
-
-			pool[index] = std::thread(task);
+			pool[index] = std::thread([&]() {
+				T t(*this, index, para...);
+				t(); });
 			return index;
 		}
 		void wait()noexcept {
@@ -75,6 +77,7 @@ namespace Darkness {
 		}
 		void push(size_t that)noexcept {
 			std::unique_lock ul(locked_if_being_used);
+			assert(that < poolSize);
 			pool[that].join();
 			occupied[that] = false;
 			wait_for_thread.notify_one();
