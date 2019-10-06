@@ -242,6 +242,7 @@ namespace LargeInteger {
 		template<typename ptr1, typename ptr2, typename head>
 		class Runner :public Darkness::template threadPool<8>::Task{
 			using super = Darkness::template threadPool<8>::Task;
+		using poolType=Darkness::template threadPool<8>;
 		private:
 			ptr1 OprtPtr;
 			const head &This;
@@ -249,9 +250,9 @@ namespace LargeInteger {
 			flagType *thisFlag;
 			flagType *lastFlag;
 		public:
-			Runner(size_t index, const ptr1 &p1, const head &h, const ptr2 &p2,
+			Runner(poolType& p,size_t index, const ptr1 &p1, const head &h, const ptr2 &p2,
 				flagType *f1, flagType *f2)
-				:super(index), OprtPtr(p1), This(h), Ptr(p2), thisFlag(f1), lastFlag(f2) { };
+				:super(p, index), OprtPtr(p1), This(h), Ptr(p2), thisFlag(f1), lastFlag(f2) { };
 
 			~Runner() = default;
 			void operator()()noexcept {
@@ -289,7 +290,7 @@ namespace LargeInteger {
 				mlog << now << " in at " << clock() << ", following " << last << std::endl;
 				om.unlock();
 			#endif // _DEBUG
-				if (!last) {
+				if (last != nullptr) {
 					while (!flagType::both<safe>(*last, *now)) {
 						last->wait();
 					}
@@ -299,7 +300,7 @@ namespace LargeInteger {
 			MY_LIB ~ParallelMultiplier() = default;
 			void MY_LIB operator()()noexcept {
 				last == nullptr || flagType::both<safe>(*last, *now);
-				if (!last) {
+				if (last != nullptr) {
 					while (!flagType::both<safe>(*last, *now)) {
 						last->wait();
 					}
@@ -314,7 +315,7 @@ namespace LargeInteger {
 				++(*now);
 			}
 			void MY_LIB clear() {
-				if (!last && ((*last) == -1)) {
+				if (last != nullptr && ((*last) == -1)) {
 					delete last;
 				}
 				(*now) = rawType(-1);
@@ -344,9 +345,14 @@ namespace LargeInteger {
 					::LongCmpt<typename LargeInteger::LLCmptTraits<radix>>
 					::template LineIterator<typename LargeInteger::LLCmptTraits<radix>::Multiply, decltype(This.cbegin()), Data>
 					temp(*OprtPtr, This.cbegin());
-					temp != end_ptr;
+					;
 					++temp, ++Ptr
-					) *Ptr = *temp;
+					) {
+					*Ptr = *temp;
+					if (temp == end_ptr) {
+						break;
+					}
+				}
 				return;
 			}
 			flagType * thisFlag, * lastFlag = nullptr;
@@ -354,7 +360,7 @@ namespace LargeInteger {
 			for (size_t i = 0; ; ++Ptr, ++OprtPtr, ++i) {
 				thisFlag = new flagType(0);
 
-				size_t thr = p.pop<Runner<decltype(b), decltype(Ptr), decltype(This)>>();
+				size_t thr = p.pop<Runner<decltype(b), decltype(Ptr), decltype(This)>>(OprtPtr, This, Ptr, thisFlag, lastFlag);
 			#ifdef _DEBUG
 				om.lock();
 				mlog << "Master thread is creating " << thisFlag
