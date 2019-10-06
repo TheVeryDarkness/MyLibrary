@@ -32,9 +32,9 @@ namespace LargeInteger {
 			std::unique_lock ul(locked_if_used);
 			this->data = d;
 		}
-		void wait()noexcept {
+		template<typename _Predicate>void wait(_Predicate&& p)noexcept {
 			std::unique_lock ul(locked_if_used);
-			changed_signal.wait(ul);
+			changed_signal.wait(ul, p);
 		}
 	private:
 		T data;
