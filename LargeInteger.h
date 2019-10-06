@@ -240,20 +240,20 @@ namespace LargeInteger {
 			MY_LIB ParallelMultiplier(
 				const bool &prior, flagType *_last, flagType *_now
 			) :prior(prior), last(_last), now(_now) {
-				while (!prior &&
-					((*last) <= rawType((*now) + rawType(1)))
-					) {
-					last->wait();
+				if (!prior) {
+					last->wait([&_last, &_now] {
+						return ((*_last) > rawType((*_now) + rawType(1)));
+						});
 				}
 				assert(prior || (*last) >= (*now) + 1);
 			}
 			MY_LIB ~ParallelMultiplier() = default;
 			void MY_LIB operator()()noexcept {
 				assert(prior || (*last) >= (*now) + 1);
-				while (!prior &&
-					((*last) <= rawType((*now) + rawType(1)))
-					) {
-					last->wait();
+				if (!prior) {
+					last->wait([this] {
+						return ((*last) > rawType((*now) + rawType(1)));
+						});
 				}
 				assert(prior || (*last) >= (*now) + 1);
 				++(*now);
@@ -285,8 +285,8 @@ namespace LargeInteger {
 				if (i != 0)++Ptr;
 				thisFlag = new flagType(0);
 
-				//auto& thr = p.pop();
-				std::thread thr = std::thread([OprtPtr, This, Ptr, i, thisFlag, lastFlag]() {
+				auto& thr = p.pop();
+				thr = std::thread([OprtPtr, This, Ptr, i, thisFlag, lastFlag]() {
 					ParallelMultiplier pm(i == 0, lastFlag, thisFlag);
 					typename LargeInteger
 						::LongCmpt<typename LargeInteger::LLCmptTraits<radix>>
@@ -298,12 +298,14 @@ namespace LargeInteger {
 					pm.clear();
 					});
 				thr.detach();
-				//p.push(thr);
+				p.push(thr);
 				lastFlag = thisFlag; 
 			}
 			assert(lastFlag != nullptr);
-			while ((*lastFlag) != -1)std::this_thread::sleep_for(100ns);
-			assert((*lastFlag) == -1);
+			while ((*lastFlag) != rawType(-1)) {
+				lastFlag->wait([] { return true;; });
+			}
+			assert((*lastFlag) == rawType(-1));
 			delete lastFlag;
 			This.release();
 		}
