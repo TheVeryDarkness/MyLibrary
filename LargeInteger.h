@@ -303,7 +303,7 @@ namespace LargeInteger {
 			}
 			assert(lastFlag != nullptr);
 			while ((*lastFlag) != rawType(-1)) {
-				lastFlag->wait([] { return true;; });
+				lastFlag->wait([] { return true; });
 			}
 			assert((*lastFlag) == rawType(-1));
 			delete lastFlag;
