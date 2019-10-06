@@ -7,6 +7,7 @@
 #include "SignalVariable.h"
 #include "ThreadPool.h"
 #include "mylog.h"
+#include "end_ptr.h"
 #include <iostream>
 #include <cassert>
 #include <thread>
@@ -240,6 +241,7 @@ namespace LargeInteger {
 
 		template<typename ptr1, typename ptr2, typename head>
 		class Runner :public Darkness::template threadPool<8>::Task{
+			using super = Darkness::template threadPool<8>::Task;
 		private:
 			ptr1 OprtPtr;
 			const head &This;
@@ -247,9 +249,11 @@ namespace LargeInteger {
 			flagType *thisFlag;
 			flagType *lastFlag;
 		public:
-			Runner() { }
+			Runner(size_t index, const ptr1 &p1, const head &h, const ptr2 &p2,
+				flagType *f1, flagType *f2)
+				:super(index), OprtPtr(p1), This(h), Ptr(p2), thisFlag(f1), lastFlag(f2) { };
 
-			~Runner() { }
+			~Runner() = default;
 			void operator()()noexcept {
 				ParallelMultiplier pm(lastFlag, thisFlag);
 				typename LargeInteger
@@ -334,28 +338,34 @@ namespace LargeInteger {
 			this->data = Data(radix_t(0));
 			auto Ptr = this->begin();
 			auto OprtPtr = b;
+			bool ending = (OprtPtr + 1 == nullptr);
+			if (ending) {
+				for (typename LargeInteger
+					::LongCmpt<typename LargeInteger::LLCmptTraits<radix>>
+					::template LineIterator<typename LargeInteger::LLCmptTraits<radix>::Multiply, decltype(This.cbegin()), Data>
+					temp(*OprtPtr, This.cbegin());
+					temp != end_ptr;
+					++temp, ++Ptr
+					) *Ptr = *temp;
+				return;
+			}
 			flagType * thisFlag, * lastFlag = nullptr;
-			for (size_t i = 0; !(OprtPtr == nullptr); ++OprtPtr, ++i) {
-				if (i != 0)++Ptr;
+			Darkness::threadPool<8> p;
+			for (size_t i = 0; ; ++Ptr, ++OprtPtr, ++i) {
 				thisFlag = new flagType(0);
 
-				std::thread thr = std::thread();
+				size_t thr = p.pop<Runner<decltype(b), decltype(Ptr), decltype(This)>>();
 			#ifdef _DEBUG
 				om.lock();
-				mlog
-					<< "Master thread is creating "
-					<< thisFlag
-					<< ", its identification is "
-					<< thr.get_id()
-					<< std::endl;
+				mlog << "Master thread is creating " << thisFlag
+					<< ", its identification is " << p[thr].get_id() << std::endl;
 				om.unlock();
 			#endif // _DEBUG
-				thr.detach();
 				lastFlag = thisFlag;
 				thisFlag = nullptr;
-				while ((i & 0b10000) && (*lastFlag) != rawType(-1)) {
-					lastFlag->wait();
-				}
+
+				if (ending) break; 
+				ending = (OprtPtr + 1 == nullptr);
 			}
 			assert(lastFlag != nullptr);
 		#ifdef _DEBUG
