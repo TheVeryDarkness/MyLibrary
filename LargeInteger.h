@@ -4,6 +4,7 @@
 #include "Statistics.h"
 #include "ComputeTemplate.h"
 #include "_Bytes.h"
+#include "ThreadPool.h"
 #include <iostream>
 #include <cassert>
 #include <thread>
