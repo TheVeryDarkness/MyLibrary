@@ -221,8 +221,8 @@ namespace LargeInteger {
 		}
 		return;
 	}
-	std::mutex out;
-	using flagType=size_t;
+	static inline std::mutex out;
+	using flagType=std::atomic<size_t>;
 	class ParallelMultiplier {
 	public:
 		MY_LIB ParallelMultiplier(
@@ -257,6 +257,9 @@ namespace LargeInteger {
 		void MY_LIB clear() {
 			if (!prior && (*last == -1)) {
 				delete last;
+				out.lock();
+				std::cout << last << " deleted " << std::endl;
+				out.unlock();
 			}
 			out.lock();
 			std::cout << now << " out " << std::endl;
@@ -288,10 +291,11 @@ namespace LargeInteger {
 			this->data = Data(radix_t(0));
 			auto Ptr = this->begin();
 			auto OprtPtr = b;
-			flagType *thisFlag = new flagType(0), *lastFlag = nullptr , *tail = thisFlag;
+			flagType *thisFlag, *lastFlag = nullptr;
 			//std::mutex init;
 
 			for (size_t i = 0; !(OprtPtr == nullptr); ++OprtPtr, ++Ptr, ++i) {
+				thisFlag = new flagType(0);
 				std::thread thr([OprtPtr, This, Ptr, i, thisFlag, lastFlag]() {
 					ParallelMultiplier p(i == 0, lastFlag, thisFlag);
 					typename LargeInteger
@@ -308,9 +312,8 @@ namespace LargeInteger {
 					});
 				thr.detach();
 				lastFlag = thisFlag;
-
-				std::this_thread::sleep_for(100ns);
 			}
+			assert(lastFlag != nullptr);
 			while (*lastFlag != -1)std::this_thread::sleep_for(100ns);
 			assert(*lastFlag == -1);
 			delete lastFlag;
