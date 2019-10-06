@@ -244,7 +244,7 @@ namespace LargeInteger {
 				m.lock();
 				T copy = data;
 				m.unlock();
-				return std::move(data);
+				return std::move(copy);
 			}
 			void operator++()noexcept {
 				m.lock();
