@@ -5,26 +5,37 @@
 #include <mutex>
 
 namespace Darkness {
-
-
 	template<typename Data, size_t poolSize>
 	class threadPool {
+	protected:
+		template<typename Data, size_t poolSize>
+		class Task {
+		public:
+			template<typename... para>Task(size_t index, para...pa) :index_in_pool(index), data(pa) { }
+			~Task() {
+				pool.push(index_in_pool);
+			}
+			auto operator()()noexcept {
+				return t();
+			}
+
+		private:
+			threadPool<Data, poolSize> &pool;
+			size_t index_in_pool;
+			const Data &data;
+		};
 	public:
 		threadPool() = default;
 		~threadPool() = default;
-		template<typename T>
-		void pop(Task<Data, poolSize> task)noexcept {
+		template<typename T,typename... Para>
+		void pop(Para... para)noexcept {
 			std::unique_lock ul(locked_if_being_used);
 			while (!available()) wait_for_thread.wait(ul);
 			auto &&index = find();
 			occupied[index] = true;
+			Task<Data, poolSize>task(index, para);
 
 			pool[index] = std::thread(task);
-		}
-		void push(size_t that)noexcept {
-			std::unique_lock ul(locked_if_being_used);
-			occupied[that] = false;
-			wait_for_thread.notify_one();
 		}
 		void wait()noexcept {
 			std::unique_lock ul(locked_if_being_used);
@@ -60,21 +71,11 @@ namespace Darkness {
 			assert(i < poolSize);
 			return size_t(-1);
 		}
-	};
-	template<typename Data, size_t poolSize>
-	class Task {
-	public:
-		template<typename... para>Task(size_t index, para...pa) :index_in_pool(index), t(pa) { }
-		~Task() { 
-			pool.push(index_in_pool);
+		void push(size_t that)noexcept {
+			std::unique_lock ul(locked_if_being_used);
+			pool[that].join();
+			occupied[that] = false;
+			wait_for_thread.notify_one();
 		}
-		auto operator()()noexcept {
-			return t();
-		}
-
-	private:
-		threadPool<Data, poolSize> &pool;
-		size_t index_in_pool;
-		const Data &data;
 	};
 }
