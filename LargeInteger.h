@@ -242,10 +242,7 @@ namespace LargeInteger {
 				safe() { }
 				~safe() { }
 				bool operator()(rawType a, rawType b)noexcept {
-					if (a < rawType(b + 1)) {
-						std::cerr << a << ' ' << rawType(b + 1) << std::endl;
-						assert(false);
-					}
+					assert(a == 0 || a >= rawType(b + 1));
 					return (a > rawType(b + 1));
 				}
 			private:
@@ -258,7 +255,7 @@ namespace LargeInteger {
 			) :prior(prior), last(_last), now(_now) {
 			#ifdef _DEBUG
 				om.lock();
-				mlog << now << " in at " << clock() << std::endl;
+				mlog << now << " in at " << clock() << ", following " << last << std::endl;
 				om.unlock();
 			#endif // _DEBUG
 				if (!prior) {
@@ -270,13 +267,19 @@ namespace LargeInteger {
 			}
 			MY_LIB ~ParallelMultiplier() = default;
 			void MY_LIB operator()()noexcept {
-				//flagType::both<safe>(*last, *now);
+				prior || flagType::both<safe>(*last, *now);
 				if (!prior) {
 					while (!flagType::both<safe>(*last, *now)) {
 						last->wait();
 					}
 				}
 				assert(prior || flagType::both<safe>(*last, *now));
+			#ifdef _DEBUG
+				om.lock();
+				rawType tmp = *now;
+				mlog << now << " running with " << tmp << std::endl;
+				om.unlock();
+			#endif // _DEBUG
 				++(*now);
 			}
 			void MY_LIB clear() {
@@ -324,7 +327,7 @@ namespace LargeInteger {
 				thr.detach();
 				lastFlag = thisFlag;
 				thisFlag = nullptr;
-				while ((i & 010) && (*lastFlag) != rawType(-1)) {
+				while ((i & 0b10000) && (*lastFlag) != rawType(-1)) {
 					lastFlag->wait();
 				}
 			}
