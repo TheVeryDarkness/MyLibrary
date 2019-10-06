@@ -250,6 +250,32 @@ namespace LargeInteger {
 
 			};
 
+			class Runner :public Darkness::template threadPool<Darkness::Signal<size_t>, 8>::Task{
+			public:
+				Runner() { }
+
+				~Runner() { }
+				void operator()()noexcept {
+ParallelMultiplier pm(i == 0, lastFlag, thisFlag);
+typename LargeInteger
+	::LongCmpt<typename LargeInteger::LLCmptTraits<radix>>
+	::template LineIterator<typename LargeInteger::LLCmptTraits<radix>::Multiply, decltype(This.cbegin()), Data>
+	temp(*OprtPtr, This.cbegin());
+LargeInteger
+	::LongCmpt<typename LargeInteger::LLCmptTraits<radix>>
+	::template AddTo<decltype(temp), decltype(Ptr), ParallelMultiplier>(temp, Ptr, pm);
+pm.clear();
+};
+private:
+	OprtPtr;
+	This;
+	Ptr;
+	i;
+	thisFlag;
+	lastFlag;
+			};
+
+
 		public:
 			MY_LIB ParallelMultiplier(
 				const bool &prior, flagType *_last, flagType *_now
@@ -314,17 +340,7 @@ namespace LargeInteger {
 				if (i != 0)++Ptr;
 				thisFlag = new flagType(0);
 
-				std::thread thr = std::thread([OprtPtr, This, Ptr, i, thisFlag, lastFlag]() {
-					ParallelMultiplier pm(i == 0, lastFlag, thisFlag);
-					typename LargeInteger
-						::LongCmpt<typename LargeInteger::LLCmptTraits<radix>>
-						::template LineIterator<typename LargeInteger::LLCmptTraits<radix>::Multiply, decltype(This.cbegin()), Data>
-						temp(*OprtPtr, This.cbegin());
-					LargeInteger
-						::LongCmpt<typename LargeInteger::LLCmptTraits<radix>>
-						::template AddTo<decltype(temp), decltype(Ptr), ParallelMultiplier>(temp, Ptr, pm);
-					pm.clear();
-					});
+				std::thread thr = std::thread();
 			#ifdef _DEBUG
 				om.lock();
 				mlog
