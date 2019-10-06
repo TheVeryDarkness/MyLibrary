@@ -41,6 +41,9 @@ namespace Darkness {
 			std::unique_lock ul(locked_if_being_used);
 			wait_for_thread.wait(ul);
 		}
+		const std::thread &operator[](size_t index)noexcept {
+			return pool[index];
+		}
 	private:
 		bool occupied[poolSize] = {};
 		std::thread pool[poolSize];
