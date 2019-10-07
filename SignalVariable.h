@@ -17,7 +17,7 @@ namespace Darkness {
 	public:
 		Signal(const T &data) :data(data) { }
 		~Signal() { changed_signal.notify_all(); }
-		operator T()noexcept {
+		[[deprecated]]operator T()noexcept {
 			std::unique_lock ul(locked_if_used);
 			T copy = data;
 			return copy;
@@ -27,7 +27,7 @@ namespace Darkness {
 				std::unique_lock ul(locked_if_used);
 				++data;
 			}
-			changed_signal.notify_one();
+			changed_signal.notify_all();
 			return ;
 		}
 		void operator--()noexcept {
@@ -35,7 +35,7 @@ namespace Darkness {
 				std::unique_lock ul(locked_if_used);
 				--data;
 			}
-			changed_signal.notify_one();
+			changed_signal.notify_all();
 			return ;
 		}
 		void operator=(T d)noexcept {
