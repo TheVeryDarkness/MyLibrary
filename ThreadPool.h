@@ -7,22 +7,27 @@
 #include <functional>
 
 namespace Darkness {
+
 	template<typename T, size_t poolSize>
 	class taskAssembly {
 	public:
 		class Task {
 		public:
-			Task(taskAssembly<poolSize> &p, size_t index)
-				:pool(p), index_in_pool(index) { }
+			Task(taskAssembly &p, size_t index)
+				:pool(p), index_in_pool(index) {
+				pool.locked_if_busy[index_in_pool].lock();
+			}
 			~Task() {
+				pool.locked_if_busy[index_in_pool].unlock();
 				pool.push(index_in_pool);
 			}
 			Task(const Task &that) = delete;
 			Task(Task &&that) = delete;
 		private:
-			taskAssembly<poolSize> &pool;
+			taskAssembly &pool;
 			size_t index_in_pool;
 		};
+
 		static_assert(
 			std::is_base_of_v<Task, T>,
 			"To use the pool safely, you must let your class deprived from my class."
@@ -69,9 +74,10 @@ namespace Darkness {
 			return pool[index];
 		}
 	private:
+		bool busy[poolSize];
 		std::thread pool[poolSize];
 		std::mutex locked_if_busy[poolSize];
-		std::condition_variable wait_for_free[poolSize];
+		std::condition_variable wait_for_data[poolSize];
 		std::mutex locked_if_being_used;
 		std::condition_variable wait_for_thread;
 
@@ -82,7 +88,9 @@ namespace Darkness {
 		size_t find() const noexcept {
 			size_t i = 0;
 			for (; i < poolSize; ++i) {
-				if (locked_if_busy[i].try_lock())	return i;
+				if (!busy[i]) {
+					return i;
+				}
 			}
 			assert(i < poolSize);
 			return size_t(-1);
