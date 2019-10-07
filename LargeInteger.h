@@ -291,21 +291,22 @@ namespace LargeInteger {
 				om.unlock();
 			#endif // _DEBUG
 				if (last != nullptr) {
-					while (!flagType::both<safe>(*last, *now)) {
+					rawType tmp = *now;
+					safe s;
+					while (!s(*last, tmp)) {
 						last->wait();
 					}
 				}
-				assert(last == nullptr || flagType::both<safe>(*last, *now));
 			}
 			MY_LIB ~ParallelMultiplier() = default;
 			void MY_LIB operator()()noexcept {
-				last == nullptr || flagType::both<safe>(*last, *now);
 				if (last != nullptr) {
-					while (!flagType::both<safe>(*last, *now)) {
+					rawType tmp = *now;
+					safe s;
+					while (!s(*last, tmp)) {
 						last->wait();
 					}
 				}
-				assert(last == nullptr || flagType::both<safe>(*last, *now));
 			#ifdef _DEBUG
 				rawType tmp = *now;
 				om.lock();
@@ -382,6 +383,7 @@ namespace LargeInteger {
 			while ((*lastFlag) != rawType(-1)) {
 				lastFlag->wait();
 			}
+			assert(p.empty());
 			assert((*lastFlag) == rawType(-1));
 			delete lastFlag;
 			This.release();
