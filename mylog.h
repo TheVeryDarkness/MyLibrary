@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <mutex>
+#include <cassert>
 
 class safe_ofstream {
 public:
