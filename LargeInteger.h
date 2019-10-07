@@ -240,9 +240,9 @@ namespace LargeInteger {
 		using flagType=Darkness::Signal<rawType>;
 
 		template<typename ptr1, typename ptr2, typename head>
-		class Runner :public Darkness::template threadPool<8>::Task{
-			using super = Darkness::template threadPool<8>::Task;
-		using poolType=Darkness::template threadPool<8>;
+		class Runner :public Darkness::template taskAssembly<8>::Task{
+			using super = Darkness::template taskAssembly<8>::Task;
+		using poolType=Darkness::template taskAssembly<8>;
 		private:
 			ptr1 OprtPtr;
 			const head &This;
@@ -357,7 +357,7 @@ namespace LargeInteger {
 				return;
 			}
 			flagType * thisFlag, * lastFlag = nullptr;
-			Darkness::threadPool<8> p;
+			Darkness::taskAssembly<8> p;
 			for (;; ++Ptr, ++OprtPtr) {
 				thisFlag = new flagType(0);
 
