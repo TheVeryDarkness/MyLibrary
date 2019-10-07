@@ -358,7 +358,7 @@ namespace LargeInteger {
 			}
 			flagType * thisFlag, * lastFlag = nullptr;
 			Darkness::threadPool<8> p;
-			for (size_t i = 0; ; ++Ptr, ++OprtPtr, ++i) {
+			for (;; ++Ptr, ++OprtPtr) {
 				thisFlag = new flagType(0);
 
 				size_t thr = p.pop<Runner<decltype(b), decltype(Ptr), decltype(This)>>(OprtPtr, This, Ptr, thisFlag, lastFlag);
@@ -370,28 +370,39 @@ namespace LargeInteger {
 			#endif // _DEBUG
 				lastFlag = thisFlag;
 				thisFlag = nullptr;
-
-				if (ending) break; 
 				ending = (OprtPtr + 1 == nullptr);
+				if (ending) {
+					++Ptr, ++OprtPtr;
+					thisFlag = new flagType(0);
+					ParallelMultiplier pm(lastFlag, thisFlag);
+					typename LargeInteger
+						::LongCmpt<typename LargeInteger::LLCmptTraits<radix>>
+						::template LineIterator<typename LargeInteger::LLCmptTraits<radix>::Multiply, decltype(This.cbegin()), Data>
+						temp(*OprtPtr, This.cbegin());
+					LargeInteger
+						::LongCmpt<typename LargeInteger::LLCmptTraits<radix>>
+						::template AddTo<decltype(temp), decltype(Ptr), ParallelMultiplier>(temp, Ptr, pm);
+				#ifdef _DEBUG
+					om.lock();
+					mlog << thisFlag << " (Master thread) is waiting for " << lastFlag << std::endl;
+					om.unlock();
+				#endif // _DEBUG
+					lastFlag->wait_for_value(rawType(-1));
+					pm.clear();
+					while (!p.empty()) {
+						p.wait();
+					}
+					assert(p.empty());
+				#ifdef _DEBUG
+					om.lock();
+					mlog << thisFlag << " out.(Master thread)" << std::endl;
+					om.unlock();
+				#endif // _DEBUG
+					delete thisFlag;
+					break;
+				}
 			}
-			assert(lastFlag != nullptr);
-		#ifdef _DEBUG
-			om.lock();
-			mlog << "Master thread is waiting for " << lastFlag << std::endl;
-			om.unlock();
-		#endif // _DEBUG
-			while ((*lastFlag) != rawType(-1)) {
-				lastFlag->wait();
-			}
-			assert(p.empty());
-			assert((*lastFlag) == rawType(-1));
-			delete lastFlag;
 			This.release();
-		#ifdef _DEBUG
-			om.lock();
-			mlog << "Master thread out " << std::endl;
-			om.unlock();
-		#endif // _DEBUG
 		}
 	public:
 		static constexpr radix_t getRadix()noexcept { return radix; }
