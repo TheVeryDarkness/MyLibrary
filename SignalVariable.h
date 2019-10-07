@@ -16,7 +16,9 @@ namespace Darkness {
 	class Signal {
 	public:
 		Signal(const T &data) :data(data) { }
-		~Signal() { }
+		~Signal() {
+			std::unique_lock ul(locked_if_used);
+		}
 		[[deprecated]]operator T()noexcept {
 			std::unique_lock ul(locked_if_used);
 			T copy = data;
