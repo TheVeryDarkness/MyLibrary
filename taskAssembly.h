@@ -1,6 +1,7 @@
 #pragma once
 
 #include "mylog.h"
+#include "VisualStudioDebug.h"
 #include <thread>
 #include <condition_variable>
 #include <mutex>
@@ -55,7 +56,8 @@ namespace Darkness {
 				w.notify_all();
 			}
 			for (auto &t : pool) {
-				if (t.joinable())t.join();
+				if (t.joinable())
+					t.join();
 			}
 			for (auto &d : data) {
 				if (d != nullptr) {
@@ -64,27 +66,26 @@ namespace Darkness {
 				}
 			}
 		}
-		template<typename T>size_t pop(std::tuple<Para...> para)noexcept {
+		template<typename T>size_t pop(Para... para)noexcept {
 			using namespace std::literals::chrono_literals;
 			std::unique_lock ul(locked_if_being_used);
 			while (!available()) wait_for_thread.wait_for(ul, 1ns);
 			auto index = find();
 			busy[index] = true;
-			if (this->data[index] != nullptr) {
+			if (this->data[index] != nullptr)
 				delete this->data[index];
-			}
-			this->data[index] = DBG_NEW std::tuple(para);
+			this->data[index] = DBG_NEW std::tuple(para...);
 			if (!pool[index].joinable()) {
-				pool[index] = std::thread([this, index]() {
+				pool[index] = std::thread([&, this, index]() {
 					std::unique_lock ul(locked_if_busy[index]);
 
 					while (!no_more_data) {
 						{
-							T t(*data[index]);
-							t();
+							T t;
+							t(std::get<Para>(*data[index])...);
 						}
 						push(index);
-						wait_for_data[index].wait(ul);
+						wait_for_data[index].wait_for(ul, 1ns);
 					}
 					});
 			#ifdef _LOG
