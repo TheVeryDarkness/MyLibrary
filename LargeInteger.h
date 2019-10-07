@@ -240,9 +240,9 @@ namespace LargeInteger {
 		using flagType=Darkness::Signal<rawType>;
 
 		template<typename ptr1, typename ptr2, typename head>
-		class Runner :public Darkness::template taskAssembly<8>::Task{
-			using super = Darkness::template taskAssembly<8>::Task;
-		using poolType=Darkness::template taskAssembly<8>;
+		class Runner :public Darkness::template taskAssembly<Runner<ptr1,ptr2,head>, 8>::Task{
+			using poolType=Darkness::template taskAssembly<Runner, 8>;
+			using super = typename poolType::Task;
 		private:
 			ptr1 OprtPtr;
 			const head &This;
@@ -357,11 +357,11 @@ namespace LargeInteger {
 				return;
 			}
 			flagType * thisFlag, * lastFlag = nullptr;
-			Darkness::taskAssembly<8> p;
+			Darkness::taskAssembly<Runner<decltype(b), decltype(Ptr), decltype(This)>, 8> p;
 			for (;; ++Ptr, ++OprtPtr) {
 				thisFlag = new flagType(0);
 
-				size_t thr = p.pop<Runner<decltype(b), decltype(Ptr), decltype(This)>>(OprtPtr, This, Ptr, thisFlag, lastFlag);
+				size_t thr = p.pop(OprtPtr, This, Ptr, thisFlag, lastFlag);
 			#ifdef _LOG
 				om.lock();
 				mlog << "Master thread is creating " << thisFlag
