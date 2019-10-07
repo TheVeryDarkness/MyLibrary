@@ -363,7 +363,7 @@ namespace LargeInteger {
 			for (;; ++Ptr, ++OprtPtr) {
 				thisFlag = new flagType(0);
 
-				size_t thr = p.pop<Runner<decltype(b), decltype(Ptr), decltype(This)>>(OprtPtr, This, Ptr, thisFlag, lastFlag);
+				size_t thr = p.pop<Runner<decltype(b), decltype(Ptr), const decltype(This) &>>(std::tuple(OprtPtr, This, Ptr, thisFlag, lastFlag));
 			#ifdef _LOG
 				om.lock();
 				mlog << "Master thread is creating " << thisFlag
