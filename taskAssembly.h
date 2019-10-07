@@ -3,8 +3,8 @@
 #include "mylog.h"
 #include "VisualStudioDebug.h"
 #include <thread>
-#include <condition_variable>
 #include <mutex>
+#include <condition_variable>
 #include <tuple>
 
 namespace Darkness {
@@ -88,7 +88,7 @@ namespace Darkness {
 						while (!this->no_more_data) {
 							std::unique_lock ul(*locked_busy);
 							while (!(*freshed)) {
-								wait_data->wait(ul);
+								wait_data->wait_for(ul, 1ns);
 							}
 							assert(*freshed == true);
 							t(std::get<Para>(**priv_data)...);
