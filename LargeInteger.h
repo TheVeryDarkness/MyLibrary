@@ -4,16 +4,8 @@
 #include "Statistics.h"
 #include "ComputeTemplate.h"
 #include "_Bytes.h"
-#include "SignalVariable.h"
-#include "taskAssembly.h"
-#include "mylog.h"
-#include "end_ptr.h"
-#include <memory>
 #include <iostream>
 #include <cassert>
-#include <thread>
-#include <atomic>
-#include <mutex>
 
 namespace LargeInteger {
 	template<typename LL, typename LL::value_type radix> class LargeUnsigned;
@@ -227,7 +219,6 @@ namespace LargeInteger {
 		return;
 	}
 
-
 	template<typename LL, typename LL::value_type radix>
 	class LargeUnsigned :protected LL {
 	protected:
@@ -237,173 +228,17 @@ namespace LargeInteger {
 		static_assert(std::is_same_v<radix_t, typename LL::value_type>, "Value type should be the same");
 		using Data = radix_t;
 
-		using rawType = size_t;
-		using flagType = typename Darkness::Signal<rawType>;
-
-		template<typename ptr1, typename ptr2, typename head>
-		class Runner {
-			using poolType = Darkness::template taskAssembly<8, ptr1, ptr2, head, flagType *, flagType *>;
-		private:
-			ptr1 OprtPtr;
-			const head &This;
-			ptr2 Ptr;
-			flagType *thisFlag;
-			flagType *lastFlag;
-		public:
-			Runner(std::tuple<ptr1, const head &, ptr2, flagType *, flagType *>tu)
-				:OprtPtr(std::get<0>(tu)), This(std::get<1>(tu)), Ptr(std::get<2>(tu)), thisFlag(std::get<3>(tu)), lastFlag(std::get<4>(tu)) { };
-
-			Runner(const ptr1 &p1, const head &h, const ptr2 &p2,
-				flagType *f1, flagType *f2)
-				:OprtPtr(p1), This(h), Ptr(p2), thisFlag(f1), lastFlag(f2) { };
-
-			~Runner() = default;
-			void operator()()noexcept {
-				ParallelMultiplier pm(lastFlag, thisFlag);
-				typename LargeInteger
-					::LongCmpt<typename LargeInteger::LLCmptTraits<radix>>
-					::template LineIterator<typename LargeInteger::LLCmptTraits<radix>::Multiply, decltype(This.cbegin()), Data>
-					temp(*OprtPtr, This.cbegin());
-				LargeInteger
-					::LongCmpt<typename LargeInteger::LLCmptTraits<radix>>
-					::template AddTo<decltype(temp), decltype(Ptr), ParallelMultiplier>(temp, Ptr, pm);
-			};
-		};
-		class ParallelMultiplier {
-			class safe {
-			public:
-				safe() { }
-				~safe() { }
-				bool operator()(rawType a, rawType b)noexcept {
-					assert(a == 0 || a >= rawType(b + 1));
-					return (a > rawType(b + 1));
-				}
-			private:
-
-			};
-		private:
-			std::shared_ptr<flagType> last;
-			std::shared_ptr<flagType> const now;
-		public:
-			MY_LIB ParallelMultiplier(
-				decltype(last) _last, decltype(now) _now
-			) :last(_last), now(_now) {
-			#ifdef _LOG
-				om.lock();
-				mlog << now << " in at " << clock() << ", following " << last << std::endl;
-				om.unlock();
-			#endif // _LOG
-				if (last != nullptr) {
-					rawType tmp = *now + 1;
-					last->wait_for_more_than(tmp);
-				}
-			}
-			MY_LIB ~ParallelMultiplier() {
-				if (last != nullptr) {
-					last->wait_for_value(rawType(-1));
-					assert((*last) == -1);
-				#ifdef _LOG
-					om.lock();
-					mlog << last.get() << " : " << last.use_count() << std::endl;
-					om.unlock();
-				#endif // _LOG
-				}
-			#ifdef _LOG
-				rawType tmp = *now;
-				om.lock();
-				mlog << now << " out at " << clock() << " with " << tmp << std::endl;
-				om.unlock();
-			#endif // _LOG
-				*now = rawType(-1);
-			}
-			void MY_LIB operator()()noexcept {
-				if (last != nullptr) {
-					rawType tmp = *now + 1;
-					last->wait_for_more_than(tmp);
-					assert(*last > tmp);
-				}
-			#ifdef _LOG
-				rawType tmp = *now;
-				om.lock();
-				mlog << now << " running with " << tmp << std::endl;
-				om.unlock();
-			#endif // _LOG
-				++(*now);
-			}
-		};
-
 		//Maybe this is the first function I'd use multi-thread optimization?
 		template<typename Cntnr>
 		/*INLINED*/void MY_LIB mul(const Cntnr &b) noexcept {
-			using namespace std::literals::chrono_literals;
 			LargeUnsigned This(*this);
 			this->next = nullptr;
 			this->data = Data(radix_t(0));
 			auto Ptr = this->begin();
 			auto OprtPtr = b;
-			bool ending = (OprtPtr + 1 == nullptr);
-			if (ending) {
-				for (typename LargeInteger
-					::LongCmpt<typename LargeInteger::LLCmptTraits<radix>>
-					::template LineIterator<typename LargeInteger::LLCmptTraits<radix>::Multiply, decltype(This.cbegin()), Data>
-					temp(*OprtPtr, This.cbegin());
-					;
-					++temp, ++Ptr
-					) {
-					*Ptr = *temp;
-					if (temp == end_ptr) {
-						break;
-					}
-				}
-				return;
-			}
-			flagType *thisFlag, *lastFlag = nullptr;
-			Darkness::taskAssembly<8, decltype(b), decltype(This), decltype(Ptr), decltype(thisFlag), decltype(lastFlag)> p;
-			for (;; ++Ptr, ++OprtPtr) {
-				thisFlag = DBG_NEW flagType(0);
-
-				size_t thr = p.pop<Runner<decltype(b), decltype(Ptr), const decltype(This) &>>(std::tuple(OprtPtr, This, Ptr, thisFlag, lastFlag));
-			#ifdef _LOG
-				om.lock();
-				mlog << "Master thread is creating " << thisFlag
-					<< ", its identification is " << p[thr].get_id()
-					<< ", its index is " << thr << std::endl;
-				om.unlock();
-			#endif // _LOG
-				lastFlag = thisFlag;
-				thisFlag = nullptr;
-				ending = (OprtPtr + 1 == nullptr);
-				if (ending) {
-					++Ptr, ++OprtPtr;
-					thisFlag = DBG_NEW flagType(0);
-					ParallelMultiplier pm(lastFlag, thisFlag);
-					typename LargeInteger
-						::LongCmpt<typename LargeInteger::LLCmptTraits<radix>>
-						::template LineIterator<typename LargeInteger::LLCmptTraits<radix>::Multiply, decltype(This.cbegin()), Data>
-						temp(*OprtPtr, This.cbegin());
-					LargeInteger
-						::LongCmpt<typename LargeInteger::LLCmptTraits<radix>>
-						::template AddTo<decltype(temp), decltype(Ptr), ParallelMultiplier>(temp, Ptr, pm);
-				#ifdef _LOG
-					om.lock();
-					mlog << thisFlag << " (Master thread) is waiting for " << lastFlag << std::endl;
-					om.unlock();
-				#endif // _LOG
-					lastFlag->wait_for_value(rawType(-1));
-					pm.~ParallelMultiplier();
-					while (!p.empty()) {
-						p.wait();
-					}
-					assert(p.empty());
-					p.~taskAssembly();
-				#ifdef _LOG
-					om.lock();
-					mlog << thisFlag << " out.(Master thread)" << std::endl;
-					om.unlock();
-				#endif // _LOG
-					delete thisFlag;
-					break;
-				}
+			for (; OprtPtr != nullptr; ++OprtPtr, ++Ptr) {
+				typename LargeInteger::LongCmpt<typename LargeInteger::LLCmptTraits<radix>>::template LineIterator<typename LargeInteger::LLCmptTraits<radix>::Multiply, decltype(This.cbegin()), Data> temp(*OprtPtr, This.cbegin());
+				LargeInteger::LongCmpt<typename LargeInteger::LLCmptTraits<radix>>::template AddTo<decltype(temp), decltype(Ptr)>(temp, Ptr);
 			}
 			This.release();
 		}
