@@ -7,14 +7,13 @@
 #include <tuple>
 
 namespace Darkness {
-
-	template<typename T, size_t poolSize, typename... Para>
+	template<size_t poolSize, typename... Para>
 	class taskAssembly {
 	private:
 		bool no_more_data = false;
 		bool busy[poolSize] = {};
 		std::thread pool[poolSize];
-		std::tuple<Para...> data[poolSize];
+		std::tuple<Para...> *data[poolSize] = {};
 		std::mutex locked_if_busy[poolSize];
 		std::condition_variable wait_for_data[poolSize];
 		std::mutex locked_if_being_used;
@@ -49,14 +48,13 @@ namespace Darkness {
 			wait_for_thread.notify_one();
 		}
 	public:
-
 		taskAssembly() = default;
-		~taskAssembly()noexcept{ 
+		~taskAssembly()noexcept {
 			for (auto &t : pool) {
 				if (t.joinable())t.join();
 			}
 		}
-		size_t pop(Para... para)noexcept {
+		template<typename T>size_t pop(Para... para)noexcept {
 			std::unique_lock ul(locked_if_being_used);
 			while (!available()) wait_for_thread.wait(ul);
 			auto index = find();
@@ -65,12 +63,17 @@ namespace Darkness {
 			if (pool[index].joinable()) {
 				pool[index].join();
 				pool[index] = std::thread([&]() {
+					pool.locked_if_busy[index].lock();
+
 					std::unique_lock ul(locked_if_being_used);
 					while (!no_more_data) {
-						T t(*this, index, data[index]);
+						T t(data[index]);
 						t();
-						wait_for_data[index].wait(locked_if_being_used);
+						wait_for_data[index].wait(ul);
 					}
+
+					pool.locked_if_busy[index].unlock();
+					pool.push(index);
 					});
 			}
 			else {
@@ -94,25 +97,5 @@ namespace Darkness {
 		const std::thread &operator[](size_t index)noexcept {
 			return pool[index];
 		}
-		class Task {
-		public:
-			Task(taskAssembly &p, size_t index)
-				:pool(p), index_in_pool(index) {
-				pool.locked_if_busy[index_in_pool].lock();
-			}
-			~Task() {
-				pool.locked_if_busy[index_in_pool].unlock();
-				pool.push(index_in_pool);
-			}
-			Task(const Task &that) = delete;
-			Task(Task &&that) = delete;
-		private:
-			taskAssembly &pool;
-			size_t index_in_pool;
-		};
-		static_assert(
-			std::is_base_of_v<Task, T>,
-			"To use the pool safely, it's suggested to  deprive your class from my class."
-			);
 	};
 }
