@@ -240,9 +240,8 @@ namespace LargeInteger {
 		using flagType=typename Darkness::Signal<rawType>;
 
 		template<typename ptr1, typename ptr2, typename head>
-		class Runner :public Darkness::template taskAssembly<Runner<ptr1,ptr2,head>, 8>::Task{
-			using poolType=Darkness::template taskAssembly<Runner, 8>;
-			using super = typename poolType::Task;
+		class Runner{
+			using poolType = Darkness::template taskAssembly<8,ptr1, ptr2, head,flagType *,flagType *>;
 		private:
 			ptr1 OprtPtr;
 			const head &This;
@@ -250,9 +249,9 @@ namespace LargeInteger {
 			flagType *thisFlag;
 			flagType *lastFlag;
 		public:
-			Runner(poolType& p,size_t index, const ptr1 &p1, const head &h, const ptr2 &p2,
+			Runner(const ptr1 &p1, const head &h, const ptr2 &p2,
 				flagType *f1, flagType *f2)
-				:super(p, index), OprtPtr(p1), This(h), Ptr(p2), thisFlag(f1), lastFlag(f2) { };
+				:OprtPtr(p1), This(h), Ptr(p2), thisFlag(f1), lastFlag(f2) { };
 
 			~Runner() = default;
 			void operator()()noexcept {
@@ -357,11 +356,11 @@ namespace LargeInteger {
 				return;
 			}
 			flagType * thisFlag, * lastFlag = nullptr;
-			Darkness::taskAssembly<Runner<decltype(b), decltype(Ptr), decltype(This)>, 8, decltype(b), decltype(Ptr), decltype(This), decltype(thisFlag), decltype(lastFlag)> p;
+			Darkness::taskAssembly<8, decltype(b), decltype(This), decltype(Ptr), decltype(thisFlag), decltype(lastFlag)> p;
 			for (;; ++Ptr, ++OprtPtr) {
 				thisFlag = new flagType(0);
 
-				size_t thr = p.pop(OprtPtr, This, Ptr, thisFlag, lastFlag);
+				size_t thr = p.pop<Runner<decltype(b), decltype(Ptr), decltype(This)>>(OprtPtr, This, Ptr, thisFlag, lastFlag);
 			#ifdef _LOG
 				om.lock();
 				mlog << "Master thread is creating " << thisFlag
