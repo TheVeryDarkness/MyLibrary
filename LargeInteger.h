@@ -308,10 +308,6 @@ namespace LargeInteger {
 					while (!s(*last, tmp)) {
 						last->wait();
 					}
-					if (*last == -1) {
-						delete last;
-						last = nullptr;
-					}
 				}
 			#ifdef _LOG
 				rawType tmp = *now;
@@ -380,7 +376,7 @@ namespace LargeInteger {
 				ending = (OprtPtr + 1 == nullptr);
 				if (ending) {
 					++Ptr, ++OprtPtr;
-					thisFlag = new flagType(0);
+					thisFlag = DBG_NEW flagType(0);
 					ParallelMultiplier pm(lastFlag, thisFlag);
 					typename LargeInteger
 						::LongCmpt<typename LargeInteger::LLCmptTraits<radix>>
@@ -400,6 +396,7 @@ namespace LargeInteger {
 						p.wait();
 					}
 					assert(p.empty());
+					p.~taskAssembly();
 				#ifdef _LOG
 					om.lock();
 					mlog << thisFlag << " out.(Master thread)" << std::endl;
