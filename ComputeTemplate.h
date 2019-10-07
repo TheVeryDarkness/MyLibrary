@@ -106,10 +106,10 @@ namespace LargeInteger {
 				return Result.first;
 			}
 			constexpr bool MY_LIB operator==(end_ptr_t)const noexcept {
-				return a == 0 || (Result.second == 0) && (this->b == nullptr || this->b + 1 == nullptr);
+				return a == 0 || ((Result.second == 0) && (this->b == nullptr || this->b + 1 == nullptr));
 			}
 			constexpr bool MY_LIB operator==(nullptr_t)const noexcept {
-				return a == 0 || (this->b == nullptr) && (Result.first == 0) && (Result.second == 0);
+				return a == 0 || ((this->b == nullptr) && (Result.first == 0) && (Result.second == 0));
 			}
 		};
 
