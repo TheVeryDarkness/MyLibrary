@@ -50,8 +50,18 @@ namespace Darkness {
 	public:
 		taskAssembly() = default;
 		~taskAssembly()noexcept {
+			this->ending();
+			for (auto &w:wait_for_data) {
+				w.notify_all();
+			}
 			for (auto &t : pool) {
 				if (t.joinable())t.join();
+			}
+			for (auto&d:data) {
+				if (d!=nullptr) {
+					delete d;
+					d = nullptr;
+				}
 			}
 		}
 		template<typename T>size_t pop(std::tuple<Para...> para)noexcept {
@@ -59,21 +69,28 @@ namespace Darkness {
 			while (!available()) wait_for_thread.wait(ul);
 			auto index = find();
 			busy[index] = true;
+			if (this->data[index] != nullptr) {
+				delete this->data[index];
+			}
 			this->data[index] = new std::tuple(para);
-			if (pool[index].joinable()) {
-				pool[index].join();
-				pool[index] = std::thread([&]() {
+			if (!pool[index].joinable()) {
+				pool[index] = std::thread([this, index]() {
 					std::unique_lock ul(locked_if_busy[index]);
 
 					while (!no_more_data) {
-						T t(*data[index]);
-						t();
 						{
-							push(index);
-							wait_for_data[index].wait(ul);
+							T t(*data[index]);
+							t();
 						}
+						push(index);
+						wait_for_data[index].wait(ul);
 					}
 					});
+			#ifdef _LOG
+				om.lock();
+				mlog << "Thread " << index << " is created. It's id is "<<pool[index].get_id() << std::endl;
+				om.unlock();
+			#endif // _LOG
 			}
 			else {
 				wait_for_data[index].notify_one();
