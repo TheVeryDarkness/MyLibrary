@@ -63,21 +63,20 @@ namespace Darkness {
 			if (pool[index].joinable()) {
 				pool[index].join();
 				pool[index] = std::thread([&]() {
-					locked_if_busy[index].lock();
+					std::unique_lock ul(locked_if_busy[index]);
 
-					std::unique_lock ul(locked_if_being_used);
 					while (!no_more_data) {
 						T t(*data[index]);
 						t();
-						wait_for_data[index].wait(ul);
+						{
+							push(index);
+							wait_for_data[index].wait(ul);
+						}
 					}
-
-					locked_if_busy[index].unlock();
-					push(index);
 					});
 			}
 			else {
-
+				wait_for_data[index].notify_one();
 			}
 			return index;
 		}
