@@ -299,7 +299,7 @@ namespace LargeInteger {
 				if (last != nullptr) {
 					last->wait_for_value(rawType(-1));
 					assert((*last) == -1);
-					delete last;
+					last.release();
 					last = nullptr;
 				}
 			#ifdef _LOG
@@ -316,7 +316,7 @@ namespace LargeInteger {
 					last->wait_for_more_than(tmp);
 					assert(*last > tmp);
 					if (*last == rawType(-1)) {
-						delete last;
+						last.release();
 						last = nullptr;
 					}
 				}
