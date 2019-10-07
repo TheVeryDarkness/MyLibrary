@@ -38,21 +38,22 @@ namespace Darkness {
 		size_t pop(Para... para)noexcept {
 			std::unique_lock ul(locked_if_being_used);
 			while (!available()) wait_for_thread.wait(ul);
-			auto index = find(); 
+			auto index = find();
+			busy[index] = true;
 			if (pool[index].joinable()) {
 				pool[index].join();
+				pool[index] = std::thread([=]() {
+					T t(*this, index, para...);
+					t(); });
 			}
-		#ifdef _LOG
-			else { 
+			else {
+
+			#ifdef _LOG
 				om.lock();
 				std::cout << "Caution: no join()." << std::endl; 
 				om.unlock();
+			#endif // _LOG
 			}
-		#endif // _LOG
-			busy[index] = true;
-			pool[index] = std::thread([=]() {
-				T t(*this, index, para...);
-				t(); });
 			return index;
 		}
 		void wait()noexcept {
@@ -68,8 +69,9 @@ namespace Darkness {
 			return pool[index];
 		}
 	private:
-		bool busy[poolSize] = {};
 		std::thread pool[poolSize];
+		std::mutex locked_if_busy[poolSize];
+		std::condition_variable wait_for_free[poolSize];
 		std::mutex locked_if_being_used;
 		std::condition_variable wait_for_thread;
 
@@ -80,7 +82,7 @@ namespace Darkness {
 		size_t find() const noexcept {
 			size_t i = 0;
 			for (; i < poolSize; ++i) {
-				if (!busy[i])	return i;
+				if (locked_if_busy[i].try_lock())	return i;
 			}
 			assert(i < poolSize);
 			return size_t(-1);
