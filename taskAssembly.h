@@ -13,7 +13,7 @@ namespace Darkness {
 		bool no_more_data = false;
 		bool busy[poolSize] = {};
 		std::thread pool[poolSize];
-		std::tuple<Para...> *data[poolSize] = {};
+		std::tuple<Para...>* data[poolSize] = {};
 		std::mutex locked_if_busy[poolSize];
 		std::condition_variable wait_for_data[poolSize];
 		std::mutex locked_if_being_used;
@@ -54,26 +54,26 @@ namespace Darkness {
 				if (t.joinable())t.join();
 			}
 		}
-		template<typename T>size_t pop(Para... para)noexcept {
+		template<typename T>size_t pop(std::tuple<Para...> para)noexcept {
 			std::unique_lock ul(locked_if_being_used);
 			while (!available()) wait_for_thread.wait(ul);
 			auto index = find();
 			busy[index] = true;
-			this->data = std::tuple(para...);
+			this->data[index] = new std::tuple(para);
 			if (pool[index].joinable()) {
 				pool[index].join();
 				pool[index] = std::thread([&]() {
-					pool.locked_if_busy[index].lock();
+					locked_if_busy[index].lock();
 
 					std::unique_lock ul(locked_if_being_used);
 					while (!no_more_data) {
-						T t(data[index]);
+						T t(*data[index]);
 						t();
 						wait_for_data[index].wait(ul);
 					}
 
-					pool.locked_if_busy[index].unlock();
-					pool.push(index);
+					locked_if_busy[index].unlock();
+					push(index);
 					});
 			}
 			else {
