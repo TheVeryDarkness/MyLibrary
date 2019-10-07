@@ -4,6 +4,7 @@
 #include <thread>
 #include <condition_variable>
 #include <mutex>
+#include <tuple>
 
 namespace Darkness {
 
@@ -48,10 +49,6 @@ namespace Darkness {
 			wait_for_thread.notify_one();
 		}
 	public:
-		static_assert(
-			std::is_base_of_v<Task, T>,
-			"To use the pool safely, you must let your class deprived from my class."
-			);
 
 		taskAssembly() = default;
 		~taskAssembly()noexcept{ 
@@ -66,11 +63,12 @@ namespace Darkness {
 			busy[index] = true;
 			if (pool[index].joinable()) {
 				pool[index].join();
-				pool[index] = std::thread([=]() {
+				pool[index] = std::thread([&]() {
 					std::unique_lock ul(locked_if_being_used);
 					while (!no_more_data) {
-						T t(*this, index, para...);
+						T t(*this, index, data[index]);
 						t();
+						wait_for_data[index].wait(locked_if_being_used);
 					}
 					});
 			}
@@ -111,5 +109,9 @@ namespace Darkness {
 			taskAssembly &pool;
 			size_t index_in_pool;
 		};
+		static_assert(
+			std::is_base_of_v<Task, T>,
+			"To use the pool safely, it's suggested to  deprive your class from my class."
+			);
 	};
 }
