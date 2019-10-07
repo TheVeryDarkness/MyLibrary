@@ -74,6 +74,11 @@ namespace Darkness {
 			std::unique_lock ul(locked_if_used);
 			changed_signal.wait_for(ul, 1ns, [&] {return v == this->data; });
 		}
+		void wait_for_more_than(T v)noexcept {
+			using namespace std::literals::chrono_literals;
+			std::unique_lock ul(locked_if_used);
+			changed_signal.wait_for(ul, 1ns, [&] {return v > this->data; });
+		}
 	private:
 		std::atomic<T> data;
 		std::mutex locked_if_used;
