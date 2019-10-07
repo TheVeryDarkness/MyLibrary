@@ -24,7 +24,11 @@ namespace Darkness {
 		};
 
 		threadPool() = default;
-		~threadPool() = default;
+		~threadPool()noexcept{ 
+			for (auto &t : pool) {
+				if (t.joinable())t.join();
+			}
+		}
 		template<typename T, typename... Para>
 		size_t pop(Para... para)noexcept {
 			static_assert(
@@ -37,6 +41,7 @@ namespace Darkness {
 			if (pool[index].joinable()) {
 				pool[index].join();
 			}
+			else std::cerr << "Caution: no join()." << std::endl;
 			occupied[index] = true;
 			pool[index] = std::thread([=]() {
 				T t(*this, index, para...);
