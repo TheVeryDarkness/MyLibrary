@@ -281,8 +281,6 @@ namespace LargeInteger {
 			private:
 
 			};
-
-
 		public:
 			MY_LIB ParallelMultiplier(
 				flagType *_last, flagType *_now
