@@ -115,7 +115,7 @@ namespace LargeInteger {
 			}
 			else {
 				for (auto i = temp.crbegin(); i != temp.crend();) {
-					typename std::remove_reference<decltype(*str)>::type sum = std::remove_reference<decltype(*str)>::type(0);
+					typename std::remove_reference<decltype(*str)>::type sum = typename std::remove_reference<decltype(*str)>::type(0);
 					for (decltype(Math::GetPowerTimes(radix, charset::getRadix())) j = 0; j < Math::GetPowerTimes(radix, charset::getRadix()); j++) {
 						auto c = charset::to_int_type(*i);
 						if (c != charset::IntType('?')) {
