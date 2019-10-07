@@ -33,5 +33,5 @@ std::mutex om;
 #define mlog std::cout
 
 #ifdef _DEBUG
-#define _LOG
+//#define _LOG
 #endif // _DEBUG
