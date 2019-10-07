@@ -16,7 +16,8 @@ namespace Darkness {
 			~Task() {
 				pool.push(index_in_pool);
 			}
-
+			Task(const Task &that) = delete;
+			Task(Task &&that) = delete;
 		private:
 			threadPool<poolSize> &pool;
 			size_t index_in_pool;
@@ -32,9 +33,12 @@ namespace Darkness {
 				);
 			std::unique_lock ul(locked_if_being_used);
 			while (!available()) wait_for_thread.wait(ul);
-			auto index = find();
+			auto index = find(); 
+			if (pool[index].joinable()) {
+				pool[index].join();
+			}
 			occupied[index] = true;
-			pool[index] = std::thread([&]() {
+			pool[index] = std::thread([=]() {
 				T t(*this, index, para...);
 				t(); });
 			return index;
@@ -42,6 +46,10 @@ namespace Darkness {
 		void wait()noexcept {
 			std::unique_lock ul(locked_if_being_used);
 			wait_for_thread.wait(ul);
+		}
+		bool empty()const noexcept {
+			for (const auto &b : occupied) if (b)	return false;
+			return true;
 		}
 		const std::thread &operator[](size_t index)noexcept {
 			return pool[index];
@@ -54,10 +62,6 @@ namespace Darkness {
 		bool available() const noexcept {
 			for (const auto &b : occupied) if (!b)	return true;
 			return false;
-		}
-		bool empty()const noexcept {
-			for (const auto &b : occupied) if (b)	return false;
-			return true;
 		}
 		size_t find() const noexcept {
 			size_t i = 0;
@@ -78,7 +82,6 @@ namespace Darkness {
 		void push(size_t that)noexcept {
 			std::unique_lock ul(locked_if_being_used);
 			assert(that < poolSize);
-			pool[that].join();
 			occupied[that] = false;
 			wait_for_thread.notify_one();
 		}
