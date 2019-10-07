@@ -47,6 +47,7 @@ namespace Darkness {
 			std::unique_lock ul(locked_if_being_used);
 			wait_for_thread.wait(ul);
 		}
+		//Return true if no thread is working.
 		bool empty()const noexcept {
 			for (const auto &b : occupied) if (b)	return false;
 			return true;
