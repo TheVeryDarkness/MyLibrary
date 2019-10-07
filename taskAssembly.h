@@ -65,8 +65,9 @@ namespace Darkness {
 			}
 		}
 		template<typename T>size_t pop(std::tuple<Para...> para)noexcept {
+			using namespace std::literals::chrono_literals;
 			std::unique_lock ul(locked_if_being_used);
-			while (!available()) wait_for_thread.wait(ul);
+			while (!available()) wait_for_thread.wait_for(ul, 1ns);
 			auto index = find();
 			busy[index] = true;
 			if (this->data[index] != nullptr) {
