@@ -161,7 +161,7 @@ namespace LargeInteger {
 
 
 		template<typename Compute, typename subIterator, typename Iterator, typename CallBack = Empty>
-		static constexpr INLINED void MY_LIB SubPrinComputeTo(subIterator a, Iterator b, CallBack c = CallBack())noexcept {
+		static constexpr INLINED void MY_LIB SubPrinComputeTo(const subIterator &a, const Iterator &b, const CallBack &c = CallBack())noexcept {
 			static_assert(std::is_same_v<
 				typename std::decay_t<decltype(*a)>,
 				typename std::decay_t<decltype(*b)>>,
@@ -175,7 +175,7 @@ namespace LargeInteger {
 		}
 
 		template<typename subIterator, typename Iterator, typename CallBack = Empty>
-		static constexpr INLINED void MY_LIB AddTo(const subIterator &a, const Iterator &b, CallBack c = CallBack())noexcept {
+		static constexpr INLINED void MY_LIB AddTo(const subIterator &a, const Iterator &b, const CallBack& c = CallBack())noexcept {
 			static_assert(std::is_same_v<
 				typename std::decay_t<decltype(*a)>,
 				typename std::decay_t<decltype(*b)>
