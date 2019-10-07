@@ -30,7 +30,7 @@ private:
 
 
 static inline safe_ofstream mlog("D:\\out.out");
-static inline std::typename mutex om;
+static inline std::mutex om;
 
 #ifdef _DEBUG
 #define _LOG
