@@ -42,7 +42,7 @@ namespace Darkness {
 			std::unique_lock ul(locked_if_used);
 			this->data = d;
 		}
-		template<typename Func> static auto both(Signal& a,Signal& b)noexcept {
+		template<typename Func>[[deprecated]] static auto both(Signal& a,Signal& b)noexcept {
 			using namespace std::literals::chrono_literals;
 			while (true) {
 				bool _a = a.locked_if_used.try_lock();
@@ -62,6 +62,10 @@ namespace Darkness {
 		template<typename _Predicate = Empty>void wait(_Predicate && p = Empty())noexcept {
 			std::unique_lock ul(locked_if_used);
 			changed_signal.wait(ul, p);
+		}
+		void wait()noexcept {
+			std::unique_lock ul(locked_if_used);
+			changed_signal.wait(ul);
 		}
 	private:
 		std::atomic<T> data;
