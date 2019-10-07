@@ -19,7 +19,7 @@ namespace Darkness {
 		std::condition_variable wait_for_data[poolSize];
 		std::mutex locked_if_being_used;
 		std::condition_variable wait_for_thread;
-
+		std::chrono::duration dura;
 		bool available() const noexcept {
 			for (const auto &b : data_freshed) if (!b)	return true;
 			return false;
@@ -43,7 +43,7 @@ namespace Darkness {
 			return match(that);
 		}
 	public:
-		taskAssembly() = default;
+		taskAssembly(std::chrono::duration d = 1ns)noexcept :dura(d) { };
 		~taskAssembly()noexcept {
 			this->ending();
 			for (auto &w:wait_for_data) {
