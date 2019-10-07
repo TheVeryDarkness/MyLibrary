@@ -292,20 +292,14 @@ namespace LargeInteger {
 			#endif // _LOG
 				if (last != nullptr) {
 					rawType tmp = *now;
-					safe s;
-					while (!s(*last, tmp)) {
-						last->wait();
-					}
+					last->wait_for_more_than(tmp + 1);
 				}
 			}
 			MY_LIB ~ParallelMultiplier() = default;
 			void MY_LIB operator()()noexcept {
 				if (last != nullptr) {
 					rawType tmp = *now;
-					safe s;
-					while (!s(*last, tmp)) {
-						last->wait();
-					}
+					last->wait_for_more_than(tmp + 1);
 				}
 			#ifdef _LOG
 				rawType tmp = *now;
