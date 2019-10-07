@@ -249,6 +249,9 @@ namespace LargeInteger {
 			flagType *thisFlag;
 			flagType *lastFlag;
 		public:
+			Runner(std::tuple<ptr1, const head &, ptr2, flagType *, flagType *>tu)
+				:OprtPtr(std::get<0>(tu)), This(std::get<1>(tu)), Ptr(std::get<2>(tu)), thisFlag(std::get<3>(tu)), lastFlag(std::get<4>(tu)) { };
+
 			Runner(const ptr1 &p1, const head &h, const ptr2 &p2,
 				flagType *f1, flagType *f2)
 				:OprtPtr(p1), This(h), Ptr(p2), thisFlag(f1), lastFlag(f2) { };
