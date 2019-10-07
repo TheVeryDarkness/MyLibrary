@@ -285,11 +285,11 @@ namespace LargeInteger {
 			MY_LIB ParallelMultiplier(
 				flagType *_last, flagType *_now
 			) :last(_last), now(_now) {
-			#ifdef _DEBUG
+			#ifdef _LOG
 				om.lock();
 				mlog << now << " in at " << clock() << ", following " << last << std::endl;
 				om.unlock();
-			#endif // _DEBUG
+			#endif // _LOG
 				if (last != nullptr) {
 					rawType tmp = *now;
 					safe s;
@@ -307,12 +307,12 @@ namespace LargeInteger {
 						last->wait();
 					}
 				}
-			#ifdef _DEBUG
+			#ifdef _LOG
 				rawType tmp = *now;
 				om.lock();
 				mlog << now << " running with " << tmp << std::endl;
 				om.unlock();
-			#endif // _DEBUG
+			#endif // _LOG
 				++(*now);
 			}
 			void MY_LIB clear() {
@@ -320,11 +320,11 @@ namespace LargeInteger {
 					delete last;
 				}
 				(*now) = rawType(-1);
-			#ifdef _DEBUG
+			#ifdef _LOG
 				om.lock();
 				mlog << now << " out at " << clock() << std::endl;
 				om.unlock();
-			#endif // _DEBUG
+			#endif // _LOG
 			}
 		private:
 			flagType *const last;
@@ -362,12 +362,12 @@ namespace LargeInteger {
 				thisFlag = new flagType(0);
 
 				size_t thr = p.pop<Runner<decltype(b), decltype(Ptr), decltype(This)>>(OprtPtr, This, Ptr, thisFlag, lastFlag);
-			#ifdef _DEBUG
+			#ifdef _LOG
 				om.lock();
 				mlog << "Master thread is creating " << thisFlag
 					<< ", its identification is " << p[thr].get_id() << std::endl;
 				om.unlock();
-			#endif // _DEBUG
+			#endif // _LOG
 				lastFlag = thisFlag;
 				thisFlag = nullptr;
 				ending = (OprtPtr + 1 == nullptr);
@@ -382,22 +382,22 @@ namespace LargeInteger {
 					LargeInteger
 						::LongCmpt<typename LargeInteger::LLCmptTraits<radix>>
 						::template AddTo<decltype(temp), decltype(Ptr), ParallelMultiplier>(temp, Ptr, pm);
-				#ifdef _DEBUG
+				#ifdef _LOG
 					om.lock();
 					mlog << thisFlag << " (Master thread) is waiting for " << lastFlag << std::endl;
 					om.unlock();
-				#endif // _DEBUG
+				#endif // _LOG
 					lastFlag->wait_for_value(rawType(-1));
 					pm.clear();
 					while (!p.empty()) {
 						p.wait();
 					}
 					assert(p.empty());
-				#ifdef _DEBUG
+				#ifdef _LOG
 					om.lock();
 					mlog << thisFlag << " out.(Master thread)" << std::endl;
 					om.unlock();
-				#endif // _DEBUG
+				#endif // _LOG
 					delete thisFlag;
 					break;
 				}
