@@ -51,8 +51,8 @@ namespace LargeInteger {
 			Iterator b;
 			MY_LIB SubPrincIterator(subIterator a, Iterator b)noexcept
 				:a(a), b(b), Result(c(Data(0), *(a), *(b))) {
-				static_assert(std::is_same_v<Data, std::remove_cvref_t<decltype(*(a))>>, "It should be the same type");
-				static_assert(std::is_same_v<Data, std::remove_cvref_t<decltype(*(b))>>, "It should be the same type");
+				static_assert(std::is_same_v<Data, std::decay_t<decltype(*(a))>>, "It should be the same type");
+				static_assert(std::is_same_v<Data, std::decay_t<decltype(*(b))>>, "It should be the same type");
 			}
 			MY_LIB ~SubPrincIterator()noexcept { }
 			//Notice:
@@ -82,7 +82,7 @@ namespace LargeInteger {
 			Iterator b;
 			ComputeFunction c;
 		public:
-			static_assert(std::is_same<Data, std::remove_cvref_t<decltype(*b)>>::value, "It should be the same type");
+			static_assert(std::is_same<Data, std::decay_t<decltype(*b)>>::value, "It should be the same type");
 			MY_LIB LineIterator(Data a, Iterator b)noexcept :a(a), b(b), c(), Result(c(Data(0), a, *b)) { }
 			MY_LIB LineIterator(Data a, Iterator b, Data Carry)noexcept :a(a), b(b), c(), Result(c(Carry, a, *b)) { }
 			MY_LIB ~LineIterator()noexcept { }
@@ -163,10 +163,10 @@ namespace LargeInteger {
 		template<typename Compute, typename subIterator, typename Iterator, typename CallBack = Empty>
 		static constexpr INLINED void MY_LIB SubPrinComputeTo(subIterator a, Iterator b, CallBack c = CallBack())noexcept {
 			static_assert(std::is_same_v<
-				typename std::remove_cvref_t<decltype(*a)>,
-				typename std::remove_cvref_t<decltype(*b)>>,
+				typename std::decay_t<decltype(*a)>,
+				typename std::decay_t<decltype(*b)>>,
 				"They should have the same type.");
-			using Data=std::remove_cvref_t<decltype(*a)>;
+			using Data=std::decay_t<decltype(*a)>;
 			//This element
 			for (
 				SubPrincIterator<Compute, subIterator, Iterator, Data> compute(a, b);
@@ -177,8 +177,8 @@ namespace LargeInteger {
 		template<typename subIterator, typename Iterator, typename CallBack = Empty>
 		static constexpr INLINED void MY_LIB AddTo(subIterator a, Iterator b, CallBack c = CallBack())noexcept {
 			static_assert(std::is_same_v<
-				typename std::remove_cvref_t<decltype(*a)>,
-				typename std::remove_cvref_t<decltype(*b)>
+				typename std::decay_t<decltype(*a)>,
+				typename std::decay_t<decltype(*b)>
 			>, "They should have the same type.");
 			return SubPrinComputeTo<typename _Traits::Add, subIterator, Iterator, CallBack>(a, b, c);
 		}
@@ -214,8 +214,8 @@ namespace LargeInteger {
 		static INLINED Compare MY_LIB CompareTo(const subIterator &a, const Iterator &b) noexcept {
 			static_assert(
 				std::is_same_v<
-				std::remove_cvref_t<decltype(*a)>,
-				std::remove_cvref_t<decltype(*b)>
+				std::decay_t<decltype(*a)>,
+				std::decay_t<decltype(*b)>
 				>,
 				"They should have the same type");
 			{
@@ -251,7 +251,7 @@ namespace LargeInteger {
 		template<typename subIterator, typename Iterator>
 		static INLINED auto MY_LIB _CompareTo(const subIterator &a, const Iterator &b) noexcept {
 			using Data=typename std::remove_cvref<decltype(*a)>::type;
-			static_assert(std::is_same_v<std::remove_cvref_t<decltype(*a)>, std::remove_cvref_t<decltype(*b)>>);
+			static_assert(std::is_same_v<std::decay_t<decltype(*a)>, std::decay_t<decltype(*b)>>);
 			constexpr auto PracticedRadix = ((_Traits::getRadix() == 0) ? std::numeric_limits<Data>::max() : _Traits::getRadix());
 			{
 				bool HasChanged = false;
