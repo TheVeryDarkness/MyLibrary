@@ -308,6 +308,10 @@ namespace LargeInteger {
 					while (!s(*last, tmp)) {
 						last->wait();
 					}
+					if (*last == -1) {
+						delete last;
+						last = nullptr;
+					}
 				}
 			#ifdef _LOG
 				rawType tmp = *now;
@@ -320,6 +324,7 @@ namespace LargeInteger {
 			void MY_LIB clear() {
 				if (last != nullptr && ((*last) == -1)) {
 					delete last;
+					last = nullptr;
 				}
 				(*now) = rawType(-1);
 			#ifdef _LOG
@@ -329,7 +334,7 @@ namespace LargeInteger {
 			#endif // _LOG
 			}
 		private:
-			flagType *const last;
+			flagType * last;
 			flagType *const now;
 		};
 
