@@ -10,7 +10,7 @@ namespace Darkness {
 	template<size_t poolSize, typename... Para>
 	class taskAssembly {
 	private:
-		bool no_more_data = false;
+		volatile bool no_more_data = false;
 		bool busy[poolSize] = {};
 		std::thread pool[poolSize];
 		std::tuple<Para...>* data[poolSize] = {};
@@ -57,8 +57,8 @@ namespace Darkness {
 			for (auto &t : pool) {
 				if (t.joinable())t.join();
 			}
-			for (auto&d:data) {
-				if (d!=nullptr) {
+			for (auto &d : data) {
+				if (d != nullptr) {
 					delete d;
 					d = nullptr;
 				}
@@ -72,7 +72,7 @@ namespace Darkness {
 			if (this->data[index] != nullptr) {
 				delete this->data[index];
 			}
-			this->data[index] = new std::tuple(para);
+			this->data[index] = DBG_NEW std::tuple(para);
 			if (!pool[index].joinable()) {
 				pool[index] = std::thread([this, index]() {
 					std::unique_lock ul(locked_if_busy[index]);
