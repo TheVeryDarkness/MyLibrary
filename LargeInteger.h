@@ -354,13 +354,14 @@ namespace LargeInteger {
 			flagType * thisFlag, * lastFlag = nullptr;
 			Darkness::taskAssembly<8, decltype(b), decltype(This), decltype(Ptr), decltype(thisFlag), decltype(lastFlag)> p;
 			for (;; ++Ptr, ++OprtPtr) {
-				thisFlag = new flagType(0);
+				thisFlag = DBG_NEW flagType(0);
 
 				size_t thr = p.pop<Runner<decltype(b), decltype(Ptr), const decltype(This) &>>(std::tuple(OprtPtr, This, Ptr, thisFlag, lastFlag));
 			#ifdef _LOG
 				om.lock();
 				mlog << "Master thread is creating " << thisFlag
-					<< ", its identification is " << p[thr].get_id() << std::endl;
+					<< ", its identification is " << p[thr].get_id()
+					<< ", its index is " << thr << std::endl;
 				om.unlock();
 			#endif // _LOG
 				lastFlag = thisFlag;
