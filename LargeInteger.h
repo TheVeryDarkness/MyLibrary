@@ -357,7 +357,7 @@ namespace LargeInteger {
 				return;
 			}
 			flagType * thisFlag, * lastFlag = nullptr;
-			Darkness::taskAssembly<Runner<decltype(b), decltype(Ptr), decltype(This)>, 8> p;
+			Darkness::taskAssembly<Runner<decltype(b), decltype(Ptr), decltype(This)>, 8, decltype(b), decltype(Ptr), decltype(This), decltype(thisFlag), decltype(lastFlag)> p;
 			for (;; ++Ptr, ++OprtPtr) {
 				thisFlag = new flagType(0);
 
