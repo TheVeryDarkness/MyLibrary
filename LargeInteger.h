@@ -5,7 +5,7 @@
 #include "ComputeTemplate.h"
 #include "_Bytes.h"
 #include "SignalVariable.h"
-#include "ThreadPool.h"
+#include "taskAssembly.h"
 #include "mylog.h"
 #include "end_ptr.h"
 #include <iostream>
