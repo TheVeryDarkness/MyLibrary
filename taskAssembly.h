@@ -87,11 +87,12 @@ namespace Darkness {
 						T t;
 						while (!this->no_more_data) {
 							std::unique_lock ul(*locked_busy);
-							while (!(*freshed)) {
+							while (!(*freshed) && !this->no_more_data) {
 								wait_data->wait_for(ul, 1ns);
 							}
 							assert(*freshed == true);
-							t(std::get<Para>(**priv_data)...);
+
+							std::apply(t, **priv_data);
 							*freshed = false;
 
 							wait_for_thread.notify_one();
