@@ -61,6 +61,7 @@ namespace Darkness {
 			while (!available()) wait_for_thread.wait(ul);
 			auto index = find();
 			busy[index] = true;
+			this->data = std::tuple(para...);
 			if (pool[index].joinable()) {
 				pool[index].join();
 				pool[index] = std::thread([&]() {
