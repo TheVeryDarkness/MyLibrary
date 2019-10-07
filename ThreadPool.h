@@ -7,12 +7,12 @@
 #include <functional>
 
 namespace Darkness {
-	template<size_t poolSize>
-	class threadPool {
+	template<typename T, size_t poolSize>
+	class taskAssembly {
 	public:
 		class Task {
 		public:
-			Task(threadPool<poolSize> &p, size_t index)
+			Task(taskAssembly<poolSize> &p, size_t index)
 				:pool(p), index_in_pool(index) { }
 			~Task() {
 				pool.push(index_in_pool);
@@ -20,22 +20,22 @@ namespace Darkness {
 			Task(const Task &that) = delete;
 			Task(Task &&that) = delete;
 		private:
-			threadPool<poolSize> &pool;
+			taskAssembly<poolSize> &pool;
 			size_t index_in_pool;
 		};
+		static_assert(
+			std::is_base_of_v<Task, T>,
+			"To use the pool safely, you must let your class deprived from my class."
+			);
 
-		threadPool() = default;
-		~threadPool()noexcept{ 
+		taskAssembly() = default;
+		~taskAssembly()noexcept{ 
 			for (auto &t : pool) {
 				if (t.joinable())t.join();
 			}
 		}
-		template<typename T, typename... Para>
+		template<typename... Para>
 		size_t pop(Para... para)noexcept {
-			static_assert(
-				std::is_base_of_v<Task, T>, 
-				"To use the pool safely, you must let your class deprived from my class."
-				);
 			std::unique_lock ul(locked_if_being_used);
 			while (!available()) wait_for_thread.wait(ul);
 			auto index = find(); 
@@ -49,7 +49,7 @@ namespace Darkness {
 				om.unlock();
 			}
 		#endif // _LOG
-			occupied[index] = true;
+			busy[index] = true;
 			pool[index] = std::thread([=]() {
 				T t(*this, index, para...);
 				t(); });
@@ -61,26 +61,26 @@ namespace Darkness {
 		}
 		//Return true if no thread is working.
 		bool empty()const noexcept {
-			for (const auto &b : occupied) if (b)	return false;
+			for (const auto &b : busy) if (b)	return false;
 			return true;
 		}
 		const std::thread &operator[](size_t index)noexcept {
 			return pool[index];
 		}
 	private:
-		bool occupied[poolSize] = {};
+		bool busy[poolSize] = {};
 		std::thread pool[poolSize];
 		std::mutex locked_if_being_used;
 		std::condition_variable wait_for_thread;
 
 		bool available() const noexcept {
-			for (const auto &b : occupied) if (!b)	return true;
+			for (const auto &b : busy) if (!b)	return true;
 			return false;
 		}
 		size_t find() const noexcept {
 			size_t i = 0;
 			for (; i < poolSize; ++i) {
-				if (!occupied[i])	return i;
+				if (!busy[i])	return i;
 			}
 			assert(i < poolSize);
 			return size_t(-1);
@@ -96,7 +96,7 @@ namespace Darkness {
 		void push(size_t that)noexcept {
 			std::unique_lock ul(locked_if_being_used);
 			assert(that < poolSize);
-			occupied[that] = false;
+			busy[that] = false;
 			wait_for_thread.notify_one();
 		}
 	};
