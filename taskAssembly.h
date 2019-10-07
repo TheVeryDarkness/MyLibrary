@@ -12,7 +12,7 @@ namespace Darkness {
 	class taskAssembly {
 	private:
 		volatile bool no_more_data = false;
-		bool busy[poolSize] = {};
+		bool data_freshed[poolSize] = { };
 		std::thread pool[poolSize];
 		std::tuple<Para...>* data[poolSize] = {};
 		std::mutex locked_if_busy[poolSize];
@@ -21,18 +21,18 @@ namespace Darkness {
 		std::condition_variable wait_for_thread;
 
 		bool available() const noexcept {
-			for (const auto &b : busy) if (!b)	return true;
+			for (const auto &b : data_freshed) if (!b)	return true;
 			return false;
 		}
 		size_t find() const noexcept {
 			size_t i = 0;
 			for (; i < poolSize; ++i) {
-				if (!busy[i]) {
+				if (!data_freshed[i]) {
 					return i;
 				}
 			}
 			assert(i < poolSize);
-			return size_t(-1);
+			return find();
 		}
 		size_t match(std::thread &that)const noexcept {
 			size_t i = 0;
@@ -40,13 +40,7 @@ namespace Darkness {
 				if (pool[i].get_id() == that.get_id())	return i;
 			}
 			assert(i < poolSize);
-			return size_t(-1);
-		}
-		void push(size_t that)noexcept {
-			std::unique_lock ul(locked_if_being_used);
-			assert(that < poolSize);
-			busy[that] = false;
-			wait_for_thread.notify_one();
+			return match(that);
 		}
 	public:
 		taskAssembly() = default;
@@ -68,26 +62,47 @@ namespace Darkness {
 		}
 		template<typename T>size_t pop(Para... para)noexcept {
 			using namespace std::literals::chrono_literals;
-			std::unique_lock ul(locked_if_being_used);
-			while (!available()) wait_for_thread.wait_for(ul, 1ns);
-			auto index = find();
-			busy[index] = true;
-			if (this->data[index] != nullptr)
-				delete this->data[index];
-			this->data[index] = DBG_NEW std::tuple(para...);
+			size_t index;
+			{
+				std::unique_lock ul(locked_if_being_used);
+				while (!available()) wait_for_thread.wait(ul);
+				index = find();
+				assert(index < poolSize);
+			}
+			{
+				std::unique_lock ul(locked_if_busy[index]);
+				if (this->data[index] != nullptr)
+					delete this->data[index];
+				this->data[index] = new std::tuple(para...);
+				assert((data_freshed[index]) == false);
+				data_freshed[index] = true;
+			}
 			if (!pool[index].joinable()) {
-				pool[index] = std::thread([&, this, index]() {
-					std::unique_lock ul(locked_if_busy[index]);
+				pool[index] = std::thread([this, index](
+					bool* freshed,
+					std::mutex *const locked_busy,
+					std::condition_variable *const wait_data,
+					std::tuple<Para...> **priv_data
+					) {
+						T t;
+						while (!this->no_more_data) {
+							std::unique_lock ul(*locked_busy);
+							while (!(*freshed)) {
+								wait_data->wait(ul);
+							}
+							assert(*freshed == true);
+							t(std::get<Para>(**priv_data)...);
+							*freshed = false;
 
-					while (!no_more_data) {
-						{
-							T t;
-							t(std::get<Para>(*data[index])...);
+							wait_for_thread.notify_one();
+							//assert((*freshed) == true);
 						}
-						push(index);
-						wait_for_data[index].wait_for(ul, 1ns);
-					}
-					});
+					#ifdef _LOG
+						om.lock();
+						mlog << "Thread " << index << " is destroyed. It's id is " << pool[index].get_id() << std::endl;
+						om.unlock();
+					#endif // _LOG
+					}, &(data_freshed[index]), &(locked_if_busy[index]), &(wait_for_data[index]), &data[index]);
 			#ifdef _LOG
 				om.lock();
 				mlog << "Thread " << index << " is created. It's id is "<<pool[index].get_id() << std::endl;
@@ -109,7 +124,7 @@ namespace Darkness {
 		}
 		//Return true if no thread is working.
 		bool empty()const noexcept {
-			for (const auto &b : busy) if (b)	return false;
+			for (const auto &b : data_freshed) if (b)	return false;
 			return true;
 		}
 		const std::thread &operator[](size_t index)noexcept {
