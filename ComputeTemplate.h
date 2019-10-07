@@ -250,7 +250,7 @@ namespace LargeInteger {
 		//Extension for Compare()
 		template<typename subIterator, typename Iterator>
 		static INLINED auto MY_LIB _CompareTo(const subIterator &a, const Iterator &b) noexcept {
-			using Data=typename std::remove_cvref<decltype(*a)>::type;
+			using Data=typename std::decay_t<decltype(*a)>;
 			static_assert(std::is_same_v<std::decay_t<decltype(*a)>, std::decay_t<decltype(*b)>>);
 			constexpr auto PracticedRadix = ((_Traits::getRadix() == 0) ? std::numeric_limits<Data>::max() : _Traits::getRadix());
 			{
@@ -346,8 +346,8 @@ namespace LargeInteger {
 		}
 		template<typename Simplify, typename Linear, typename subIterator, typename Iterator>
 		static INLINED void MY_LIB DivideInto(Linear &Res, subIterator a, Iterator b) noexcept {
-			static_assert(std::is_same< std::remove_cvref<decltype(*a)>::type, std::remove_cvref<decltype(*b)>::type>::value);
-			using Data=typename std::remove_cvref<decltype(*a)>::type;
+			static_assert(std::is_same_v<std::decay_t<decltype(*a)>, std::decay_t<decltype(*b)>>, "Same type required");
+			using Data=typename std::decay_t<decltype(*a)>;
 			//Regarding of the compatibility, we didn't use any majorization.
 			auto func1 = [&Res](const subIterator &a, const Iterator &b, Data times)->void {
 				LineIterator<_Traits::Multiply, subIterator, decltype(times)> temp(times, a);
@@ -360,8 +360,8 @@ namespace LargeInteger {
 		}
 		template<typename Simplify, typename subIterator, typename Iterator>
 		static INLINED void MY_LIB DivideInto(subIterator a, Iterator b) {
-			static_assert(std::is_same< std::remove_cvref<decltype(*a)>::type, std::remove_cvref<decltype(*b)>::type>::value);
-			using Data=typename std::remove_cvref<decltype(*a)>::type;
+			static_assert(std::is_same<std::decay_t<decltype(*a)>, std::decay_t<decltype(*b)>>::value);
+			using Data=typename std::decay<decltype(*a)>::type;
 			//Regarding of the compatibility, we didn't use any majorization.
 			auto func = [](const subIterator &a, const Iterator &b, Data times)->void {
 				LineIterator<_Traits::Multiply, subIterator, decltype(times)> temp(times, a);
