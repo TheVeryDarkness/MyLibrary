@@ -281,9 +281,12 @@ namespace LargeInteger {
 			private:
 
 			};
+		private:
+			std::shared_ptr<flagType> last;
+			std::shared_ptr<flagType> const now;
 		public:
 			MY_LIB ParallelMultiplier(
-				flagType *_last, flagType *_now
+				decltype(last) _last, decltype(now) _now
 			) :last(_last), now(_now) {
 			#ifdef _LOG
 				om.lock();
@@ -299,8 +302,11 @@ namespace LargeInteger {
 				if (last != nullptr) {
 					last->wait_for_value(rawType(-1));
 					assert((*last) == -1);
-					last.release();
-					last = nullptr;
+				#ifdef _LOG
+					om.lock();
+					mlog << last.get() << " : " << last.use_count() << std::endl;
+					om.unlock();
+				#endif // _LOG
 				}
 			#ifdef _LOG
 				rawType tmp = *now;
@@ -308,17 +314,13 @@ namespace LargeInteger {
 				mlog << now << " out at " << clock() << " with " << tmp << std::endl;
 				om.unlock();
 			#endif // _LOG
-				(*now) = rawType(-1);
+				*now = rawType(-1);
 			}
 			void MY_LIB operator()()noexcept {
 				if (last != nullptr) {
 					rawType tmp = *now + 1;
 					last->wait_for_more_than(tmp);
 					assert(*last > tmp);
-					if (*last == rawType(-1)) {
-						last.release();
-						last = nullptr;
-					}
 				}
 			#ifdef _LOG
 				rawType tmp = *now;
@@ -328,9 +330,6 @@ namespace LargeInteger {
 			#endif // _LOG
 				++(*now);
 			}
-		private:
-			std::unique_ptr<flagType> last;
-			std::unique_ptr<flagType> const now;
 		};
 
 		//Maybe this is the first function I'd use multi-thread optimization?
