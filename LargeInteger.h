@@ -233,11 +233,11 @@ namespace LargeInteger {
 		using radix_t=decltype(radix);
 		static_assert(radix != radix_t(1), "Radix can't be 1");
 		static_assert(radix >= 0, "Positive radix required.");
-		static_assert(std::is_same_v<radix_t, LL::value_type>, "Value type should be the same");
+		static_assert(std::is_same_v<radix_t, typename LL::value_type>, "Value type should be the same");
 		using Data=radix_t;
 
 		using rawType=size_t;
-		using flagType=Darkness::Signal<rawType>;
+		using flagType=typename Darkness::Signal<rawType>;
 
 		template<typename ptr1, typename ptr2, typename head>
 		class Runner :public Darkness::template taskAssembly<Runner<ptr1,ptr2,head>, 8>::Task{
