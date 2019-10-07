@@ -60,12 +60,19 @@ namespace Darkness {
 			return res;
 		}
 		template<typename _Predicate = Empty>void wait(_Predicate && p = Empty())noexcept {
+			using namespace std::literals::chrono_literals;
 			std::unique_lock ul(locked_if_used);
-			changed_signal.wait(ul, p);
+			changed_signal.wait(ul, 1ms, p);
 		}
 		void wait()noexcept {
+			using namespace std::literals::chrono_literals;
 			std::unique_lock ul(locked_if_used);
-			changed_signal.wait(ul);
+			changed_signal.wait(ul, 1ms);
+		}
+		void wait_for_value(T v)noexcept {
+			using namespace std::literals::chrono_literals;
+			std::unique_lock ul(locked_if_used);
+			changed_signal.wait(ul, 1ms, [&] {return v == this->data; });
 		}
 	private:
 		std::atomic<T> data;
