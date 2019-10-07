@@ -1,5 +1,6 @@
 #pragma once
 
+#include "mylog.h"
 #include <thread>
 #include <condition_variable>
 #include <mutex>
@@ -41,7 +42,13 @@ namespace Darkness {
 			if (pool[index].joinable()) {
 				pool[index].join();
 			}
-			else std::cerr << "Caution: no join()." << std::endl;
+		#ifdef _LOG
+			else { 
+				om.lock();
+				std::cout << "Caution: no join()." << std::endl; 
+				om.unlock();
+			}
+		#endif // _LOG
 			occupied[index] = true;
 			pool[index] = std::thread([=]() {
 				T t(*this, index, para...);
@@ -65,6 +72,7 @@ namespace Darkness {
 		std::thread pool[poolSize];
 		std::mutex locked_if_being_used;
 		std::condition_variable wait_for_thread;
+
 		bool available() const noexcept {
 			for (const auto &b : occupied) if (!b)	return true;
 			return false;
