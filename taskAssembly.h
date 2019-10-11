@@ -40,12 +40,14 @@ namespace Darkness {
 		taskAssembly() = default;
 		~taskAssembly()noexcept {
 			this->ending();
-			do {
-				for (auto &w : wait_for_data) {
-					w.notify_all();
-					this->wait();
-				}
-			}while (!empty());
+		WakeUp:
+			for (auto &w : wait_for_data) {
+				w.notify_all();
+			}
+			if (!empty()) {
+				this->wait();
+				goto WakeUp;
+			}
 			for (auto &t : pool) {
 				if (t.joinable())
 					t.join();
