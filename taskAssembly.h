@@ -8,9 +8,11 @@
 #include <tuple>
 
 namespace Darkness {
-	template<size_t poolSize, typename... Para>
+	constexpr auto wake_up_interval = std::chrono::nanoseconds(1);
+	template<size_t poolSize, typename T, typename... Para>
 	class taskAssembly {
 	private:
+		static_assert(std::is_invocable_v<T, Para...>, "Invalid argument.");
 		volatile bool no_more_data = false;
 		bool data_freshed[poolSize] = { };
 		std::thread pool[poolSize];
@@ -34,21 +36,15 @@ namespace Darkness {
 			assert(i < poolSize);
 			return find();
 		}
-		size_t match(std::thread &that)const noexcept {
-			size_t i = 0;
-			for (; i < poolSize; ++i) {
-				if (pool[i].get_id() == that.get_id())	return i;
-			}
-			assert(i < poolSize);
-			return match(that);
-		}
 	public:
 		taskAssembly() = default;
 		~taskAssembly()noexcept {
 			this->ending();
-			for (auto &w:wait_for_data) {
-				w.notify_all();
-			}
+			do {
+				for (auto &w : wait_for_data) {
+					w.notify_all();
+				}
+			}while (!empty());
 			for (auto &t : pool) {
 				if (t.joinable())
 					t.join();
@@ -60,7 +56,7 @@ namespace Darkness {
 				}
 			}
 		}
-		template<typename T>size_t pop(Para... para)noexcept {
+		size_t pop(Para... para)noexcept {
 			using namespace std::literals::chrono_literals;
 			size_t index;
 			{
@@ -85,18 +81,18 @@ namespace Darkness {
 					std::tuple<Para...> **priv_data
 					) {
 						T t;
-						while (!this->no_more_data) {
+						while ((*freshed) || !this->no_more_data) {
 							std::unique_lock ul(*locked_busy);
 							while (!(*freshed) && !this->no_more_data) {
-								wait_data->wait_for(ul, 1ns);
+								wait_data->wait(ul);
 							}
-							assert(*freshed == true);
-
-							std::apply(t, **priv_data);
-							*freshed = false;
-
+							assert(*freshed == true || this->no_more_data);
+							if (*freshed) {
+								assert((*freshed) == true);
+								std::apply(t, **priv_data);
+								*freshed = false;
+							}
 							wait_for_thread.notify_one();
-							//assert((*freshed) == true);
 						}
 					#ifdef _LOG
 						om.lock();
