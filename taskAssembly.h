@@ -43,6 +43,7 @@ namespace Darkness {
 			do {
 				for (auto &w : wait_for_data) {
 					w.notify_all();
+					this->wait();
 				}
 			}while (!empty());
 			for (auto &t : pool) {
