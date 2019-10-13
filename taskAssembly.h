@@ -8,11 +8,14 @@
 #include <tuple>
 
 namespace Darkness {
-	constexpr auto wake_up_interval = std::chrono::nanoseconds(1);
+	//constexpr auto wake_up_interval = std::chrono::nanoseconds(1);
+
+
 	template<size_t poolSize, typename T, typename... Para>
 	class taskAssembly {
 	private:
 		static_assert(std::is_invocable_v<T, Para...>, "Invalid argument.");
+		static_assert(std::is_invocable_r_v<void, T, Para...>, "We don't support return value.");
 		volatile bool no_more_data = false;
 		bool data_freshed[poolSize] = { };
 		std::thread pool[poolSize];
@@ -40,13 +43,16 @@ namespace Darkness {
 		taskAssembly() = default;
 		~taskAssembly()noexcept {
 			this->ending();
-		WakeUp:
-			for (auto &w : wait_for_data) {
-				w.notify_all();
-			}
-			if (!empty()) {
-				this->wait();
-				goto WakeUp;
+			{
+				std::unique_lock ul(locked_if_being_used);
+			WakeUp:
+				for (auto &w : wait_for_data) {
+					w.notify_all();
+				}
+				if (!empty()) {
+					this->wait_for_thread.wait(ul);
+					goto WakeUp;
+				}
 			}
 			for (auto &t : pool) {
 				if (t.joinable())
@@ -97,6 +103,8 @@ namespace Darkness {
 							}
 							wait_for_thread.notify_one();
 						}
+						std::unique_lock ul(locked_if_being_used);
+						wait_for_thread.notify_all();
 					#ifdef _LOG
 						om.lock();
 						mlog << "Thread " << index << " is destroyed. It's id is " << pool[index].get_id() << std::endl;
@@ -118,17 +126,13 @@ namespace Darkness {
 			std::unique_lock ul(locked_if_being_used);
 			this->no_more_data = true;
 		}
-		void wait()noexcept {
-			std::unique_lock ul(locked_if_being_used);
-			wait_for_thread.wait(ul);
-		}
 		//Return true if no thread is working.
 		bool empty()const noexcept {
 			for (const auto &b : data_freshed) if (b)	return false;
 			return true;
 		}
-		const std::thread &operator[](size_t index)noexcept {
-			return pool[index];
+		const std::thread &operator[](size_t index)const noexcept {
+			return pool[index % poolSize];
 		}
 	};
 }
