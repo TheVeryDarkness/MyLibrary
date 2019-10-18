@@ -319,8 +319,8 @@ namespace LL {
 			return const_reverse_iterator(nullptr);
 		}
 		Data data;
-		DLL* next = nullptr;
-		DLL* last = nullptr;
+		DLL* next;
+		DLL* last;
 		//深拷贝与浅拷贝由参数DeepCopy指定
 		explicit INLINED MY_LIB DLL(
 			const DLL& that,

@@ -166,7 +166,7 @@ namespace LL {
 	protected:
 
 		//指向下一节的指针
-		OLL* next = nullptr;
+		OLL* next;
 		//数据
 		Data data;
 		//复制构造函数
