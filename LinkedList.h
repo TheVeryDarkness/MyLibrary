@@ -29,10 +29,6 @@ static void* MY_LIB operator new(size_t size)noexcept {return Buffer.pop(size);}
 static void MY_LIB operator delete(void* _ptr)noexcept {return Buffer.push(_ptr);}
 
 namespace LL {
-
-
-	//定义
-
 	template<typename Type>
 	//输出流
 	INLINED std::ostream& MY_LIB out(
