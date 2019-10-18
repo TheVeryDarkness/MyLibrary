@@ -239,7 +239,7 @@ namespace LargeInteger {
 			auto OprtPtr = b;
 			for (; ; ) {
 				typename LargeInteger::LongCmpt<typename LargeInteger::LLCmptTraits<radix>>::template LineIterator<typename LargeInteger::LLCmptTraits<radix>::Multiply, decltype(This.cbegin()), Data> temp(*OprtPtr, This.cbegin());
-				LargeInteger::LongCmpt<typename LargeInteger::LLCmptTraits<radix>>::template AddTo<decltype(temp), decltype(Ptr)>(temp, Ptr); 
+				LargeInteger::LongCmpt<typename LargeInteger::LLCmptTraits<radix>>::template AddTo<decltype(temp), decltype(Ptr)>(temp, Ptr);
 				++OprtPtr;
 				if (OprtPtr == nullptr)break;
 				++Ptr;
