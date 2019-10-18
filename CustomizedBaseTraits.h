@@ -7,34 +7,14 @@
 
 namespace LargeInteger {
 
-	template<typename _Elem, typename index_type, index_type BeginIndex, _Elem... set>
+	template<typename _Elem, typename index_type, _Elem... set>
 	class BaseSet;
 	template<typename T1, typename T2>class custom_istream { static_assert(std::is_base_of_v<BaseSet, T2>, "Required"); };
 	template<typename T1, typename T2>class custom_ostream { static_assert(std::is_base_of_v<BaseSet, T2>, "Required"); };
 
-	template<typename _Elem, typename index_type, index_type BeginIndex>
-	class BaseSet<_Elem, index_type, BeginIndex> {
-	public:
-		MY_LIB BaseSet() = delete;
-		MY_LIB ~BaseSet() = delete;
-		using CharType = _Elem;
-		using IntType = index_type;
-		constexpr static index_type MY_LIB to_int_type(_Elem)noexcept {
-			return index_type('?');
-		}
-		constexpr static _Elem MY_LIB to_char_type(index_type)noexcept {
-			return _Elem('?');
-		}
-		constexpr static index_type MY_LIB getRadix()noexcept {
-			return BeginIndex;
-		}
-	private:
-
-	};
-
 	//Mind that '?' is reserved for unknown input
-	template<typename _Elem, typename index_type, index_type BeginIndex, _Elem Head, _Elem... Remained>
-	class BaseSet<_Elem, index_type, BeginIndex, Head, Remained...> :public BaseSet<_Elem, index_type, BeginIndex + 1, Remained...> {
+	template<typename _Elem, typename index_type, _Elem... set>
+	class BaseSet {
 	public:
 		MY_LIB BaseSet() = delete;
 		MY_LIB ~BaseSet() = delete;
@@ -42,39 +22,31 @@ namespace LargeInteger {
 		using IntType = index_type;
 		using char_type = _Elem;
 		using int_type = index_type;
+		constexpr static int_type MY_LIB getRadix()noexcept {
+			return sizeof...(set);
+		}
+		constexpr static _Elem arr[getRadix()] = { set... };
 		constexpr static index_type MY_LIB to_int_type(char_type Char)noexcept {
-			if (Char == Head) {
-				return index_type(BeginIndex);
-			}
-			else {
-				return BaseSet<char_type, index_type, BeginIndex + 1, Remained...>::to_int_type(Char);
-			}
+			size_t Index = static_cast<size_t>(-1);
+			return index_type((((Index += 1), (Char == set)) || ...) ? Index : '?');
 		}
 		constexpr static char_type MY_LIB to_char_type(int_type Int)noexcept {
-			if (Int == BeginIndex) {
-				return char_type(Head);
-			}
-			else {
-				return BaseSet<char_type, index_type, BeginIndex + 1, Remained...>::to_char_type(Int);
-			}
+			return (Int < getRadix()) ? arr[Int] : char_type('?');
 		}
 		constexpr static bool MY_LIB exist(char_type c)noexcept {
 			Math::Match<char_type> m;
-			m(c, Head), (m(c, Remained), ...);
+			(m(c, set), ...);
 			return m.value;
-		}
-		constexpr static int_type MY_LIB getRadix()noexcept {
-			return BaseSet<char_type, index_type, BeginIndex + 1, Remained...>::getRadix();
 		}
 	private:
 
 	};
 
 
-	typedef BaseSet < char, unsigned char, 0, '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'> Set16;
-	typedef BaseSet < char, unsigned char, 0, '0', '1', '2', '3', '4', '5', '6', '7'> Set8;
-	typedef BaseSet < char, unsigned char, 0, '0', '1'> Set2;
-	typedef BaseSet < char, unsigned char, 0, '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'> Set10;
+	typedef BaseSet < char, unsigned char, '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'> Set16;
+	typedef BaseSet < char, unsigned char, '0', '1', '2', '3', '4', '5', '6', '7'> Set8;
+	typedef BaseSet < char, unsigned char, '0', '1'> Set2;
+	typedef BaseSet < char, unsigned char, '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'> Set10;
 
 	template<auto Radix>
 	class Set {
