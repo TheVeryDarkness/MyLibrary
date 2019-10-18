@@ -40,9 +40,19 @@ namespace LL {
 			constexpr MY_LIB iterator(in *_ptr)noexcept :ptr(_ptr) { }
 
 			constexpr bool MY_LIB operator==(const in *_ptr)const noexcept { return this->ptr == _ptr; }
-			constexpr bool MY_LIB operator==(const iterator _ptr)const noexcept { return this->ptr == _ptr.ptr; }
 			constexpr bool MY_LIB operator!=(const in *_ptr)const noexcept { return this->ptr != _ptr; }
+			constexpr bool MY_LIB operator==(const iterator _ptr)const noexcept { return this->ptr == _ptr.ptr; }
 			constexpr bool MY_LIB operator!=(const iterator _ptr)const noexcept { return this->ptr != _ptr.ptr; }
+			constexpr bool MY_LIB operator==(nullptr_t)const noexcept { return this->ptr == nullptr; }
+			constexpr bool MY_LIB operator!=(nullptr_t)const noexcept { return this->ptr != nullptr; }
+			constexpr bool MY_LIB operator==(end_ptr_t)const noexcept {
+				assert(this->ptr != nullptr);
+				return this->ptr->next == nullptr;
+			}
+			constexpr bool MY_LIB operator!=(end_ptr_t)const noexcept {
+				assert(this->ptr != nullptr);
+				return this->ptr->next != nullptr;
+			}
 
 			constexpr in *operator->() const noexcept {
 				return this->ptr;
@@ -102,6 +112,7 @@ namespace LL {
 			static constexpr auto MY_LIB getRadix()noexcept { return decltype(ptr->data)::getRadix(); }
 			static constexpr in *MY_LIB NEXT(in &i)noexcept { if (i.next == nullptr)i.insert(); return i.next; }
 			constexpr MY_LIB const_iterator(const in *_ptr)noexcept :ptr(_ptr) { }
+			MY_LIB ~const_iterator()noexcept = default;
 
 			constexpr bool MY_LIB operator==(const const_iterator &_ptr)const noexcept { return this->ptr == _ptr.ptr; }
 			constexpr bool MY_LIB operator!=(const const_iterator &_ptr)const noexcept { return this->ptr != _ptr.ptr; }
@@ -109,7 +120,14 @@ namespace LL {
 			constexpr bool MY_LIB operator!=(const iterator &_ptr)const noexcept { return this->ptr != _ptr.ptr; }
 			constexpr bool MY_LIB operator==(nullptr_t)const noexcept { return this->ptr == nullptr; }
 			constexpr bool MY_LIB operator!=(nullptr_t)const noexcept { return this->ptr != nullptr; }
-			MY_LIB ~const_iterator()noexcept = default;
+			constexpr bool MY_LIB operator==(end_ptr_t)const noexcept { 
+				assert(this->ptr != nullptr); 
+				return this->ptr->next == nullptr; 
+			}
+			constexpr bool MY_LIB operator!=(end_ptr_t)const noexcept { 
+				assert(this->ptr != nullptr);
+				return this->ptr->next != nullptr;
+			}
 
 			constexpr const_iterator &MY_LIB operator++()noexcept {
 				if (this->ptr != nullptr) {
