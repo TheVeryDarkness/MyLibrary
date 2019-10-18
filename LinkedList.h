@@ -79,13 +79,13 @@ namespace LL {
 	//Type为源链表类型
 	//SubType为子链表
 	template<
-		typename Data,
+		typename __Data,
 		typename SubData,
 		typename Type,
 		typename SubType
 	>
 		SubType GetSubList(
-			const SubData& (MY_LIB* GetFunction)(const Data&),
+			const SubData& (MY_LIB* GetFunction)(const __Data &),
 			const Type& that
 		) noexcept {
 		const Type* OprtPtr = &that;

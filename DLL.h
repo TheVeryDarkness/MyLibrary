@@ -30,38 +30,293 @@ namespace LL {
 		friend outNode MY_LIB Transform(inNode& in)noexcept;
 
 		MEMORY_CACHE(CacheSize);
+
+
+
+
+
+
+
+		struct iterator {
+			using in = LL::DLL<Data>;
+		public:
+			//static constexpr auto MY_LIB getRadix()noexcept { return decltype(ptr->data)::getRadix(); }
+			static constexpr in *MY_LIB NEXT(in &i)noexcept { if (i.next == nullptr)i.insert(); return i.next; }
+			constexpr MY_LIB iterator(in *_ptr)noexcept :ptr(_ptr) { }
+
+			constexpr bool MY_LIB operator==(std::nullptr_t)const noexcept { return this->ptr == nullptr; }
+			constexpr bool MY_LIB operator!=(std::nullptr_t)const noexcept { return this->ptr != nullptr; }
+			constexpr bool MY_LIB operator==(const iterator &_ptr)const noexcept { return this->ptr == _ptr.ptr; }
+			constexpr bool MY_LIB operator!=(const iterator &_ptr)const noexcept { return this->ptr != _ptr.ptr; }
+
+			constexpr LL::DLL<Data> *operator->() const noexcept {
+				return this->ptr;
+			}
+
+			MY_LIB ~iterator()noexcept = default;
+
+			constexpr iterator &MY_LIB operator++()noexcept {
+				if (this->ptr != nullptr) {
+					if (this->ptr->next == nullptr) {
+						this->ptr->insert();
+					}
+					this->ptr = ptr->next;
+				}
+				return *this;
+			}
+			constexpr iterator &MY_LIB operator--()noexcept {
+				if (this->ptr != nullptr) {
+					this->ptr = ptr->last;
+				}
+				return *this;
+			}
+			constexpr iterator MY_LIB operator-(size_t sz)const noexcept {
+				iterator it(*this);
+				for (size_t i = 0; i < sz; i++) {
+					if (it.ptr != nullptr) {
+						--it;
+					}
+				}
+				return it;
+			}
+
+			constexpr iterator &MY_LIB operator+=(size_t sz)noexcept {
+				for (size_t i = 0; i < sz && this->ptr != nullptr; i++) {
+					++(*this);
+				}
+				return *this;
+			}
+
+			constexpr iterator MY_LIB operator+(size_t sz)const noexcept {
+				iterator it(*this);
+				for (size_t i = 0; i < sz; i++) {
+					if (it.ptr != nullptr) {
+						it.ptr = it.ptr->next;
+					}
+					else break;
+				}
+				return it;
+			}
+
+			constexpr auto &MY_LIB operator*()noexcept {
+				if (this->ptr != nullptr) {
+					return this->ptr->data;
+				}
+				else {
+					return ConstantBuffer<Data, 0>::get();
+				}
+			}
+			constexpr auto MY_LIB operator*()const noexcept {
+				if (this->ptr != nullptr) {
+					return this->ptr->data;
+				}
+				else {
+					return ConstantBuffer<Data, 0>::get();
+				}
+			}
+
+
+			constexpr void insert(iterator &it, Data d) {
+				it.ptr->insert(d);
+			}
+			constexpr void cut(iterator &it) {
+				it.ptr->cut();
+			}
+			constexpr void pop(iterator &it) {
+				it.ptr->_pop();
+			}
+
+		protected:
+			in *ptr;
+			friend struct const_iterator;
+			friend class const_reverse_iterator;
+		};
+
+		struct const_iterator{
+			using in = const LL::DLL<Data>;
+		public:
+			static constexpr auto MY_LIB getRadix()noexcept { return decltype(ptr->data)::getRadix(); }
+			static constexpr in *MY_LIB NEXT(in &i)noexcept { if (i.next == nullptr)i.insert(); return i.next; }
+			constexpr MY_LIB const_iterator(const in *_ptr)noexcept :ptr(_ptr) { }
+
+			constexpr bool MY_LIB operator==(const in *_ptr)const noexcept { return this->ptr == _ptr; }
+			constexpr bool MY_LIB operator==(const const_iterator _ptr)const noexcept { return this->ptr == _ptr.ptr; }
+			constexpr bool MY_LIB operator!=(const in *_ptr)const noexcept { return this->ptr != _ptr; }
+			constexpr bool MY_LIB operator!=(const const_iterator _ptr)const noexcept { return this->ptr != _ptr.ptr; }
+
+			MY_LIB ~const_iterator()noexcept = default;
+
+			constexpr const_iterator &MY_LIB operator++()noexcept {
+				if (this->ptr != nullptr) {
+					this->ptr = ptr->next;
+				}
+				return *this;
+			}
+
+			constexpr const_iterator &MY_LIB operator+=(size_t sz)noexcept {
+				for (size_t i = 0; i < sz && this->ptr != nullptr; i++) {
+					++(*this);
+				}
+				return *this;
+			}
+
+			constexpr const_iterator &MY_LIB operator--()noexcept {
+				if (this->ptr != nullptr) {
+					this->ptr = ptr->last;
+				}
+				return *this;
+			}
+			constexpr const_iterator MY_LIB operator-(size_t sz)const noexcept {
+				const_iterator it(*this);
+				for (size_t i = 0; i < sz; i++) {
+					if (it.ptr != nullptr) {
+						--it;
+					}
+				}
+				return it;
+			}
+
+			constexpr const_iterator MY_LIB operator+(size_t sz)const noexcept {
+				const_iterator it(*this);
+				for (size_t i = 0; i < sz; i++) {
+					if (it.ptr != nullptr) {
+						it.ptr = it.ptr->next;
+					}
+					else break;
+				}
+				return it;
+			}
+
+			constexpr const Data &MY_LIB operator*()noexcept {
+				if (this->ptr != nullptr) {
+					return this->ptr->data;
+				}
+				else {
+					return ConstantBuffer<Data, 0>::get();
+				}
+			}
+			constexpr const Data &MY_LIB operator*()const noexcept {
+				if (this->ptr != nullptr) {
+					return this->ptr->data;
+				}
+				else {
+					return ConstantBuffer<Data, 0>::get();
+				}
+			}
+
+		protected:
+			in *ptr;
+		};
+
+
+		class const_reverse_iterator :protected const_iterator {
+			using in = const LL::DLL<Data>;
+			using iter = const_iterator;
+		public:
+			static constexpr in *MY_LIB NEXT(in &i)noexcept { if (i.next == nullptr)i.insert(); return i.next; }
+			constexpr MY_LIB const_reverse_iterator(const in *_ptr)noexcept :iter(_ptr) { }
+
+			constexpr bool MY_LIB operator==(const in *_ptr)const noexcept { return this->ptr == _ptr; }
+			constexpr bool MY_LIB operator==(const const_reverse_iterator _ptr)const noexcept { return this->ptr == _ptr.ptr; }
+			constexpr bool MY_LIB operator!=(const in *_ptr)const noexcept { return this->ptr != _ptr; }
+			constexpr bool MY_LIB operator!=(const const_reverse_iterator _ptr)const noexcept { return this->ptr != _ptr.ptr; }
+
+			MY_LIB ~const_reverse_iterator()noexcept = default;
+
+			constexpr const_reverse_iterator &MY_LIB operator++()noexcept {
+				if (this->ptr != nullptr) {
+					iter::ptr = iter::ptr->last;
+				}
+				return *this;
+			}
+
+			constexpr const_reverse_iterator &MY_LIB operator+=(size_t sz)noexcept {
+				for (size_t i = 0; i < sz && iter::ptr != nullptr; i++) {
+					++(*this);
+				}
+				return *this;
+			}
+
+			constexpr const_reverse_iterator &MY_LIB operator--()noexcept {
+				if (this->ptr != nullptr) {
+					iter::ptr = iter::ptr->next;
+				}
+				return *this;
+			}
+			constexpr const_reverse_iterator MY_LIB operator-(size_t sz)const noexcept {
+				const_reverse_iterator it(*this);
+				for (size_t i = 0; i < sz; i++) {
+					if (it.ptr != nullptr) {
+						--it;
+					}
+				}
+				return it;
+			}
+
+			constexpr const_reverse_iterator MY_LIB operator+(size_t sz)const noexcept {
+				const_reverse_iterator it(*this);
+				for (size_t i = 0; i < sz; i++) {
+					if (it.ptr != nullptr) {
+						it.ptr = it.ptr->last;
+					}
+					else break;
+				}
+				return it;
+			}
+
+			constexpr auto &MY_LIB operator*()noexcept {
+				if (iter::ptr != nullptr) {
+					return iter::ptr->data;
+				}
+				else {
+					assert((std::iterator<std::bidirectional_iterator_tag, LL::DLL<Data>>::NullData == 0));
+					return static_cast<const Data &>(std::iterator<std::bidirectional_iterator_tag, LL::DLL<Data>>::NullData = 0);
+				}
+			}
+			constexpr auto MY_LIB operator*()const noexcept {
+				if (iter::ptr != nullptr) {
+					return iter::ptr->data;
+				}
+				else {
+					assert((std::iterator<std::bidirectional_iterator_tag, LL::DLL<Data>>::NullData == 0));
+					return static_cast<const Data &>(std::iterator<std::bidirectional_iterator_tag, LL::DLL<Data>>::NullData = 0);
+				}
+			}
+
+		private:
+		};
 	public:
 		using value_type = Data;
-		constexpr INLINED std::iterator<std::bidirectional_iterator_tag, DLL> begin() noexcept {
-			return std::iterator<std::bidirectional_iterator_tag, DLL>(this);
+		constexpr INLINED iterator begin() noexcept {
+			return iterator(this);
 		}
-		constexpr INLINED std::iterator<std::bidirectional_iterator_tag, DLL> end() noexcept {
-			return std::iterator<std::bidirectional_iterator_tag, DLL>(nullptr);
+		constexpr INLINED iterator end() noexcept {
+			return iterator(nullptr);
 		}
-		constexpr INLINED std::iterator<std::bidirectional_iterator_tag, const DLL> begin()const noexcept {
-			return std::iterator<std::bidirectional_iterator_tag, const DLL>(this);
+		constexpr INLINED const_iterator begin()const noexcept {
+			return const_iterator(this);
 		}
-		constexpr INLINED std::iterator<std::bidirectional_iterator_tag, const DLL> end()const noexcept {
-			return std::iterator<std::bidirectional_iterator_tag, const DLL>(nullptr);
+		constexpr INLINED const_iterator end()const noexcept {
+			return const_iterator(nullptr);
 		}
-		constexpr INLINED std::iterator<std::bidirectional_iterator_tag, const DLL> cbegin()const noexcept {
-			return std::iterator<std::bidirectional_iterator_tag, const DLL>(this);
+		constexpr INLINED const_iterator cbegin()const noexcept {
+			return const_iterator(this);
 		}
-		constexpr INLINED std::iterator<std::bidirectional_iterator_tag, const DLL> cend()const noexcept {
-			return std::iterator<std::bidirectional_iterator_tag, const DLL>(nullptr);
+		constexpr INLINED const_iterator cend()const noexcept {
+			return const_iterator(nullptr);
 		}
 
 		constexpr INLINED auto rbegin()const noexcept {
-			return std::reverse_iterator<std::iterator<std::bidirectional_iterator_tag, const DLL>>(this->GetEnd());
+			return const_reverse_iterator(this->GetEnd());
 		}
 		constexpr INLINED auto rend()const noexcept {
-			return std::reverse_iterator<std::iterator<std::bidirectional_iterator_tag, const DLL>>(nullptr);
+			return const_reverse_iterator(nullptr);
 		}
 		constexpr INLINED auto crbegin()const noexcept {
-			return std::reverse_iterator<std::iterator<std::bidirectional_iterator_tag, const DLL>>(this->GetEnd());
+			return const_reverse_iterator(this->GetEnd());
 		}
 		constexpr INLINED auto crend()const noexcept {
-			return std::reverse_iterator<std::iterator<std::bidirectional_iterator_tag, const DLL>>(nullptr);
+			return const_reverse_iterator(nullptr);
 		}
 		Data data;
 		DLL* next = nullptr;
@@ -682,273 +937,3 @@ namespace LL {
 	};
 
 }
-
-
-
-template<typename Data>
-struct std::iterator<std::bidirectional_iterator_tag, LL::DLL<Data>>
-{
-	using in=LL::DLL<Data>;
-public:
-	//static constexpr auto MY_LIB getRadix()noexcept { return decltype(ptr->data)::getRadix(); }
-	static constexpr in* MY_LIB NEXT(in& i)noexcept { if (i.next == nullptr)i.insert(); return i.next; }
-	constexpr MY_LIB iterator(in* _ptr)noexcept :ptr(_ptr) {}
-
-	constexpr bool MY_LIB operator==(std::nullptr_t)const noexcept { return this->ptr == nullptr; }
-	constexpr bool MY_LIB operator!=(std::nullptr_t)const noexcept { return this->ptr != nullptr; }
-	constexpr bool MY_LIB operator==(const iterator& _ptr)const noexcept { return this->ptr == _ptr.ptr; }
-	constexpr bool MY_LIB operator!=(const iterator& _ptr)const noexcept { return this->ptr != _ptr.ptr; }
-
-	constexpr LL::DLL<Data>* operator->() const noexcept {
-		return this->ptr;
-	}
-
-	MY_LIB ~iterator()noexcept = default;
-
-	constexpr iterator& MY_LIB operator++()noexcept {
-		if (this->ptr != nullptr)
-		{
-			if (this->ptr->next == nullptr)
-			{
-				this->ptr->insert();
-			}
-			this->ptr = ptr->next;
-		}
-		return *this;
-	}
-	constexpr iterator& MY_LIB operator--()noexcept {
-		if (this->ptr != nullptr) {
-			this->ptr = ptr->last;
-		}
-		return *this;
-	}
-	constexpr iterator MY_LIB operator-(size_t sz)const noexcept {
-		iterator it(*this);
-		for (size_t i = 0; i < sz; i++) {
-			if (it.ptr != nullptr) {
-				--it;
-			}
-		}
-		return it;
-	}
-
-	constexpr iterator& MY_LIB operator+=(size_t sz)noexcept {
-		for (size_t i = 0; i < sz && this->ptr != nullptr; i++)
-		{
-			++(*this);
-		}
-		return *this;
-	}
-
-	constexpr iterator MY_LIB operator+(size_t sz)const noexcept {
-		iterator it(*this);
-		for (size_t i = 0; i < sz; i++)
-		{
-			if (it.ptr != nullptr)
-			{
-				it.ptr = it.ptr->next;
-			}
-			else break;
-		}
-		return it;
-	}
-
-	constexpr auto& MY_LIB operator*()noexcept {
-		if (this->ptr != nullptr) {
-			return this->ptr->data;
-		}
-		else {
-			return ConstantBuffer<Data, 0>::get();
-		}
-	}
-	constexpr auto MY_LIB operator*()const noexcept {
-		if (this->ptr != nullptr) {
-			return this->ptr->data;
-		}
-		else {
-			return ConstantBuffer<Data, 0>::get();
-		}
-	}
-
-
-	constexpr void insert(iterator& it, Data d) {
-		it.ptr->insert(d);
-	}
-	constexpr void cut(iterator& it) {
-		it.ptr->cut();
-	}
-	constexpr void pop(iterator& it) {
-		it.ptr->_pop();
-	}
-
-protected:
-	in* ptr;
-	friend struct std::iterator<std::bidirectional_iterator_tag, const LL::DLL<Data>>;
-	friend class std::reverse_iterator<std::iterator<std::bidirectional_iterator_tag, LL::DLL<Data>>>;
-	friend class std::reverse_iterator<std::iterator<std::bidirectional_iterator_tag, const LL::DLL<Data>>>;
-};
-
-template<typename Data>
-struct std::iterator<std::bidirectional_iterator_tag, const LL::DLL<Data>>
-{
-	using in=const LL::DLL<Data>;
-public:
-	static constexpr auto MY_LIB getRadix()noexcept { return decltype(ptr->data)::getRadix(); }
-	static constexpr in* MY_LIB NEXT(in& i)noexcept { if (i.next == nullptr)i.insert(); return i.next; }
-	constexpr MY_LIB iterator(const in* _ptr)noexcept :ptr(_ptr) {}
-
-	constexpr bool MY_LIB operator==(const in* _ptr)const noexcept { return this->ptr == _ptr; }
-	constexpr bool MY_LIB operator==(const iterator _ptr)const noexcept { return this->ptr == _ptr.ptr; }
-	constexpr bool MY_LIB operator!=(const in* _ptr)const noexcept { return this->ptr != _ptr; }
-	constexpr bool MY_LIB operator!=(const iterator _ptr)const noexcept { return this->ptr != _ptr.ptr; }
-
-	MY_LIB ~iterator()noexcept = default;
-
-	constexpr iterator& MY_LIB operator++()noexcept {
-		if (this->ptr != nullptr)
-		{
-			this->ptr = ptr->next;
-		}
-		return *this;
-	}
-
-	constexpr iterator& MY_LIB operator+=(size_t sz)noexcept {
-		for (size_t i = 0; i < sz && this->ptr != nullptr; i++)
-		{
-			++(*this);
-		}
-		return *this;
-	}
-
-	constexpr iterator& MY_LIB operator--()noexcept {
-		if (this->ptr != nullptr) {
-			this->ptr = ptr->last;
-		}
-		return *this;
-	}
-	constexpr iterator MY_LIB operator-(size_t sz)const noexcept {
-		iterator it(*this);
-		for (size_t i = 0; i < sz; i++) {
-			if (it.ptr != nullptr) {
-				--it;
-			}
-		}
-		return it;
-	}
-
-	constexpr iterator MY_LIB operator+(size_t sz)const noexcept {
-		iterator it(*this);
-		for (size_t i = 0; i < sz; i++)
-		{
-			if (it.ptr != nullptr)
-			{
-				it.ptr = it.ptr->next;
-			}
-			else break;
-		}
-		return it;
-	}
-
-	constexpr const Data& MY_LIB operator*()noexcept {
-		if (this->ptr != nullptr) {
-			return this->ptr->data;
-		}
-		else {
-			return ConstantBuffer<Data, 0>::get();
-		}
-	}
-	constexpr const Data& MY_LIB operator*()const noexcept {
-		if (this->ptr != nullptr) {
-			return this->ptr->data;
-		}
-		else {
-			return ConstantBuffer<Data, 0>::get();
-		}
-	}
-
-protected:
-	in* ptr;
-};
-
-template<typename Data>
-class std::reverse_iterator<std::iterator<std::bidirectional_iterator_tag, const LL::DLL<Data>>>:protected std::iterator<std::bidirectional_iterator_tag, const LL::DLL<Data>>
-{
-	using in=const LL::DLL<Data>;
-	using iter=std::iterator<std::bidirectional_iterator_tag, const LL::DLL<Data>>;
-public:
-	static constexpr in* MY_LIB NEXT(in& i)noexcept { if (i.next == nullptr)i.insert(); return i.next; }
-	constexpr MY_LIB reverse_iterator(const in* _ptr)noexcept :iter(_ptr) {}
-
-	constexpr bool MY_LIB operator==(const in* _ptr)const noexcept { return this->ptr == _ptr; }
-	constexpr bool MY_LIB operator==(const reverse_iterator _ptr)const noexcept { return this->ptr == _ptr.ptr; }
-	constexpr bool MY_LIB operator!=(const in* _ptr)const noexcept { return this->ptr != _ptr; }
-	constexpr bool MY_LIB operator!=(const reverse_iterator _ptr)const noexcept { return this->ptr != _ptr.ptr; }
-
-	MY_LIB ~reverse_iterator()noexcept = default;
-
-	constexpr reverse_iterator & MY_LIB operator++()noexcept {
-		if (this->ptr != nullptr)
-		{
-			iter::ptr = iter::ptr->last;
-		}
-		return *this;
-	}
-
-	constexpr reverse_iterator & MY_LIB operator+=(size_t sz)noexcept {
-		for (size_t i = 0; i < sz && iter::ptr != nullptr; i++)
-		{
-			++(*this);
-		}
-		return *this;
-	}
-
-	constexpr reverse_iterator & MY_LIB operator--()noexcept {
-		if (this->ptr != nullptr) {
-			iter::ptr = iter::ptr->next;
-		}
-		return *this;
-	}
-	constexpr reverse_iterator MY_LIB operator-(size_t sz)const noexcept {
-		reverse_iterator it(*this);
-		for (size_t i = 0; i < sz; i++) {
-			if (it.ptr != nullptr) {
-				--it;
-			}
-		}
-		return it;
-	}
-
-	constexpr reverse_iterator MY_LIB operator+(size_t sz)const noexcept {
-		reverse_iterator it(*this);
-		for (size_t i = 0; i < sz; i++)
-		{
-			if (it.ptr != nullptr)
-			{
-				it.ptr = it.ptr->last;
-			}
-			else break;
-		}
-		return it;
-	}
-
-	constexpr auto& MY_LIB operator*()noexcept {
-		if (iter::ptr != nullptr) {
-			return iter::ptr->data;
-		}
-		else {
-			assert((std::iterator<std::bidirectional_iterator_tag, LL::DLL<Data>>::NullData == 0));
-			return static_cast<const Data&>(std::iterator<std::bidirectional_iterator_tag, LL::DLL<Data>>::NullData = 0);
-		}
-	}
-	constexpr auto MY_LIB operator*()const noexcept {
-		if (iter::ptr != nullptr) {
-			return iter::ptr->data;
-		}
-		else {
-			assert((std::iterator<std::bidirectional_iterator_tag, LL::DLL<Data>>::NullData == 0));
-			return static_cast<const Data&>(std::iterator<std::bidirectional_iterator_tag, LL::DLL<Data>>::NullData = 0);
-		}
-	}
-
-private:
-};
