@@ -92,7 +92,7 @@ namespace LL {
 
 		private:
 			in *ptr;
-			friend struct OLL::const_iterator;
+			friend struct OLL<Data, CacheSize>::const_iterator;
 		};
 
 
