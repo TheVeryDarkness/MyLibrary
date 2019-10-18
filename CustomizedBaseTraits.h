@@ -9,8 +9,8 @@ namespace LargeInteger {
 
 	template<typename _Elem, typename index_type, index_type BeginIndex, _Elem... set>
 	class BaseSet;
-	template<typename, typename>class custom_istream{ };
-	template<typename, typename>class custom_ostream{ };
+	template<typename T1, typename T2>class custom_istream { static_assert(std::is_base_of_v<BaseSet, T2>, "Required"); };
+	template<typename T1, typename T2>class custom_ostream { static_assert(std::is_base_of_v<BaseSet, T2>, "Required"); };
 
 	template<typename _Elem, typename index_type, index_type BeginIndex>
 	class BaseSet<_Elem, index_type, BeginIndex> {
@@ -162,7 +162,7 @@ namespace LargeInteger {
 	};
 
 	template<typename _Elem, typename index_type, index_type BeginIndex, _Elem... set>
-	class custom_ostream<_Elem, LargeInteger::BaseSet<_Elem, index_type, BeginIndex, set...>> {
+	class custom_ostream<_Elem, LargeInteger::template BaseSet<_Elem, index_type, BeginIndex, set...>> {
 	public:
 		using charset = LargeInteger::BaseSet<_Elem, index_type, BeginIndex, set...>;
 		explicit custom_ostream(std::basic_ostream<_Elem> &o)noexcept :os(o) { }
@@ -187,7 +187,7 @@ namespace LargeInteger {
 				if (res != 0) {
 					Print(res);
 				}
-				os << static_cast<size_t>(that.GetValue<radix_t>());
+				os << static_cast<size_t>(that.template GetValue<radix_t>());
 				res.destruct();
 			}
 			return *this;
