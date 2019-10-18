@@ -4,12 +4,12 @@
 #include <array>
 
 template<size_t CacheSize>
-class MemorryCache
+class MemoryCache
 {
 public:
-	MY_LIB MemorryCache()noexcept{}
+	MY_LIB MemoryCache()noexcept{}
 
-	MY_LIB ~MemorryCache()noexcept{
+	MY_LIB ~MemoryCache()noexcept{
 		for (auto& var : Cache)
 		{
 			if (var!=nullptr)
