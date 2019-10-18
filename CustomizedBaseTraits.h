@@ -35,8 +35,7 @@ namespace LargeInteger {
 		}
 		constexpr static bool MY_LIB exist(char_type c)noexcept {
 			Math::Match<char_type> m;
-			(m(c, set), ...);
-			return m.value;
+			return (m(c, set)|| ...);
 		}
 	private:
 
@@ -62,7 +61,7 @@ namespace LargeInteger {
 
 
 	template<char...Delim>char __stdcall getline(std::istream &in, std::string &str)noexcept {
-		using charset = BaseSet<char, char, 0, Delim...>;
+		using charset = BaseSet<char, char, Delim...>;
 		static_assert(sizeof...(Delim) > 0, "Delim should be given");
 		while (in.good()) {
 			char tmp;
