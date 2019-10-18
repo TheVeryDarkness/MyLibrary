@@ -18,12 +18,12 @@ namespace LL {
 			std::ostream& out, const Type& b
 		)noexcept;
 		template<
-			typename Data,
+			typename __Data,
 			typename SubData,
 			typename Type,
 			typename SubType>
 			friend SubType GetSubList(
-				const SubData& (MY_LIB* GetFunction)(const Data&),
+				const SubData& (MY_LIB* GetFunction)(const __Data&),
 				const Type& that
 			)noexcept;
 		template<class inNode, class outNode, auto inRadix, auto outRadix, bool Destroy>
@@ -694,10 +694,10 @@ public:
 	static constexpr in* MY_LIB NEXT(in& i)noexcept { if (i.next == nullptr)i.insert(); return i.next; }
 	constexpr MY_LIB iterator(in* _ptr)noexcept :ptr(_ptr) {}
 
-	constexpr bool MY_LIB operator==(const in* _ptr)const noexcept { return this->ptr == _ptr; }
-	constexpr bool MY_LIB operator==(const iterator _ptr)const noexcept { return this->ptr == _ptr.ptr; }
-	constexpr bool MY_LIB operator!=(const in* _ptr)const noexcept { return this->ptr != _ptr; }
-	constexpr bool MY_LIB operator!=(const iterator _ptr)const noexcept { return this->ptr != _ptr.ptr; }
+	constexpr bool MY_LIB operator==(std::nullptr_t)const noexcept { return this->ptr == nullptr; }
+	constexpr bool MY_LIB operator!=(std::nullptr_t)const noexcept { return this->ptr != nullptr; }
+	constexpr bool MY_LIB operator==(const iterator& _ptr)const noexcept { return this->ptr == _ptr.ptr; }
+	constexpr bool MY_LIB operator!=(const iterator& _ptr)const noexcept { return this->ptr != _ptr.ptr; }
 
 	constexpr LL::DLL<Data>* operator->() const noexcept {
 		return this->ptr;
@@ -876,7 +876,6 @@ class std::reverse_iterator<std::iterator<std::bidirectional_iterator_tag, const
 	using in=const LL::DLL<Data>;
 	using iter=std::iterator<std::bidirectional_iterator_tag, const LL::DLL<Data>>;
 public:
-	static constexpr auto MY_LIB getRadix()noexcept { return decltype(ptr->data)::getRadix(); }
 	static constexpr in* MY_LIB NEXT(in& i)noexcept { if (i.next == nullptr)i.insert(); return i.next; }
 	constexpr MY_LIB reverse_iterator(const in* _ptr)noexcept :iter(_ptr) {}
 

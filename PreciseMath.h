@@ -40,6 +40,7 @@ namespace LargeInteger {
 		}
 		Q &MY_LIB toReciprocal()noexcept {
 			this->Numerator.Swap(this->Denominator);
+			return *this;
 		}
 		template<typename val = double> val MY_LIB estim()const noexcept {
 			static_assert(std::is_arithmetic_v<val> && !std::is_integral_v<val>);

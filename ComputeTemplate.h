@@ -68,8 +68,14 @@ namespace LargeInteger {
 			bool MY_LIB operator==(end_ptr_t)const noexcept {
 				return (Result.second == 0) && (a == nullptr || ((a + 1) == nullptr));
 			}
+			bool MY_LIB operator!=(end_ptr_t)const noexcept {
+				return !(*this == end_ptr);
+			}
 			bool MY_LIB operator==(nullptr_t)const noexcept {
 				return (Result.first == 0) && (Result.second == 0) && a == nullptr;
+			}
+			bool MY_LIB operator!=(nullptr_t)const noexcept {
+				return !(*this == nullptr);
 			}
 		};
 
@@ -141,6 +147,7 @@ namespace LargeInteger {
 			bool MY_LIB operator==(std::nullptr_t)const noexcept {
 				return (Result.second == Data(0) && Result.first == Data(0));
 			}
+			bool MY_LIB operator!=(std::nullptr_t)const noexcept { return !(*this == nullptr); }
 
 		private:
 			//Remained, Quotient
@@ -375,7 +382,7 @@ namespace LargeInteger {
 			using Data=typename std::decay_t<decltype(*a)>;
 			//Regarding of the compatibility, we didn't use any majorization.
 			auto func1 = [&Res](const subIterator &a, const Iterator &b, Data times)->void {
-				LineIterator<_Traits::Multiply, subIterator, decltype(times)> temp(times, a);
+				LineIterator<typename _Traits::Multiply, subIterator, decltype(times)> temp(times, a);
 				SubtractFrom(temp, b);
 				Simplify s(b);
 				Res += times;
@@ -389,7 +396,7 @@ namespace LargeInteger {
 			using Data=typename std::decay<decltype(*a)>::type;
 			//Regarding of the compatibility, we didn't use any majorization.
 			auto func = [](const subIterator &a, const Iterator &b, Data times)->void {
-				LineIterator<_Traits::Multiply, subIterator, decltype(times)> temp(times, a);
+				LineIterator<typename _Traits::Multiply, subIterator, decltype(times)> temp(times, a);
 				SubtractFrom(temp, b);
 				Simplify s(b);
 			};

@@ -21,12 +21,12 @@ namespace LL {
 			std::ostream& out, const Type& b
 		)noexcept;
 		template<
-			typename Data,
+			typename __Data,
 			typename SubData,
 			typename Type,
 			typename SubType>
 			friend SubType GetSubList(
-				const SubData& (MY_LIB* GetFunction)(const Data&),
+				const SubData& (MY_LIB* GetFunction)(const __Data&),
 				const Type& that
 			)noexcept; 
 		template<class inNode, class outNode, auto inRadix, auto outRadix, bool Destroy>
@@ -367,10 +367,6 @@ namespace LL {
 			std::ostream& out, const OLL& that) noexcept {
 			return LL::out<OLL>(out, that);
 		}
-		INLINED friend std::ostream& MY_LIB operator>>(
-			std::istream& in, OLL& that) noexcept {
-			
-		}
 
 		void MY_LIB SinglePrint(
 			std::ostream& out = std::cout,
@@ -482,9 +478,10 @@ public:
 	static constexpr in* MY_LIB NEXT(in& i)noexcept { if (i.next == nullptr)i.insert(); return i.next; }
 	constexpr MY_LIB iterator(const in* _ptr)noexcept :ptr(_ptr) {}
 
-	constexpr bool MY_LIB operator==(const in* _ptr)const noexcept { return this->ptr == _ptr; }
-	constexpr bool MY_LIB operator==(const iterator _ptr)const noexcept { return this->ptr == _ptr.ptr; }
+	constexpr bool MY_LIB operator==(const iterator& _ptr)const noexcept { return this->ptr == _ptr.ptr; }
+	constexpr bool MY_LIB operator!=(const iterator& _ptr)const noexcept { return this->ptr != _ptr.ptr; }
 	constexpr bool MY_LIB operator==(nullptr_t)const noexcept { return this->ptr == nullptr; }
+	constexpr bool MY_LIB operator!=(nullptr_t)const noexcept { return this->ptr != nullptr; }
 	MY_LIB ~iterator()noexcept = default;
 
 	constexpr iterator& MY_LIB operator++()noexcept {
