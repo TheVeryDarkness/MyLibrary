@@ -28,8 +28,6 @@ static INLINED MemorryCache<MEMORY_CACHE_SIZE> Buffer = {};\
 static void* MY_LIB operator new(size_t size)noexcept {return Buffer.pop(size);}\
 static void MY_LIB operator delete(void* _ptr)noexcept {return Buffer.push(_ptr);}
 
-//#define MEMORY_CACHE(X)
-
 namespace LL {
 
 
