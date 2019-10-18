@@ -1,7 +1,7 @@
 #pragma once
 
 #include <iostream>
-#include "VariableParameterTemplate.h"
+//#include "VariableParameterTemplate.h"
 #include "LargeInteger.h"
 #include <iterator>
 
@@ -34,8 +34,7 @@ namespace LargeInteger {
 			return (Int < getRadix()) ? arr[Int] : char_type('?');
 		}
 		constexpr static bool MY_LIB exist(char_type c)noexcept {
-			Math::Match<char_type> m;
-			return (m(c, set)|| ...);
+			return ((c == set) || ...);
 		}
 	private:
 
