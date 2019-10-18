@@ -482,61 +482,6 @@ namespace LL {
 				}
 			}
 		}
-		INLINED bool MY_LIB operator<=(const DLL& that)const noexcept {
-			if (this->data > 0 && that.data == 0)
-				return false;
-			if (this->data == 0 && that.data > 0)
-				return true;
-			DLL* OprtPtr = this->GetEnd(), * PreOprtPtr = that.GetEnd();
-			if (this->data == 0 && that.data == 0)
-			{
-				if (this->RawLength() < that.RawLength())
-				{
-					return false;
-				}
-				if (this->RawLength() > that.RawLength())
-				{
-					return true;
-				}
-				DLL* temp = OprtPtr;
-				OprtPtr = PreOprtPtr;
-				PreOprtPtr = temp;
-			}
-			else
-			{
-				if (this->RawLength() < that.RawLength())
-				{
-					return true;
-				}
-				if (this->RawLength() > that.RawLength())
-				{
-					return false;
-				}
-				//*this 与 that 均为正
-			}
-			//若OprtPtr对应链表小于PreOprtPtr对应链表
-			//	返回真
-			while (true)
-			{
-				if (OprtPtr->data == PreOprtPtr->data)
-				{
-					OprtPtr = OprtPtr->last;
-					PreOprtPtr = PreOprtPtr->last;
-				}
-				else return (OprtPtr->data < PreOprtPtr->data);
-				//相等
-				if (OprtPtr->last == nullptr && PreOprtPtr->last == nullptr)
-				{
-					return true;
-				}
-			}
-		}
-		INLINED bool MY_LIB operator>(const DLL& that)const noexcept {
-			return (that < *this);
-		}
-		INLINED bool MY_LIB operator>=(const DLL& that)const noexcept {
-			return (that <= *this);
-		}
 		INLINED void MY_LIB destruct() noexcept {
 			this->release();
 			this->data = Data(0);
