@@ -275,11 +275,11 @@ namespace Math {
 		bool value = false;
 		MY_LIB Match() = default;
 		MY_LIB ~Match() = default;
-		void MY_LIB operator()(T a, T b)noexcept {
-			value = ((a == b) ? true : value);
+		bool MY_LIB operator()(T a, T b)noexcept {
+			return value = ((a == b) ? true : value);
 		}
-		template<T a, T b>void MY_LIB match()noexcept {
-			value = ((a == b) ? true : value);
+		template<T a, T b>bool MY_LIB match()noexcept {
+			return value = ((a == b) ? true : value);
 		}
 	};
 }
