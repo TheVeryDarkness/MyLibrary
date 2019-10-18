@@ -1,7 +1,6 @@
 #pragma once
 
 #include <iostream>
-//#include "VariableParameterTemplate.h"
 #include "LargeInteger.h"
 #include <iterator>
 
@@ -36,6 +35,7 @@ namespace LargeInteger {
 		constexpr static bool MY_LIB exist(char_type c)noexcept {
 			return ((c == set) || ...);
 		}
+		static_assert(!exist('?'), "'?' is reserved.");
 	private:
 
 	};
