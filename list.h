@@ -30,10 +30,10 @@ namespace LL {
 				return !(*this == that);
 			}
 			bool operator==(nullptr_t)const noexcept { 
-				return this->pA == nullptr;
+				return reinterpret_cast<const Data *>(this->pA->next) == pD;
 			}
 			bool operator!=(nullptr_t)const noexcept {
-				return this->pA != nullptr;
+				return !(*this == nullptr);
 			}
 
 		private:
@@ -43,25 +43,54 @@ namespace LL {
 	protected:
 		Data data[num];
 		OAL *next;
+		void cut_node()noexcept {
+			assert(!noMoreNode());
+			if (this->next->noMoreNode()) {
+				delete this->next;
+				this->next = reinterpret_cast<OAL *>(&this->next);
+			}
+			else {
+				auto tmp = this->next->next;
+				delete this->next;
+				this->next = tmp;
+			}
+		}
 	public:
-		explicit OAL(Data head, OAL *next) :next(next) { data[0] = head; }
-		explicit OAL(Data head = Data()) :next(reinterpret_cast<OAL *>(this->data[1])) { data[0] = head; }
+		explicit OAL(Data head, OAL *next) :next(next) {
+			static_assert(sizeof(OAL) == sizeof(data) + sizeof(next), "Dangerous!");
+			data[0] = head; 
+		}
+		explicit OAL(Data head = Data()) :next(reinterpret_cast<OAL *>(&this->data[1])) {
+			static_assert(sizeof(OAL) == sizeof(data) + sizeof(next), "Dangerous!");
+			data[0] = head; 
+		}
 		~OAL() { }
 		constexpr auto begin()const { return const_iterator(this); }
 		constexpr auto end()const { return nullptr; }
 		constexpr auto cbegin()const { return const_iterator(this); }
 		constexpr auto cend()const { return nullptr; }
-		void insert(Data n)noexcept {
-			assert(this != next);
-			if (
+		constexpr bool noMoreNode()const noexcept {
+			return
 				reinterpret_cast<size_t>(this) < reinterpret_cast<size_t>(next)
 				&&
-				reinterpret_cast<size_t>(next) < reinterpret_cast<size_t>(&next)
-				) {
+				reinterpret_cast<size_t>(next) <= reinterpret_cast<size_t>(&next);
+		}
+		constexpr bool hasVacancy()const noexcept {
+			return
+				reinterpret_cast<size_t>(this) < reinterpret_cast<size_t>(next)
+				&&
+				reinterpret_cast<size_t>(next) < reinterpret_cast<size_t>(&next);
+		}
+		constexpr bool justFull()const noexcept {
+			return reinterpret_cast<size_t>(next) == reinterpret_cast<size_t>(&next);
+		}
+		void insert(Data n)noexcept {
+			assert(this != next);
+			if (hasVacancy()) {
 				*reinterpret_cast<Data *>(next) = n;
-				*reinterpret_cast<Data **>(&next) += 1;
+				++*reinterpret_cast<Data **>(&next);
 			}
-			else if (reinterpret_cast<size_t>(next) == reinterpret_cast<size_t>(&next)) {
+			else if (justFull()) {
 				this->next = new OAL(n);
 			}
 			else {
@@ -70,8 +99,8 @@ namespace LL {
 			}
 		}
 		void release()noexcept {
-			while (this->next!=nullptr) {
-
+			while (!noMoreNode()) {
+				this->cut_node();
 			}
 		}
 	};
