@@ -22,19 +22,11 @@
 #define LL_LENGTH(type) const type* OprtPtr=this;size_t s=0;while(OprtPtr!=nullptr){OprtPtr=OprtPtr->next;s++;}return s;
 #define LL_SIMPLIFY(type) {type* Flag = this;type* OprtPtr = this;while (true){if (OprtPtr->data!=Data(0U)){Flag = OprtPtr;}if (OprtPtr->next == nullptr){break;}OprtPtr = OprtPtr->next;}while (Flag->next != nullptr){Flag->cut();}return Flag;}
 
-#ifndef _DEBUG
-
 //Use an array to cache memory
 #define MEMORY_CACHE(MEMORY_CACHE_SIZE) \
 static INLINED MemorryCache<MEMORY_CACHE_SIZE> Buffer = {};\
 static void* MY_LIB operator new(size_t size)noexcept {return Buffer.pop(size);}\
 static void MY_LIB operator delete(void* _ptr)noexcept {return Buffer.push(_ptr);}
-
-#else
-
-#define MEMORY_CACHE(MEMORY_CACHE_SIZE) 
-
-#endif // !_DEBUG
 
 //#define MEMORY_CACHE(X)
 

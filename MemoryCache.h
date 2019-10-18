@@ -22,27 +22,27 @@ public:
 
 
 	void* pop(size_t Block) {
-		for (auto& val : Cache)
-		{
-			if (val != nullptr)
-			{
-				void* temp = val;
+	#ifndef _DEBUG
+		for (auto &val : Cache) {
+			if (val != nullptr) {
+				void *temp = val;
 				val = nullptr;
 				return temp;
 			}
 		}
+	#endif // !_DEBUG
 		return malloc(Block);
 	}
 
 	void MY_LIB push(void* block)noexcept {
-		for (auto& val : Cache)
-		{
-			if (val == nullptr)
-			{
+	#ifndef _DEBUG
+		for (auto &val : Cache) {
+			if (val == nullptr) {
 				val = block;
 				return;
 			}
 		}
+	#endif // !_DEBUG
 		return free(block);
 	}
 
