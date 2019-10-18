@@ -229,8 +229,9 @@ namespace LargeInteger {
 		using Data = radix_t;
 
 		//Maybe this is the first function I'd use multi-thread optimization?
-		template<typename Cntnr>
-		/*INLINED*/void MY_LIB mul(const Cntnr &b) noexcept {
+		//Actually not.
+		template<typename Iter>
+		INLINED void MY_LIB iter_mul(const Iter &b) noexcept {
 			LargeUnsigned This(*this);
 			this->next = nullptr;
 			this->data = Data(radix_t(0));
@@ -406,7 +407,7 @@ namespace LargeInteger {
 		/*INLINED*/ void MY_LIB operator*=(const Int &that) noexcept {
 			static_assert(std::is_integral_v<Int>);
 			typename LongCmpt<StdCmptTraits<Int>>::template LayerIterator<typename StdCmptTraits<Int>::template Divide<radix>, radix_t> it(that);
-			this->mul(it);
+			this->iter_mul(it);
 		}
 		template<typename Int>
 		/*INLINED*/LargeUnsigned MY_LIB operator*(const Int &that) const noexcept {
@@ -430,7 +431,7 @@ namespace LargeInteger {
 			}
 		}
 		/*INLINED*/void MY_LIB operator*=(const LargeUnsigned &b) noexcept {
-			this->mul(b.begin());
+			this->iter_mul(b.begin());
 		}
 		//жиди
 		/*INLINED*/LargeUnsigned MY_LIB operator*(const LargeUnsigned &b)const noexcept {
