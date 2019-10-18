@@ -571,11 +571,11 @@ namespace LL {
 			LL_LENGTH(DLL);
 		}//覆盖赋值
 		/*INLINED*/void MY_LIB SetValue(
-			long num, const Data* data
+			size_t num, const Data* data
 		) noexcept {
 			auto OprtPtr = this->begin();//操作当前对象
 			OprtPtr->data = data;
-			long count = 1;
+			size_t count = 1;
 			while (true)
 			{
 				if (count >= num)
@@ -599,11 +599,11 @@ namespace LL {
 		//覆盖赋值
 		//因为不知名的原因，对SBLinkedList禁用
 		/*INLINED*/void __cdecl SetValue(
-			long num, Data data, ...
+			size_t num, Data data, ...
 		) noexcept {
 			auto OprtPtr = this->begin();//操作当前对象
 			OprtPtr->data = data;
-			long count = 1;
+			size_t count = 1;
 			while (true)
 			{
 				if (count >= num)
