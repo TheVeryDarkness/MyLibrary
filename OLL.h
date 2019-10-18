@@ -31,10 +31,6 @@ namespace LL {
 		MEMORY_CACHE(CacheSize);
 
 
-
-
-
-
 		struct iterator {
 			using in = OLL;
 		public:
