@@ -40,7 +40,7 @@ namespace LL {
 
 
 		struct iterator {
-			using in = LL::OLL<Data>;
+			using in = OLL;
 		public:
 			static constexpr auto MY_LIB getRadix()noexcept { return decltype(ptr->data)::getRadix(); }
 			static constexpr in *MY_LIB NEXT(in &i)noexcept { if (i.next == nullptr)i.insert(); return i.next; }
@@ -52,7 +52,7 @@ namespace LL {
 			constexpr bool MY_LIB operator!=(const in *_ptr)const noexcept { return this->ptr != _ptr; }
 			constexpr bool MY_LIB operator!=(const iterator _ptr)const noexcept { return this->ptr != _ptr.ptr; }
 
-			constexpr LL::OLL<Data> *operator->() const noexcept {
+			constexpr in *operator->() const noexcept {
 				return this->ptr;
 			}
 
@@ -100,12 +100,12 @@ namespace LL {
 
 		private:
 			in *ptr;
-			friend struct const_iterator;
+			friend struct OLL::const_iterator;
 		};
 
 
 		struct const_iterator {
-			using in = const LL::OLL<Data>;
+			using in = const OLL;
 		public:
 			static constexpr auto MY_LIB getRadix()noexcept { return decltype(ptr->data)::getRadix(); }
 			static constexpr in *MY_LIB NEXT(in &i)noexcept { if (i.next == nullptr)i.insert(); return i.next; }

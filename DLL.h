@@ -38,7 +38,7 @@ namespace LL {
 
 
 		struct iterator {
-			using in = LL::DLL<Data>;
+			using in = DLL;
 		public:
 			//static constexpr auto MY_LIB getRadix()noexcept { return decltype(ptr->data)::getRadix(); }
 			static constexpr in *MY_LIB NEXT(in &i)noexcept { if (i.next == nullptr)i.insert(); return i.next; }
@@ -49,7 +49,7 @@ namespace LL {
 			constexpr bool MY_LIB operator==(const iterator &_ptr)const noexcept { return this->ptr == _ptr.ptr; }
 			constexpr bool MY_LIB operator!=(const iterator &_ptr)const noexcept { return this->ptr != _ptr.ptr; }
 
-			constexpr LL::DLL<Data> *operator->() const noexcept {
+			constexpr in *operator->() const noexcept {
 				return this->ptr;
 			}
 
@@ -133,7 +133,7 @@ namespace LL {
 		};
 
 		struct const_iterator{
-			using in = const LL::DLL<Data>;
+			using in = const DLL;
 		public:
 			static constexpr auto MY_LIB getRadix()noexcept { return decltype(ptr->data)::getRadix(); }
 			static constexpr in *MY_LIB NEXT(in &i)noexcept { if (i.next == nullptr)i.insert(); return i.next; }
@@ -210,7 +210,7 @@ namespace LL {
 
 
 		class const_reverse_iterator :protected const_iterator {
-			using in = const LL::DLL<Data>;
+			using in = const DLL;
 			using iter = const_iterator;
 		public:
 			static constexpr in *MY_LIB NEXT(in &i)noexcept { if (i.next == nullptr)i.insert(); return i.next; }
