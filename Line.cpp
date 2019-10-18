@@ -4,6 +4,7 @@
 
 #include "Line.h"
 #include <ctime>
+#include <cassert>
 
 Line Line::operator=(const Line& that) {
 	this->A = that.A;
