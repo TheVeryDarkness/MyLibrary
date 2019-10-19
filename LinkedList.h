@@ -123,4 +123,9 @@ namespace LL {
 			static_assert(Destroy);
 		}
 	}
+
+
+	template<typename T>const T &to_const(T &ref)noexcept {
+		return static_cast<const T &>(ref);
+	}
 }
