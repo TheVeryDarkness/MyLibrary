@@ -540,7 +540,7 @@ namespace LargeInteger {
 			unsigned int bits) noexcept {
 			for (unsigned int index = 0; index < bits; index++) {
 				this->insert(this->data);
-				this->data = 0;
+				memset(this, 0, sizeof(this->data));
 			}
 			return *this;
 		}
