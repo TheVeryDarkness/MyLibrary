@@ -243,16 +243,16 @@ namespace LL {
 				return (*this == nullptr) ? ConstantBuffer<Data, 0>::get() : *pD;
 			}
 			const_iterator &MY_LIB operator++()noexcept {
-				assert(legel_iterator_ptr(pA, pD));
-				if (!pA->noMoreNode() && (ending(pA, pD) || has_ended(pA, pD))) {
+				assert(legel_iterator_ptr(pA, pD)); 
+				if (!is_at_out_place(pA, pD) && !has_ended(pA, pD)) {
+					++pD;
+					assert(is_in(pA, pD));
+				}
+				if (is_at_out_place(pA, pD) && !pA->noMoreNode()) {
 					//assert(has_ended(pA, pD));
 					pA = pA->flag_next;
 					pD = pA->data;
 					assert(legel_iterator_ptr(pA, pD));
-				}
-				else if (!is_at_out_place(pA, pD) && !has_ended(pA, pD)) {
-					++pD;
-					assert(is_in(pA, pD));
 				}
 				return *this;
 			}
