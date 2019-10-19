@@ -20,7 +20,7 @@ namespace LL {
 			assert(!noMoreNode());
 			if (this->flag_next->noMoreNode()) {
 				delete this->flag_next;
-				this->flag_next = reinterpret_cast<OAL *>(&this->flag_next);
+				this->flag_next = reinterpret_cast<OAL *>(this->data + (num - 1));
 			}
 			else {
 				auto tmp = this->flag_next->flag_next;
@@ -49,11 +49,9 @@ namespace LL {
 	public:
 		using value_type = Data;
 		explicit OAL(Data head, OAL *next) :flag_next(next) {
-			static_assert(sizeof(OAL) == sizeof(data) + sizeof(next), "Dangerous!");
 			data[0] = head; 
 		}
 		explicit OAL(Data head = Data()) :flag_next(reinterpret_cast<OAL *>(this->data)) {
-			static_assert(sizeof(OAL) == sizeof(data) + sizeof(flag_next), "Dangerous!");
 			data[0] = head; 
 		}
 		~OAL() { }
@@ -157,13 +155,16 @@ namespace LL {
 			return (pA->data <= pD) && (pD <= pA->data + num);
 		}
 		constexpr static bool legel_iterator_ptr(const OAL *pA, const Data *pD)noexcept {
-			return is_in(pA, pD) && (!is_in(pA, pA->flag_next->data) || pD <= pA->flag_next->data);
+			return is_in(pA, pD) && (!is_in(pA, pA->flag_next->data) || pD <= pA->flag_next->data + 1);
 		}
 		constexpr static bool has_ended(const OAL *pA, const Data *pD)noexcept {
 			return pA->flag_next->data + 1 == pD;
 		}
 		constexpr static bool ending(const OAL *pA, const Data *pD)noexcept {
 			return pA->flag_next->data == pD;
+		}
+		constexpr static bool is_at_out_place(const OAL *pA, const Data *pD)noexcept {
+			return pA->data + num == pD;
 		}
 		class iterator final{
 		public:
@@ -243,17 +244,16 @@ namespace LL {
 			}
 			const_iterator &MY_LIB operator++()noexcept {
 				assert(legel_iterator_ptr(pA, pD));
-				if (!has_ended(pA, pD)) {
-					++pD;
-				}
-				if (!pA->noMoreNode()) {
+				if (!pA->noMoreNode() && (ending(pA, pD) || has_ended(pA, pD))) {
 					//assert(has_ended(pA, pD));
-					assert(!pA->noMoreNode());
 					pA = pA->flag_next;
 					pD = pA->data;
+					assert(legel_iterator_ptr(pA, pD));
 				}
-				assert(is_in(pA, pD));
-				assert(legel_iterator_ptr(pA, pD));
+				else if (!is_at_out_place(pA, pD) && !has_ended(pA, pD)) {
+					++pD;
+					assert(is_in(pA, pD));
+				}
 				return *this;
 			}
 			const_iterator MY_LIB operator+(size_t sz)const noexcept {
@@ -273,8 +273,7 @@ namespace LL {
 				return !(*this == that);
 			}
 			bool operator==(nullptr_t)const noexcept {
-				assert(reinterpret_cast<const Data *>(&this->pA->flag_next) != pD);
-				return has_ended(pA, pD);
+				return has_ended(pA, pD) || is_at_out_place(pA, pD);
 			}
 			bool operator!=(nullptr_t)const noexcept {
 				return !(*this == nullptr);
