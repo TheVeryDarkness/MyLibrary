@@ -66,7 +66,7 @@ namespace LL {
 			return reinterpret_cast<size_t>(next) == reinterpret_cast<size_t>(&next);
 		}
 		constexpr void Simplify()noexcept {
-			OAL *flagPtr = this, oprtPtr = this;
+			OAL *flagPtr = this, *oprtPtr = this;
 			while (!oprtPtr->noMoreNode()) {
 				for (const auto &i : oprtPtr->data) {
 					if (i != Data(0)) {
@@ -100,6 +100,37 @@ namespace LL {
 			this->release();
 			memset(this->data, 0, sizeof(data));
 		}
+		void SHL()noexcept {
+			Data last = Data(0);
+			for (OAL *OprtPtr = this; ; ) {
+				if (OprtPtr->hasVacancy()) {
+					memcpy(OprtPtr->data + 1, OprtPtr->data, num - 1);
+					OprtPtr->data[0] = last;
+					++ *reinterpret_cast<Data **>(&next);
+				}
+				else if (OprtPtr->justFull()) {
+					OprtPtr->insert_node_after(last);
+				}
+				else {
+					Data tmp = last;
+					last = OprtPtr->data[num - 1];
+					memcpy(OprtPtr->data + 1, OprtPtr->data, num - 1);
+					OprtPtr->data[0] = tmp;
+					OprtPtr = OprtPtr->next;
+					continue;
+				}
+				break;
+			}
+		}
+		OAL &operator<<=(size_t sz)noexcept {
+			for (size_t i = 0; i < sz; ++i) {
+				this->SHL();
+			}
+			return *this;
+		}
+		OAL &operator>>=(size_t sz)noexcept {
+
+		}
 	private:
 		class iterator final{
 		public:
@@ -120,6 +151,19 @@ namespace LL {
 				if (pD == pA->data + num) {
 					pA = pA->next;
 					pD = pA->data;
+				}
+				return *this;
+			}
+			constexpr iterator MY_LIB operator+(size_t sz)const noexcept {
+				iterator it(*this);
+				for (size_t i = 0; i < sz; i++) {
+					if (reinterpret_cast<const Data *>(it.pA->next) == it.pD) {
+						++(it.pD);
+						if (it.pD == it.pA->data + num) {
+							it.pA = it.pA->next;
+							it.pD = it.pA->data;
+						}
+					}
 				}
 				return *this;
 			}
@@ -154,13 +198,15 @@ namespace LL {
 			MY_LIB ~const_iterator() { }
 
 			const Data &MY_LIB operator*()const noexcept {
-				return *pD;
+				return (*this == nullptr) ? ConstantBuffer<Data, 0>::get() : *pD;
 			}
 			const_iterator &MY_LIB operator++()noexcept {
-				++pD;
-				if (pD - pA->data == num) {
-					pA = pA->next;
-					pD = pA->data;
+				if (reinterpret_cast<const Data *>(this->pA->next) != pD) {
+					++pD;
+					if (pD - pA->data == num) {
+						pA = pA->next;
+						pD = pA->data;
+					}
 				}
 				return *this;
 			}
