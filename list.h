@@ -4,6 +4,11 @@
 #include "LinkedList.h"
 
 namespace LL {
+	//As for class OAL,
+	//	if its pointer "next" points to a place inside itself,
+	//	it means that it has no next node,
+	//	pointer "next" points to the last element it's using;
+	//	otherwise, ths pointer points to the next node.
 	template<typename Data, size_t num, size_t CacheSize = 50>
 	class OAL {
 		static_assert(!std::is_array_v<Data>, "Array type is not available.");
@@ -29,7 +34,7 @@ namespace LL {
 		}
 		void next_move_forward()noexcept {
 			//assert(noMoreNode());
-			++next->data[0];
+			++(*reinterpret_cast<Data **>(&next));
 		}
 		void push_back_this(Data n)noexcept {
 			assert(hasVacancy());
@@ -146,6 +151,9 @@ namespace LL {
 		constexpr static bool legel_iterator_ptr(const OAL *pA, const Data *pD)noexcept {
 			return is_in(pA, pD) && (!is_in(pA, pA->next->data) || pD <= pA->next->data);
 		}
+		constexpr static bool has_ended(const OAL *pA, const Data *pD)noexcept {
+			return pA->next->data == pD;
+		}
 		class iterator final{
 		public:
 			MY_LIB iterator(OAL *_ptr) :pA(_ptr), pD(_ptr->data) { }
@@ -165,7 +173,6 @@ namespace LL {
 					const_cast<OAL *>(pA)->push_back(0);
 				}
 				if (pD == pA->data + num) {
-					assert(!pA->noMoreNode() || pA->justFull());
 					pA = pA->next;
 					pD = pA->data;
 				}
@@ -175,7 +182,7 @@ namespace LL {
 			constexpr iterator MY_LIB operator+(size_t sz)const noexcept {
 				iterator it(*this);
 				for (size_t i = 0; i < sz; i++) {
-					if (it != nullptr) {
+					if (!has_ended(pA, pD)) {
 						++(it.pD);
 						if (it.pD == it.pA->data + num && !pA->justFull()) {
 							assert(!it.pA->noMoreNode());
@@ -200,7 +207,8 @@ namespace LL {
 				return !(*this == that);
 			}
 			bool operator==(nullptr_t)const noexcept {
-				return this->pA->next->data == pD || reinterpret_cast<const Data *>(&this->pA->next) == pD;
+				assert(reinterpret_cast<const Data *>(&this->pA->next) != pD);
+				return has_ended(pA, pD);
 				//return reinterpret_cast<const Data *>(this->pA->next) == pD;
 			}
 			bool operator!=(nullptr_t)const noexcept {
@@ -223,17 +231,21 @@ namespace LL {
 				return (*this == nullptr) ? ConstantBuffer<Data, 0>::get() : *pD;
 			}
 			const_iterator &MY_LIB operator++()noexcept {
-				if (*this != nullptr) {
-					++pD;
-					if (pD == pA->data + num && !pA->justFull()) {
-						assert(!pA->noMoreNode());
-						pA = pA->next;
-						pD = pA->data;
-					}
-					assert(is_in(pA, pD));
+				assert(legel_iterator_ptr(pA, pD));
+				if (pD==pA->next->data) {
+					(void)pD;
 				}
-				std::cout << *pD << std::endl;
-				assert(*pD < 100);
+				if (!has_ended(pA, pD)) {
+					++pD;
+				}
+				if (!pA->noMoreNode()) {
+					//assert(has_ended(pA, pD));
+					assert(!pA->noMoreNode());
+					pA = pA->next;
+					pD = pA->data;
+				}
+				assert(is_in(pA, pD));
+				assert(legel_iterator_ptr(pA, pD));
 				return *this;
 			}
 			const_iterator MY_LIB operator+(size_t sz)const noexcept {
@@ -253,7 +265,8 @@ namespace LL {
 				return !(*this == that);
 			}
 			bool operator==(nullptr_t)const noexcept {
-				return this->pA->next->data == pD || reinterpret_cast<const Data *>(&this->pA->next) == pD;
+				assert(reinterpret_cast<const Data *>(&this->pA->next) != pD);
+				return has_ended(pA, pD);
 			}
 			bool operator!=(nullptr_t)const noexcept {
 				return !(*this == nullptr);
