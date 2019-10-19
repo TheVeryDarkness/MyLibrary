@@ -120,11 +120,10 @@ namespace LargeInteger {
 		};
 
 
-		template<class ComputeFunction, typename Data>
+		template<class ComputeFunction, typename Data, typename Value>
 		class LayerIterator {
 		public:
-			template<typename Val>
-			LayerIterator(Val val) noexcept :c(), Result(c(val)) { }
+			LayerIterator(Value val) noexcept :c(), Result(c(val)) { }
 			~LayerIterator()noexcept { }
 			const Data &operator*()const noexcept {
 				return Result.first;
@@ -151,7 +150,7 @@ namespace LargeInteger {
 
 		private:
 			//Remained, Quotient
-			std::pair<Data, Data> Result;
+			std::pair<Data, Value> Result;
 			ComputeFunction c;
 		};
 
@@ -477,24 +476,24 @@ namespace LargeInteger {
 			MY_LIB Divide()noexcept { }
 			MY_LIB ~Divide()noexcept { }
 
-			std::pair<radix_t, radix_t> operator()(const Data &that) noexcept {
+			std::pair<radix_t, Data> operator()(const Data &that) noexcept {
 				static_assert(sizeof(radix_t) * 2 >= sizeof(Data), "It can't be stored safely!");
-				using resT=std::pair<radix_t, radix_t>;
+				using resT=std::pair<radix_t, Data>;
 				static_assert(std::is_same_v<Depack_t<Data>, Data>, "The type must not be num!");
 				if constexpr (divisor == 0) {
 					if constexpr (sizeof(divisor) >= sizeof(Data)) {
-						return resT(static_cast<radix_t>(that), static_cast <radix_t>(0));
+						return resT(static_cast<radix_t>(that), static_cast <Data>(0));
 					}
 					else return resT(
 						static_cast<radix_t>(that),
-						static_cast<radix_t>(
+						static_cast<Data>(
 							that >> (LargeInteger::BitsPerByte * sizeof(divisor))
 							)
 					);
 				}
 				else return resT(
 					static_cast<radix_t>(that % divisor),
-					static_cast<radix_t>(that / divisor)
+					static_cast<Data>(that / divisor)
 				);
 			}
 		};

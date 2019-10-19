@@ -287,7 +287,7 @@ namespace LargeInteger {
 		explicit MY_LIB LargeUnsigned(val Val)noexcept :LL(0) {
 			static_assert(std::is_integral_v<val>, "Integral type required.");
 			static_assert(!std::is_same_v<val, bool>, "Never use bool type");
-			typename LongCmpt<StdCmptTraits<val>>::template LayerIterator<typename StdCmptTraits<val>::template Divide<radix>, radix_t> it(Val);
+			typename LongCmpt<StdCmptTraits<val>>::template LayerIterator<typename StdCmptTraits<val>::template Divide<radix>, radix_t, val> it(Val);
 			for (auto index = this->begin(); it != nullptr; ) {
 				*index = *it;
 				++it;
@@ -408,7 +408,7 @@ namespace LargeInteger {
 		template<typename Int>
 		/*INLINED*/ void MY_LIB operator*=(const Int &that) noexcept {
 			static_assert(std::is_integral_v<Int>);
-			typename LongCmpt<StdCmptTraits<Int>>::template LayerIterator<typename StdCmptTraits<Int>::template Divide<radix>, radix_t> it(that);
+			typename LongCmpt<StdCmptTraits<Int>>::template LayerIterator<typename StdCmptTraits<Int>::template Divide<radix>, radix_t, Int> it(that);
 			this->iter_mul(it);
 		}
 		template<typename Int>
@@ -503,7 +503,7 @@ namespace LargeInteger {
 				*this = that;
 				return;
 			}
-			typename LongCmpt<StdCmptTraits<Int>>::template LayerIterator<typename StdCmptTraits<Int>::template Divide<radix>, radix_t> it(that);
+			typename LongCmpt<StdCmptTraits<Int>>::template LayerIterator<typename StdCmptTraits<Int>::template Divide<radix>, radix_t, Int> it(that);
 			LargeInteger::LongCmpt<LLCmptTraits<radix>>::AddTo(it, this->begin());
 		}
 		template<typename Int>
@@ -560,7 +560,7 @@ namespace LargeInteger {
 			if (that == Int(0)) {
 				return (this->LL::next == nullptr) && (this->LL::data == Data(0));
 			}
-			typename LongCmpt<StdCmptTraits<radix_t>>::template LayerIterator<typename StdCmptTraits<radix_t>::template Divide<radix>, radix_t> it(that);
+			typename LongCmpt<StdCmptTraits<radix_t>>::template LayerIterator<typename StdCmptTraits<radix_t>::template Divide<radix>, radix_t, Int> it(that);
 			return (LargeInteger::LongCmpt<LLCmptTraits<radix>>::CompareTo(this->begin(), it) == Compare::Equal);
 		}
 		template<typename Int>
@@ -671,7 +671,7 @@ namespace LargeInteger {
 			if (Val == 0) {
 				this->destruct();
 			}
-			typename LongCmpt<StdCmptTraits<Int>>::template LayerIterator<typename StdCmptTraits<Int>::template Divide<radix>, radix_t> it(Val);
+			typename LongCmpt<StdCmptTraits<Int>>::template LayerIterator<typename StdCmptTraits<Int>::template Divide<radix>, radix_t, Int> it(Val);
 			for (auto index = this->begin(); it != nullptr; ) {
 				*index = Data(*it);
 				++it;
