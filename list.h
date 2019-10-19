@@ -29,7 +29,7 @@ namespace LL {
 		}
 		void next_move_forward()noexcept {
 			//assert(noMoreNode());
-			++ *reinterpret_cast<Data **>(&next);
+			++next->data[0];
 		}
 		void push_back_this(Data n)noexcept {
 			assert(hasVacancy());
@@ -64,7 +64,7 @@ namespace LL {
 		}
 		constexpr bool hasVacancy()const noexcept {
 			return
-				reinterpret_cast<size_t>(this) < reinterpret_cast<size_t>(next)
+				this < next
 				&&
 				reinterpret_cast<size_t>(next) < reinterpret_cast<size_t>(&next);
 		}
@@ -119,6 +119,7 @@ namespace LL {
 					OprtPtr->data[0] = last;
 				}
 				else {
+					assert(!OprtPtr->noMoreNode());
 					Data tmp = last;
 					last = OprtPtr->data[num - 1];
 					memcpy(OprtPtr->data + 1, OprtPtr->data, sizeof(Data[num - 1]));
@@ -160,7 +161,7 @@ namespace LL {
 			}
 			iterator &MY_LIB operator++()noexcept {
 				++pD;
-				if (reinterpret_cast<const Data *>(this->pA->next) == pD) {
+				if (this->pA->next->data == pD) {
 					const_cast<OAL *>(pA)->push_back(0);
 				}
 				if (pD == pA->data + num) {
@@ -229,6 +230,8 @@ namespace LL {
 					}
 					assert(is_in(pA, pD));
 				}
+				std::cout << *pD << std::endl;
+				assert(*pD < 100);
 				return *this;
 			}
 			const_iterator MY_LIB operator+(size_t sz)const noexcept {
