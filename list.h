@@ -102,11 +102,10 @@ namespace LL {
 			this->release();
 			memset(this->data, 0, sizeof(data));
 		}
-		void SHL()noexcept {
-			Data last = Data(0);
+		void SHL(Data last)noexcept {
 			for (OAL *OprtPtr = this; ; ) {
 				if (OprtPtr->hasVacancy()) {
-					memcpy(OprtPtr->data + 1, OprtPtr->data, num - 1);
+					memcpy(OprtPtr->data + 1, OprtPtr->data, sizeof(Data[num - 1]));
 					OprtPtr->data[0] = last;
 					next_move_forward();
 				}
@@ -116,7 +115,7 @@ namespace LL {
 				else {
 					Data tmp = last;
 					last = OprtPtr->data[num - 1];
-					memcpy(OprtPtr->data + 1, OprtPtr->data, num - 1);
+					memcpy(OprtPtr->data + 1, OprtPtr->data, sizeof(Data[num - 1]));
 					OprtPtr->data[0] = tmp;
 					OprtPtr = OprtPtr->next;
 					continue;
@@ -126,7 +125,7 @@ namespace LL {
 		}
 		OAL &operator<<=(size_t sz)noexcept {
 			for (size_t i = 0; i < sz; ++i) {
-				this->SHL();
+				this->SHL(0);
 			}
 			return *this;
 		}
@@ -213,6 +212,7 @@ namespace LL {
 				if (*this != nullptr) {
 					++pD;
 					if (pD == pA->data + num) {
+						assert(!pA->noMoreNode());
 						pA = pA->next;
 						pD = pA->data;
 					}
