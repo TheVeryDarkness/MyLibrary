@@ -6,6 +6,7 @@
 namespace LL {
 	template<typename Data, size_t num, size_t CacheSize = 50>
 	class OAL {
+		static_assert(!std::is_array_v<Data>, "Array type is not available.");
 		MEMORY_CACHE(CacheSize);
 	protected:
 		Data data[num];
@@ -84,14 +85,17 @@ namespace LL {
 			MY_LIB ~iterator() { }
 
 			Data &MY_LIB operator*()noexcept {
-				return *pD;
+				return (*this == nullptr) ? ConstantBuffer<Data, 0>::get() : *pD;
 			}
 			const Data &MY_LIB operator*()const noexcept {
-				return *pD;
+				return (*this == nullptr) ? ConstantBuffer<Data, 0>::get() : *pD;
 			}
 			iterator &MY_LIB operator++()noexcept {
 				++pD;
-				if (pD - pA->data == num) {
+				if (reinterpret_cast<const Data *>(this->pA->next) == pD) {
+					pA->push_back(0);
+				}
+				if (pD == pA->data + num) {
 					pA = pA->next;
 					pD = pA->data;
 				}
