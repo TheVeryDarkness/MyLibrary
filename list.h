@@ -165,7 +165,7 @@ namespace LL {
 						}
 					}
 				}
-				return *this;
+				return it;
 			}
 			OAL *operator->() noexcept {
 				return this->pA;
@@ -208,7 +208,7 @@ namespace LL {
 						pD = pA->data;
 					}
 				}
-				return *this;
+				return it;
 			}
 			const_iterator MY_LIB operator+(size_t sz)const noexcept {
 				const_iterator it(*this);
