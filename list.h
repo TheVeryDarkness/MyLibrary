@@ -10,7 +10,7 @@ namespace LL {
 	//	pointer "next" points to the last element it's using;
 	//	otherwise, ths pointer points to the next node.
 	template<typename Data, size_t num, size_t CacheSize = 50>
-	class OAL {
+	class [[deprecated("Unfinished work")]] OAL {
 		static_assert(!std::is_array_v<Data>, "Array type is not available.");
 		MEMORY_CACHE(CacheSize);
 	protected:
