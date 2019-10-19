@@ -308,6 +308,14 @@ namespace LL {
 		constexpr INLINED auto crend()const noexcept {
 			return const_reverse_iterator(nullptr);
 		}
+		constexpr bool isNull()const noexcept {
+			for (auto i : *this) {
+				if (i != 0) {
+					return false;
+				}
+			}
+			return true;
+		}
 		Data data;
 		DLL* next;
 		DLL* last;

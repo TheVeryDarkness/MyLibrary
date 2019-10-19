@@ -558,7 +558,7 @@ namespace LargeInteger {
 		bool MY_LIB operator==(const Int &that)const noexcept {
 			static_assert(std::is_integral_v<Int>, "integral type required.");
 			if (that == Int(0)) {
-				return (this->LL::next == nullptr) && (this->LL::data == Data(0));
+				return (this->LL::isNull());
 			}
 			typename LongCmpt<StdCmptTraits<radix_t>>::template LayerIterator<typename StdCmptTraits<radix_t>::template Divide<radix>, radix_t, Int> it(that);
 			return (LargeInteger::LongCmpt<LLCmptTraits<radix>>::CompareTo(this->begin(), it) == Compare::Equal);

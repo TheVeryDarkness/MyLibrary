@@ -181,6 +181,14 @@ namespace LL {
 		constexpr INLINED const_iterator cend() const noexcept {
 			return const_iterator(nullptr);
 		}
+		constexpr bool isNull()const noexcept {
+			for (auto i : *this) {
+				if (i != 0) {
+					return false;
+				}
+			}
+			return true;
+		}
 	protected:
 
 		//指向下一节的指针
