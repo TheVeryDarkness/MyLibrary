@@ -157,9 +157,10 @@ namespace LL {
 			constexpr iterator MY_LIB operator+(size_t sz)const noexcept {
 				iterator it(*this);
 				for (size_t i = 0; i < sz; i++) {
-					if (reinterpret_cast<const Data *>(it.pA->next) != it.pD) {
+					if (it != nullptr) {
 						++(it.pD);
 						if (it.pD == it.pA->data + num) {
+							assert(!it.pA->noMoreNode());
 							it.pA = it.pA->next;
 							it.pD = it.pA->data;
 						}
@@ -201,14 +202,15 @@ namespace LL {
 				return (*this == nullptr) ? ConstantBuffer<Data, 0>::get() : *pD;
 			}
 			const_iterator &MY_LIB operator++()noexcept {
-				if (reinterpret_cast<const Data *>(this->pA->next) != pD) {
+				if (*this != nullptr) {
 					++pD;
-					if (pD - pA->data == num) {
+					if (pD == pA->data + num) {
+						assert(!pA->noMoreNode());
 						pA = pA->next;
 						pD = pA->data;
 					}
 				}
-				return it;
+				return *this;
 			}
 			const_iterator MY_LIB operator+(size_t sz)const noexcept {
 				const_iterator it(*this);
