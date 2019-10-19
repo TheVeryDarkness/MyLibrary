@@ -234,7 +234,7 @@ namespace LargeInteger {
 		INLINED void MY_LIB iter_mul(const Iter &b) noexcept {
 			LargeUnsigned This(*this);
 			this->next = nullptr;
-			this->data = Data(radix_t(0));
+			memset(this, 0, sizeof(this->data));
 			auto Ptr = this->begin();
 			auto OprtPtr = b;
 			for (; ; ) {
@@ -619,7 +619,6 @@ namespace LargeInteger {
 				return;
 			}
 			LargeInteger::LongCmpt<LLCmptTraits<radix>>::template DivideInto<Sim<decltype(this->begin())>, decltype(that.begin()), decltype(this->begin())>(that.begin(), this->begin());
-			this->Simplify();
 		}
 		void MY_LIB operator/=(const LargeUnsigned &that)noexcept {
 			assert(that != 0);
@@ -629,14 +628,11 @@ namespace LargeInteger {
 			LargeUnsigned Res(0);
 			LargeInteger::LongCmpt<LLCmptTraits<radix>>::template DivideInto<Sim<decltype(this->begin())>, decltype(Res), decltype(that.begin()), decltype(this->begin())>(Res, that.begin(), this->begin());
 			*this = Res;
-			this->Simplify();
 		}
 		LargeUnsigned MY_LIB Divide(const LargeUnsigned &that)noexcept {
 			assert(that != 0);
 			LargeUnsigned Res(0);
 			LargeInteger::LongCmpt<LLCmptTraits<radix>>::template DivideInto<Sim<decltype(this->begin())>, decltype(Res), decltype(that.begin()), decltype(this->begin())>(Res, that.begin(), this->begin());
-
-			this->Simplify();
 			return Res;
 		}
 		template<typename Int>
