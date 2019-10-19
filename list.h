@@ -157,7 +157,7 @@ namespace LL {
 			constexpr iterator MY_LIB operator+(size_t sz)const noexcept {
 				iterator it(*this);
 				for (size_t i = 0; i < sz; i++) {
-					if (reinterpret_cast<const Data *>(it.pA->next) == it.pD) {
+					if (reinterpret_cast<const Data *>(it.pA->next) != it.pD) {
 						++(it.pD);
 						if (it.pD == it.pA->data + num) {
 							it.pA = it.pA->next;
