@@ -203,6 +203,7 @@ namespace LL {
 			}
 			const_iterator &MY_LIB operator++()noexcept {
 				if (*this != nullptr) {
+					assert(pA->data >= pD && pD <= reinterpret_cast<const Data *>(&pA->next));
 					++pD;
 					if (pD == pA->data + num) {
 						assert(!pA->noMoreNode());
