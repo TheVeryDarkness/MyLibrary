@@ -65,6 +65,23 @@ namespace LL {
 		constexpr bool justFull()const noexcept {
 			return reinterpret_cast<size_t>(next) == reinterpret_cast<size_t>(&next);
 		}
+		constexpr void Simplify()noexcept {
+			OAL *flagPtr = this, oprtPtr = this;
+			while (!oprtPtr->noMoreNode()) {
+				for (const auto &i : oprtPtr->data) {
+					if (i != Data(0)) {
+						flagPtr = oprtPtr;
+						break;
+					}
+				}
+			}
+			flagPtr->release();
+			for (auto &i : flagPtr->data) {
+				if (i != Data(0)) {
+					flagPtr->next = reinterpret_cast<OAL *>(&i);
+				}
+			}
+		}
 		void push_back(Data n)noexcept {
 			if (hasVacancy()) {
 				push_back_this(n);
@@ -78,6 +95,10 @@ namespace LL {
 			while (!noMoreNode()) {
 				this->cut_node();
 			}
+		}
+		void destruct()noexcept {
+			this->release();
+			memset(this->data, 0, sizeof(data));
 		}
 	private:
 		class iterator final{
@@ -101,6 +122,12 @@ namespace LL {
 					pD = pA->data;
 				}
 				return *this;
+			}
+			OAL *operator->() noexcept {
+				return this->pA;
+			}
+			const OAL *operator->()const noexcept {
+				return this->pA;
 			}
 			constexpr bool operator==(const iterator &that)const noexcept {
 				return this->pA == that->pA && this->pD == that->pD;
@@ -143,6 +170,9 @@ namespace LL {
 					++it;
 				}
 				return it;
+			}
+			const OAL *operator->()const noexcept {
+				return this->pA;
 			}
 			bool operator==(const const_iterator &that)const noexcept {
 				return this->pA == that->pA && this->pD == that->pD;
