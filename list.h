@@ -132,15 +132,20 @@ namespace LL {
 
 		}
 	private:
+		constexpr static bool is_in(const OAL *pA, const Data *pD)noexcept {
+			return (pA->data <= pD) && (pD <= reinterpret_cast<const Data *>(&pA->next));
+		}
 		class iterator final{
 		public:
 			MY_LIB iterator(OAL *_ptr) :pA(_ptr), pD(_ptr->data) { }
 			MY_LIB ~iterator() { }
 
 			Data &MY_LIB operator*()noexcept {
+				assert(is_in(this->pA, this->pD));
 				return (*this == nullptr) ? ConstantBuffer<Data, 0>::get() : *pD;
 			}
 			const Data &MY_LIB operator*()const noexcept {
+				assert(is_in(this->pA, this->pD));
 				return (*this == nullptr) ? ConstantBuffer<Data, 0>::get() : *pD;
 			}
 			iterator &MY_LIB operator++()noexcept {
@@ -199,17 +204,19 @@ namespace LL {
 			MY_LIB ~const_iterator() { }
 
 			const Data &MY_LIB operator*()const noexcept {
+				assert(is_in(this->pA, this->pD));
 				return (*this == nullptr) ? ConstantBuffer<Data, 0>::get() : *pD;
 			}
 			const_iterator &MY_LIB operator++()noexcept {
 				if (*this != nullptr) {
-					assert(pA->data >= pD && pD <= reinterpret_cast<const Data *>(&pA->next));
 					++pD;
 					if (pD == pA->data + num) {
 						assert(!pA->noMoreNode());
 						pA = pA->next;
 						pD = pA->data;
 					}
+					assert(pA->data <= pD);
+					assert(pD <= reinterpret_cast<const Data *>(&pA->next));
 				}
 				return *this;
 			}
