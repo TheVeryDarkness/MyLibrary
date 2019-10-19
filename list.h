@@ -26,12 +26,14 @@ namespace LL {
 		void insert_node_after(Data n)noexcept {
 			assert(justFull());		
 			this->next = new OAL(n);
-
+		}
+		void next_move_forward()noexcept {
+			++ *reinterpret_cast<Data **>(&next);
 		}
 		void push_back_this(Data n)noexcept {
 			assert(hasVacancy());
 			*reinterpret_cast<Data *>(next) = n;
-			++ *reinterpret_cast<Data **>(&next);
+			next_move_forward();
 		}
 	public:
 		using value_type = Data;
@@ -52,7 +54,7 @@ namespace LL {
 		constexpr auto cend()const { return nullptr; }
 		constexpr bool noMoreNode()const noexcept {
 			return
-				reinterpret_cast<size_t>(this) < reinterpret_cast<size_t>(next)
+				this < next
 				&&
 				reinterpret_cast<size_t>(next) <= reinterpret_cast<size_t>(&next);
 		}
@@ -106,7 +108,7 @@ namespace LL {
 				if (OprtPtr->hasVacancy()) {
 					memcpy(OprtPtr->data + 1, OprtPtr->data, num - 1);
 					OprtPtr->data[0] = last;
-					++ *reinterpret_cast<Data **>(&next);
+					next_move_forward();
 				}
 				else if (OprtPtr->justFull()) {
 					OprtPtr->insert_node_after(last);
@@ -211,12 +213,10 @@ namespace LL {
 				if (*this != nullptr) {
 					++pD;
 					if (pD == pA->data + num) {
-						assert(!pA->noMoreNode());
 						pA = pA->next;
 						pD = pA->data;
 					}
-					assert(pA->data <= pD);
-					assert(pD <= reinterpret_cast<const Data *>(&pA->next));
+					assert(is_in(pA, pD));
 				}
 				return *this;
 			}
@@ -237,7 +237,7 @@ namespace LL {
 				return !(*this == that);
 			}
 			bool operator==(nullptr_t)const noexcept {
-				return reinterpret_cast<const Data *>(this->pA->next) == pD;
+				return this->pA->next->data == pD;
 			}
 			bool operator!=(nullptr_t)const noexcept {
 				return !(*this == nullptr);
