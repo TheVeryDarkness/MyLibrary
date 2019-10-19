@@ -34,6 +34,7 @@ namespace LL {
 			++ *reinterpret_cast<Data **>(&next);
 		}
 	public:
+		using value_type = Data;
 		explicit OAL(Data head, OAL *next) :next(next) {
 			static_assert(sizeof(OAL) == sizeof(data) + sizeof(next), "Dangerous!");
 			data[0] = head; 
@@ -135,6 +136,13 @@ namespace LL {
 					pD = pA->data;
 				}
 				return *this;
+			}
+			const_iterator MY_LIB operator+(size_t sz)const noexcept {
+				const_iterator it(*this);
+				for (size_t i = 0; i < sz; ++i) {
+					++it;
+				}
+				return it;
 			}
 			bool operator==(const const_iterator &that)const noexcept {
 				return this->pA == that->pA && this->pD == that->pD;
