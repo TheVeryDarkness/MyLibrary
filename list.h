@@ -114,7 +114,9 @@ namespace LL {
 					OprtPtr->next_move_forward();
 				}
 				else if (OprtPtr->justFull()) {
-					OprtPtr->insert_node_after(last);
+					OprtPtr->insert_node_after(OprtPtr->data[num - 1]);
+					memcpy(OprtPtr->data + 1, OprtPtr->data, sizeof(Data[num - 1]));
+					OprtPtr->data[0] = last;
 				}
 				else {
 					Data tmp = last;
