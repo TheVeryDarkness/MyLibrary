@@ -233,8 +233,7 @@ namespace LargeInteger {
 		template<typename Iter>
 		INLINED void MY_LIB iter_mul(const Iter &b) noexcept {
 			LargeUnsigned This(*this);
-			this->next = nullptr;
-			memset(this, 0, sizeof(this->data));
+			this->destruct();
 			auto Ptr = this->begin();
 			auto OprtPtr = b;
 			for (; ; ) {
