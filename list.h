@@ -97,10 +97,10 @@ namespace LL {
 				}
 				return *this;
 			}
-			bool operator==(const iterator &that)const noexcept {
+			constexpr bool operator==(const iterator &that)const noexcept {
 				return this->pA == that->pA && this->pD == that->pD;
 			}
-			bool operator!=(const iterator &that)const noexcept {
+			constexpr bool operator!=(const iterator &that)const noexcept {
 				return !(*this == that);
 			}
 			bool operator==(nullptr_t)const noexcept {
