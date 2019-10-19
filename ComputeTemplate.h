@@ -10,7 +10,7 @@
 //	It's set up by myself,
 //	after a lot of struggle.
 //
-//	1.An iterator equals null_ptr when it is going to be out of its working range,
+//	1.An iterator equals nullptr when it is going to be out of its working range,
 //	though it may not result in crash.
 //	2.end_ptr is used for suffiency.
 //	3.Always remember that each iterator below represents a kind of linear list,
