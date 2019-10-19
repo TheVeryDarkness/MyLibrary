@@ -7,39 +7,6 @@ namespace LL {
 	template<typename Data, size_t num, size_t CacheSize = 50>
 	class OAL {
 		MEMORY_CACHE(CacheSize);
-		class const_iterator {
-		public:
-			MY_LIB const_iterator(const OAL *_ptr):pA(_ptr),pD(_ptr->data) { }
-			MY_LIB ~const_iterator() { }
-
-			const Data& MY_LIB operator*()noexcept {
-				return *pD;
-			}
-			const_iterator &MY_LIB operator++()noexcept {
-				++pD;
-				if (pD - pA->data == num) {
-					pA = pA->next;
-					pD = pA->data;
-				}
-				return *this;
-			}
-			bool operator==(const const_iterator &that)const noexcept { 
-				return this->pA == that->pA && this->pD == that->pD;
-			}
-			bool operator!=(const const_iterator &that)const noexcept {
-				return !(*this == that);
-			}
-			bool operator==(nullptr_t)const noexcept { 
-				return reinterpret_cast<const Data *>(this->pA->next) == pD;
-			}
-			bool operator!=(nullptr_t)const noexcept {
-				return !(*this == nullptr);
-			}
-
-		private:
-			const OAL *pA;
-			const Data *pD;
-		};
 	protected:
 		Data data[num];
 		OAL *next;
@@ -55,12 +22,22 @@ namespace LL {
 				this->next = tmp;
 			}
 		}
+		void insert_node_after(Data n)noexcept {
+			assert(justFull());		
+			this->next = new OAL(n);
+
+		}
+		void push_back_this(Data n)noexcept {
+			assert(hasVacancy());
+			*reinterpret_cast<Data *>(next) = n;
+			++ *reinterpret_cast<Data **>(&next);
+		}
 	public:
 		explicit OAL(Data head, OAL *next) :next(next) {
 			static_assert(sizeof(OAL) == sizeof(data) + sizeof(next), "Dangerous!");
 			data[0] = head; 
 		}
-		explicit OAL(Data head = Data()) :next(reinterpret_cast<OAL *>(&this->data[1])) {
+		explicit OAL(Data head = Data()) :next(reinterpret_cast<OAL *>(this->data + 1)) {
 			static_assert(sizeof(OAL) == sizeof(data) + sizeof(next), "Dangerous!");
 			data[0] = head; 
 		}
@@ -84,24 +61,53 @@ namespace LL {
 		constexpr bool justFull()const noexcept {
 			return reinterpret_cast<size_t>(next) == reinterpret_cast<size_t>(&next);
 		}
-		void insert(Data n)noexcept {
-			assert(this != next);
+		void push_back(Data n)noexcept {
 			if (hasVacancy()) {
-				*reinterpret_cast<Data *>(next) = n;
-				++*reinterpret_cast<Data **>(&next);
+				push_back_this(n);
 			}
 			else if (justFull()) {
-				this->next = new OAL(n);
+				insert_node_after(n);
 			}
-			else {
-				auto tmp = this->next;
-				this->next = new OAL(n, tmp);
-			}
+			else this->next->push_back(n);
 		}
 		void release()noexcept {
 			while (!noMoreNode()) {
 				this->cut_node();
 			}
 		}
+	private:
+		class const_iterator final{
+		public:
+			MY_LIB const_iterator(const OAL *_ptr) :pA(_ptr), pD(_ptr->data) { }
+			MY_LIB ~const_iterator() { }
+
+			const Data &MY_LIB operator*()noexcept {
+				return *pD;
+			}
+			const_iterator &MY_LIB operator++()noexcept {
+				++pD;
+				if (pD - pA->data == num) {
+					pA = pA->next;
+					pD = pA->data;
+				}
+				return *this;
+			}
+			bool operator==(const const_iterator &that)const noexcept {
+				return this->pA == that->pA && this->pD == that->pD;
+			}
+			bool operator!=(const const_iterator &that)const noexcept {
+				return !(*this == that);
+			}
+			bool operator==(nullptr_t)const noexcept {
+				return reinterpret_cast<const Data *>(this->pA->next) == pD;
+			}
+			bool operator!=(nullptr_t)const noexcept {
+				return !(*this == nullptr);
+			}
+
+		private:
+			const OAL *pA;
+			const Data *pD;
+		};
 	};
 }
