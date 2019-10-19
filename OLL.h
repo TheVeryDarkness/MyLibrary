@@ -429,6 +429,21 @@ namespace LL {
 		)const noexcept {
 			return LL::SinglePrint<OLL>(*this, out);
 		}
+
+		OLL &operator<<=(size_t sz)noexcept {
+			for (unsigned int index = 0; index < sz; index++) {
+				this->insert(this->data);
+				this->data = Data(0);
+			}
+			return *this;
+		}
+
+		OLL &operator>>=(size_t sz)noexcept {
+			for (unsigned int index = 0; index < sz; index++) {
+				this->data = this->pop();
+			}
+			return *this;
+		}
 	protected:
 		//获取that链节存储的数据
 		//若使用缺省参数，表示获取当前链节存储的数据

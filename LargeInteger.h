@@ -531,19 +531,24 @@ namespace LargeInteger {
 
 
 
-
-
 		//位移运算
 		//按独立进制而非二进制
 		//左移时用默认值补齐
 		/*INLINED*/LargeUnsigned &operator<<=(
 			unsigned int bits) noexcept {
-			for (unsigned int index = 0; index < bits; index++) {
-				this->insert(this->data);
-				memset(this, 0, sizeof(this->data));
-			}
+			this->LL::operator<<=(bits);
 			return *this;
 		}
+		//位移运算
+		//按独立进制而非二进制
+		//右移时第一位销毁
+		/*INLINED*/LargeUnsigned &operator>>=(unsigned int bits) noexcept {
+			this->LL::operator>>=(bits);
+			return *this;
+		}
+
+
+
 		bool MY_LIB operator==(const LargeUnsigned &that)const noexcept {
 			return LL::operator==(that);
 		}
@@ -656,16 +661,6 @@ namespace LargeInteger {
 			auto &&res = this->Divide(temp);
 			temp.release();
 			return res;
-		}
-
-		//位移运算
-		//按独立进制而非二进制
-		//右移时第一位销毁
-		/*INLINED*/LargeUnsigned &operator>>=(unsigned int bits) noexcept {
-			for (unsigned int index = 0; index < bits; index++) {
-				this->data = this->LL::pop();
-			}
-			return *this;
 		}
 
 

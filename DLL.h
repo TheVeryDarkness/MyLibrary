@@ -527,6 +527,21 @@ namespace LL {
 		INLINED DLL* MY_LIB Simplify() noexcept {
 			LL_SIMPLIFY(DLL);
 		}
+
+		DLL &operator<<=(size_t sz)noexcept {
+			for (unsigned int index = 0; index < sz; index++) {
+				this->insert(this->data);
+				this->data = Data(0);
+			}
+			return *this;
+		}
+
+		DLL &operator>>=(size_t sz)noexcept {
+			for (unsigned int index = 0; index < sz; index++) {
+				this->data = this->pop();
+			}
+			return *this;
+		}
 	protected:
 		//刷新last指针
 		//保证指向正确
