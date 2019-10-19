@@ -14,6 +14,8 @@ namespace LL {
 		static_assert(!std::is_array_v<Data>, "Array type is not available.");
 		MEMORY_CACHE(CacheSize);
 	protected:
+		class iterator;
+		class const_iterator;
 		Data data[num];
 		OAL *flag_next;
 		void cut_node()noexcept {
@@ -166,76 +168,11 @@ namespace LL {
 		constexpr static bool is_at_out_place(const OAL *pA, const Data *pD)noexcept {
 			return pA->data + num == pD;
 		}
-		class iterator final{
-		public:
-			MY_LIB iterator(OAL *_ptr) :pA(_ptr), pD(_ptr->data) { }
-			MY_LIB ~iterator() { }
-
-			Data &MY_LIB operator*()noexcept {
-				assert(legel_iterator_ptr(pA, pD));
-				return (*this == nullptr) ? ConstantBuffer<Data, 0>::get() : *const_cast<Data *>(pD);
-			}
-			const Data &MY_LIB operator*()const noexcept {
-				assert(legel_iterator_ptr(pA, pD));
-				return (*this == nullptr) ? ConstantBuffer<Data, 0>::get() : *pD;
-			}
-			iterator &MY_LIB operator++()noexcept {
-				++pD;
-				if (has_ended(pA, pD)) {
-					const_cast<OAL *>(pA)->push_back(0);
-				}
-				if (pD == pA->data + num) {
-					pA = pA->flag_next;
-					pD = pA->data;
-				}
-				assert(is_in(pA, pD));
-				return *this;
-			}
-			constexpr iterator MY_LIB operator+(size_t sz)const noexcept {
-				iterator it(*this);
-				for (size_t i = 0; i < sz; i++) {
-					if (!has_ended(pA, pD)) {
-						++(it.pD);
-						if (it.pD == it.pA->data + num && !pA->justFull()) {
-							assert(!it.pA->noMoreNode());
-							it.pA = it.pA->flag_next;
-							it.pD = it.pA->data;
-						}
-						assert(is_in(it.pA, it.pD));
-					}
-				}
-				return it;
-			}
-			OAL *operator->() noexcept {
-				return const_cast<OAL *>(this->pA);
-			}
-			const OAL *operator->()const noexcept {
-				return this->pA;
-			}
-			constexpr bool operator==(const iterator &that)const noexcept {
-				return this->pA == that->pA && this->pD == that->pD;
-			}
-			constexpr bool operator!=(const iterator &that)const noexcept {
-				return !(*this == that);
-			}
-			bool operator==(nullptr_t)const noexcept {
-				assert(reinterpret_cast<const Data *>(&this->pA->flag_next) != pD);
-				return has_ended(pA, pD);
-				//return reinterpret_cast<const Data *>(this->pA->next) == pD;
-			}
-			bool operator!=(nullptr_t)const noexcept {
-				return !(*this == nullptr);
-			}
-
-		private:
-			const OAL *pA;
-			const Data *pD;
-		};
-
-
 		class const_iterator final{
+			friend class iterator;
 		public:
 			MY_LIB const_iterator(const OAL *_ptr) :pA(_ptr), pD(_ptr->data) { }
+			MY_LIB const_iterator(const OAL *_pA, const Data *_pD) : pA(_pA), pD(_pD) { }
 			MY_LIB ~const_iterator() { }
 
 			const Data &MY_LIB operator*()const noexcept {
@@ -243,7 +180,7 @@ namespace LL {
 				return (*this == nullptr) ? ConstantBuffer<Data, 0>::get() : *pD;
 			}
 			const_iterator &MY_LIB operator++()noexcept {
-				assert(legel_iterator_ptr(pA, pD)); 
+				assert(legel_iterator_ptr(pA, pD));
 				if (!is_at_out_place(pA, pD) && !has_ended(pA, pD)) {
 					++pD;
 					assert(is_in(pA, pD));
@@ -274,6 +211,65 @@ namespace LL {
 			}
 			bool operator==(nullptr_t)const noexcept {
 				return has_ended(pA, pD) || is_at_out_place(pA, pD);
+			}
+			bool operator!=(nullptr_t)const noexcept {
+				return !(*this == nullptr);
+			}
+
+		private:
+			const OAL *pA;
+			const Data *pD;
+		};
+		class iterator final {
+			friend class const_iterator;
+		public:
+			explicit MY_LIB iterator(OAL *_ptr) :pA(_ptr), pD(_ptr->data) { }
+			MY_LIB iterator(OAL *_pA, Data *_pD) : pA(_pA), pD(_pD) { }
+			MY_LIB ~iterator() { }
+
+			Data &MY_LIB operator*()noexcept {
+				assert(legel_iterator_ptr(pA, pD));
+				return (*this == nullptr) ? ConstantBuffer<Data, 0>::get() : *const_cast<Data *>(pD);
+			}
+			const Data &MY_LIB operator*()const noexcept {
+				assert(legel_iterator_ptr(pA, pD));
+				return (*this == nullptr) ? ConstantBuffer<Data, 0>::get() : *pD;
+			}
+			iterator &MY_LIB operator++()noexcept {
+				++pD;
+				if (has_ended(pA, pD)) {
+					const_cast<OAL *>(pA)->push_back(0);
+				}
+				if (is_at_out_place(pA, pD)) {
+					pA = pA->flag_next;
+					pD = pA->data;
+				}
+				assert(is_in(pA, pD));
+				return *this;
+			}
+			constexpr iterator MY_LIB operator+(size_t sz)const noexcept {
+				const_iterator it(this->pA, this->pD);
+				for (size_t i = 0; i < sz; i++) {
+					++it;
+				}
+				iterator i(const_cast<OAL *>(it.pA), const_cast<Data *>(it.pD));
+				return i;
+			}
+			OAL *operator->() noexcept {
+				return const_cast<OAL *>(this->pA);
+			}
+			const OAL *operator->()const noexcept {
+				return this->pA;
+			}
+			constexpr bool operator==(const iterator &that)const noexcept {
+				return this->pA == that->pA && this->pD == that->pD;
+			}
+			constexpr bool operator!=(const iterator &that)const noexcept {
+				return !(*this == that);
+			}
+			bool operator==(nullptr_t)const noexcept {
+				return has_ended(pA, pD) || is_at_out_place(pA, pD);
+				//return reinterpret_cast<const Data *>(this->pA->next) == pD;
 			}
 			bool operator!=(nullptr_t)const noexcept {
 				return !(*this == nullptr);
