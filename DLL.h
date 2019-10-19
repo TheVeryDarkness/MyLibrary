@@ -264,22 +264,12 @@ namespace LL {
 				return it;
 			}
 
-			constexpr auto &MY_LIB operator*()noexcept {
+			constexpr const auto &MY_LIB operator*()const noexcept {
 				if (iter::ptr != nullptr) {
 					return iter::ptr->data;
 				}
 				else {
-					assert((std::iterator<std::bidirectional_iterator_tag, LL::DLL<Data>>::NullData == 0));
-					return static_cast<const Data &>(std::iterator<std::bidirectional_iterator_tag, LL::DLL<Data>>::NullData = 0);
-				}
-			}
-			constexpr auto MY_LIB operator*()const noexcept {
-				if (iter::ptr != nullptr) {
-					return iter::ptr->data;
-				}
-				else {
-					assert((std::iterator<std::bidirectional_iterator_tag, LL::DLL<Data>>::NullData == 0));
-					return static_cast<const Data &>(std::iterator<std::bidirectional_iterator_tag, LL::DLL<Data>>::NullData = 0);
+					return ConstantBuffer<Data, 0>::get();
 				}
 			}
 
