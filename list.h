@@ -165,9 +165,11 @@ namespace LL {
 					const_cast<OAL *>(pA)->push_back(0);
 				}
 				if (pD == pA->data + num) {
+					assert(!pA->noMoreNode() || pA->justFull());
 					pA = pA->next;
 					pD = pA->data;
 				}
+				assert(is_in(pA, pD));
 				return *this;
 			}
 			constexpr iterator MY_LIB operator+(size_t sz)const noexcept {
