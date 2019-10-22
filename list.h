@@ -157,7 +157,12 @@ namespace LL {
 			return (pA->data <= pD) && (pD <= pA->data + num);
 		}
 		constexpr static bool legel_iterator_ptr(const OAL *pA, const Data *pD)noexcept {
-			return is_in(pA, pD) && (!is_in(pA, pA->flag_next->data) || pD <= pA->flag_next->data);
+			return
+				(pA == nullptr && pD == nullptr)
+				||
+				is_in(pA, pD)
+				&&
+				(!is_in(pA, pA->flag_next->data) || pD <= pA->flag_next->data);
 		}
 		constexpr static bool ending(const OAL *pA, const Data *pD)noexcept {
 			return pA->flag_next->data == pD;
@@ -195,8 +200,11 @@ namespace LL {
 					}
 				}
 				else if (*this != nullptr) {
-					++pD;
-					assert(is_in(pA, pD));
+					if (ending(pA, pD)) {
+						*this = nullptr;
+					}
+					else ++pD;
+					assert(legel_iterator_ptr(pA, pD));
 				}
 				return *this;
 			}
