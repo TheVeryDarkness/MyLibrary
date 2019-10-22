@@ -212,10 +212,12 @@ namespace LargeInteger {
 
 		template<typename subIterator, typename Iterator>
 		static constexpr INLINED void MY_LIB SubtractFrom(subIterator a, Iterator b)noexcept {
+			assert(CompareTo(a, b) == Compare::Smaller);
 			return SubPrinComputeTo<typename _Traits::SubtractFrom, subIterator, Iterator>(a, b);
 		}
 		template<typename subIterator, typename Iterator, typename CallBack = Empty>
 		static constexpr INLINED void MY_LIB SubtractFrom(subIterator a, Iterator b, CallBack& c)noexcept {
+			assert(CompareTo(a, b) == Compare::Smaller);
 			return SubPrinComputeTo<typename _Traits::SubtractFrom, subIterator, Iterator, CallBack>(a, b, c);
 		}
 
