@@ -69,33 +69,14 @@ namespace LargeInteger {
 			}
 			else {
 				N a = N::Copy(Numerator), b = N::Copy(Denominator);
-				while (true) {
-					if (a == 0) {
-						this->Numerator /= b;
-						this->Denominator /= b;
-						a.destruct(); b.destruct();
-						return;
-					}
-					if (b == 0) {
-						this->Numerator /= a;
-						this->Denominator /= a;
-						a.destruct(), b.destruct();
-						return;
-					}
-					if (a == b) {
-						this->Numerator /= a;
-						this->Denominator /= b;
-						a.destruct();
-						b.destruct();
-						return;
-					}
-					{
-						if (a < b) {
-							b %= a;
-						}
-						else a %= b;
-					}
+				N *Larger, *Smaller;
+				(a > b) ? (Larger = &a, Smaller = &b) : (Larger = &b, Smaller = &a);
+				while (*Smaller != 0) {
+					*Larger %= *Smaller;
+					std::swap(Larger, Smaller);
 				}
+				this->Numerator /= *Larger;
+				this->Denominator /= *Smaller;
 			}
 		}
 		void MY_LIB operator=(long that) noexcept {
