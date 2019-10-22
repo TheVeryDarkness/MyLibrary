@@ -157,19 +157,22 @@ namespace LL {
 			return (pA->data <= pD) && (pD <= pA->data + num);
 		}
 		constexpr static bool legel_iterator_ptr(const OAL *pA, const Data *pD)noexcept {
-			return is_in(pA, pD) && (!is_in(pA, pA->flag_next->data) || pD <= pA->flag_next->data + 1);
-		}
-		constexpr static bool has_ended(const OAL *pA, const Data *pD)noexcept {
-			return pA->flag_next->data + 1 == pD;
+			return is_in(pA, pD) && (!is_in(pA, pA->flag_next->data) || pD <= pA->flag_next->data);
 		}
 		constexpr static bool ending(const OAL *pA, const Data *pD)noexcept {
 			return pA->flag_next->data == pD;
 		}
-		constexpr static bool is_at_out_place(const OAL *pA, const Data *pD)noexcept {
-			return pA->data + num == pD;
+		constexpr static bool at_last_place_of_this_node(const OAL *pA, const Data *pD)noexcept {
+			return pA->data + (num - 1) == pD;
 		}
+		//It will points to nullptr after moving out of range.
 		class const_iterator final{
 			friend class iterator;
+			const_iterator &operator=(nullptr_t)noexcept {
+				this->pA = nullptr;
+				this->pD = nullptr;
+				return *this;
+			}
 		public:
 			MY_LIB const_iterator(const OAL *_ptr) :pA(_ptr), pD(_ptr->data) { }
 			MY_LIB const_iterator(const OAL *_pA, const Data *_pD) : pA(_pA), pD(_pD) { }
@@ -181,15 +184,19 @@ namespace LL {
 			}
 			const_iterator &MY_LIB operator++()noexcept {
 				assert(legel_iterator_ptr(pA, pD));
-				if (!is_at_out_place(pA, pD) && !has_ended(pA, pD)) {
+				if (at_last_place_of_this_node(pA, pD)) {
+					if (pA->noMoreNode()) {
+						*this = nullptr;
+					}
+					else {
+						pA = pA->flag_next;
+						pD = pA->data;
+						assert(legel_iterator_ptr(pA, pD));
+					}
+				}
+				else if (*this != nullptr) {
 					++pD;
 					assert(is_in(pA, pD));
-				}
-				if (is_at_out_place(pA, pD) && !pA->noMoreNode()) {
-					//assert(has_ended(pA, pD));
-					pA = pA->flag_next;
-					pD = pA->data;
-					assert(legel_iterator_ptr(pA, pD));
 				}
 				return *this;
 			}
@@ -201,6 +208,7 @@ namespace LL {
 				return it;
 			}
 			const OAL *operator->()const noexcept {
+				assert(pA != nullptr);
 				return this->pA;
 			}
 			bool operator==(const const_iterator &that)const noexcept {
@@ -210,7 +218,7 @@ namespace LL {
 				return !(*this == that);
 			}
 			bool operator==(nullptr_t)const noexcept {
-				return has_ended(pA, pD) || is_at_out_place(pA, pD);
+				return pA == nullptr && pD == nullptr;
 			}
 			bool operator!=(nullptr_t)const noexcept {
 				return !(*this == nullptr);
@@ -220,6 +228,7 @@ namespace LL {
 			const OAL *pA;
 			const Data *pD;
 		};
+		//It will points to nullptr after moving out of range.
 		class iterator final {
 			friend class const_iterator;
 		public:
@@ -236,24 +245,23 @@ namespace LL {
 				return (*this == nullptr) ? ConstantBuffer<Data, 0>::get() : *pD;
 			}
 			iterator &MY_LIB operator++()noexcept {
-				++pD;
-				if (has_ended(pA, pD)) {
+				if (ending(pA, pD)) {
 					const_cast<OAL *>(pA)->push_back(0);
 				}
-				if (is_at_out_place(pA, pD)) {
+				if (at_last_place_of_this_node(pA, pD)) {
 					pA = pA->flag_next;
 					pD = pA->data;
 				}
-				assert(is_in(pA, pD));
+				else ++pD;
+				assert(legel_iterator_ptr(pA, pD));
 				return *this;
 			}
 			constexpr iterator MY_LIB operator+(size_t sz)const noexcept {
-				const_iterator it(this->pA, this->pD);
+				iterator it(this->pA, this->pD);
 				for (size_t i = 0; i < sz; i++) {
-					++it;
+					reinterpret_cast<const_iterator *>(&it)->operator++();
 				}
-				iterator i(const_cast<OAL *>(it.pA), const_cast<Data *>(it.pD));
-				return i;
+				return it;
 			}
 			OAL *operator->() noexcept {
 				return const_cast<OAL *>(this->pA);
@@ -268,7 +276,8 @@ namespace LL {
 				return !(*this == that);
 			}
 			bool operator==(nullptr_t)const noexcept {
-				return has_ended(pA, pD) || is_at_out_place(pA, pD);
+				assert(legel_iterator_ptr(pA, pD));
+				return false;
 				//return reinterpret_cast<const Data *>(this->pA->next) == pD;
 			}
 			bool operator!=(nullptr_t)const noexcept {
