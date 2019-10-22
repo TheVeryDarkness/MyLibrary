@@ -232,7 +232,7 @@ namespace LargeInteger {
 		//Actually not.
 		template<typename Iter>
 		INLINED void MY_LIB iter_mul(const Iter &b) noexcept {
-			LargeUnsigned This(*this);
+			LargeUnsigned This(std::move(*static_cast<LL *>(this)));
 			this->destruct();
 			auto Ptr = this->begin();
 			auto OprtPtr = b;
@@ -297,7 +297,7 @@ namespace LargeInteger {
 			}
 			return;
 		}
-		explicit MY_LIB LargeUnsigned(LL &&ll)noexcept :LL(ll) { }
+		explicit MY_LIB LargeUnsigned(LL &&ll)noexcept :LL(std::move(ll)) { }
 		static constexpr LargeUnsigned MY_LIB Copy(const LargeUnsigned &that)noexcept {
 			LargeUnsigned This(0);
 			auto j = This.begin();
