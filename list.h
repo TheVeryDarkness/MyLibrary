@@ -294,6 +294,7 @@ namespace LL {
 				return (*this == nullptr) ? ConstantBuffer<Data, 0>::get() : *super::pD;
 			}
 			iterator &MY_LIB operator++()noexcept {
+				assert(legel_iterator_ptr(super::pA, super::pD));
 				if (ending(super::pA, super::pD)) {
 					const_cast<OAL *>(super::pA)->push_back(0);
 				}
@@ -326,7 +327,7 @@ namespace LL {
 			}
 			bool operator==(nullptr_t)const noexcept {
 				assert(legel_iterator_ptr(super::pA, super::pD));
-				return false;
+				return this->super::operator==(nullptr);
 				//return reinterpret_cast<const Data *>(this->pA->next) == pD;
 			}
 			bool operator!=(nullptr_t)const noexcept {
