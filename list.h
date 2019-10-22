@@ -56,6 +56,46 @@ namespace LL {
 		explicit OAL(Data head = Data()) :flag_next(reinterpret_cast<OAL *>(this->data)) {
 			data[0] = head; 
 		}
+		explicit OAL(OAL &&that) noexcept {
+		#pragma omp parallel for
+			for (size_t i = 0; i < num; ++i) {
+				this->data[i] = that.data[i];
+			}
+			if (is_in(&that, that.flag_next->data)) {
+				this->flag_next = reinterpret_cast<OAL *>(this->data + (that.flag_next->data - that.data));
+			}
+			else { 
+				this->flag_next = that.flag_next;
+				that.flag_next = reinterpret_cast<OAL *>(that.data + (num - 1));
+			}
+		}
+		OAL &operator=(const OAL &that)noexcept {
+			if (&that == this) {
+				return *this;
+			}
+			this->destruct();
+			memcpy(this->data, that.data, sizeof(data));
+			if (is_in(&that, that.flag_next->data)) {
+				this->flag_next = reinterpret_cast<OAL *>(this->data + (that.flag_next->data - that.data));
+			}
+			else {
+				this->flag_next = that.flag_next;
+			}
+			return *this;
+		}
+		explicit OAL(const OAL &that) :data(that.data) {
+			if (is_in(&that, that.flag_next->data)) {
+				this->flag_next = reinterpret_cast<OAL *>(this->data + (that.flag_next->data - that.data));
+			}
+			else {
+				this->flag_next = that.flag_next;
+				that.flag_next = reinterpret_cast<OAL *>(that.data + (num - 1));
+			}
+		#pragma omp parallel for
+			for (size_t i = 0; i < num; ++i) {
+				this->data[i] = that.data[i];
+			}
+		}
 		~OAL() { }
 		constexpr auto begin()const { return const_iterator(this); }
 		constexpr auto cbegin()const { return const_iterator(this); }
@@ -266,8 +306,8 @@ namespace LL {
 				return *this;
 			}
 			constexpr iterator MY_LIB operator+(size_t sz)const noexcept {
-				iterator it(this->super::pA, this->super::pD);
-				for (size_t i = 0; i < sz; i++) {
+				iterator it(const_cast<OAL *>(this->super::pA), const_cast<Data *>(this->super::pD));
+				for (size_t i = 0; i < sz; ++i) {
 					static_cast<const_iterator *>(&it)->operator++();
 				}
 				return it;
