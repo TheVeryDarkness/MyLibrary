@@ -389,7 +389,7 @@ namespace LargeInteger {
 		template<typename Simplify, typename subIterator, typename Iterator>
 		static INLINED void MY_LIB DivideInto(subIterator a, Iterator b) {
 			static_assert(std::is_same<std::decay_t<decltype(*a)>, std::decay_t<decltype(*b)>>::value);
-			using Data=typename std::decay<decltype(*a)>::type;
+			using Data=typename std::decay_t<decltype(*a)>;
 			//Regarding of the compatibility, we didn't use any majorization.
 			auto func = [](const subIterator &a, const Iterator &b, Data times)->void {
 				LineIterator<typename _Traits::Multiply, subIterator, decltype(times)> temp(times, a);
