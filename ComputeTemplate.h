@@ -173,6 +173,13 @@ namespace LargeInteger {
 				typename std::decay_t<decltype(*b)>>,
 				"They should have the same type.");
 			using Data = std::decay_t<decltype(*a)>;
+		#ifdef _DEBUG
+			{
+				subIterator _a(a);
+				Iterator _b(b);
+				assert(CompareTo(a, b) != Compare::Larger);
+			}
+		#endif // _DEBUG
 			//This element
 			for (
 				SubPrincIterator<Compute, subIterator, Iterator, Data> compute(a, b);
@@ -186,6 +193,13 @@ namespace LargeInteger {
 				typename std::decay_t<decltype(*b)>>,
 				"They should have the same type.");
 			using Data = std::decay_t<decltype(*a)>;
+		#ifdef _DEBUG
+			{
+				subIterator _a(a);
+				Iterator _b(b);
+				assert(CompareTo(a, b) != Compare::Larger);
+			}
+		#endif // _DEBUG
 			//This element
 			for (
 				SubPrincIterator<Compute, subIterator, Iterator, Data> compute(a, b);
@@ -212,12 +226,10 @@ namespace LargeInteger {
 
 		template<typename subIterator, typename Iterator>
 		static constexpr INLINED void MY_LIB SubtractFrom(subIterator a, Iterator b)noexcept {
-			assert(CompareTo(a, b) == Compare::Smaller);
 			return SubPrinComputeTo<typename _Traits::SubtractFrom, subIterator, Iterator>(a, b);
 		}
 		template<typename subIterator, typename Iterator, typename CallBack = Empty>
 		static constexpr INLINED void MY_LIB SubtractFrom(subIterator a, Iterator b, CallBack& c)noexcept {
-			assert(CompareTo(a, b) == Compare::Smaller);
 			return SubPrinComputeTo<typename _Traits::SubtractFrom, subIterator, Iterator, CallBack>(a, b, c);
 		}
 
@@ -300,8 +312,8 @@ namespace LargeInteger {
 					else if (*_a < *_b) {
 						temp = Compare::Smaller;
 					}
-					subIterator &&aNext = _a + 1;
-					Iterator &&bNext = _b + 1;
+					subIterator aNext = _a + 1;
+					Iterator bNext = _b + 1;
 					//I wonder whether I should use if-else or ?:
 					if ((aNext == nullptr) && (bNext == nullptr)) {
 						if (temp == Compare::Larger) {
@@ -365,9 +377,11 @@ namespace LargeInteger {
 			while (true) {
 				auto [res, cmpr] = _CompareTo(_b, _a);
 				if (cmpr == Compare::Smaller) {
+					assert(CompareTo(_b, _a) == Compare::Smaller);
 					return;
 				}
 				else {
+					assert(CompareTo(_b, _a) != Compare::Smaller);
 					if (cmpr == Compare::Equal) Accum(_a, _b, 1); 
 					else Accum(_a, _b, res);
 					//return;
