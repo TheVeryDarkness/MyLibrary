@@ -263,16 +263,15 @@ namespace LargeInteger {
 					else if (*_a < *_b) {
 						temp = Compare::Smaller;
 					}
-					if ((_a + 1 == nullptr) || (_b + 1 == nullptr)) {
+					bool __a = (_a + 1 == nullptr), __b = (_b + 1 == nullptr);
+					if (__a && __b) {
 						break;
 					}
-					else if (_a + 1 == nullptr) {
-						temp = Compare::Smaller;
-						break;
+					else if (__a) {
+						return Compare::Smaller;
 					}
-					else if (_b + 1 == nullptr) {
-						temp = Compare::Larger;
-						break;
+					else if (__b) {
+						return Compare::Larger;
 					}
 				}
 				return temp;
@@ -367,7 +366,8 @@ namespace LargeInteger {
 					return;
 				}
 				else {
-					if (cmpr == Compare::Equal) Accum(_a, _b, 1); else Accum(_a, _b, res);
+					if (cmpr == Compare::Equal) Accum(_a, _b, 1); 
+					else Accum(_a, _b, res);
 					//return;
 				}
 			}
