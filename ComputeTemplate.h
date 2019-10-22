@@ -367,10 +367,7 @@ namespace LargeInteger {
 					return;
 				}
 				else {
-					if (cmpr == Compare::Equal) {
-						res = 1;
-					}
-					Accum(_a, _b, res);
+					if (cmpr == Compare::Equal) Accum(_a, _b, 1); else Accum(_a, _b, res);
 					//return;
 				}
 			}
