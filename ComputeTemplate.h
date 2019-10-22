@@ -197,7 +197,7 @@ namespace LargeInteger {
 			{
 				subIterator _a(a);
 				Iterator _b(b);
-				assert(CompareTo(a, b) != Compare::Larger);
+				assert(CompareTo(_a, _b) != Compare::Larger);
 			}
 		#endif // _DEBUG
 			//This element
