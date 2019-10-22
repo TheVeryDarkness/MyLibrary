@@ -535,7 +535,9 @@ namespace LargeInteger {
 		//左移时用默认值补齐
 		/*INLINED*/LargeUnsigned &operator<<=(
 			unsigned int bits) noexcept {
-			this->LL::operator<<=(bits);
+			if (*this != 0) {
+				this->LL::operator<<=(bits);
+			}
 			return *this;
 		}
 		//位移运算
