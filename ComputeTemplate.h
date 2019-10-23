@@ -321,7 +321,7 @@ namespace LargeInteger {
 			}
 		}
 		template<typename Accumulation, typename Recursion, typename subIterator, typename Iterator, typename Data>
-		static INLINED void MY_LIB __DivideInto(subIterator _a, Iterator _b, Recursion Move, Accumulation Accum)noexcept {
+		static INLINED void MY_LIB __DivideInto(const subIterator &_a, const Iterator &_b, Recursion Move, Accumulation Accum)noexcept {
 			{
 				switch (CompareTo(_a, _b)) {
 				case Compare::Larger:
@@ -334,6 +334,7 @@ namespace LargeInteger {
 					Move();
 					break;
 				default:
+					assert(false);
 					break;
 				}
 			}
@@ -345,7 +346,7 @@ namespace LargeInteger {
 				}
 				else {
 					assert(CompareTo(_b, _a) != Compare::Smaller);
-					if (cmpr == Compare::Equal) Accum(_a, _b, 1); 
+					if (cmpr == Compare::Equal) Accum(_a, _b, 1);
 					else Accum(_a, _b, res);
 					//return;
 				}
