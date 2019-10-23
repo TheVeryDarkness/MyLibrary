@@ -165,29 +165,8 @@ namespace LargeInteger {
 		};
 
 
-
-		template<typename Compute, typename subIterator, typename Iterator>
-		static constexpr INLINED void MY_LIB SubPrinComputeTo(subIterator &a, Iterator &b)noexcept {
-			static_assert(std::is_same_v<
-				typename std::decay_t<decltype(*a)>,
-				typename std::decay_t<decltype(*b)>>,
-				"They should have the same type.");
-			using Data = std::decay_t<decltype(*a)>;
-		#ifdef _DEBUG
-			{
-				subIterator _a(a);
-				Iterator _b(b);
-				assert(CompareTo(a, b) != Compare::Larger);
-			}
-		#endif // _DEBUG
-			//This element
-			for (
-				SubPrincIterator<Compute, subIterator, Iterator, Data> compute(a, b);
-				*(compute.b) = *compute, compute != end_ptr;
-				++compute);
-		}
-		template<typename Compute, typename subIterator, typename Iterator, typename CallBack = Empty>
-		static constexpr INLINED void MY_LIB SubPrinComputeTo(subIterator &a, Iterator &b, CallBack &c)noexcept {
+		template<typename Compute, typename subIterator, typename Iterator, typename... CallBack>
+		static constexpr INLINED void MY_LIB SubPrinComputeTo(subIterator &a, Iterator &b, CallBack&... c)noexcept {
 			static_assert(std::is_same_v<
 				typename std::decay_t<decltype(*a)>,
 				typename std::decay_t<decltype(*b)>>,
@@ -203,34 +182,18 @@ namespace LargeInteger {
 			//This element
 			for (
 				SubPrincIterator<Compute, subIterator, Iterator, Data> compute(a, b);
-				c(), *(compute.b) = *compute, compute != end_ptr;
+				(c(), ...), *(compute.b) = *compute, compute != end_ptr;
 				++compute);
 		}
 
-		template<typename subIterator, typename Iterator, typename CallBack = Empty>
-		static constexpr INLINED void MY_LIB AddTo(subIterator a, Iterator b, CallBack& c)noexcept {
-			static_assert(std::is_same_v<
-				typename std::decay_t<decltype(*a)>,
-				typename std::decay_t<decltype(*b)>
-			>, "They should have the same type.");
-			return SubPrinComputeTo<typename _Traits::Add, subIterator, Iterator, CallBack>(a, b, c);
-		}
-		template<typename subIterator, typename Iterator>
-		static constexpr INLINED void MY_LIB AddTo(subIterator a, Iterator b)noexcept {
-			static_assert(std::is_same_v<
-				typename std::decay_t<decltype(*a)>,
-				typename std::decay_t<decltype(*b)>
-			>, "They should have the same type.");
-			return SubPrinComputeTo<typename _Traits::Add, subIterator, Iterator>(a, b);
+		template<typename subIterator, typename Iterator, typename... CallBack>
+		static constexpr INLINED void MY_LIB AddTo(subIterator a, Iterator b, CallBack&... c)noexcept {
+			return SubPrinComputeTo<typename _Traits::Add, subIterator, Iterator, CallBack...>(a, b, c...);
 		}
 
-		template<typename subIterator, typename Iterator>
-		static constexpr INLINED void MY_LIB SubtractFrom(subIterator a, Iterator b)noexcept {
-			return SubPrinComputeTo<typename _Traits::SubtractFrom, subIterator, Iterator>(a, b);
-		}
-		template<typename subIterator, typename Iterator, typename CallBack = Empty>
-		static constexpr INLINED void MY_LIB SubtractFrom(subIterator a, Iterator b, CallBack& c)noexcept {
-			return SubPrinComputeTo<typename _Traits::SubtractFrom, subIterator, Iterator, CallBack>(a, b, c);
+		template<typename subIterator, typename Iterator, typename... CallBack>
+		static constexpr INLINED void MY_LIB SubtractFrom(subIterator a, Iterator b, CallBack&... c)noexcept {
+			return SubPrinComputeTo<typename _Traits::SubtractFrom, subIterator, Iterator, CallBack...>(a, b, c...);
 		}
 
 		template<typename Iterator, typename Data>
