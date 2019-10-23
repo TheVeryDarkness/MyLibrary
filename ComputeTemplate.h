@@ -297,42 +297,40 @@ namespace LargeInteger {
 					//I wonder whether I should use if-else or ?:
 					if ((aNext == nullptr) && (bNext == nullptr)) {
 						if (temp == Compare::Larger) {
-							if (*_a > *_b) {
-								if (!HasChanged && ((*_b) != 0)) {
-									return RV_PAIR_DISPLAY(std::pair<Data, Compare>(Data(*_a / (*_b)), Compare::Larger));
-								}
-								return RV_PAIR_DISPLAY(std::pair<Data, Compare>(Data(*_a / (*_b + Data(1))), Compare::Larger));
-							}
-							return RV_PAIR_DISPLAY(std::pair<Data, Compare>(1, Compare::Larger));
+							return RV_PAIR_DISPLAY(std::pair<Data, Compare>(
+								((*_a > *_b)
+									?
+									((!HasChanged && (*_b != 0))
+										? Data(*_a / (*_b)) : Data(*_a / (*_b + Data(1))))
+									:
+									Data(1)),
+								Compare::Larger));
 						}
 						else if (temp == Compare::Smaller) {
-							if (*_a < *_b) {
-								if (!HasChanged && ((*_a) != 0)) {
-									return RV_PAIR_DISPLAY(std::pair<Data, Compare>(Data(*_b / (*_a)), Compare::Smaller));
-								}
-								return RV_PAIR_DISPLAY(std::pair<Data, Compare>(Data(*_b / (*_a + Data(1))), Compare::Smaller));
-							}
-							return RV_PAIR_DISPLAY(std::pair<Data, Compare>((1), Compare::Smaller));
+							return RV_PAIR_DISPLAY(std::pair<Data, Compare>(
+								((*_a < *_b)
+									?
+									((!HasChanged && (*_a != 0))
+										? Data(*_b / (*_a)) : Data(*_b / (*_a + Data(1))))
+									:
+									Data(1)),
+								Compare::Smaller));
 						}
 						else {
 							return RV_PAIR_DISPLAY(std::pair<Data, Compare>((1), Compare::Equal));
 						}
 					}
 					else if (aNext == nullptr) {
-						if (*bNext >= *_a) {
-							return RV_PAIR_DISPLAY(std::pair<Data, Compare>(PracticedRadix, Compare::Smaller));
-						}
-						else {
-							return RV_PAIR_DISPLAY(std::pair<Data, Compare>(PracticedRadix / (*_a + 1) * *bNext, Compare::Smaller));
-						}
+						return RV_PAIR_DISPLAY(std::pair<Data, Compare>(
+							((*bNext >= *_a)
+								? PracticedRadix : (PracticedRadix / (*_a + 1) * *bNext)),
+							Compare::Smaller));
 					}
 					else if (bNext == nullptr) {
-						if (*aNext >= *_b) {
-							return RV_PAIR_DISPLAY(std::pair<Data, Compare>(PracticedRadix, Compare::Larger));
-						}
-						else {
-							return RV_PAIR_DISPLAY(std::pair<Data, Compare>(PracticedRadix / (*_b + 1) * *aNext, Compare::Larger));
-						}
+						return RV_PAIR_DISPLAY(std::pair<Data, Compare>(
+							((*aNext >= *_b)
+								? PracticedRadix : (PracticedRadix / (*_b + 1) * *aNext)),
+							Compare::Larger));
 					}
 				}
 			}
