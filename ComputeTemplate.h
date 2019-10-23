@@ -175,14 +175,14 @@ namespace LargeInteger {
 		public:
 			Empty() = default;
 			~Empty() = default;
-			void MY_LIB operator()()const noexcept{ }
+			void MY_LIB operator()()const noexcept { }
 		private:
 
 		};
 
 
 		template<typename Compute, typename subIterator, typename Iterator, typename... CallBack>
-		static constexpr INLINED void MY_LIB SubPrinComputeTo(subIterator &a, Iterator &b, CallBack&... c)noexcept {
+		static constexpr INLINED void MY_LIB SubPrinComputeTo(subIterator &a, Iterator &b, CallBack &... c)noexcept {
 			static_assert(std::is_same_v<
 				typename std::decay_t<decltype(*a)>,
 				typename std::decay_t<decltype(*b)>>,
@@ -196,18 +196,18 @@ namespace LargeInteger {
 		}
 
 		template<typename subIterator, typename Iterator, typename... CallBack>
-		static constexpr INLINED void MY_LIB AddTo(subIterator a, Iterator b, CallBack&... c)noexcept {
+		static constexpr INLINED void MY_LIB AddTo(subIterator a, Iterator b, CallBack &... c)noexcept {
 			return SubPrinComputeTo<typename _Traits::Add, subIterator, Iterator, CallBack...>(a, b, c...);
 		}
 
 		template<typename subIterator, typename Iterator, typename... CallBack>
-		static constexpr INLINED void MY_LIB SubtractFrom(subIterator a, Iterator b, CallBack&... c)noexcept {
+		static constexpr INLINED void MY_LIB SubtractFrom(subIterator a, Iterator b, CallBack &... c)noexcept {
 			assert(CompareTo(a, b) != Compare::Larger);
 			return SubPrinComputeTo<typename _Traits::SubtractFrom, subIterator, Iterator, CallBack...>(a, b, c...);
 		}
-		
+
 		template<typename Iterator, typename Data>
-		[[deprecated]]static INLINED void MY_LIB MultiplyTo(Data a, Iterator b) noexcept {
+		[[deprecated]] static INLINED void MY_LIB MultiplyTo(Data a, Iterator b) noexcept {
 			Data Carry = Data(0);
 			LineIterator<typename _Traits::Multiply, Iterator, Data> mul(a, b);
 			while (true) {
@@ -241,7 +241,7 @@ namespace LargeInteger {
 					;
 					++_a, ++_b
 					) {
-					if (*_a > * _b) {
+					if (*_a > *_b) {
 						temp = Compare::Larger;
 					}
 					else if (*_a < *_b) {
@@ -274,7 +274,7 @@ namespace LargeInteger {
 			}
 			std::cout << std::endl;
 		#endif // RV_DISPLAY_ON
-			using Data=typename std::decay_t<decltype(*a)>;
+			using Data = typename std::decay_t<decltype(*a)>;
 			static_assert(std::is_same_v<std::decay_t<decltype(*a)>, std::decay_t<decltype(*b)>>);
 			constexpr auto PracticedRadix = ((_Traits::getRadix() == 0) ? std::numeric_limits<Data>::max() : _Traits::getRadix());
 			{
@@ -351,7 +351,7 @@ namespace LargeInteger {
 				default:
 					assert(false);
 					break;
-				}	
+				}
 			}
 			while (true) {
 				auto [res, cmpr] = _CompareTo(_b, _a);
@@ -370,7 +370,7 @@ namespace LargeInteger {
 		template<typename Simplify, typename Linear, typename subIterator, typename Iterator>
 		static INLINED void MY_LIB DivideInto(Linear &Res, subIterator a, Iterator b) noexcept {
 			static_assert(std::is_same_v<std::decay_t<decltype(*a)>, std::decay_t<decltype(*b)>>, "Same type required");
-			using Data=typename std::decay_t<decltype(*a)>;
+			using Data = typename std::decay_t<decltype(*a)>;
 			//Regarding of the compatibility, we didn't use any majorization.
 			auto func1 = [&Res](const subIterator &a, const Iterator &b, Data times)->void {
 				LineIterator<typename _Traits::Multiply, subIterator, decltype(times)> temp(times, a);
@@ -384,7 +384,7 @@ namespace LargeInteger {
 		template<typename Simplify, typename subIterator, typename Iterator>
 		static INLINED void MY_LIB DivideInto(subIterator a, Iterator b) {
 			static_assert(std::is_same<std::decay_t<decltype(*a)>, std::decay_t<decltype(*b)>>::value);
-			using Data=typename std::decay_t<decltype(*a)>;
+			using Data = typename std::decay_t<decltype(*a)>;
 			//Regarding of the compatibility, we didn't use any majorization.
 			auto func = [](const subIterator &a, const Iterator &b, Data times)->void {
 				LineIterator<typename _Traits::Multiply, subIterator, decltype(times)> temp(times, a);
@@ -464,13 +464,13 @@ namespace LargeInteger {
 		template<auto divisor>
 		class Divide {
 		public:
-			using radix_t =decltype(divisor);
+			using radix_t = decltype(divisor);
 			MY_LIB Divide()noexcept { }
 			MY_LIB ~Divide()noexcept { }
 
 			std::pair<radix_t, Data> operator()(const Data &that) noexcept {
 				static_assert(sizeof(radix_t) * 2 >= sizeof(Data), "It can't be stored safely!");
-				using resT=std::pair<radix_t, Data>;
+				using resT = std::pair<radix_t, Data>;
 				static_assert(std::is_same_v<Depack_t<Data>, Data>, "The type must not be num!");
 				if constexpr (divisor == 0) {
 					if constexpr (sizeof(divisor) >= sizeof(Data)) {
