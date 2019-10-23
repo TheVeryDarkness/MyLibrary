@@ -58,6 +58,26 @@
 #endif // !EOVERFLOW
 #endif // __GNUC__
 
+#define RV_DISPLAY_ON 0
+
+template<typename T>
+constexpr inline const T &RV_DISPLAY(const T &t)noexcept {
+#if _DEBUG && RV_DISPLAY_ON
+	return std::cout << t << std::endl, t;
+#else
+	return t;
+#endif // _DEBUG && RV_DISPLAY_ON
+}
+
+template<typename T>
+constexpr inline const T &RV_PAIR_DISPLAY(const T &t)noexcept {
+#if _DEBUG && RV_DISPLAY_ON
+	return std::cout << t.first << ' ' << t.second << std::endl, t;
+#else
+	return t;
+#endif // _DEBUG && RV_DISPLAY_ON
+}
+
 
 template<typename type>
 class Depack {

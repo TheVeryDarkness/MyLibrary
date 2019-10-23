@@ -23,7 +23,23 @@ namespace LargeInteger {
 	enum class Compare :signed char {
 		Larger = 0x1, Equal = 0x0, Smaller = -0x1
 	};
-
+	std::ostream &operator<<(std::ostream & o, Compare c)noexcept {
+		switch (c) {
+		case LargeInteger::Compare::Larger:
+			o << "Larger";
+			break;
+		case LargeInteger::Compare::Equal:
+			o << "Equal";
+			break;
+		case LargeInteger::Compare::Smaller:
+			o << "Smaller";
+			break;
+		default:
+			o << '?';
+			break;
+		}
+		return o;
+	}
 
 
 	//The _Traits must give these functions:
@@ -172,13 +188,6 @@ namespace LargeInteger {
 				typename std::decay_t<decltype(*b)>>,
 				"They should have the same type.");
 			using Data = std::decay_t<decltype(*a)>;
-		#ifdef _DEBUG
-			{
-				subIterator _a(a);
-				Iterator _b(b);
-				assert(CompareTo(_a, _b) != Compare::Larger);
-			}
-		#endif // _DEBUG
 			//This element
 			for (
 				SubPrincIterator<Compute, subIterator, Iterator, Data> compute(a, b);
@@ -193,9 +202,10 @@ namespace LargeInteger {
 
 		template<typename subIterator, typename Iterator, typename... CallBack>
 		static constexpr INLINED void MY_LIB SubtractFrom(subIterator a, Iterator b, CallBack&... c)noexcept {
+			assert(CompareTo(a, b) != Compare::Larger);
 			return SubPrinComputeTo<typename _Traits::SubtractFrom, subIterator, Iterator, CallBack...>(a, b, c...);
 		}
-
+		
 		template<typename Iterator, typename Data>
 		[[deprecated]]static INLINED void MY_LIB MultiplyTo(Data a, Iterator b) noexcept {
 			Data Carry = Data(0);
@@ -203,16 +213,13 @@ namespace LargeInteger {
 			while (true) {
 				//This element
 				*(mul.b) = mul.Result.first;
-				if (mul.b + 1 == nullptr) {
+				if (mul.b == end_ptr) {
 					if (mul.Result.second != Data(0)) {
 						mul.b.insert(mul.b, mul.Result.second);
 					}
 					break;
 				}
 				++mul;
-				if (!mul) {
-					break;
-				}
 			}
 		}
 
@@ -257,6 +264,16 @@ namespace LargeInteger {
 		//Extension for Compare()
 		template<typename subIterator, typename Iterator>
 		static INLINED auto MY_LIB _CompareTo(const subIterator &a, const Iterator &b) noexcept {
+		#if RV_DISPLAY_ON
+			for (auto i = a; i != nullptr; i = i + 1) {
+				std::cout << *i << '\t';
+			}
+			std::cout << std::endl;
+			for (auto i = b; i != nullptr; i = i + 1) {
+				std::cout << *i << '\t';
+			}
+			std::cout << std::endl;
+		#endif // RV_DISPLAY_ON
 			using Data=typename std::decay_t<decltype(*a)>;
 			static_assert(std::is_same_v<std::decay_t<decltype(*a)>, std::decay_t<decltype(*b)>>);
 			constexpr auto PracticedRadix = ((_Traits::getRadix() == 0) ? std::numeric_limits<Data>::max() : _Traits::getRadix());
@@ -269,7 +286,7 @@ namespace LargeInteger {
 					;
 					++_a, ++_b, HasChanged = true
 					) {
-					if (*_a > * _b) {
+					if (*_a > *_b) {
 						temp = Compare::Larger;
 					}
 					else if (*_a < *_b) {
@@ -280,41 +297,41 @@ namespace LargeInteger {
 					//I wonder whether I should use if-else or ?:
 					if ((aNext == nullptr) && (bNext == nullptr)) {
 						if (temp == Compare::Larger) {
-							if (*_a > * _b) {
+							if (*_a > *_b) {
 								if (!HasChanged && ((*_b) != 0)) {
-									return std::pair<Data, Compare>(Data(*_a / (*_b)), Compare::Larger);
+									return RV_PAIR_DISPLAY(std::pair<Data, Compare>(Data(*_a / (*_b)), Compare::Larger));
 								}
-								return std::pair<Data, Compare>(Data(*_a / (*_b + Data(1))), Compare::Larger);
+								return RV_PAIR_DISPLAY(std::pair<Data, Compare>(Data(*_a / (*_b + Data(1))), Compare::Larger));
 							}
-							return std::pair<Data, Compare>(1, Compare::Larger);
+							return RV_PAIR_DISPLAY(std::pair<Data, Compare>(1, Compare::Larger));
 						}
 						else if (temp == Compare::Smaller) {
 							if (*_a < *_b) {
 								if (!HasChanged && ((*_a) != 0)) {
-									return std::pair<Data, Compare>(Data(*_b / (*_a)), Compare::Smaller);
+									return RV_PAIR_DISPLAY(std::pair<Data, Compare>(Data(*_b / (*_a)), Compare::Smaller));
 								}
-								return std::pair<Data, Compare>(Data(*_b / (*_a + Data(1))), Compare::Smaller);
+								return RV_PAIR_DISPLAY(std::pair<Data, Compare>(Data(*_b / (*_a + Data(1))), Compare::Smaller));
 							}
-							return std::pair<Data, Compare>((1), Compare::Smaller);
+							return RV_PAIR_DISPLAY(std::pair<Data, Compare>((1), Compare::Smaller));
 						}
 						else {
-							return std::pair<Data, Compare>((1), Compare::Equal);
+							return RV_PAIR_DISPLAY(std::pair<Data, Compare>((1), Compare::Equal));
 						}
 					}
 					else if (aNext == nullptr) {
 						if (*bNext >= *_a) {
-							return std::pair<Data, Compare>(PracticedRadix, Compare::Smaller);
+							return RV_PAIR_DISPLAY(std::pair<Data, Compare>(PracticedRadix, Compare::Smaller));
 						}
 						else {
-							return std::pair<Data, Compare>(PracticedRadix / *_a * *bNext, Compare::Smaller);
+							return RV_PAIR_DISPLAY(std::pair<Data, Compare>(PracticedRadix / (*_a + 1) * *bNext, Compare::Smaller));
 						}
 					}
 					else if (bNext == nullptr) {
 						if (*aNext >= *_b) {
-							return std::pair<Data, Compare>(PracticedRadix, Compare::Larger);
+							return RV_PAIR_DISPLAY(std::pair<Data, Compare>(PracticedRadix, Compare::Larger));
 						}
 						else {
-							return std::pair<Data, Compare>(PracticedRadix / *_b * *aNext, Compare::Larger);
+							return RV_PAIR_DISPLAY(std::pair<Data, Compare>(PracticedRadix / (*_b + 1) * *aNext, Compare::Larger));
 						}
 					}
 				}
@@ -336,7 +353,7 @@ namespace LargeInteger {
 				default:
 					assert(false);
 					break;
-				}
+				}	
 			}
 			while (true) {
 				auto [res, cmpr] = _CompareTo(_b, _a);
