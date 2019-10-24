@@ -230,8 +230,7 @@ namespace LargeInteger {
 
 		//Maybe this is the first function I'd use multi-thread optimization?
 		//Actually not.
-		template<typename Iter>
-		INLINED void MY_LIB iter_mul(const Iter &b) noexcept {
+		template<typename Iter> INLINED void MY_LIB iter_mul(const Iter &b) noexcept {
 			LargeUnsigned This(std::move(*static_cast<LL *>(this)));
 			this->destruct();
 			auto Ptr = this->begin();
@@ -244,6 +243,30 @@ namespace LargeInteger {
 				++Ptr;
 			}
 			This.release();
+		}
+		template<typename Iter> INLINED void MY_LIB iter_add(const Iter &b) noexcept {
+			LargeInteger::LongCmpt<LLCmptTraits<radix>>::AddTo(b, this->begin());
+		}
+		template<typename Iter> INLINED void MY_LIB iter_sub(const Iter &b) noexcept {
+			LargeInteger::LongCmpt<LLCmptTraits<radix>>::SubtractFrom(b, this->begin());
+		}
+		template<typename Iter> INLINED void MY_LIB iter_div(LargeUnsigned& Res, const Iter &b) noexcept {
+			LargeInteger::LongCmpt<LLCmptTraits<radix>>::template DivideInto<Sim<decltype(this->begin())>, decltype(Res), Iter, decltype(this->begin())>(Res, b, this->begin());
+		}
+		template<typename Iter> INLINED void MY_LIB iter_div(const Iter &b) noexcept {
+			LargeInteger::LongCmpt<LLCmptTraits<radix>>::template DivideInto<Sim<decltype(this->begin())>, Iter, decltype(this->begin())>(b, this->begin());
+		}
+		//*this < b
+		template<typename Iter> INLINED bool MY_LIB iter_smaller(const Iter &b) const noexcept {
+			return (LargeInteger::LongCmpt<LLCmptTraits<radix>>::CompareTo(this->begin(), b) == Compare::Smaller);
+		}
+		//*this > b
+		template<typename Iter> INLINED bool MY_LIB iter_larger(const Iter &b) const noexcept {
+			return (LargeInteger::LongCmpt<LLCmptTraits<radix>>::CompareTo(this->begin(), b) == Compare::Larger);
+		}
+		//*this == b
+		template<typename Iter> INLINED bool MY_LIB iter_equal(const Iter &b) const noexcept {
+			return (LargeInteger::LongCmpt<LLCmptTraits<radix>>::CompareTo(this->begin(), b) == Compare::Equal);
 		}
 	public:
 		using super = LL;
@@ -284,11 +307,14 @@ namespace LargeInteger {
 		constexpr INLINED auto crend() const noexcept {
 			return this->LL::crend();
 		}
+		template<typename val> static auto Layer(const val& Val)noexcept {
+			return typename LongCmpt<StdCmptTraits<val>>::template LayerIterator<typename StdCmptTraits<val>::template Divide<radix>, radix_t, val>(Val);
+		}
 		template<typename val>
 		explicit MY_LIB LargeUnsigned(val Val)noexcept :LL(0) {
 			static_assert(std::is_integral_v<val>, "Integral type required.");
 			static_assert(!std::is_same_v<val, bool>, "Never use bool type");
-			typename LongCmpt<StdCmptTraits<val>>::template LayerIterator<typename StdCmptTraits<val>::template Divide<radix>, radix_t, val> it(Val);
+			auto it = Layer(Val);
 			for (auto index = this->begin(); it != nullptr; ) {
 				*index = *it;
 				++it;
@@ -409,7 +435,7 @@ namespace LargeInteger {
 		template<typename Int>
 		/*INLINED*/ void MY_LIB operator*=(const Int &that) noexcept {
 			static_assert(std::is_integral_v<Int>);
-			typename LongCmpt<StdCmptTraits<Int>>::template LayerIterator<typename StdCmptTraits<Int>::template Divide<radix>, radix_t, Int> it(that);
+			auto it = Layer(that);
 			this->iter_mul(it);
 		}
 		template<typename Int>
@@ -442,6 +468,7 @@ namespace LargeInteger {
 				return;
 			}
 			assert(*this >= that);
+			iter_sub(that.cbegin());
 			LargeInteger::LongCmpt<LLCmptTraits<radix>>::SubtractFrom(that.begin(), this->begin());
 			this->LL::Simplify();
 		}
@@ -460,7 +487,7 @@ namespace LargeInteger {
 				*this = Copy(that);
 				return;
 			}
-			LargeInteger::LongCmpt<LLCmptTraits<radix>>::AddTo(that.begin(), this->begin());
+			iter_add(that.cbegin());
 		}
 		INLINED LargeUnsigned MY_LIB operator+(
 			const LargeUnsigned &b//²Ù×÷Êý
@@ -487,22 +514,20 @@ namespace LargeInteger {
 		template<typename Int>
 		INLINED void MY_LIB operator+=(const Int &that)noexcept {
 			static_assert(std::is_integral_v<Int>, "integral type required.");
-			if (that == 0) {
-				return;
-			}
+			if (that == 0) return;
 			if (*this == 0) {
 				*this = that;
 				return;
 			}
-			typename LongCmpt<StdCmptTraits<Int>>::template LayerIterator<typename StdCmptTraits<Int>::template Divide<radix>, radix_t, Int> it(that);
-			LargeInteger::LongCmpt<LLCmptTraits<radix>>::AddTo(it, this->begin());
+			auto it = Layer(that);
+			iter_add(it);
 		}
 		template<typename Int>
 		INLINED void MY_LIB operator-=(const Int &that)noexcept {
 			static_assert(std::is_integral_v<Int>, "integral type required.");
-			LargeUnsigned temp(that);
-			*this -= temp;
-			temp.release();
+			if (that == 0) 	return;
+			auto it = Layer(that);
+			iter_sub(it);
 		}
 		template<typename Int>
 		INLINED LargeUnsigned MY_LIB operator+(const Int &that)const noexcept {
@@ -553,8 +578,8 @@ namespace LargeInteger {
 			if (that == Int(0)) {
 				return (this->LL::isNull());
 			}
-			typename LongCmpt<StdCmptTraits<radix_t>>::template LayerIterator<typename StdCmptTraits<radix_t>::template Divide<radix>, radix_t, Int> it(that);
-			return (LargeInteger::LongCmpt<LLCmptTraits<radix>>::CompareTo(this->begin(), it) == Compare::Equal);
+			auto it = Layer(that);
+			return iter_equal(it);
 		}
 		template<typename Int>
 		bool MY_LIB operator!=(const Int &that)const noexcept {
@@ -562,10 +587,10 @@ namespace LargeInteger {
 			return !(*this == that);
 		}
 		bool MY_LIB operator<(const LargeUnsigned &that)const noexcept {
-			return (LargeInteger::LongCmpt<LLCmptTraits<radix>>::CompareTo(this->begin(), that.begin()) == Compare::Smaller);
+			return iter_smaller(that.cbegin());
 		}
 		bool MY_LIB operator>(const LargeUnsigned &that)const noexcept {
-			return(LargeInteger::LongCmpt<LLCmptTraits<radix>>::CompareTo(this->begin(), that.begin()) == Compare::Larger);
+			return iter_larger(that.cbegin());
 		}
 		bool MY_LIB operator<=(const LargeUnsigned &that)const noexcept {
 			return !(*this > that);
@@ -576,18 +601,14 @@ namespace LargeInteger {
 		template<typename Int>
 		bool MY_LIB operator<(const Int &that)const noexcept {
 			static_assert(std::is_integral_v<Int>, "integral type required.");
-			LargeUnsigned temp(that);
-			bool &&Res = (*this < temp);
-			temp.release();
-			return Res;
+			auto it = Layer(that);
+			return iter_smaller(it);
 		}
 		template<typename Int>
 		bool MY_LIB operator>(const Int &that)const noexcept {
 			static_assert(std::is_integral_v<Int>, "integral type required.");
-			LargeUnsigned temp(that);
-			bool &&Res = (*this > temp);
-			temp.release();
-			return Res;
+			auto it = Layer(that);
+			return iter_larger(it);
 		}
 		template<typename Int>
 		bool MY_LIB operator<=(const Int &that)const noexcept {
@@ -615,7 +636,7 @@ namespace LargeInteger {
 			if (that == 0) {
 				return;
 			}
-			LargeInteger::LongCmpt<LLCmptTraits<radix>>::template DivideInto<Sim<decltype(this->begin())>, decltype(that.begin()), decltype(this->begin())>(that.begin(), this->begin());
+			iter_div(that.cbegin());
 		}
 		void MY_LIB operator/=(const LargeUnsigned &that)noexcept {
 			assert(that != 0);
@@ -623,36 +644,36 @@ namespace LargeInteger {
 				return;
 			}
 			LargeUnsigned Res(0);
-			LargeInteger::LongCmpt<LLCmptTraits<radix>>::template DivideInto<Sim<decltype(this->begin())>, decltype(Res), decltype(that.begin()), decltype(this->begin())>(Res, that.begin(), this->begin());
+			iter_div(Res, that.cbegin());
 			*this = Res;
 		}
 		LargeUnsigned MY_LIB Divide(const LargeUnsigned &that)noexcept {
 			assert(that != 0);
 			LargeUnsigned Res(0);
-			LargeInteger::LongCmpt<LLCmptTraits<radix>>::template DivideInto<Sim<decltype(this->begin())>, decltype(Res), decltype(that.begin()), decltype(this->begin())>(Res, that.begin(), this->begin());
+			iter_div(Res, that.cbegin());
 			return Res;
 		}
 		template<typename Int>
 		void MY_LIB operator%=(const Int &that)noexcept {
 			static_assert(std::is_integral_v<Int>, "integral type required.");
-			LargeUnsigned temp(that);
-			*this %= temp;
-			temp.release();
+			auto it = Layer(that);
+			iter_div(it);
 		}
 		template<typename Int>
 		void MY_LIB operator/=(const Int &that)noexcept {
 			static_assert(std::is_integral_v<Int>, "integral type required.");
-			LargeUnsigned temp(that);
-			*this /= temp;
-			temp.release();
+			auto it = Layer(that);
+			LargeUnsigned Res(0);
+			iter_div(Res, it);
+			*this = Res;
 		}
 		template<typename Int>
 		LargeUnsigned MY_LIB Divide(const Int &that)noexcept {
 			static_assert(std::is_integral_v<Int>, "integral type required.");
-			LargeUnsigned temp(that);
-			auto &&res = this->Divide(temp);
-			temp.release();
-			return res;
+			auto it = Layer(that);
+			LargeUnsigned Res(0);
+			iter_div(Res, it);
+			return Res;
 		}
 
 
@@ -664,7 +685,7 @@ namespace LargeInteger {
 			if (Val == 0) {
 				this->destruct();
 			}
-			typename LongCmpt<StdCmptTraits<Int>>::template LayerIterator<typename StdCmptTraits<Int>::template Divide<radix>, radix_t, Int> it(Val);
+			auto it = Layer(Val);
 			for (auto index = this->begin(); it != nullptr; ) {
 				*index = Data(*it);
 				++it;
