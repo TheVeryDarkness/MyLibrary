@@ -7,6 +7,7 @@
 #include "_Bytes.h"
 #include <iostream>
 #include <cassert>
+#include <vector>
 
 namespace LargeInteger {
 	template<typename LL, typename LL::value_type radix> class LargeUnsigned;
@@ -420,16 +421,6 @@ namespace LargeInteger {
 			out << std::setbase(10);
 			return out;
 		}
-		INLINED std::istream &MY_LIB Scan(std::istream &in) noexcept {
-			constexpr size_t base = LargeUnsigned::RadixSelector<getRadix()>::Base();
-			char c;
-			while (in >> c, Set<base>::super::exist(c)) {
-				*this *= base;
-				*this += Set<base>::super::to_int_type(c);
-			}
-			in.putback(c);
-			return in;
-		}
 		INLINED std::ostream &MY_LIB Print(std::ostream &o = std::cout) const noexcept {
 			return _Print<decltype(this->cbegin()), radix>(this->cbegin(), o);
 		}
@@ -440,17 +431,53 @@ namespace LargeInteger {
 			) noexcept {
 			return l.Scan(in);
 		}
-		template<char...Delim>void __stdcall get_until(std::istream &in)noexcept {
-			using charset = BaseSet<char, char, Delim...>;
-			static_assert(sizeof...(Delim) > 0, "Delim should be given");
-			constexpr size_t base = charset::getRadix();
+	protected:
+		constexpr static radix_t base = RadixSelector<radix>::Base();
+		constexpr static radix_t len = RadixSelector<radix>::Length_Each();
+		template<typename end>
+		auto scan(
+			std::istream &in,
+			std::vector<char, std::allocator<char>>& arr
+		) {
+			end e;
 			char c;
-			while (in >> c, in.good()) {
-				if (charset::exist(c)) {
-					*this *= base;
-					*this += Set<base>::super::to_int_type(c);
+			in >> c;
+			if (e(c)) {
+				in.putback(c);
+				arr[0] = Set<base>::super::to_int_type(c);
+				return this->begin();
+			}
+			else {
+				auto it = scan<end>(in, arr);
+				if (arr.size() == len) {
+					Data sum = 0;
+					for (auto i = arr.rbegin(); ;++i) {
+						sum += *i;
+						*i = 0;
+						if (i != arr.rend())sum *= base; else break;
+					}
+					return ++it;
+				}
+				else {
+					arr.push_back(Set<base>::super::to_int_type(c));
+					return it;
 				}
 			}
+		}
+	public:
+		template<char...Delim>char __stdcall get_until(std::istream &in)noexcept {
+			using charset = BaseSet<char, char, Delim...>;
+			static_assert(sizeof...(Delim) > 0, "Delim should be given");
+			auto lambda = [](char c) { return charset::exist(c); };
+			std::vector<char, std::allocator<char>> vec(len, 0);
+			scan<decltype(lambda)>(in, vec);
+			return in.get();
+		}
+		INLINED std::istream &MY_LIB Scan(std::istream &in) noexcept {
+			auto lambda = [](char c) { return !Set<base>::super::exist(c); };
+			std::vector<char> vec(len, 0);
+			scan<decltype(lambda)>(in, vec);
+			return in;
 		}
 		//输出到控制台窗口
 		/*INLINED*/friend std::ostream &MY_LIB operator<<(
@@ -1071,11 +1098,6 @@ namespace LargeInteger {
 			return this->data;
 		}
 
-		INLINED std::istream &MY_LIB Scan(std::istream &in) {
-			this->PosSign = (in.peek() == '-' ? false : true);
-			return in >> *static_cast<LargeUnsigned<LL, radix> *>(this);
-		}
-
 		//二进制输出到控制台窗口
 		/*INLINED*/friend std::ostream &MY_LIB operator<<(
 			std::ostream &out,
@@ -1092,19 +1114,12 @@ namespace LargeInteger {
 			return l.Scan(in);
 		}
 		template<char...Delim>char __stdcall get_until(std::istream &in)noexcept {
-			using delimSet = BaseSet<char, char, Delim...>;
-			static_assert(sizeof...(Delim) > 0, "Delim should be given");
-			constexpr size_t base = LargeUnsigned<LL,radix>::RadixSelector<getRadix()>::Base();
-			char c;
-			while (in >> c, in.good()) {
-				if (!delimSet::exist(c)) {
-					*this *= base;
-					*this += Set<base>::super::to_int_type(c);
-				}
-				else return c;
-			}
-			assert(delimSet::exist(c) || !in);
-			return c;
+			this->PosSign = (in.peek() == '-' ? false : true);
+			return this->LargeUnsigned<LL, radix>::get_until<Delim...>(in);
+		}
+		INLINED std::istream &MY_LIB Scan(std::istream &in) {
+			this->PosSign = (in.peek() == '-' ? false : true);
+			return in >> *static_cast<LargeUnsigned<LL, radix> *>(this);
 		}
 		INLINED std::ostream &MY_LIB Print(std::ostream &o = std::cout) const noexcept {
 			if (!this->PosSign) {
