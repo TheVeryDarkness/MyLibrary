@@ -434,8 +434,7 @@ namespace LargeInteger {
 	protected:
 		constexpr static radix_t base = RadixSelector<radix>::Base();
 		constexpr static radix_t len = RadixSelector<radix>::Length_Each();
-		template<typename end>
-		auto scan(
+		template<typename end> auto scan(
 			std::istream &in,
 			std::vector<char, std::allocator<char>>& arr
 		) {
@@ -451,11 +450,13 @@ namespace LargeInteger {
 				auto it = scan<end>(in, arr);
 				if (arr.size() == len) {
 					Data sum = 0;
-					for (auto i = arr.rbegin(); ;++i) {
+					for (auto i = arr.rbegin(); ;) {
 						sum += *i;
 						*i = 0;
-						if (i != arr.rend())sum *= base; else break;
+						++i;
+						if (i != arr.rend()) sum *= base; else break;
 					}
+					*it = sum;
 					return ++it;
 				}
 				else {
@@ -471,7 +472,7 @@ namespace LargeInteger {
 			auto lambda = [](char c) { return charset::exist(c); };
 			std::vector<char, std::allocator<char>> vec(len, 0);
 			scan<decltype(lambda)>(in, vec);
-			return in.get();
+			return static_cast<char>(in.get());
 		}
 		INLINED std::istream &MY_LIB Scan(std::istream &in) noexcept {
 			auto lambda = [](char c) { return !Set<base>::super::exist(c); };
