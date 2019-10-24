@@ -46,10 +46,10 @@ namespace LargeInteger{
 		~Set() = delete;
 	};
 
-template<>class Set<2> { public:	using super = typename Set2; };
-template<>class Set<8> { public:	using super = typename Set8; };
-template<>class Set<10> { public:	using super = typename Set10; };
-template<>class Set<16> { public:	using super = typename Set16; };
+template<>class Set<2> { public:	using super = Set2; };
+template<>class Set<8> { public:	using super = Set8; };
+template<>class Set<10> { public:	using super = Set10; };
+template<>class Set<16> { public:	using super = Set16; };
 
 
 	template<char...Delim>char __stdcall getline(std::istream &in, std::string &str)noexcept {
