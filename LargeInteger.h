@@ -430,11 +430,23 @@ namespace LargeInteger {
 			) noexcept {
 			constexpr size_t base = LargeUnsigned::RadixSelector<l.getRadix()>::Base();
 			char c;
-			while (c = static_cast<char>(in.get()), Set<base>::super::exist(c)) {
+			while (in >> c, Set<base>::super::exist(c)) {
 				l *= base;
 				l += Set<base>::super::to_int_type(c);
 			}
+			in.putback(c);
 			return in;
+		}
+		template<char...Delim>void __stdcall get_until(std::istream &in)noexcept {
+			using charset = BaseSet<char, char, Delim...>;
+			static_assert(sizeof...(Delim) > 0, "Delim should be given");
+			char tmp;
+			while (in >> tmp, in.good()) {
+				if (charset::exist(tmp)) {
+					l *= base;
+					l += Set<base>::super::to_int_type(c);
+				}
+			}
 		}
 		//输出到控制台窗口
 		/*INLINED*/friend std::ostream &MY_LIB operator<<(
