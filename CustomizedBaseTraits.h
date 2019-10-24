@@ -8,8 +8,27 @@ namespace LargeInteger {
 
 	template<typename _Elem, typename index_type, _Elem... set>
 	class BaseSet;
-	template<typename T1, typename T2>class custom_istream { static_assert(std::is_base_of_v<BaseSet, T2>, "Required"); };
-	template<typename T1, typename T2>class custom_ostream { static_assert(std::is_base_of_v<BaseSet, T2>, "Required"); };
+	template<typename T1, typename T2>class custom_istream {
+	public:
+		template<typename... T>custom_istream(T &... t) {
+			((std::cerr << typeid(t).name()) << ' ', ...);
+			std::cerr << std::endl << typeid(*this).name() << ' ' << __func__ << std::endl;
+		}
+		template<typename _T1, typename _T2, auto t>void store(...)noexcept {
+			std::cerr
+				<< typeid(_T1).name() << ' '
+				<< typeid(_T2).name() << ' '
+				<< typeid(t).name() << ' '
+				<< typeid(*this).name() << ' '
+				<< __func__ << std::endl;
+		}
+	};
+	template<typename T1, typename T2>class custom_ostream {
+		template<typename... T>custom_ostream(T &... t) {
+			((std::cerr << typeid(t).name()) << ' ', ...);
+			std::cerr << std::endl << typeid(*this).name() << ' ' << __func__ << std::endl;
+		}
+	};
 
 	//Mind that '?' is reserved for unknown input
 	template<typename _Elem, typename index_type, _Elem... set>
