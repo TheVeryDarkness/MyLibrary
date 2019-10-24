@@ -434,35 +434,49 @@ namespace LargeInteger {
 	protected:
 		constexpr static radix_t base = RadixSelector<radix>::Base();
 		constexpr static radix_t len = RadixSelector<radix>::Length_Each();
-		template<typename end> auto scan(
+		template<typename _begin,typename _end>Data iter(_begin Begin, _end End) {
+			Data sum = 0;
+			for (auto i = Begin; ;) {
+				if (i != End) sum *= base; else break;
+				sum += *i;
+				*i = 0;
+				++i;
+			}
+			return sum;
+		}
+		template<typename end, bool is_end> auto scan(
 			std::istream &in,
-			std::vector<char, std::allocator<char>>& arr
+			std::vector<char, std::allocator<char>> &arr
 		) {
+			if constexpr (is_end) {
+				if (Set<base>::super::to_int_type(static_cast<char>(in.peek())) == 0) {
+					in.ignore();
+				}
+			}
 			end e;
-			char c;
-			in >> c;
+			auto c = static_cast<char>(in.get());
+			auto intgr = Set<base>::super::to_int_type(c);
 			if (e(c)) {
-				in.putback(c);
-				arr[0] = Set<base>::super::to_int_type(c);
 				return this->begin();
 			}
 			else {
-				auto it = scan<end>(in, arr);
+				using Iter = decltype(scan<end, false>(in, arr));
+				Iter it = scan<end, false>(in, arr);
 				if (arr.size() == len) {
-					Data sum = 0;
-					for (auto i = arr.rbegin(); ;) {
-						sum += *i;
-						*i = 0;
-						++i;
-						if (i != arr.rend()) sum *= base; else break;
-					}
-					*it = sum;
-					return ++it;
+					*it = iter(arr.rbegin(), arr.rend());
+					arr.resize(0);
+					++it;
 				}
-				else {
-					arr.push_back(Set<base>::super::to_int_type(c));
-					return it;
+				assert(arr.size() < len);
+				if (intgr != '?') {
+					arr.push_back(intgr);
 				}
+				if constexpr (is_end) {
+					*it = iter(arr.rbegin(), arr.rend());
+					arr.resize(0);
+					return it; 
+				}
+				else return it;
 			}
 		}
 	public:
@@ -471,13 +485,15 @@ namespace LargeInteger {
 			static_assert(sizeof...(Delim) > 0, "Delim should be given");
 			auto lambda = [](char c) { return charset::exist(c); };
 			std::vector<char, std::allocator<char>> vec(len, 0);
-			scan<decltype(lambda)>(in, vec);
+			vec.resize(0);
+			scan<decltype(lambda), true>(in, vec);
 			return static_cast<char>(in.get());
 		}
 		INLINED std::istream &MY_LIB Scan(std::istream &in) noexcept {
 			auto lambda = [](char c) { return !Set<base>::super::exist(c); };
 			std::vector<char> vec(len, 0);
-			scan<decltype(lambda)>(in, vec);
+			vec.resize(0);
+			scan<decltype(lambda), true>(in, vec);
 			return in;
 		}
 		//输出到控制台窗口
