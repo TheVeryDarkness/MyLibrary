@@ -59,14 +59,14 @@ namespace LargeInteger {
 		template<class ComputeFunction, typename subIterator, typename Iterator, typename Data>
 		class SubPrincIterator {
 		private:
-			ComputeFunction c = ComputeFunction();
+			ComputeFunction c;
 			//result;overflow
 			std::pair<Data, Data> Result;
 			subIterator a;
 		public:
 			Iterator b;
 			MY_LIB SubPrincIterator(subIterator a, Iterator b)noexcept
-				:a(a), b(b), Result(c(Data(0), *(a), *(b))) {
+				:c(), a(a), b(b), Result(c(Data(0), *(a), *(b))) {
 				static_assert(std::is_same_v<Data, std::decay_t<decltype(*(a))>>, "It should be the same type");
 				static_assert(std::is_same_v<Data, std::decay_t<decltype(*(b))>>, "It should be the same type");
 			}
@@ -98,11 +98,11 @@ namespace LargeInteger {
 		template<class ComputeFunction, typename Iterator, typename Data>
 		class LineIterator {
 		private:
+			ComputeFunction c;
 			//result;overflow
 			std::pair<Data, Data> Result;
 			Data a;
 			Iterator b;
-			ComputeFunction c;
 		public:
 			static_assert(std::is_same<Data, std::decay_t<decltype(*b)>>::value, "It should be the same type");
 			MY_LIB LineIterator(Data a, Iterator b)noexcept :a(a), b(b), c(), Result(c(Data(0), a, *b)) { }
@@ -165,9 +165,9 @@ namespace LargeInteger {
 			bool MY_LIB operator!=(std::nullptr_t)const noexcept { return !(*this == nullptr); }
 
 		private:
+			ComputeFunction c;
 			//Remained, Quotient
 			std::pair<Data, Value> Result;
-			ComputeFunction c;
 		};
 
 
