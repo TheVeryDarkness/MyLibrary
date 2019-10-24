@@ -439,7 +439,6 @@ namespace LargeInteger {
 			for (auto i = Begin; ;) {
 				if (i != End) sum *= base; else break;
 				sum += *i;
-				*i = 0;
 				++i;
 			}
 			return sum;
@@ -453,14 +452,14 @@ namespace LargeInteger {
 					in.ignore();
 				}
 			}
-			end e;
 			auto c = static_cast<char>(in.get());
-			auto intgr = Set<base>::super::to_int_type(c);
+			end e;
 			if (e(c)) {
 				return this->begin();
 			}
 			else {
 				using Iter = decltype(scan<end, false>(in, arr));
+				auto intgr = Set<base>::super::to_int_type(c);
 				Iter it = scan<end, false>(in, arr);
 				if (arr.size() == len) {
 					*it = iter(arr.rbegin(), arr.rend());
