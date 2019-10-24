@@ -14,8 +14,6 @@ namespace LL {
 		static_assert(!std::is_array_v<Data>, "Array type is not available.");
 		MEMORY_CACHE(CacheSize);
 	protected:
-		class iterator;
-		class const_iterator;
 		Data data[num];
 		OAL *flag_next;
 		void cut_node()noexcept {
@@ -221,9 +219,9 @@ namespace LL {
 			return
 				(pA == nullptr && pD == nullptr)
 				||
-				is_in(pA, pD)
+				(is_in(pA, pD)
 				&&
-				(!is_in(pA, pA->flag_next->data) || pD <= pA->flag_next->data);
+				(!is_in(pA, pA->flag_next->data) || pD <= pA->flag_next->data));
 		}
 		constexpr static bool ending(const OAL *pA, const Data *pD)noexcept {
 			return pA->flag_next->data == pD;
@@ -293,7 +291,7 @@ namespace LL {
 				return !(*this == nullptr);
 			}
 
-		private:
+		protected:
 			const OAL *pA;
 			const Data *pD;
 		};
