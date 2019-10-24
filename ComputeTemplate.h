@@ -276,7 +276,7 @@ namespace LargeInteger {
 		#endif // RV_DISPLAY_ON
 			using Data = typename std::decay_t<decltype(*a)>;
 			static_assert(std::is_same_v<std::decay_t<decltype(*a)>, std::decay_t<decltype(*b)>>);
-			constexpr auto PracticedRadix = ((_Traits::getRadix() == 0) ? std::numeric_limits<Data>::max() : _Traits::getRadix());
+			constexpr auto PracticedRadix = ((_Traits::getRadix() == 0) ? std::numeric_limits<Data>::max() : _Traits::getRadix() - 1);
 			{
 				bool HasChanged = false;
 				Compare temp = Compare::Equal;
@@ -322,13 +322,13 @@ namespace LargeInteger {
 					}
 					else if (aNext == nullptr) {
 						return RV_PAIR_DISPLAY(std::pair<Data, Compare>(
-							((*bNext >= *_a)
+							((*bNext > *_a || (!HasChanged && *bNext == *_a))
 								? PracticedRadix : (PracticedRadix / (*_a + 1) * *bNext)),
 							Compare::Smaller));
 					}
 					else if (bNext == nullptr) {
 						return RV_PAIR_DISPLAY(std::pair<Data, Compare>(
-							((*aNext >= *_b)
+							((*aNext > *_b || (!HasChanged && *aNext == *_b))
 								? PracticedRadix : (PracticedRadix / (*_b + 1) * *aNext)),
 							Compare::Larger));
 					}
