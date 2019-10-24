@@ -102,7 +102,7 @@ namespace LL {
 
 		private:
 			in *ptr;
-			friend struct OLL<Data, CacheSize>::const_iterator;
+			friend struct const_iterator;
 		};
 
 
