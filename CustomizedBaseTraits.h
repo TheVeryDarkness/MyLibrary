@@ -10,9 +10,12 @@ namespace LargeInteger {
 	class BaseSet;
 	template<typename T1, typename T2>class custom_istream {
 	public:
-		template<typename... T>custom_istream(T &... t) {
-			((std::cerr << typeid(t).name()) << ' ', ...);
-			std::cerr << std::endl << typeid(*this).name() << ' ' << __func__ << std::endl;
+		template<typename... T>custom_istream(const T &... t) {
+			((std::cerr << typeid(t).name() << std::endl), ...);
+			std::cerr << std::endl << typeid(*this).name() << std::endl << __FUNCTION__ << std::endl;
+		#ifdef __GNUC__
+			std::cerr << __PRETTY_FUNCTION__ << std::endl;
+		#endif // __GNUC__
 		}
 		template<typename _T1, typename _T2, auto t>void store(...)noexcept {
 			std::cerr
@@ -20,13 +23,13 @@ namespace LargeInteger {
 				<< typeid(_T2).name() << ' '
 				<< typeid(t).name() << ' '
 				<< typeid(*this).name() << ' '
-				<< __func__ << std::endl;
+				<< __FUNCTION__ << std::endl;
 		}
 	};
 	template<typename T1, typename T2>class custom_ostream {
-		template<typename... T>custom_ostream(T &... t) {
-			((std::cerr << typeid(t).name()) << ' ', ...);
-			std::cerr << std::endl << typeid(*this).name() << ' ' << __func__ << std::endl;
+		template<typename... T>custom_ostream(const T &... t) {
+			((std::cerr << typeid(t).name() << std::endl), ...);
+			std::cerr << std::endl << typeid(*this).name() << std::endl << __FUNCTION__ << std::endl;
 		}
 	};
 
@@ -94,12 +97,12 @@ namespace LargeInteger {
 		return '?';
 	}
 
-
+	
 	template<typename _Elem, typename index_type, size_t BeginIndex, _Elem... set>
 	class custom_istream<_Elem, LargeInteger::BaseSet<_Elem, index_type, BeginIndex, set...>> {
 		using charset = LargeInteger::BaseSet<_Elem, index_type, BeginIndex, set...>;
 	public:
-		explicit custom_istream(std::basic_istream<_Elem> &i)noexcept :is(i) { }
+		explicit custom_istream(std::basic_istream<_Elem, std::char_traits<_Elem>> &i)noexcept :is(i) { }
 
 		~custom_istream() = default;
 
@@ -158,7 +161,7 @@ namespace LargeInteger {
 	class custom_ostream<_Elem, LargeInteger::template BaseSet<_Elem, index_type, BeginIndex, set...>> {
 	public:
 		using charset = LargeInteger::BaseSet<_Elem, index_type, BeginIndex, set...>;
-		explicit custom_ostream(std::basic_ostream<_Elem> &o)noexcept :os(o) { }
+		explicit custom_ostream(std::basic_ostream<_Elem, std::char_traits<_Elem>> &o)noexcept :os(o) { }
 		~custom_ostream() = default;
 
 		std::basic_ostream<_Elem> &MY_LIB operator()()noexcept { return os; }
