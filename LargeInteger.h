@@ -3,6 +3,7 @@
 #include "Shared.h"
 #include "Statistics.h"
 #include "ComputeTemplate.h"
+#include "CustomizedRadixCharSet.h"
 #include "_Bytes.h"
 #include <iostream>
 #include <cassert>
@@ -340,21 +341,13 @@ namespace LargeInteger {
 		constexpr void MY_LIB destruct()noexcept {
 			this->LL::destruct();
 		}
-
-		//二进制输出到控制台窗口
-		/*INLINED*/friend std::ostream &MY_LIB operator<<(
-			std::ostream &out,
-			const LargeUnsigned &l
-			) noexcept {
-			return l._Print<decltype(l.cbegin()), radix>(l.cbegin(), out);
-		}
 		template<auto Radix>
-		class FoolCPP {
+		class RadixSelector {
 		public:
 			using Radix_t = decltype(Radix);
-			FoolCPP() = delete;
-			~FoolCPP() = delete;
-			constexpr static Radix_t MY_LIB a()noexcept {
+			RadixSelector() = delete;
+			~RadixSelector() = delete;
+			constexpr static Radix_t MY_LIB Base()noexcept {
 				if constexpr (Math::GetPowerTimes(Radix, static_cast<Radix_t>(10U)) != 0) {
 					return 10;
 				}
@@ -369,7 +362,7 @@ namespace LargeInteger {
 				}
 				return Radix;
 			}
-			constexpr static Radix_t MY_LIB b()noexcept {
+			constexpr static Radix_t MY_LIB Length_Each()noexcept {
 				if constexpr (Math::GetPowerTimes(Radix, static_cast<Radix_t>(10U)) != 0) {
 					return Math::GetPowerTimes(Radix, static_cast<Radix_t>(10U));
 				}
@@ -384,8 +377,6 @@ namespace LargeInteger {
 				}
 				return Radix_t(1);
 			}
-		private:
-
 		};
 		template<typename Cntnr, auto Radix>
 		//二进制输出到控制台窗口
@@ -400,8 +391,8 @@ namespace LargeInteger {
 				LargeInteger::SinglePrint(that, out, false, 2 * sizeof(Radix), 16);
 			}
 			else {
-				constexpr auto a = FoolCPP<Radix>::a();
-				constexpr auto b = FoolCPP<Radix>::b();
+				constexpr auto a = RadixSelector<Radix>::Base();
+				constexpr auto b = RadixSelector<Radix>::Length_Each();
 
 
 				if constexpr (a == 10) {
@@ -432,6 +423,27 @@ namespace LargeInteger {
 		INLINED std::ostream &MY_LIB Print(std::ostream &o = std::cout) const noexcept {
 			return _Print<decltype(this->cbegin()), radix>(this->cbegin(), o);
 		}
+		//从控制台输入
+		INLINED friend std::istream &MY_LIB operator>>(
+			std::istream &in,
+			LargeUnsigned &l
+			) noexcept {
+			constexpr size_t base = LargeUnsigned::RadixSelector<l.getRadix()>::Base();
+			char c;
+			while (c = static_cast<char>(in.get()), Set<base>::super::exist(c)) {
+				l *= base;
+				l += Set<base>::super::to_int_type(c);
+			}
+			return in;
+		}
+		//输出到控制台窗口
+		/*INLINED*/friend std::ostream &MY_LIB operator<<(
+			std::ostream &out,
+			const LargeUnsigned &l
+			) noexcept {
+			return l._Print<decltype(l.cbegin()), l.getRadix()>(l.cbegin(), out);
+		}
+
 		template<typename Int>
 		/*INLINED*/ void MY_LIB operator*=(const Int &that) noexcept {
 			static_assert(std::is_integral_v<Int>);
