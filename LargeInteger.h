@@ -246,6 +246,7 @@ namespace LargeInteger {
 			This.release();
 		}
 	public:
+		using super = LL;
 		static constexpr radix_t getRadix()noexcept { return radix; }
 		constexpr INLINED auto begin() noexcept {
 			return this->LL::begin();
@@ -420,17 +421,7 @@ namespace LargeInteger {
 			return res;
 		}
 		constexpr void MY_LIB Swap(LargeUnsigned &that)noexcept {
-			{
-				LL *temp = that.next;
-				that.next = temp;
-				this->next = temp;
-			}
-			{
-				(this->data == that.data) || (this->data ^= that.data ^= this->data ^= that.data);
-				//Data &&temp = std::move(that.data);
-				//that.data = this->data;
-				//this->data = temp;
-			}
+			this->LL::swap(*static_cast<LL *>(&that));
 		}
 		/*INLINED*/void MY_LIB operator*=(const LargeUnsigned &b) noexcept {
 			this->iter_mul(b.begin());
@@ -551,7 +542,7 @@ namespace LargeInteger {
 
 
 		bool MY_LIB operator==(const LargeUnsigned &that)const noexcept {
-			return LL::operator==(that);
+			return LL::operator==(*static_cast<const LL *>(&that));
 		}
 		bool MY_LIB operator!=(const LargeUnsigned &that)const noexcept {
 			return LL::operator!=(that);
@@ -713,11 +704,11 @@ namespace LargeInteger {
 	};
 	template<typename LL, typename LL::value_type radix>
 	class LargeSigned :protected LargeUnsigned<LL, radix> {
-		using super = LargeUnsigned<LL, radix>;
 		using radix_t = decltype(radix);
 		using Data = radix_t;
 		friend class Q;
 	public:
+		using super = LargeUnsigned<LL, radix>;
 		static constexpr radix_t getRadix()noexcept { return radix; }
 		constexpr INLINED auto begin() noexcept {
 			return this->LargeUnsigned<LL, radix>::begin();

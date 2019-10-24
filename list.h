@@ -83,24 +83,45 @@ namespace LL {
 			}
 			return *this;
 		}
-		explicit OAL(const OAL &that) :data(that.data) {
+		explicit OAL(const OAL &that) {
 			if (is_in(&that, that.flag_next->data)) {
 				this->flag_next = reinterpret_cast<OAL *>(this->data + (that.flag_next->data - that.data));
 			}
 			else {
 				this->flag_next = that.flag_next;
-				that.flag_next = reinterpret_cast<OAL *>(that.data + (num - 1));
 			}
-		#pragma omp parallel for
-			for (size_t i = 0; i < num; ++i) {
-				this->data[i] = that.data[i];
-			}
+			memcpy(this->data, that.data, sizeof(data));
 		}
 		~OAL() { }
 		constexpr auto begin()const { return const_iterator(this); }
 		constexpr auto cbegin()const { return const_iterator(this); }
 		constexpr auto end()const { return nullptr; }
 		constexpr auto cend()const { return nullptr; }
+		constexpr bool operator==(const OAL &that)const noexcept {
+			for (auto i = this->cbegin(), j = that.cbegin(); i != this->cend() || j != cend(); ++i, ++j) {
+				if (*i != *j) {
+					return false;
+				}
+			}
+			return true;
+		}
+		constexpr bool operator!=(const OAL &that)const noexcept {
+			return !(*this == that);
+		}
+		constexpr void swap(OAL &that)noexcept {
+			if (is_in(this, this->flag_next->data)) {
+				size_t tmp = this->flag_next->data - this->data;
+				this->flag_next = reinterpret_cast<OAL *>(this->data + (that.flag_next->data - that.data));
+				that.flag_next = reinterpret_cast<OAL *>(this->data + tmp);
+			}
+			else {
+				std::swap(this->flag_next, that.flag_next);
+			}
+			Data *i = this->data, *j = that.data;
+			for (size_t n = 0; n < num; ++n, ++i, ++j) {
+				std::swap(*i, *j);
+			}
+		}
 		constexpr bool isNull()const noexcept {
 			for (auto i : *this) {
 				if (i != 0) {

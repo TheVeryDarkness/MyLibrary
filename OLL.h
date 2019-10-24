@@ -273,12 +273,8 @@ namespace LL {
 		INLINED void MY_LIB swap(
 			OLL& that
 		) noexcept {
-			Data TempData = that.data;
-			that.data = this->data;
-			this->data = TempData;
-			OLL* TempPtr = that.next;
-			that.next = this->next;
-			this->next = TempPtr;
+			std::swap(this->data, that.data);
+			std::swap(this->next, that.next);
 			return;
 		}
 		//¸²¸Ç¸³Öµ

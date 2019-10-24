@@ -385,6 +385,11 @@ namespace LL {
 			that.last = nullptr;
 			return;
 		}
+		void MY_LIB swap(DLL &that)noexcept {
+			std::swap(this->data, that.data);
+			std::swap(this->next, that.next);
+			std::swap(this->last, that.last);
+		}
 		//覆盖赋值
 		//浅拷贝
 		//将清除被赋值对象原有内容
