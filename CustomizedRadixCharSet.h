@@ -1,4 +1,5 @@
 #pragma once
+#include "Shared.h"
 
 namespace LargeInteger{
 	template<typename _Elem, typename index_type, _Elem... set>
