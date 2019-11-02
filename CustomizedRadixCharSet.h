@@ -65,6 +65,6 @@ template<>class Set<16> { public:	using super = Set16; };
 				str.push_back(tmp);
 			}
 		}
-		return '?';
+		return char(-1);
 	}
 }
