@@ -773,7 +773,7 @@ namespace LargeInteger {
 		template<typename Val = __int64>
 		/*INLINED*/Val MY_LIB GetValue()const noexcept {
 			Val value = 0;
-			unsigned __int64 n = 0;
+			size_t n = 0;
 			auto OprtPtr = this->cbegin();
 			if (OprtPtr == nullptr) {
 				return 0;
