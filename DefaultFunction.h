@@ -21,6 +21,7 @@ namespace Function {
 		using value = double;
 		std::map<vari, value> num_map = {};
 		class function;
+	public:
 		template<vari> class num;
 		template<size_t n>class self_increase;
 		template<size_t n>class partial_sum;
@@ -30,6 +31,7 @@ namespace Function {
 		class f_power;
 		class f_pow_n;
 		class f_sin;
+	private:
 
 		class function {
 		public:
@@ -57,7 +59,7 @@ namespace Function {
 			virtual value MY_LIB estimate()const noexcept = 0;
 			virtual std::ostream &MY_LIB Print(std::ostream &) const noexcept = 0;
 		};
-	protected:
+	public:
 		template<vari var = vari::DEF>
 		class num :public constant {
 		public:
@@ -437,16 +439,23 @@ namespace Function {
 			function *inner;
 		};
 	public:
-		explicit MY_LIB ptrHolder(function* f)noexcept:ptr(f) { }
-		MY_LIB ~ptrHolder() { if (ptr)delete ptr; }
-		function *MY_LIB operator->()noexcept {
-			return ptr;
-		}
+		MY_LIB ptrHolder(function* f)noexcept:func_ptr(f) { }
+		MY_LIB ~ptrHolder() { if (func_ptr)delete func_ptr; }
 		const function *MY_LIB operator->() const noexcept {
-			return ptr;
+			return func_ptr;
 		}
+		const function &MY_LIB operator*() const noexcept {
+			return *func_ptr;
+		}
+		void diff(ptrHolder &f)noexcept {
+			f.func_ptr->diff(f.func_ptr);
+		}
+		void integral(ptrHolder &f)noexcept {
+			f.func_ptr->integral(f.func_ptr);
+		}
+		
 	private:
-		function *ptr;
+		function *func_ptr;
 	};
 
 	INLINED void MY_LIB ptrHolder::f_power::diff(function *&f) noexcept {
