@@ -191,7 +191,7 @@ namespace LargeInteger {
 		}
 		template<typename Int>
 		bool MY_LIB operator==(Int that)const noexcept {
-			Z temp = this->Denominator * that;
+			N temp = this->Denominator * that;
 			bool ret = (temp == this->Numerator);
 			temp.destruct();
 			return ret;
