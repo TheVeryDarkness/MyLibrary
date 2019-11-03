@@ -168,7 +168,7 @@ namespace Function {
 		}
 		sum *MY_LIB copy()noexcept { 
 			sum *res = new sum;
-			function *p1 = *this->p, *p2 = *res.p;
+			function *p1 = *this->p, *p2 = *res->p;
 			for (size_t i = 0; i < count; ++i) {
 				p2 = p1->copy();
 				++p1, ++p2;
@@ -197,8 +197,8 @@ namespace Function {
 			return res;
 		}
 		std::ostream &MY_LIB Print(std::ostream &o)const noexcept {
-			const function **const end = p + count;
-			function **ptr = p;
+			const function *const*const end = p + count;
+			function *const*ptr = p;
 			o << '(' << **ptr;
 			for (++ptr; ptr != end; ++ptr) {
 				o << " + " << *ptr;
