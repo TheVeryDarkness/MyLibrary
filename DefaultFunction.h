@@ -364,13 +364,14 @@ namespace Function {
 
 	class f_pow_n:public function {
 	public:
-		f_pow_n(constant *f, size_t expo) noexcept:coeff(f), expo(expo) { }
-		f_pow_n(constant *f, LargeInteger::N expo) noexcept:coeff(f), expo(expo) { }
-		~f_pow_n()noexcept { 
+		f_pow_n(size_t&& coeff, size_t&& base, size_t expo) noexcept
+			:coeff(true, std::move(coeff), 1), base(true, std::move(base), 1), expo(expo) { }
+		f_pow_n(LargeInteger::Q&& coeff, LargeInteger::Q&& base, LargeInteger::N&& expo) noexcept
+			:coeff(coeff), base(base), expo(expo) { }
+		~f_pow_n()noexcept {
+			coeff.destruct();
+			base.destruct();
 			expo.destruct();
-			if (coeff) {
-				delete coeff;
-			}
 		}
 		void MY_LIB diff(function *&) noexcept {
 
@@ -379,16 +380,16 @@ namespace Function {
 
 		}
 		f_pow_n* MY_LIB copy()noexcept {
-			return new f_pow_n(coeff->copy(), expo.Copy(expo));
+			return new f_pow_n(coeff.Copy(coeff), base.Copy(base), expo.Copy(expo));
 		}
 		value MY_LIB estimate()const noexcept {
 
 		}
 		std::ostream &MY_LIB Print(std::ostream &o) const noexcept {
-
+			o << coeff << "*" << "(" << base << ")^(" << expo << ")";
 		}
 	private:
-		constant *coeff;
+		LargeInteger::Q coeff, base;
 		LargeInteger::N expo;
 	};
 
