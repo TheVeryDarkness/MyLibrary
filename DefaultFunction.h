@@ -24,39 +24,50 @@ namespace Function {
 	template<size_t count>class product;
 	class f_ln;
 	class f_power;
+	class f_pow_n;
 	class f_sin;
 
 #define PI acos(-1)
 
 	class function {
 	public:
-		MY_LIB function()noexcept { };
+		MY_LIB function()noexcept { }
 		MY_LIB function(const function &that)noexcept = delete;
 
-		virtual MY_LIB ~function()noexcept { }
+		virtual MY_LIB ~function()noexcept = 0;
 
 		virtual void MY_LIB diff(function *&) noexcept = 0;
 		virtual void MY_LIB integral(function *&) noexcept = 0;
 		virtual function *MY_LIB copy()noexcept = 0;
 		virtual value MY_LIB estimate()const noexcept = 0;
-		virtual std::ostream &MY_LIB Print(std::ostream &o) const noexcept = 0;
+		virtual std::ostream &MY_LIB Print(std::ostream &) const noexcept = 0;
 		friend std::ostream &MY_LIB operator<<(std::ostream &o, const function &fun)noexcept {
 			return fun.Print(o);
 		}
-	private:
-
 	};
 
+	class constant:public function {
+	public:
+		MY_LIB constant() noexcept {}
+		virtual MY_LIB ~constant() noexcept = 0;
+		virtual void MY_LIB diff(constant *&f) noexcept { f = nullptr; delete this; }
+		virtual void MY_LIB integral(constant *&) noexcept = 0;
+		virtual constant *MY_LIB copy()noexcept = 0;
+		virtual value MY_LIB estimate()const noexcept = 0;
+		virtual std::ostream &MY_LIB Print(std::ostream &) const noexcept = 0;
+	};
+
+
 	template<vari var = vari::DEF>
-	class num :public function {
+	class num :public constant {
 	public:
 		MY_LIB num()noexcept = default;
 		MY_LIB ~num()noexcept = default;
-		void MY_LIB diff(function *&f) noexcept {
+		void MY_LIB diff(constant *&f) noexcept {
 			assert(this == f);
 		};
-		void MY_LIB integral(function *&) noexcept { };
-		function *MY_LIB copy()noexcept { return new num(); };
+		[[deprecated("Unfinished")]]void MY_LIB integral(constant *&f) noexcept { };
+		constant *MY_LIB copy()noexcept { return new num(); };
 		value MY_LIB estimate()const noexcept {
 			auto &&it = num_map.find(var);
 			if (it != num_map.end()) {
@@ -74,7 +85,7 @@ namespace Function {
 	};
 
 	template<>
-	class num<vari::DEF> :public function {
+	class num<vari::DEF> :public constant {
 	public:
 		template<typename Val>
 		MY_LIB num(bool sign, const Val &&val)noexcept :q(sign, std::move(val), 1) { }
@@ -86,12 +97,12 @@ namespace Function {
 			q.destruct();
 		}
 
-		void MY_LIB diff(function *&f) noexcept {
+		void MY_LIB diff(constant *&f) noexcept {
 			assert(this == f);
 			q = 0;
 		};
-		void MY_LIB integral(function *&) noexcept { };
-		function *MY_LIB copy()noexcept { return new num(LargeInteger::Q::Copy(q)); };
+		void MY_LIB integral(constant *&) noexcept { };
+		constant *MY_LIB copy()noexcept { return new num(LargeInteger::Q::Copy(q)); };
 		value MY_LIB estimate()const noexcept { return this->q.estim<value>(); }
 		std::ostream &MY_LIB Print(std::ostream &o) const noexcept { return q.Print(o); };
 
@@ -156,14 +167,20 @@ namespace Function {
 		function *p;
 	};
 
-	template<size_t count>
+	template<size_t count = 2>
 	class sum: public function {
+		MY_LIB sum()noexcept = default;
 	public:
-		template<typename ...Pack>MY_LIB sum(Pack...pack)noexcept :p({ pack... }) { }
+		template<typename ...Pack>MY_LIB sum(Pack...pack)noexcept :p{ pack... } {
+			static_assert(sizeof...(Pack) == count, "Parameter not matched");
+		}
 		MY_LIB sum(std::initializer_list<function *>p) noexcept :p(p) { }
 		MY_LIB ~sum() noexcept {
 			for (auto ptr:p) {
-				delete p;
+				if (ptr) {
+					delete ptr;
+					//ptr = nullptr;
+				}
 			}
 		}
 		sum *MY_LIB copy()noexcept { 
@@ -346,6 +363,37 @@ namespace Function {
 	private:
 		function *base, *expo;
 	};
+
+	class f_pow_n:public function {
+	public:
+		f_pow_n(constant *f, size_t expo) noexcept:coeff(f), expo(expo) { }
+		f_pow_n(constant *f, LargeInteger::N expo) noexcept:coeff(f), expo(expo) { }
+		~f_pow_n()noexcept { 
+			expo.destruct();
+			if (coeff) {
+				delete coeff;
+			}
+		}
+		void MY_LIB diff(function *&) noexcept {
+
+		}
+		void MY_LIB integral(function *&) noexcept {
+
+		}
+		f_pow_n* MY_LIB copy()noexcept {
+			return new f_pow_n(coeff->copy(), expo.Copy(expo));
+		}
+		value MY_LIB estimate()const noexcept {
+
+		}
+		std::ostream &MY_LIB Print(std::ostream &o) const noexcept {
+
+		}
+	private:
+		constant *coeff;
+		LargeInteger::N expo;
+	};
+
 
 	//function sin()
 	class f_sin :public function {
