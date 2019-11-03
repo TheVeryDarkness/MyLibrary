@@ -156,67 +156,58 @@ namespace Function {
 		function *p;
 	};
 
-
-	template<>
-	class sum<1> :public function {
-	public:
-		MY_LIB sum(function *p)noexcept :p(p) { }
-		MY_LIB ~sum() noexcept { delete p; }
-		sum *MY_LIB copy()noexcept { return new sum(p->copy()); }
-		std::ostream &MY_LIB Print(std::ostream &o)const noexcept {
-			return o << *p << ")";
-		}
-		void MY_LIB integral(function *&f) noexcept {
-			assert(this == f);
-			assert(false);
-			return;
-		}
-		void MY_LIB diff(function *&f) noexcept {
-			assert(this == f);
-			f->diff(f);
-			return;
-		}
-		value MY_LIB estimate()const noexcept {
-			return this->p->estimate();
-		}
-		std::ostream &MY_LIB _Print(std::ostream &o)const noexcept {
-			return o << *p << ')';
-		}
-	private:
-		function *p;
-	};
-
 	template<size_t count>
-	class sum :public sum<count - 1>/*, public function */ {
+	class sum: public function {
 	public:
-		template<typename ...pack>
-		MY_LIB sum(function *p, pack... _p) noexcept :p(p), sum<count - 1>(_p...) { }
+		template<typename ...Pack>MY_LIB sum(Pack...pack)noexcept :p({ pack... }) { }
+		MY_LIB sum(std::initializer_list<function *>p) noexcept :p(p) { }
 		MY_LIB ~sum() noexcept {
-			delete p;
+			for (auto ptr:p) {
+				delete p;
+			}
 		}
-		sum *MY_LIB copy()noexcept { return new sum(p->copy(), this->sum<count - 1>::copy()); }
+		sum *MY_LIB copy()noexcept { 
+			sum *res = new sum;
+			function *p1 = *this->p, *p2 = *res.p;
+			for (size_t i = 0; i < count; ++i) {
+				p2 = p1->copy();
+				++p1, ++p2;
+			}
+			return res;
+		}
 		void MY_LIB integral(function *&f) noexcept {
 			assert(this == f);
-			p->integral(p);
+			for (auto ptr:p) {
+				ptr->integral(ptr);
+			}
 			return;
 		}
 		void MY_LIB diff(function *&f) noexcept {
 			assert(this == f);
-			p->diff(p);
+			for (auto ptr : p) {
+				ptr->diff(ptr);
+			}
 			return;
 		}
 		value MY_LIB estimate()const noexcept {
-			return this->p->estimate() + this->sum<count - 1>::estimate();
-		}
-		std::ostream &MY_LIB _Print(std::ostream &o)const noexcept {
-			o << *p << " + ";
-			return static_cast<const sum<count - 1> *>(this)->_Print(o);
+			value res = 0;
+			for (auto ptr:p) {
+				res += ptr->estimate();
+			}
+			return res;
 		}
 		std::ostream &MY_LIB Print(std::ostream &o)const noexcept {
-			return this->_Print(o << '(');
+			const function **const end = p + count;
+			function **ptr = p;
+			o << '(' << **ptr;
+			for (++ptr; ptr != end; ++ptr) {
+				o << " + " << *ptr;
+			}
+			o << ')';
+			return o;
 		}
 	private:
-		function *p;
+		function *p[count];
 	};
 
 	template<>
