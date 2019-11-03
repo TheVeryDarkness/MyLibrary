@@ -779,7 +779,7 @@ namespace LargeInteger {
 				return 0;
 			}
 			while (true) {
-				value += ((Val)((*OprtPtr))) * Math::Power(static_cast<Val>(radix), n);
+				value += (static_cast<Val>(*OprtPtr)) * Math::Power(static_cast<Val>(radix), n);
 				if (OprtPtr + 1 != nullptr) {
 					++OprtPtr;
 					++n;
