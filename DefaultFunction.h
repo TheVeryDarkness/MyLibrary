@@ -364,8 +364,11 @@ namespace Function {
 
 	class f_pow_n:public function {
 	public:
-		f_pow_n(size_t&& coeff, size_t&& base, size_t expo) noexcept
-			:coeff(true, std::move(coeff), 1), base(true, std::move(base), 1), expo(expo) { }
+		template<typename Val1,typename Val2,typename Val3,typename Val4>
+		f_pow_n(Val1 && coeff1,Val2 && coeff2, Val3&& base1,Val4&& base2, size_t expo) noexcept :
+			coeff(true, std::move(coeff1), std::move(coeff2)),
+			base(true, std::move(base1), std::move(base2)), 
+			expo(expo) { }
 		f_pow_n(LargeInteger::Q&& coeff, LargeInteger::Q&& base, LargeInteger::N&& expo) noexcept
 			:coeff(coeff), base(base), expo(expo) { }
 		~f_pow_n()noexcept {
@@ -374,19 +377,21 @@ namespace Function {
 			expo.destruct();
 		}
 		void MY_LIB diff(function *&) noexcept {
-
+			this->coeff *= this->expo;
+			this->expo -= 1;
 		}
 		void MY_LIB integral(function *&) noexcept {
-
+			this->expo += 1;
+			this->coeff /= this->expo;
 		}
 		f_pow_n* MY_LIB copy()noexcept {
 			return new f_pow_n(coeff.Copy(coeff), base.Copy(base), expo.Copy(expo));
 		}
 		value MY_LIB estimate()const noexcept {
-
+			return coeff.estim() * std::pow(base.estim(), expo.GetValue<double>());
 		}
 		std::ostream &MY_LIB Print(std::ostream &o) const noexcept {
-			o << coeff << "*" << "(" << base << ")^(" << expo << ")";
+			return o << coeff << "*" << "(" << base << ")^(" << expo << ")";
 		}
 	private:
 		LargeInteger::Q coeff, base;
