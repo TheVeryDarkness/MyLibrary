@@ -448,7 +448,7 @@ namespace Function {
 			if (this->func_ptr) this->func_ptr->integral(this->func_ptr);
 		}
 		friend std::ostream &MY_LIB operator<<(std::ostream &o, ptrHolder holder)noexcept {
-			if (holder.func_ptr) holder.func_ptr->Print(o);
+			if (holder.func_ptr) holder.func_ptr->Print(o); else o << '0';
 			return o;
 		}
 	private:
