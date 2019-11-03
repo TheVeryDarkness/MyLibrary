@@ -112,6 +112,14 @@ namespace LargeInteger {
 			this->Numerator -= that * this->Denominator;
 			this->Simplify();
 		}
+		void MY_LIB operator*=(const N &that) noexcept {
+			this->Numerator *= that ;
+			this->Simplify();
+		}
+		void MY_LIB operator/=(const N &that) noexcept {
+			this->Denominator *= that;
+			this->Simplify();
+		}
 
 		void MY_LIB operator+=(const Q &that) noexcept {
 			this->Numerator *= that.Denominator;
