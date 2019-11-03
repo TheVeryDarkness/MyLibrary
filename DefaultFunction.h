@@ -42,7 +42,7 @@ namespace Function {
 		virtual value MY_LIB estimate()const noexcept = 0;
 		virtual std::ostream &MY_LIB Print(std::ostream &) const noexcept = 0;
 		friend std::ostream &MY_LIB operator<<(std::ostream &o, const function &fun)noexcept {
-			return fun.Print(o);
+			return (&fun) ? fun.Print(o) : o;
 		}
 	};
 
@@ -378,7 +378,9 @@ namespace Function {
 		}
 		void MY_LIB diff(function *&) noexcept {
 			this->coeff *= this->expo;
-			this->expo -= 1;
+			if (this->expo != 0) {
+				this->expo -= 1;
+			}
 		}
 		void MY_LIB integral(function *&) noexcept {
 			this->expo += 1;
@@ -391,7 +393,7 @@ namespace Function {
 			return coeff.estim() * std::pow(base.estim(), expo.GetValue<double>());
 		}
 		std::ostream &MY_LIB Print(std::ostream &o) const noexcept {
-			return o << coeff << "*" << "(" << base << ")^(" << expo << ")";
+			return (coeff == 0 ? o << "0" : o << coeff << "*" << "(" << base << ")^(" << expo << ")");
 		}
 	private:
 		LargeInteger::Q coeff, base;
