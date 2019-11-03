@@ -46,12 +46,12 @@ namespace Function {
 		}
 	};
 
-	class constant:public function {
+	class constant :public function {
 	public:
-		MY_LIB constant() noexcept {}
+		MY_LIB constant() noexcept { }
 		virtual MY_LIB ~constant() noexcept { }
-		virtual void MY_LIB diff(function *&f) noexcept override{ f = nullptr; delete this; }
-		virtual void MY_LIB integral(function *&) noexcept override= 0;
+		virtual void MY_LIB diff(function *&f) noexcept override { f = nullptr; delete this; }
+		virtual void MY_LIB integral(function *&) noexcept override = 0;
 		virtual constant *MY_LIB copy()noexcept = 0;
 		virtual value MY_LIB estimate()const noexcept = 0;
 		virtual std::ostream &MY_LIB Print(std::ostream &) const noexcept = 0;
@@ -66,7 +66,7 @@ namespace Function {
 		void MY_LIB diff(constant *&f) noexcept {
 			assert(this == f);
 		};
-		[[deprecated("Unfinished")]]void MY_LIB integral(constant *&f) noexcept { };
+		[[deprecated("Unfinished")]] void MY_LIB integral(constant *&f) noexcept { };
 		constant *MY_LIB copy()noexcept { return new num(); };
 		value MY_LIB estimate()const noexcept {
 			auto &&it = num_map.find(var);
@@ -95,11 +95,11 @@ namespace Function {
 		MY_LIB ~num()noexcept {
 			q.destruct();
 		}
-		void MY_LIB diff(function *&f) noexcept override{
+		void MY_LIB diff(function *&f) noexcept override {
 			assert(this == f);
 			q = 0;
 		};
-		[[deprecated("Unfinished")]]void MY_LIB integral(function *&) noexcept override { };
+		[[deprecated("Unfinished")]] void MY_LIB integral(function *&) noexcept override { };
 		constant *MY_LIB copy()noexcept { return new num(LargeInteger::Q::Copy(q)); };
 		value MY_LIB estimate()const noexcept { return this->q.estim<value>(); }
 		std::ostream &MY_LIB Print(std::ostream &o) const noexcept { return q.Print(o); };
@@ -166,7 +166,7 @@ namespace Function {
 	};
 
 	template<size_t count = 2>
-	class sum: public function {
+	class sum : public function {
 		MY_LIB sum()noexcept = default;
 	public:
 		template<typename ...Pack>MY_LIB sum(Pack...pack)noexcept :p{ pack... } {
@@ -174,14 +174,14 @@ namespace Function {
 		}
 		MY_LIB sum(std::initializer_list<function *>p) noexcept :p(p) { }
 		MY_LIB ~sum() noexcept {
-			for (auto ptr:p) {
+			for (auto ptr : p) {
 				if (ptr) {
 					delete ptr;
 					//ptr = nullptr;
 				}
 			}
 		}
-		sum *MY_LIB copy()noexcept { 
+		sum *MY_LIB copy()noexcept {
 			sum *res = new sum;
 			function *p1 = *this->p, *p2 = *res->p;
 			for (size_t i = 0; i < count; ++i) {
@@ -192,7 +192,7 @@ namespace Function {
 		}
 		void MY_LIB integral(function *&f) noexcept {
 			assert(this == f);
-			for (auto ptr:p) {
+			for (auto ptr : p) {
 				ptr->integral(ptr);
 			}
 			return;
@@ -206,14 +206,14 @@ namespace Function {
 		}
 		value MY_LIB estimate()const noexcept {
 			value res = 0;
-			for (auto ptr:p) {
+			for (auto ptr : p) {
 				res += ptr->estimate();
 			}
 			return res;
 		}
 		std::ostream &MY_LIB Print(std::ostream &o)const noexcept {
-			const function *const*const end = p + count;
-			function *const*ptr = p;
+			const function *const *const end = p + count;
+			function *const *ptr = p;
 			o << '(' << **ptr;
 			for (++ptr; ptr != end; ++ptr) {
 				o << " + " << *ptr;
@@ -362,14 +362,14 @@ namespace Function {
 		function *base, *expo;
 	};
 
-	class f_pow_n:public function {
+	class f_pow_n :public function {
 	public:
-		template<typename Val1,typename Val2,typename Val3,typename Val4>
-		MY_LIB f_pow_n(Val1 && coeff1,Val2 && coeff2, Val3&& base1,Val4&& base2, size_t expo) noexcept :
+		template<typename Val1, typename Val2, typename Val3, typename Val4>
+		MY_LIB f_pow_n(Val1 &&coeff1, Val2 &&coeff2, Val3 &&base1, Val4 &&base2, size_t expo) noexcept :
 			coeff(true, std::move(coeff1), std::move(coeff2)),
-			base(true, std::move(base1), std::move(base2)), 
+			base(true, std::move(base1), std::move(base2)),
 			expo(expo) { }
-		MY_LIB f_pow_n(LargeInteger::Q&& coeff, LargeInteger::Q&& base, LargeInteger::N&& expo) noexcept
+		MY_LIB f_pow_n(LargeInteger::Q &&coeff, LargeInteger::Q &&base, LargeInteger::N &&expo) noexcept
 			:coeff(coeff), base(base), expo(expo) { }
 		MY_LIB ~f_pow_n()noexcept {
 			coeff.destruct();
@@ -386,11 +386,11 @@ namespace Function {
 			this->expo += 1;
 			this->coeff /= this->expo;
 		}
-		f_pow_n* MY_LIB copy()noexcept {
+		f_pow_n *MY_LIB copy()noexcept {
 			return new f_pow_n(coeff.Copy(coeff), base.Copy(base), expo.Copy(expo));
 		}
 		value MY_LIB estimate()const noexcept {
-			return coeff.estim() * std::pow(base.estim(), expo.GetValue<double>());
+			return coeff.estim() * std::pow(base.estim(), expo.GetValue<value>());
 		}
 		std::ostream &MY_LIB Print(std::ostream &o) const noexcept {
 			return (coeff == 0 ? o << "0" : o << coeff << "*" << "(" << base << ")^(" << expo << ")");
