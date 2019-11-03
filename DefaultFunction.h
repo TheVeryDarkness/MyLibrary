@@ -441,19 +441,16 @@ namespace Function {
 	public:
 		MY_LIB ptrHolder(function* f)noexcept:func_ptr(f) { }
 		MY_LIB ~ptrHolder() { if (func_ptr)delete func_ptr; }
-		const function *MY_LIB operator->() const noexcept {
-			return func_ptr;
+		void MY_LIB diff()noexcept {
+			if (this->func_ptr) this->func_ptr->diff(this->func_ptr);
 		}
-		const function &MY_LIB operator*() const noexcept {
-			return *func_ptr;
+		void MY_LIB integral()noexcept {
+			if (this->func_ptr) this->func_ptr->integral(this->func_ptr);
 		}
-		void diff(ptrHolder &f)noexcept {
-			f.func_ptr->diff(f.func_ptr);
+		friend std::ostream &MY_LIB operator<<(std::ostream &o, ptrHolder holder)noexcept {
+			if (holder.func_ptr) holder.func_ptr->Print(o);
+			return o;
 		}
-		void integral(ptrHolder &f)noexcept {
-			f.func_ptr->integral(f.func_ptr);
-		}
-		
 	private:
 		function *func_ptr;
 	};
