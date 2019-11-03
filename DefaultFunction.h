@@ -34,7 +34,7 @@ namespace Function {
 		MY_LIB function()noexcept { }
 		MY_LIB function(const function &that)noexcept = delete;
 
-		virtual MY_LIB ~function()noexcept = 0;
+		virtual MY_LIB ~function()noexcept { }
 
 		virtual void MY_LIB diff(function *&) noexcept = 0;
 		virtual void MY_LIB integral(function *&) noexcept = 0;
@@ -49,7 +49,7 @@ namespace Function {
 	class constant:public function {
 	public:
 		MY_LIB constant() noexcept {}
-		virtual MY_LIB ~constant() noexcept = 0;
+		virtual MY_LIB ~constant() noexcept { }
 		virtual void MY_LIB diff(function *&f) noexcept override{ f = nullptr; delete this; }
 		virtual void MY_LIB integral(function *&) noexcept override= 0;
 		virtual constant *MY_LIB copy()noexcept = 0;
@@ -365,13 +365,13 @@ namespace Function {
 	class f_pow_n:public function {
 	public:
 		template<typename Val1,typename Val2,typename Val3,typename Val4>
-		f_pow_n(Val1 && coeff1,Val2 && coeff2, Val3&& base1,Val4&& base2, size_t expo) noexcept :
+		MY_LIB f_pow_n(Val1 && coeff1,Val2 && coeff2, Val3&& base1,Val4&& base2, size_t expo) noexcept :
 			coeff(true, std::move(coeff1), std::move(coeff2)),
 			base(true, std::move(base1), std::move(base2)), 
 			expo(expo) { }
-		f_pow_n(LargeInteger::Q&& coeff, LargeInteger::Q&& base, LargeInteger::N&& expo) noexcept
+		MY_LIB f_pow_n(LargeInteger::Q&& coeff, LargeInteger::Q&& base, LargeInteger::N&& expo) noexcept
 			:coeff(coeff), base(base), expo(expo) { }
-		~f_pow_n()noexcept {
+		MY_LIB ~f_pow_n()noexcept {
 			coeff.destruct();
 			base.destruct();
 			expo.destruct();
