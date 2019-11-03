@@ -77,7 +77,7 @@ namespace LargeInteger {
 					std::swap(Larger, Smaller);
 				}
 				this->Numerator /= *Larger;
-				this->Denominator /= *Smaller;
+				this->Denominator /= *Larger;
 			}
 		}
 		void MY_LIB operator=(long that) noexcept {
