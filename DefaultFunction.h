@@ -474,47 +474,48 @@ namespace Function {
 		return;
 	}
 
-}
-INLINED std::ostream &MY_LIB operator<<(std::ostream &o, Function::gener var)noexcept {
-	switch (var) {
-	case Function::gener::i:
-		o << 'i';
-		break;
-	case Function::gener::j:
-		o << 'j';
-		break;
-	case Function::gener::k:
-		o << 'k';
-		break;
-	case Function::gener::l:
-		o << 'l';
-		break;
-	default:
-		assert(false);
-		break;
+	INLINED std::ostream &MY_LIB operator<<(std::ostream &o, gener var)noexcept {
+		switch (var) {
+		case gener::i:
+			o << 'i';
+			break;
+		case gener::j:
+			o << 'j';
+			break;
+		case gener::k:
+			o << 'k';
+			break;
+		case gener::l:
+			o << 'l';
+			break;
+		default:
+			assert(false);
+			break;
+		}
 	}
-}
-INLINED std::ostream &MY_LIB operator<<(std::ostream &o, Function::vari var)noexcept {
-	switch (var) {
-	case Function::vari::DEF:
-		assert(false);
-		break;
-	case Function::vari::x:
-		o << 'x';
-		break;
-	case Function::vari::y:
-		o << 'y';
-		break;
-	case Function::vari::z:
-		o << 'z';
-		break;
-	case Function::vari::w:
-		o << 'w';
-		break;
-	default:
-		assert(false);
-		break;
+	INLINED std::ostream &MY_LIB operator<<(std::ostream &o, vari var)noexcept {
+		switch (var) {
+		case vari::DEF:
+			assert(false);
+			break;
+		case vari::x:
+			o << 'x';
+			break;
+		case vari::y:
+			o << 'y';
+			break;
+		case vari::z:
+			o << 'z';
+			break;
+		case vari::w:
+			o << 'w';
+			break;
+		default:
+			assert(false);
+			break;
+		}
+		return o;
 	}
-	return o;
+
 }
 #undef new
