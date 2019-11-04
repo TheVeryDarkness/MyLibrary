@@ -6,20 +6,12 @@
 
 //#define new DBG_NEW
 namespace Function {
-	enum class vari {
-		DEF, x, y, z, w
-	};
-	//I've fogotten what I use them for
-	enum class gener {
-		i, j, k, l
-	};
 
 #define PI acos(-1)
 
 	class ptrHolder {
 	private:
 		using value = double;
-		//std::map<vari, value> num_map = {};
 		class function;
 		class Integralable;
 		class constant;
@@ -351,49 +343,6 @@ namespace Function {
 	private:
 		function *func_ptr;
 	};
-
-	INLINED std::ostream &MY_LIB operator<<(std::ostream &o, gener var)noexcept {
-		switch (var) {
-		case gener::i:
-			o << 'i';
-			break;
-		case gener::j:
-			o << 'j';
-			break;
-		case gener::k:
-			o << 'k';
-			break;
-		case gener::l:
-			o << 'l';
-			break;
-		default:
-			assert(false);
-			break;
-		}
-	}
-	INLINED std::ostream &MY_LIB operator<<(std::ostream &o, vari var)noexcept {
-		switch (var) {
-		case vari::DEF:
-			assert(false);
-			break;
-		case vari::x:
-			o << 'x';
-			break;
-		case vari::y:
-			o << 'y';
-			break;
-		case vari::z:
-			o << 'z';
-			break;
-		case vari::w:
-			o << 'w';
-			break;
-		default:
-			assert(false);
-			break;
-		}
-		return o;
-	}
 
 }
 #undef new
