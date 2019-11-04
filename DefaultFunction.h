@@ -54,7 +54,7 @@ namespace Function {
 		public:
 			Integralable() { }
 			~Integralable() { }
-			virtual void MY_LIB definite_integral(function *&) noexcept = 0;
+			virtual void MY_LIB definite_integral(function *&, constant* begin, constant* end) noexcept = 0;
 		private:
 
 		};
@@ -64,13 +64,13 @@ namespace Function {
 			MY_LIB constant() noexcept { }
 			virtual MY_LIB ~constant() noexcept { }
 			virtual void MY_LIB diff(function *&f) noexcept override { f = nullptr; delete this; }
-			virtual void MY_LIB definite_integral(function *&) noexcept override = 0;
+			virtual void MY_LIB definite_integral(function *&, constant *begin, constant *end) noexcept override = 0;
 			virtual constant *MY_LIB copy()noexcept = 0;
 			virtual value MY_LIB estimate()const noexcept = 0;
 			virtual std::ostream &MY_LIB Print(std::ostream &) const noexcept = 0;
 		};
 	public:
-		template<vari var = vari::DEF>
+		template<vari var>
 		class num :public constant {
 		public:
 			MY_LIB num()noexcept = default;
@@ -111,7 +111,7 @@ namespace Function {
 				assert(this == f);
 				q = 0;
 			};
-			[[deprecated("Unfinished")]] void MY_LIB definite_integral(function *&) noexcept override { };
+			[[deprecated("Unfinished")]] void MY_LIB definite_integral(function *&, constant *begin, constant *end) noexcept override { };
 			constant *MY_LIB copy()noexcept { return new num(LargeInteger::Q::Copy(q)); };
 			value MY_LIB estimate()const noexcept { return this->q.estim<value>(); }
 			std::ostream &MY_LIB Print(std::ostream &o) const noexcept { return q.Print(o); };
@@ -454,8 +454,8 @@ namespace Function {
 		void MY_LIB diff()noexcept {
 			if (this->func_ptr) this->func_ptr->diff(this->func_ptr);
 		}
-		void MY_LIB definite_integral()noexcept {
-			if (this->func_ptr) dynamic_cast<Integralable *>(this->func_ptr)->definite_integral(this->func_ptr);
+		void MY_LIB definite_integral(constant *begin, constant *end)noexcept {
+			if (this->func_ptr) dynamic_cast<Integralable *>(this->func_ptr)->definite_integral(this->func_ptr, begin, end);
 		}
 		friend std::ostream &MY_LIB operator<<(std::ostream &o, ptrHolder holder)noexcept {
 			if (holder.func_ptr) holder.func_ptr->Print(o); else o << '0';
