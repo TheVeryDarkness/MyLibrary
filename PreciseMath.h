@@ -201,26 +201,19 @@ namespace LargeInteger {
 	//Rational Number
 	//分子分母上的负号将被忽略
 	//negative sign on numerator and denominator will be ignored
-	class Q {
+	class Q :protected nQ{
 	protected:
 		using Data = N::Data;
 		bool PosSign;
-		N Numerator;//分子
-		N Denominator;//分母
+		using super = nQ;
 	public:
 		//MY_LIB Q();
 		template<typename Val1, typename Val2>explicit MY_LIB Q(bool sign, const Val1 &&n, const Val2 &&d = 1)noexcept :
-			PosSign(sign),
-			Numerator(n),
-			Denominator(d) { }
+			PosSign(sign), super(std::move(n), std::move(d)) { }
 		MY_LIB Q(const Q &that) noexcept :
-			PosSign(that.PosSign),
-			Numerator(that.Numerator),
-			Denominator(that.Denominator) { }
+			PosSign(that.PosSign), super(that.Numerator,that.Denominator) { }
 		explicit MY_LIB Q(bool sign, const N &Numerator, const N &Denominator) noexcept :
-			PosSign(sign),
-			Numerator(Numerator),
-			Denominator(Denominator) { }
+			PosSign(sign), super(Numerator,Denominator) { }
 		INLINED MY_LIB ~Q() noexcept = default;
 		static Q MY_LIB Copy(const Q &that)noexcept {
 			return Q(that.PosSign, N::Copy(that.Numerator), N::Copy(that.Denominator));
