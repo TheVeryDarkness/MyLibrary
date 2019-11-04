@@ -25,8 +25,6 @@ namespace Function {
 		class constant;
 	public:
 		class num;
-		template<size_t n>class self_increase;
-		template<size_t n>class partial_sum;
 		template<size_t count>class sum;
 		template<size_t count>class product;
 		class f_ln;
