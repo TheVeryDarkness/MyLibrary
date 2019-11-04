@@ -42,11 +42,7 @@ namespace LargeInteger {
 		}
 		template<typename val = double> val MY_LIB estim()const noexcept {
 			static_assert(std::is_arithmetic_v<val> && !std::is_integral_v<val>);
-			return (this->PosSign ?
-				(this->Numerator.GetValue<val>() / (this->Denominator.GetValue<val>()))
-				:
-				-(this->Numerator.GetValue<val>() / (this->Denominator.GetValue<val>()))
-				);
+			return (this->Numerator.GetValue<val>() / this->Denominator.GetValue<val>());
 		}
 		INLINED void MY_LIB destruct() noexcept {
 			this->Denominator.destruct();
