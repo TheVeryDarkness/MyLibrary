@@ -47,6 +47,7 @@ namespace Function {
 		private:
 
 		};
+	public:
 
 		class constant :public Integralable {
 		public:
@@ -57,31 +58,6 @@ namespace Function {
 			virtual constant *MY_LIB copy()noexcept = 0;
 			virtual value MY_LIB estimate()const noexcept = 0;
 			virtual std::ostream &MY_LIB Print(std::ostream &) const noexcept = 0;
-		};
-	public:
-		class num :public constant {
-		public:
-			template<typename Val>
-			MY_LIB num(bool sign, const Val &&val)noexcept :q(sign, std::move(val), 1) { }
-			template<typename Val>
-			MY_LIB num(bool sign, Val val1, Val val2)noexcept :q(sign, val1, val2) { }
-			MY_LIB num(const LargeInteger::Q &val)noexcept :q(val) { }
-			MY_LIB ~num()noexcept {
-				q.destruct();
-			}
-			void MY_LIB diff(function *&f) noexcept override {
-				assert(this == f);
-				q = 0;
-			};
-			void MY_LIB definite_integral(function *&, constant *begin, constant *end) noexcept override { 
-
-			};
-			constant *MY_LIB copy()noexcept { return new num(LargeInteger::Q::Copy(q)); };
-			value MY_LIB estimate()const noexcept { return this->q.estim<value>(); }
-			std::ostream &MY_LIB Print(std::ostream &o) const noexcept { return q.Print(o); };
-
-		private:
-			LargeInteger::Q q;
 		};
 
 		template<size_t count = 2>
