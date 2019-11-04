@@ -203,7 +203,7 @@ namespace LargeInteger {
 	//negative sign on numerator and denominator will be ignored
 	class Q {
 	protected:
-		using Data=unsigned int;
+		using Data = N::Data;
 		bool PosSign;
 		N Numerator;//·Ö×Ó
 		N Denominator;//·ÖÄ¸
