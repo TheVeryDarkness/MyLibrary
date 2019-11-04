@@ -59,6 +59,7 @@ template<>class Set<16> { public:	using super = Set16; };
 		while (in.good()) {
 			char tmp;
 			in >> tmp;
+			if (!in)tmp = 0;
 			if (charset::exist(tmp)) {
 				return tmp;
 			}
