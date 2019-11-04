@@ -257,39 +257,6 @@ namespace Function {
 
 		};
 
-		class f_power :public function {
-			using Q = LargeInteger::Q;
-		public:
-			MY_LIB f_power(function *base, function *expo) noexcept
-				:base(base), expo(expo) { }
-			MY_LIB ~f_power()noexcept {
-				if (base != nullptr) {
-					delete base;
-				}
-				if (expo != nullptr) {
-					delete expo;
-				}
-			}
-			function *MY_LIB copy()noexcept {
-				auto &&temp = new f_power(this->base->copy(), this->expo->copy());
-				return temp;
-			}
-			void MY_LIB diff(function *&f) noexcept;
-			void MY_LIB definite_integral(function *&f) noexcept {
-				assert(this == f);
-				assert(false);
-				return;
-			}
-			value MY_LIB estimate()const noexcept {
-				return pow(this->base->estimate(), this->expo->estimate());
-			}
-			std::ostream &MY_LIB Print(std::ostream &o)const noexcept {
-				return o << '(' << *base << "^(" << *expo << "))";
-			}
-		private:
-			function *base, *expo;
-		};
-
 		class f_pow_n :public function {
 		public:
 			template<typename Val1, typename Val2, typename Val3, typename Val4>
