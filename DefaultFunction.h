@@ -24,7 +24,7 @@ namespace Function {
 		class Integralable;
 		class constant;
 	public:
-		template<vari> class num;
+		class num;
 		template<size_t n>class self_increase;
 		template<size_t n>class partial_sum;
 		template<size_t count>class sum;
@@ -70,34 +70,7 @@ namespace Function {
 			virtual std::ostream &MY_LIB Print(std::ostream &) const noexcept = 0;
 		};
 	public:
-		template<vari var>
 		class num :public constant {
-		public:
-			MY_LIB num()noexcept = default;
-			MY_LIB ~num()noexcept = default;
-			void MY_LIB diff(constant *&f) noexcept {
-				assert(this == f);
-			};
-			[[deprecated("Unfinished")]] void MY_LIB definite_integral(constant *&f) noexcept { };
-			constant *MY_LIB copy()noexcept { return new num(); };
-			value MY_LIB estimate()const noexcept {
-				auto &&it = num_map.find(var);
-				if (it != num_map.end()) {
-					return (*it).second;
-				}
-				else {
-					std::cout << var << " = " << std::flush;
-					value v;
-					std::cin >> v;
-					num_map.insert(std::pair(var, v));
-					return v;
-				}
-			}
-			std::ostream &MY_LIB Print(std::ostream &o) const noexcept { return o << var; };
-		};
-
-		template<>
-		class num<vari::DEF> :public constant {
 		public:
 			template<typename Val>
 			MY_LIB num(bool sign, const Val &&val)noexcept :q(sign, std::move(val), 1) { }
@@ -111,7 +84,9 @@ namespace Function {
 				assert(this == f);
 				q = 0;
 			};
-			[[deprecated("Unfinished")]] void MY_LIB definite_integral(function *&, constant *begin, constant *end) noexcept override { };
+			void MY_LIB definite_integral(function *&, constant *begin, constant *end) noexcept override { 
+
+			};
 			constant *MY_LIB copy()noexcept { return new num(LargeInteger::Q::Copy(q)); };
 			value MY_LIB estimate()const noexcept { return this->q.estim<value>(); }
 			std::ostream &MY_LIB Print(std::ostream &o) const noexcept { return q.Print(o); };
@@ -133,7 +108,7 @@ namespace Function {
 			};
 			void MY_LIB definite_integral(function *&f) noexcept {
 				assert(this == f);
-				f = new sum<2>(this, new num<vari::x>());
+				f = new sum<2>(this, new num());
 			};
 			function *MY_LIB copy()noexcept { return new self_increase(*i); };
 			value MY_LIB estimate() const noexcept {
