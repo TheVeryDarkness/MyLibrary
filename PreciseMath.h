@@ -9,8 +9,8 @@ constexpr unsigned int Z_MAX = 1000000000U;
 
 namespace LargeInteger {
 
-	typedef LargeInteger::LargeSigned<LL::OAL<unsigned int, 64U / sizeof(void *) - 1>, Z_MAX> Z;
-	typedef LargeInteger::LargeUnsigned<LL::OAL<unsigned int, 64U / sizeof(void *) - 1 >, Z_MAX> N;
+	typedef LargeSigned<LL::OAL<unsigned int, 64U / sizeof(void *) - 1>, Z_MAX> Z;
+	typedef LargeUnsigned<LL::OAL<unsigned int, 64U / sizeof(void *) - 1 >, Z_MAX> N;
 
 	//ÓĞÀíÊı
 	//Rational Number
