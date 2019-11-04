@@ -95,63 +95,6 @@ namespace Function {
 			LargeInteger::Q q;
 		};
 
-		template<size_t n>
-		class self_increase :public function {
-		public:
-			MY_LIB self_increase(size_t _i = 1)noexcept :i(new size_t(_i)) { }
-			MY_LIB ~self_increase()noexcept { delete i; }
-
-			void MY_LIB diff(function *&f) noexcept {
-				assert(this == f);
-				f = new num<vari::DEF>(0);
-				delete this;
-			};
-			void MY_LIB definite_integral(function *&f) noexcept {
-				assert(this == f);
-				f = new sum<2>(this, new num());
-			};
-			function *MY_LIB copy()noexcept { return new self_increase(*i); };
-			value MY_LIB estimate() const noexcept {
-				return value((*i == n) ? (*i = 1) : ((*i)++));
-			}
-			std::ostream &MY_LIB Print(std::ostream &o) const noexcept {
-				return o << 'i';
-			};
-		private:
-			size_t *i;
-		};
-
-		template<size_t n>
-		class partial_sum :public function {
-		public:
-			MY_LIB partial_sum(function *_p)noexcept :p(_p) { }
-			MY_LIB ~partial_sum()noexcept {
-				delete p;
-			}
-
-			void MY_LIB diff(function *&f) noexcept {
-				assert(this == f);
-				p->diff(p);
-			};
-			void MY_LIB definite_integral(function *&f) noexcept {
-				assert(this == f);
-				p->definite_integral(p);
-			};
-			function *MY_LIB copy()noexcept { return new partial_sum(p->copy()); };
-			value MY_LIB estimate()const noexcept {
-				value s = 0;
-				for (size_t i = 0; i < n; i++) {
-					s += this->p->estimate();
-				}
-				return s;
-			}
-			std::ostream &MY_LIB Print(std::ostream &o) const noexcept {
-				return p->Print(o << "(��(1:1:" << n << ')') << ')';
-			};
-		private:
-			function *p;
-		};
-
 		template<size_t count = 2>
 		class sum : public function {
 			MY_LIB sum()noexcept = default;
@@ -170,7 +113,7 @@ namespace Function {
 			}
 			sum *MY_LIB copy()noexcept {
 				sum *res = new sum;
-				function *p1 = *this->p, *p2 = *res->p;
+				function *p1 = this->p[0], *p2 = res->p[0];
 				for (size_t i = 0; i < count; ++i) {
 					p2 = p1->copy();
 					++p1, ++p2;
@@ -389,7 +332,7 @@ namespace Function {
 
 
 		//function sin()
-		class f_sin :public function {
+		class f_sin :public Integralable {
 			using Q = LargeInteger::Q;
 		public:
 			MY_LIB f_sin(function *in)noexcept
@@ -403,13 +346,13 @@ namespace Function {
 			}
 			void MY_LIB diff(function *&f) noexcept {
 				assert(this == f);
-				inner = new sum<2>(inner, new num<vari::DEF>(1, 2));
+				inner = new sum<2>(inner, new num(1, 2));
 				function *temp = inner->copy();
 				temp->diff(temp);
 				f = new product<2>(temp, f);
 				return;
 			}
-			void MY_LIB definite_integral(function *&f) noexcept {
+			void MY_LIB definite_integral(function *&f, constant* begin, constant* end) noexcept override{
 				assert(this == f);
 				assert(false);
 				return;
@@ -450,7 +393,7 @@ namespace Function {
 	}
 	INLINED void MY_LIB ptrHolder::f_ln::diff(function *&f) noexcept {
 		assert(this == f);
-		f = new f_power(inner, new num<vari::DEF>(false, 1));
+		f = new f_power(inner, new num(false, 1));
 		inner = nullptr;
 		delete this;
 		return;
