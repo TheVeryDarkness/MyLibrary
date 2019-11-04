@@ -27,7 +27,6 @@ namespace Darkness {
 	Quantity<unsigned long long> operator""m(unsigned long long length)noexcept {
 		return Quantity(length, 1);
 	}
-
 	Quantity<unsigned long long> operator""kg(unsigned long long mass)noexcept {
 		return Quantity(mass, 0, 1);
 	}
