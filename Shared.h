@@ -78,6 +78,10 @@ constexpr inline const T &RV_PAIR_DISPLAY(const T &t)noexcept {
 #endif // _DEBUG && RV_DISPLAY_ON
 }
 
+#ifndef NSHOW
+#define SHOW(x) std::wcout << #x << " = " << x << std::endl;
+#endif // !NSHOW
+
 
 template<typename type>
 class Depack {
