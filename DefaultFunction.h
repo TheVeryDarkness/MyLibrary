@@ -27,7 +27,7 @@ namespace Function {
 		class num;
 		template<size_t count>class sum;
 		template<size_t count>class product;
-		class f_ln;
+		class f_pow_ln_const;
 		class f_power;
 		class f_pow_n;
 		class f_sin;
@@ -228,16 +228,16 @@ namespace Function {
 			function *p;
 		};
 
-		class f_ln :public function {
+		class f_pow_ln_const :public function {
 		public:
-			MY_LIB f_ln(function *in)noexcept :inner(in) { }
-			MY_LIB ~f_ln()noexcept {
+			MY_LIB f_pow_ln_const(function *in)noexcept :inner(in) { }
+			MY_LIB ~f_pow_ln_const()noexcept {
 				if (inner != nullptr) {
 					delete this->inner;
 				}
 			}
 			function *MY_LIB copy()noexcept {
-				auto &&temp = new f_ln(this->inner->copy());
+				auto &&temp = new f_pow_ln_const(this->inner->copy());
 				return temp;
 			}
 			void MY_LIB diff(function *&f) noexcept;
@@ -386,10 +386,10 @@ namespace Function {
 		function *_base = base->copy(), *_expo = expo->copy();
 		_base->diff(_base);
 		_expo->diff(_expo);
-		f = new product<2>(new sum<2>(new product<3>(base->copy(), _expo, new f_ln(base->copy())), new product<2>(_base, expo->copy())), f);
+		f = new product<2>(new sum<2>(new product<3>(base->copy(), _expo, new f_pow_ln_const(base->copy())), new product<2>(_base, expo->copy())), f);
 		return;
 	}
-	INLINED void MY_LIB ptrHolder::f_ln::diff(function *&f) noexcept {
+	INLINED void MY_LIB ptrHolder::f_pow_ln_const::diff(function *&f) noexcept {
 		assert(this == f);
 		f = new f_power(inner, new num(false, 1));
 		inner = nullptr;
