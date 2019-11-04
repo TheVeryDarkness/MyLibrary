@@ -27,9 +27,8 @@ namespace Function {
 		class num;
 		template<size_t count>class sum;
 		template<size_t count>class product;
-		class f_pow_ln_const;
-		class f_power;
-		class f_pow_n;
+		class f_pow_x_ln_x;
+		class f_pow_x;
 		class f_sin;
 	private:
 
@@ -96,6 +95,7 @@ namespace Function {
 		template<size_t count = 2>
 		class sum : public function {
 			MY_LIB sum()noexcept = default;
+			friend class product<count>;
 		public:
 			template<typename ...Pack>MY_LIB sum(Pack...pack)noexcept :p{ pack... } {
 				static_assert(sizeof...(Pack) == count, "Parameter not matched");
@@ -228,45 +228,16 @@ namespace Function {
 			function *p;
 		};
 
-		class f_pow_ln_const :public function {
-		public:
-			MY_LIB f_pow_ln_const(function *in)noexcept :inner(in) { }
-			MY_LIB ~f_pow_ln_const()noexcept {
-				if (inner != nullptr) {
-					delete this->inner;
-				}
-			}
-			function *MY_LIB copy()noexcept {
-				auto &&temp = new f_pow_ln_const(this->inner->copy());
-				return temp;
-			}
-			void MY_LIB diff(function *&f) noexcept;
-			void MY_LIB definite_integral(function *&f) noexcept {
-				assert(this == f);
-				assert(false);
-				return;
-			}
-			value MY_LIB estimate()const noexcept {
-				return std::log(this->inner->estimate());
-			}
-			std::ostream &MY_LIB Print(std::ostream &o)const noexcept {
-				return o << "ln(" << *inner << ')';
-			}
-		private:
-			function *inner;
-
-		};
-
-		class f_pow_n :public function {
+		class f_pow_x :public function {
 		public:
 			template<typename Val1, typename Val2, typename Val3, typename Val4>
-			MY_LIB f_pow_n(Val1 &&coeff1, Val2 &&coeff2, Val3 &&base1, Val4 &&base2, size_t expo) noexcept :
+			MY_LIB f_pow_x(Val1 &&coeff1, Val2 &&coeff2, Val3 &&base1, Val4 &&base2, size_t expo) noexcept :
 				coeff(true, std::move(coeff1), std::move(coeff2)),
 				base(true, std::move(base1), std::move(base2)),
 				expo(expo) { }
-			MY_LIB f_pow_n(LargeInteger::Q &&coeff, LargeInteger::Q &&base, LargeInteger::N &&expo) noexcept
+			MY_LIB f_pow_x(LargeInteger::Q &&coeff, LargeInteger::Q &&base, LargeInteger::N &&expo) noexcept
 				:coeff(coeff), base(base), expo(expo) { }
-			MY_LIB ~f_pow_n()noexcept {
+			MY_LIB ~f_pow_x()noexcept {
 				coeff.destruct();
 				base.destruct();
 				expo.destruct();
@@ -281,8 +252,8 @@ namespace Function {
 				this->expo += 1;
 				this->coeff /= this->expo;
 			}
-			f_pow_n *MY_LIB copy()noexcept {
-				return new f_pow_n(coeff.Copy(coeff), base.Copy(base), expo.Copy(expo));
+			f_pow_x *MY_LIB copy()noexcept {
+				return new f_pow_x(coeff.Copy(coeff), base.Copy(base), expo.Copy(expo));
 			}
 			value MY_LIB estimate()const noexcept {
 				return coeff.estim() * std::pow(base.estim(), expo.GetValue<value>());
@@ -295,6 +266,40 @@ namespace Function {
 			LargeInteger::N expo;
 		};
 
+
+		class f_pow_x_ln_x :public function {
+		public:
+			template<typename...pack>MY_LIB f_pow_x_ln_x(pack...in)noexcept :pow(in...) { }
+			MY_LIB ~f_pow_x_ln_x()noexcept {
+				if (pow != nullptr) {
+					delete this->pow;
+				}
+			}
+			function *MY_LIB copy()noexcept {
+				auto &&temp = new f_pow_x_ln_x(this->pow->copy());
+				return temp;
+			}
+			INLINED void MY_LIB diff(function *&f) noexcept {
+				assert(this == p);
+				f = new f_power(f, new num(false, 1));
+				f = nullptr;
+				delete this;
+				return;
+			}
+			void MY_LIB definite_integral(function *&f) noexcept {
+				assert(this == f);
+				assert(false);
+				return;
+			}
+			value MY_LIB estimate()const noexcept {
+				return std::log(this->pow->estimate());
+			}
+			std::ostream &MY_LIB Print(std::ostream &o)const noexcept {
+				return o << "ln(" << *pow << ')';
+			}
+		private:
+			f_pow_x* pow;
+		};
 
 		//function sin()
 		class f_sin :public Integralable {
@@ -347,22 +352,6 @@ namespace Function {
 	private:
 		function *func_ptr;
 	};
-
-	INLINED void MY_LIB ptrHolder::f_power::diff(function *&f) noexcept {
-		assert(this == f);
-		function *_base = base->copy(), *_expo = expo->copy();
-		_base->diff(_base);
-		_expo->diff(_expo);
-		f = new product<2>(new sum<2>(new product<3>(base->copy(), _expo, new f_pow_ln_const(base->copy())), new product<2>(_base, expo->copy())), f);
-		return;
-	}
-	INLINED void MY_LIB ptrHolder::f_pow_ln_const::diff(function *&f) noexcept {
-		assert(this == f);
-		f = new f_power(inner, new num(false, 1));
-		inner = nullptr;
-		delete this;
-		return;
-	}
 
 	INLINED std::ostream &MY_LIB operator<<(std::ostream &o, gener var)noexcept {
 		switch (var) {
