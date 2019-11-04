@@ -238,42 +238,6 @@ namespace Function {
 		private:
 			f_pow_x* pow;
 		};
-
-		//function sin()
-		class f_sin :public Integralable {
-			using Q = LargeInteger::Q;
-		public:
-			MY_LIB f_sin(function *in)noexcept
-				:inner(in) { }
-			MY_LIB ~f_sin()noexcept {
-				delete this->inner;
-			}
-			function *MY_LIB copy()noexcept {
-				auto &&temp = new f_sin(this->inner->copy());
-				return temp;
-			}
-			void MY_LIB diff(function *&f) noexcept {
-				assert(this == f);
-				inner = new sum<2>(inner, new num(1, 2));
-				function *temp = inner->copy();
-				temp->diff(temp);
-				f = new product<2>(temp, f);
-				return;
-			}
-			void MY_LIB definite_integral(function *&f, constant* begin, constant* end) noexcept override{
-				assert(this == f);
-				assert(false);
-				return;
-			}
-			value MY_LIB estimate()const noexcept {
-				return std::sin(PI * this->inner->estimate());
-			}
-			std::ostream &MY_LIB Print(std::ostream &o)const noexcept {
-				return o << "sin(pi * " << *inner << ')';
-			}
-		private:
-			function *inner;
-		};
 	public:
 		MY_LIB ptrHolder(function* f)noexcept:func_ptr(f) { }
 		MY_LIB ~ptrHolder() { if (func_ptr)delete func_ptr; }
