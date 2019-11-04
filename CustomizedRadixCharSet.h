@@ -57,8 +57,7 @@ template<>class Set<16> { public:	using super = Set16; };
 		using charset = BaseSet<char, char, Delim...>;
 		static_assert(sizeof...(Delim) > 0, "Delim should be given");
 		while (in.good()) {
-			char tmp;
-			in >> tmp;
+			char tmp = static_cast<char>(in.get());
 			if (!in)tmp = 0;
 			if (charset::exist(tmp)) {
 				return tmp;
@@ -68,5 +67,14 @@ template<>class Set<16> { public:	using super = Set16; };
 			}
 		}
 		return char('\0');
+	}	
+	template<char...Delim>void __stdcall ignore_if(std::istream &in)noexcept {
+		using charset = BaseSet<char, char, Delim...>;
+		static_assert(sizeof...(Delim) > 0, "Delim should be given");
+		while (true) {
+			char tmp = static_cast<char>(in.peek());
+			if (!in) { tmp = 0; return; }
+			if (charset::exist(tmp)) in.ignore(); else return;
+		}
 	}
 }
