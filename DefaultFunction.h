@@ -334,7 +334,11 @@ namespace Function {
 			if (this->func_ptr) this->func_ptr->diff(this->func_ptr);
 		}
 		void MY_LIB definite_integral(constant *begin, constant *end)noexcept {
-			if (this->func_ptr) dynamic_cast<Integralable *>(this->func_ptr)->definite_integral(this->func_ptr, begin, end);
+			if (this->func_ptr) {
+				auto ip = dynamic_cast<Integralable *>(this->func_ptr);
+				assert(ip);
+				ip->definite_integral(this->func_ptr, begin, end);
+			}
 		}
 		friend std::ostream &MY_LIB operator<<(std::ostream &o, ptrHolder holder)noexcept {
 			if (holder.func_ptr) holder.func_ptr->Print(o); else o << '0';
