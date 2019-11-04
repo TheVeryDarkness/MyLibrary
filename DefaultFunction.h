@@ -65,7 +65,7 @@ namespace Function {
 			MY_LIB sum()noexcept = default;
 			friend class product<count>;
 		public:
-			MY_LIB sum(function*pack...)noexcept :p{ pack... } {
+			MY_LIB sum(function *pack...)noexcept :p{ pack... } {
 				static_assert(sizeof...(pack) == count, "Parameter not matched");
 			}
 			MY_LIB sum(std::initializer_list<function *>p) noexcept :p(p) { }
