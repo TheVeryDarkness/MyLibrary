@@ -280,9 +280,8 @@ namespace Function {
 				return temp;
 			}
 			INLINED void MY_LIB diff(function *&f) noexcept {
-				assert(this == p);
-				f = new f_power(f, new num(false, 1));
-				f = nullptr;
+				assert(this == f);
+				//f = new sum<2>(new f_pow_x(pow));
 				delete this;
 				return;
 			}
