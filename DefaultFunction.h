@@ -21,6 +21,8 @@ namespace Function {
 		using value = double;
 		std::map<vari, value> num_map = {};
 		class function;
+		class Integralable;
+		class constant;
 	public:
 		template<vari> class num;
 		template<size_t n>class self_increase;
@@ -41,7 +43,6 @@ namespace Function {
 			virtual MY_LIB ~function()noexcept { }
 
 			virtual void MY_LIB diff(function *&) noexcept = 0;
-			virtual void MY_LIB definite_integral(function *&) noexcept = 0;
 			virtual function *MY_LIB copy()noexcept = 0;
 			virtual value MY_LIB estimate()const noexcept = 0;
 			virtual std::ostream &MY_LIB Print(std::ostream &) const noexcept = 0;
@@ -49,7 +50,16 @@ namespace Function {
 				return fun.Print(o);
 			}
 		};
-		class constant :public function {
+		class Integralable:public function {
+		public:
+			Integralable() { }
+			~Integralable() { }
+			virtual void MY_LIB definite_integral(function *&) noexcept = 0;
+		private:
+
+		};
+
+		class constant :public Integralable {
 		public:
 			MY_LIB constant() noexcept { }
 			virtual MY_LIB ~constant() noexcept { }
@@ -445,7 +455,7 @@ namespace Function {
 			if (this->func_ptr) this->func_ptr->diff(this->func_ptr);
 		}
 		void MY_LIB definite_integral()noexcept {
-			if (this->func_ptr) this->func_ptr->definite_integral(this->func_ptr);
+			if (this->func_ptr) dynamic_cast<Integralable *>(this->func_ptr)->definite_integral(this->func_ptr);
 		}
 		friend std::ostream &MY_LIB operator<<(std::ostream &o, ptrHolder holder)noexcept {
 			if (holder.func_ptr) holder.func_ptr->Print(o); else o << '0';
