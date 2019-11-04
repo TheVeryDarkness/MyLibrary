@@ -65,7 +65,7 @@ namespace Function {
 			MY_LIB sum()noexcept = default;
 			friend class product<count>;
 		public:
-			template<typename ...Pack>MY_LIB sum(Pack...pack)noexcept :p{ pack... } {
+			MY_LIB sum(function*pack...)noexcept :p{ pack... } {
 				static_assert(sizeof...(Pack) == count, "Parameter not matched");
 			}
 			MY_LIB sum(std::initializer_list<function *>p) noexcept :p(p) { }
@@ -120,80 +120,51 @@ namespace Function {
 		private:
 			function *p[count];
 		};
-
-		template<>
-		class product<1> :public function {
-		public:
-			MY_LIB product(function *p)noexcept :p(p) { }
-			MY_LIB ~product() noexcept {
-				delete p;
-			}
-			product *MY_LIB copy()noexcept { return new product(p->copy()); }
-			std::ostream &MY_LIB Print(std::ostream &o)const noexcept {
-				return o << *p;
-			}
-			void MY_LIB definite_integral(function *&f) noexcept {
-				assert(this == f);
-				assert(false);
-				return;
-			}
-			void MY_LIB diff(function *&f) noexcept {
-				assert(this == f);
-				p->diff(p);
-				return;
-			}
-			value MY_LIB estimate()const noexcept {
-				return this->p->estimate();
-			}
-			std::ostream &MY_LIB _Print(std::ostream &o)const noexcept {
-				return o << *p << ')';
-			}
-		private:
-			function *p;
-		};
-
 		template<size_t count = 2>
-		class product :public product<count - 1>/*, public function */ {
+		class[[deprecated("Unfinished work")]] product :public function {
+			MY_LIB product()noexcept = default;
 		public:
-			template<typename ...pack> MY_LIB product(function *p, pack... _p) noexcept :p(p), product<count - 1>(_p...) { }
-			explicit MY_LIB product(product *_p) noexcept
-				:p(_p->p), product<count - 1>(static_cast<product<count - 1> *>(_p)) { }
+			MY_LIB product(function *p...) noexcept :p{p...} { }
 			MY_LIB ~product() noexcept {
-				if (p != nullptr) {
-					delete p;
+				for (auto i : p) {
+					if (i) {
+						delete i;
+					}
 				}
 			}
-			std::ostream &MY_LIB _Print(std::ostream &o)const noexcept {
-				o << *p << " * ";
-				return static_cast<const product<count - 1> *>(this)->_Print(o);
-			}
 			std::ostream &MY_LIB Print(std::ostream &o)const noexcept {
-				return this->_Print(o << '(');
+				const function *const *const end = p + count;
+				function *const *ptr = p;
+				o << '(' << **ptr;
+				for (++ptr; ptr != end; ++ptr) {
+					o << " * " << *ptr;
+				}
+				o << ')';
+				return o;
 			}
 			value MY_LIB estimate()const noexcept {
-				return this->p->estimate() * this->product<count - 1>::estimate();
+				value res = 0;
+				for (auto ptr : p) {
+					res *= ptr->estimate();
+				}
+				return res;
 			}
-			product<count> *MY_LIB copy()noexcept {
-				return new product(p->copy(), product<count - 1>::copy());
-			}
-			void MY_LIB definite_integral(function *&f) noexcept {
-				assert(this == f);
-				assert(false);
-				return;
+			product *MY_LIB copy()noexcept {
+				sum *res = new product;
+				function *p1 = this->p[0], *p2 = res->p[0];
+				for (size_t i = 0; i < count; ++i) {
+					p2 = p1->copy();
+					++p1, ++p2;
+				}
+				return res;
 			}
 			void MY_LIB diff(function *&f) noexcept {
 				assert(this == f);
-				auto _p = p->copy();
-				_p->diff(_p);
-				function *_this = this->product<count - 1>::copy();
-				_this->diff(_this);
-				f = new sum<2>(new product<2>(_p, this->product<count - 1>::copy()), new product<2>(p, _this));
-				p = nullptr;
-				delete this;
+
 				return;
 			}
 		private:
-			function *p;
+			function *p[count];
 		};
 
 		class f_pow_x :public function {
