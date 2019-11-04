@@ -223,12 +223,13 @@ namespace LargeInteger {
 
 	template<typename LL, typename LL::value_type radix>
 	class LargeUnsigned :protected LL {
-	protected:
+	public:
 		using radix_t = decltype(radix);
+		using Data = radix_t;
+	protected:
 		static_assert(radix != radix_t(1), "Radix can't be 1");
 		static_assert(radix >= 0, "Positive radix required.");
 		static_assert(std::is_same_v<radix_t, typename LL::value_type>, "Value type should be the same");
-		using Data = radix_t;
 
 		//Maybe this is the first function I'd use multi-thread optimization?
 		//Actually not.
@@ -796,10 +797,10 @@ namespace LargeInteger {
 	};
 	template<typename LL, typename LL::value_type radix>
 	class LargeSigned :protected LargeUnsigned<LL, radix> {
+		//friend class Q;
+	public:
 		using radix_t = decltype(radix);
 		using Data = radix_t;
-		friend class Q;
-	public:
 		using super = LargeUnsigned<LL, radix>;
 		static constexpr radix_t getRadix()noexcept { return radix; }
 		constexpr INLINED auto begin() noexcept {
