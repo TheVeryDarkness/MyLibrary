@@ -1,7 +1,7 @@
 #pragma once
 
 #include "PreciseMath.h"
-#include <map>
+//#include <map>
 
 
 //#define new DBG_NEW
@@ -19,7 +19,7 @@ namespace Function {
 	class ptrHolder {
 	private:
 		using value = double;
-		std::map<vari, value> num_map = {};
+		//std::map<vari, value> num_map = {};
 		class function;
 		class Integralable;
 		class constant;
