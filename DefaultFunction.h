@@ -14,8 +14,8 @@ namespace Function {
 		using value = double;
 		class function;
 		class Integralable;
-		class constant;
 	public:
+		class constant;
 		class num;
 		template<size_t count>class sum;
 		template<size_t count>class product;
@@ -66,7 +66,7 @@ namespace Function {
 			friend class product<count>;
 		public:
 			MY_LIB sum(function*pack...)noexcept :p{ pack... } {
-				static_assert(sizeof...(Pack) == count, "Parameter not matched");
+				static_assert(sizeof...(pack) == count, "Parameter not matched");
 			}
 			MY_LIB sum(std::initializer_list<function *>p) noexcept :p(p) { }
 			MY_LIB ~sum() noexcept {
