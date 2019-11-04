@@ -14,6 +14,7 @@ namespace LargeInteger {
 
 	//有理数
 	//Rational Number
+	//分子分母上的负号将被忽略
 	//negative sign on numerator and denominator will be ignored
 	class Q {
 	protected:
