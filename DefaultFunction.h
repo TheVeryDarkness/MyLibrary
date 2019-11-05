@@ -38,7 +38,7 @@ inline namespace Function {
 
 	class constant final{
 	public:
-		MY_LIB constant(const std::string &str) noexcept :a(str.c_str()) { }
+		explicit MY_LIB constant(const std::string &str) noexcept :a(str.c_str()) { }
 		MY_LIB constant(LargeInteger::Q &&q) noexcept :a(q) { }
 		MY_LIB ~constant() noexcept { }
 		constant MY_LIB copy()noexcept {
@@ -266,12 +266,12 @@ inline namespace Function {
 	public:
 		funEngine() { }
 		~funEngine() { }
-		static ptrHolder produce(const std::string &definition) {
+		static ptrHolder produce(const char *definition) {
 			std::istringstream sin(definition);
-			LargeInteger::ignore_if<' ', 'x', 'y', 'z'>(sin);
+			LargeInteger::ignore_if<' ', 'x', 'y', 'z', '='>(sin);
 			std::string input;
 			LargeInteger::getline<' '>(sin, input);
-			if (input == "t") {
+			if (!input.empty()) {
 				return ptrHolder(new f_pow_x(1, 2, 2));
 			}
 			throw UnknownFunction("This function is not supported yet.", definition);
