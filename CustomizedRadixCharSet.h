@@ -18,12 +18,12 @@ namespace LargeInteger{
 		constexpr static int_type MY_LIB getRadix()noexcept {
 			return sizeof...(set);
 		}
-		constexpr static _Elem arr[getRadix()] = { set... };
 		constexpr static index_type MY_LIB to_int_type(char_type Char)noexcept {
 			size_t Index = static_cast<size_t>(-1);
 			return index_type((((Index += 1), (Char == set)) || ...) ? Index : '?');
 		}
 		constexpr static char_type MY_LIB to_char_type(int_type Int)noexcept {
+			constexpr _Elem arr[getRadix()] = { set... };
 			return (Int < getRadix()) ? arr[Int] : char_type('?');
 		}
 		constexpr static bool MY_LIB exist(char_type c)noexcept {
