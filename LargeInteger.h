@@ -327,6 +327,10 @@ namespace LargeInteger {
 			}
 			return;
 		}
+		explicit MY_LIB LargeUnsigned(const char *str)noexcept :LL(0){
+			std::stringstream sin(str);
+			sin >> *this;
+		}
 		explicit MY_LIB LargeUnsigned(LL &&ll)noexcept :LL(std::move(ll)) { }
 		static constexpr LargeUnsigned MY_LIB Copy(const LargeUnsigned &that)noexcept {
 			LargeUnsigned This(0);
@@ -792,8 +796,15 @@ namespace LargeInteger {
 		const auto &MY_LIB GetThis()const noexcept {
 			return this->data;
 		}
-
-		~LargeUnsigned() noexcept { }
+		static LargeUnsigned MY_LIB pow(size_t _base, size_t expo) noexcept {
+			if (expo == 0) return LargeUnsigned(1);
+			LargeUnsigned res(_base);
+			for (size_t i = 1; i < expo; i++) {
+				res *= _base;
+			}
+			return res;
+		}
+		~LargeUnsigned() noexcept = default;
 	};
 	template<typename LL, typename LL::value_type radix>
 	class LargeSigned :protected LargeUnsigned<LL, radix> {
@@ -827,6 +838,10 @@ namespace LargeInteger {
 		template<typename val> explicit MY_LIB LargeSigned(bool Pos, val Val)noexcept
 			:PosSign(Pos), LargeUnsigned<LL, radix>(Val) {
 			assert(Val >= 0);
+		}
+		explicit MY_LIB LargeSigned(const char *str)noexcept :super(0){
+			std::stringstream sin(str);
+			sin >> *this;
 		}
 		explicit MY_LIB LargeSigned(bool sign, LargeUnsigned<LL, radix> uns)noexcept
 			:PosSign(sign), LargeUnsigned<LL, radix>(uns) { }

@@ -21,7 +21,16 @@ namespace LargeInteger {
 		using Data = unsigned int;
 		N Numerator;//·Ö×Ó
 		N Denominator;//·ÖÄ¸
+		size_t DecimalLength(const char*str)noexcept {
+			const char *pDot = nullptr;
+			for (; *str != '\0'; ++str) {
+				if (*str == '.')pDot = str;
+			}
+			return (pDot == nullptr ? 0 : str - pDot - 1ULL);
+		}
 	public:
+		explicit MY_LIB nQ(const char *str)noexcept
+			:Numerator(str), Denominator(std::move(N::pow(10, DecimalLength(str)))) { }
 		template<typename Val1, typename Val2>
 		explicit MY_LIB nQ(const Val1 &&n, const Val2 &&d = 1)noexcept :
 			Numerator(n),
@@ -203,7 +212,7 @@ namespace LargeInteger {
 		bool PosSign;
 		using super = nQ;
 	public:
-		//MY_LIB Q();
+		explicit MY_LIB Q(const char *str)noexcept : PosSign(*str != '-'), super(*str != '-' ? str : str + 1) { }
 		template<typename Val1, typename Val2>explicit MY_LIB Q(bool sign, const Val1 &&n, const Val2 &&d = 1)noexcept :
 			PosSign(sign), super(std::move(n), std::move(d)) { }
 		MY_LIB Q(const Q &that) noexcept :
