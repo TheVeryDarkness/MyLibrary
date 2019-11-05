@@ -8,7 +8,6 @@
 class RadixError :public std::exception {
 public:
 	__stdcall RadixError(const char *);
-	__stdcall ~RadixError();
 	const char *what()const;
 private:
 	const char *Message;
@@ -18,7 +17,6 @@ inline namespace Function {
 	public:
 		UnknownFunction(const char* msg,const std::string& name) 
 			:std::exception(msg),functionName(name) { }
-		~UnknownFunction() { }
 		std::string what() {
 			return exception::what() + functionName;
 		}
