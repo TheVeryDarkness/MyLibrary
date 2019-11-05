@@ -1,7 +1,7 @@
 #pragma once
 #include "Shared.h"
 
-namespace LargeInteger{
+namespace LargeInteger {
 	template<typename _Elem, typename index_type, _Elem... set>
 	class BaseSet;
 
@@ -35,39 +35,28 @@ namespace LargeInteger{
 	};
 
 
-	typedef BaseSet < char, unsigned char, '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'> Set16;
-	typedef BaseSet < char, unsigned char, '0', '1', '2', '3', '4', '5', '6', '7'> Set8;
-	typedef BaseSet < char, unsigned char, '0', '1'> Set2;
-	typedef BaseSet < char, unsigned char, '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'> Set10;
-
-	template<size_t Radix>
-	class Set {
-	public:
-		Set() = delete;
-		~Set() = delete;
-	};
-
-template<>class Set<2> { public:	using super = Set2; };
-template<>class Set<8> { public:	using super = Set8; };
-template<>class Set<10> { public:	using super = Set10; };
-template<>class Set<16> { public:	using super = Set16; };
+	typedef BaseSet<char, unsigned char, '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'> Set16;
+	typedef BaseSet<char, unsigned char, '0', '1', '2', '3', '4', '5', '6', '7'> Set8;
+	typedef BaseSet<char, unsigned char, '0', '1'> Set2;
+	typedef BaseSet<char, unsigned char, '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'> Set10;
 
 
 	template<char...Delim>char __stdcall getline(std::istream &in, std::string &str)noexcept {
 		using charset = BaseSet<char, char, Delim...>;
 		static_assert(sizeof...(Delim) > 0, "Delim should be given");
 		while (in.good()) {
-			char tmp = static_cast<char>(in.get());
+			char tmp = static_cast<char>(in.peek());
 			if (!in)tmp = 0;
 			if (charset::exist(tmp)) {
 				return tmp;
 			}
 			else {
 				str.push_back(tmp);
+				in.ignore();
 			}
 		}
 		return char('\0');
-	}	
+	}
 	template<char...Delim>void __stdcall ignore_if(std::istream &in)noexcept {
 		using charset = BaseSet<char, char, Delim...>;
 		static_assert(sizeof...(Delim) > 0, "Delim should be given");
@@ -77,4 +66,37 @@ template<>class Set<16> { public:	using super = Set16; };
 			if (charset::exist(tmp)) in.ignore(); else return;
 		}
 	}
+	template<>void __stdcall ignore_if<'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'>(std::istream &in)noexcept {
+		while (true) {
+			char tmp = static_cast<char>(in.peek());
+			if (!in) { tmp = 0; return; }
+			if ('0' <= tmp && tmp <= '9') in.ignore(); else return;
+		}
+	}
+	template<char...Delim>void __stdcall ignore_if_not(std::istream &in)noexcept {
+		using charset = BaseSet<char, char, Delim...>;
+		static_assert(sizeof...(Delim) > 0, "Delim should be given");
+		while (true) {
+			char tmp = static_cast<char>(in.peek());
+			if (!in) { tmp = 0; return; }
+			if (!charset::exist(tmp)) in.ignore(); else return;
+		}
+	}
+	template<>void __stdcall ignore_if_not<'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'>(std::istream &in)noexcept {
+		while (true) {
+			char tmp = static_cast<char>(in.peek());
+			if (!in) { tmp = 0; return; }
+			if (!('0' <= tmp && tmp <= '9')) in.ignore(); else return;
+		}
+	}
+
+	template<size_t Radix>
+	class Set {
+	public:
+		Set() = delete;
+		~Set() = delete;
+	}; template<>class Set<2> { public:	using super = Set2; };
+template<>class Set<8> { public:	using super = Set8; };
+template<>class Set<10> { public:	using super = Set10; };
+template<>class Set<16> { public:	using super = Set16; };
 }
