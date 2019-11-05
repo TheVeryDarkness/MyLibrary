@@ -1,16 +1,15 @@
 #pragma once
 
 #include "PreciseMath.h"
-//#include <map>
+#include "Exception.h"
 
 
-//#define new DBG_NEW
-namespace Function {
+
+inline namespace Function {
 #define PI acos(-1)
 	using value = double;
 	class function;
 	class constant;
-	class num;
 	template<size_t count>class sum;
 	template<size_t count>class product;
 	class f_pow_x_ln_x;
@@ -39,6 +38,8 @@ namespace Function {
 	private:
 	public:
 		MY_LIB ptrHolder(function* f)noexcept:func_ptr(f) { }
+		MY_LIB ptrHolder(ptrHolder &&rv)noexcept :func_ptr(rv.func_ptr) { rv.func_ptr = nullptr; }
+		MY_LIB ptrHolder(const ptrHolder &rvalue)noexcept = delete;
 		MY_LIB ~ptrHolder() { if (func_ptr)delete func_ptr; }
 		void MY_LIB diff()noexcept {
 			if (this->func_ptr) this->func_ptr->diff(this->func_ptr);
@@ -128,6 +129,7 @@ namespace Function {
 	private:
 		function *p[count];
 	};
+
 	template<size_t count = 2>
 	class [[deprecated("Unfinished work")]] product :public function{
 		MY_LIB product()noexcept = default;
@@ -216,7 +218,6 @@ namespace Function {
 		LargeInteger::N expo;
 	};
 
-
 	class f_pow_x_ln_x :public function {
 	public:
 		template<typename...pack>MY_LIB f_pow_x_ln_x(pack...in)noexcept :pow(in...) { }
@@ -252,5 +253,21 @@ namespace Function {
 	private:
 		f_pow_x *pow;
 	};
+
+
+	class funEngine {
+	public:
+		funEngine() { }
+		~funEngine() { }
+		static ptrHolder produce(const std::string &definition) {
+			if (definition == "x = t * 2") {
+
+			}
+			throw UnknownFunction("This function is not supported yet.", definition);
+		}
+	private:
+
+	};
+
 }
 #undef new
