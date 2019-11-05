@@ -1,7 +1,9 @@
 #pragma once
 
+#include <sstream>
 #include "PreciseMath.h"
 #include "Exception.h"
+#include "CustomizedRadixCharSet.h"
 
 
 
@@ -27,46 +29,29 @@ inline namespace Function {
 		virtual bool MY_LIB integralable()noexcept = 0;
 		virtual void MY_LIB undefinite_integral(function *&) noexcept = 0;
 		virtual function *MY_LIB copy()noexcept = 0;
-		virtual value MY_LIB estimate()const noexcept = 0;
+		virtual value MY_LIB estimate(const constant&)const noexcept = 0;
 		virtual std::ostream &MY_LIB Print(std::ostream &) const noexcept = 0;
 		friend std::ostream &MY_LIB operator<<(std::ostream &o, const function &fun)noexcept {
 			return fun.Print(o);
 		}
 	};
 
-	class ptrHolder {
-	private:
+	class constant final{
 	public:
-		MY_LIB ptrHolder(function* f)noexcept:func_ptr(f) { }
-		MY_LIB ptrHolder(ptrHolder &&rv)noexcept :func_ptr(rv.func_ptr) { rv.func_ptr = nullptr; }
-		MY_LIB ptrHolder(const ptrHolder &rvalue)noexcept = delete;
-		MY_LIB ~ptrHolder() { if (func_ptr)delete func_ptr; }
-		void MY_LIB diff()noexcept {
-			if (this->func_ptr) this->func_ptr->diff(this->func_ptr);
+		MY_LIB constant(const std::string &str) noexcept :a(str.c_str()) { }
+		MY_LIB constant(LargeInteger::Q &&q) noexcept :a(q) { }
+		MY_LIB ~constant() noexcept { }
+		constant MY_LIB copy()noexcept {
+			return constant(a.Copy(a));
 		}
-		void MY_LIB undefinite_integral()noexcept {
-			if (this->func_ptr) {
-				assert(this->func_ptr->integralable());
-				this->func_ptr->undefinite_integral(this->func_ptr);
-			}
+		value MY_LIB estimate()const noexcept {
+			return a.estim();
 		}
-		friend std::ostream &MY_LIB operator<<(std::ostream &o, ptrHolder holder)noexcept {
-			if (holder.func_ptr) holder.func_ptr->Print(o); else o << '0';
-			return o;
+		std::ostream &MY_LIB Print(std::ostream &o) const noexcept {
+			return o << a;
 		}
 	private:
-		function *func_ptr;
-	};
-
-	class constant :public function {
-	public:
-		MY_LIB constant() noexcept { }
-		virtual MY_LIB ~constant() noexcept { }
-		virtual void MY_LIB diff(function *&f) noexcept override { f = nullptr; delete this; }
-		virtual void MY_LIB undefinite_integral(function *&) noexcept override = 0;
-		virtual constant *MY_LIB copy()noexcept = 0;
-		virtual value MY_LIB estimate()const noexcept = 0;
-		virtual std::ostream &MY_LIB Print(std::ostream &) const noexcept = 0;
+		LargeInteger::Q a;
 	};
 
 	template<size_t count = 2>
@@ -179,16 +164,14 @@ inline namespace Function {
 
 	class f_pow_x :public function {
 	public:
-		template<typename Val1, typename Val2, typename Val3, typename Val4>
-		MY_LIB f_pow_x(Val1 &&coeff1, Val2 &&coeff2, Val3 &&base1, Val4 &&base2, size_t expo) noexcept :
+		template<typename Val1, typename Val2>
+		MY_LIB f_pow_x(Val1 &&coeff1, Val2 &&coeff2,  size_t expo) noexcept :
 			coeff(true, std::move(coeff1), std::move(coeff2)),
-			base(true, std::move(base1), std::move(base2)),
 			expo(expo) { }
-		MY_LIB f_pow_x(LargeInteger::Q &&coeff, LargeInteger::Q &&base, LargeInteger::N &&expo) noexcept
-			:coeff(coeff), base(base), expo(expo) { }
+		MY_LIB f_pow_x(LargeInteger::Q &&coeff, LargeInteger::N &&expo) noexcept
+			:coeff(coeff), expo(expo) { }
 		MY_LIB ~f_pow_x()noexcept {
 			coeff.destruct();
-			base.destruct();
 			expo.destruct();
 		}
 		void MY_LIB diff(function *&) noexcept {
@@ -204,17 +187,17 @@ inline namespace Function {
 			this->expo += 1;
 			this->coeff /= this->expo;
 		}
-		f_pow_x *MY_LIB copy()noexcept {
-			return new f_pow_x(coeff.Copy(coeff), base.Copy(base), expo.Copy(expo));
+		f_pow_x *MY_LIB copy()noexcept override{
+			return new f_pow_x(coeff.Copy(coeff), expo.Copy(expo));
 		}
-		value MY_LIB estimate()const noexcept {
-			return coeff.estim() * std::pow(base.estim(), expo.GetValue<value>());
+		value MY_LIB estimate(const constant& con)const noexcept {
+			return coeff.estim() * std::pow(con.estimate(), expo.GetValue<value>());
 		}
 		std::ostream &MY_LIB Print(std::ostream &o) const noexcept {
-			return (coeff == 0 ? o << "0" : o << coeff << "*" << "(" << base << ")^(" << expo << ")");
+			return (coeff == 0 ? o << "0" : o << coeff << " * x" << "^(" << expo << ")");
 		}
 	private:
-		LargeInteger::Q coeff, base;
+		LargeInteger::Q coeff;
 		LargeInteger::N expo;
 	};
 
@@ -226,7 +209,7 @@ inline namespace Function {
 				delete this->pow;
 			}
 		}
-		function *MY_LIB copy()noexcept {
+		function *MY_LIB copy() noexcept override {
 			auto &&temp = new f_pow_x_ln_x(this->pow->copy());
 			return temp;
 		}
@@ -239,13 +222,13 @@ inline namespace Function {
 		bool MY_LIB integralable()noexcept {
 			return true;
 		}
-		void MY_LIB undefinite_integral(function *&f) noexcept {
+		void MY_LIB undefinite_integral(function *&f) noexcept override {
 			assert(this == f);
 			assert(false);
 			return;
 		}
-		value MY_LIB estimate()const noexcept {
-			return std::log(this->pow->estimate());
+		value MY_LIB estimate(const constant &con)const noexcept override {
+			return std::log(this->pow->estimate(con));
 		}
 		std::ostream &MY_LIB Print(std::ostream &o)const noexcept {
 			return o << "ln(" << *pow << ')';
@@ -255,13 +238,41 @@ inline namespace Function {
 	};
 
 
+	class ptrHolder {
+	private:
+	public:
+		MY_LIB ptrHolder(function *f)noexcept :func_ptr(f) { }
+		MY_LIB ptrHolder(ptrHolder &&rv)noexcept :func_ptr(rv.func_ptr) { rv.func_ptr = nullptr; }
+		MY_LIB ptrHolder(const ptrHolder &rvalue)noexcept = delete;
+		MY_LIB ~ptrHolder() { if (func_ptr)delete func_ptr; }
+		void MY_LIB diff()noexcept {
+			if (this->func_ptr) this->func_ptr->diff(this->func_ptr);
+		}
+		void MY_LIB undefinite_integral()noexcept {
+			if (this->func_ptr) {
+				assert(this->func_ptr->integralable());
+				this->func_ptr->undefinite_integral(this->func_ptr);
+			}
+		}
+		friend std::ostream &MY_LIB operator<<(std::ostream &o, ptrHolder holder)noexcept {
+			if (holder.func_ptr) holder.func_ptr->Print(o); else o << '0';
+			return o;
+		}
+	private:
+		function *func_ptr;
+	};
+
 	class funEngine {
 	public:
 		funEngine() { }
 		~funEngine() { }
 		static ptrHolder produce(const std::string &definition) {
-			if (definition == "x = t * 2") {
-
+			std::istringstream sin(definition);
+			LargeInteger::ignore_if<' ', 'x', 'y', 'z'>(sin);
+			std::string input;
+			LargeInteger::getline<' '>(sin, input);
+			if (input == "t") {
+				return ptrHolder(new f_pow_x(1, 2, 2));
 			}
 			throw UnknownFunction("This function is not supported yet.", definition);
 		}
