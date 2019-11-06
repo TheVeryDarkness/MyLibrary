@@ -39,8 +39,9 @@ inline namespace Function {
 	class constant final{
 	public:
 		explicit MY_LIB constant(const std::string &str) noexcept :a(str.c_str()) { }
+		explicit MY_LIB constant(const char *str) noexcept :a(str) { }
 		MY_LIB constant(LargeInteger::Q &&q) noexcept :a(q) { }
-		MY_LIB ~constant() noexcept { }
+		MY_LIB ~constant() noexcept { a.destruct(); }
 		constant MY_LIB copy()  {
 			return constant(a.Copy(a));
 		}
