@@ -4,7 +4,7 @@
 #include <amp.h>
 #include <omp.h>
 
-namespace Math {
+inline namespace Math {
 	enum class Occupation {
 		CPU,GPU
 	};

@@ -1,8 +1,8 @@
 #pragma once
 #include <iostream>
 
-namespace Darkness {
-	namespace Physics {
+inline namespace Darkness {
+	inline namespace Physics {
 		//长度L、质量M、时间T、电流强度I、温度t、物质的量n和光强度J
 		template<typename Data = int>
 		class Dimension {
@@ -98,28 +98,28 @@ namespace Darkness {
 			}
 		};
 
-		[[nodiscard]]Quantity<unsigned long long> operator ""m(unsigned long long length)noexcept {
+		[[nodiscard]] Quantity<unsigned long long>(operator "" _m)(unsigned long long length)noexcept {
 			return Quantity(length, 1);
 		}
-		[[nodiscard]] Quantity<unsigned long long> operator ""kg(unsigned long long mass)noexcept {
+		[[nodiscard]] Quantity<unsigned long long>(operator "" _kg)(unsigned long long mass)noexcept {
 			return Quantity(mass, 0, 1);
 		}
-		[[nodiscard]] Quantity<unsigned long long> operator ""s(unsigned long long time)noexcept {
+		[[nodiscard]] Quantity<unsigned long long>(operator "" _s)(unsigned long long time)noexcept {
 			return Quantity(time, 0, 0, 1);
 		}
-		[[nodiscard]] Quantity<unsigned long long> operator ""A(unsigned long long current)noexcept {
+		[[nodiscard]] Quantity<unsigned long long>(operator "" _A)(unsigned long long current)noexcept {
 			return Quantity(current, 0, 0, 0, 1);
 		}
-		[[nodiscard]] Quantity<unsigned long long> operator ""K(unsigned long long temperature)noexcept {
+		[[nodiscard]] Quantity<unsigned long long>(operator "" _K)(unsigned long long temperature)noexcept {
 			return Quantity(temperature, 0, 0, 0, 0, 1);
 		}
-		[[nodiscard]] Quantity<unsigned long long> operator ""mol(unsigned long long Mol)noexcept {
+		[[nodiscard]] Quantity<unsigned long long>(operator "" _mol)(unsigned long long Mol)noexcept {
 			return Quantity(Mol, 0, 0, 0, 0, 0, 1);
 		}
-		[[nodiscard]] Quantity<unsigned long long> operator ""N(unsigned long long force)noexcept {
+		[[nodiscard]] Quantity<unsigned long long>(operator "" _N)(unsigned long long force)noexcept {
 			return Quantity(force, 1, 1, -2);
 		}
-		[[nodiscard]] Quantity<unsigned long long> operator ""J(unsigned long long work)noexcept {
+		[[nodiscard]] Quantity<unsigned long long>(operator "" _J)(unsigned long long work)noexcept {
 			return Quantity(work, 2, 1, -2);
 		}
 	}

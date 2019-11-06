@@ -7,7 +7,7 @@
 #include <mutex>
 #include <tuple>
 
-namespace Darkness {
+inline namespace Darkness {
 	//constexpr auto wake_up_interval = std::chrono::nanoseconds(1);
 
 	template<size_t parallelSize>

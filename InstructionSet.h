@@ -1,7 +1,7 @@
 #pragma once
 
 #include <intrin.h>
-namespace Math {
+inline namespace Math {
 	enum class Align :size_t {
 		_512 = 64, _256 = 32, _128 = 16, _64 = 8, _32 = 4
 	};

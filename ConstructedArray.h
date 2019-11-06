@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Math {
+inline namespace Math {
 	template<typename T, size_t sz>class Array :Array<T, sz - 1> {
 		T data;
 		static_assert(sz != 0, "Wrong size");

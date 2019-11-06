@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Math {
+inline namespace Math {
 	template<typename T,size_t sz>
 	class arr {
 	public:

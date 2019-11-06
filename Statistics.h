@@ -28,7 +28,7 @@ namespace LargeInteger {
 	}
 }
 
-namespace Math {
+inline namespace Math {
 	template<typename Data>constexpr inline Data ABS(Data a) noexcept;
 	template<typename value_type>size_t getBits(const value_type &that)noexcept;
 	template<typename Data, Data dt> inline constexpr bool CheckUnsigned();

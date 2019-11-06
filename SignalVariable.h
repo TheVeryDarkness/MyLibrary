@@ -3,7 +3,7 @@
 #include <atomic>
 #include <condition_variable>
 
-namespace Darkness {
+inline namespace Darkness {
 	class Empty {
 	public:
 		Empty(){ }

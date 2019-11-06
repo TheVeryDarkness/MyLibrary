@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Math {
+inline namespace Math {
 	enum class CmprT :unsigned char;
 	template<typename T> class Pack;
 	template<typename T, CmprT comp> class Comparator;
