@@ -28,7 +28,7 @@ inline namespace Function {
 		virtual void MY_LIB diff(function *&) noexcept = 0;
 		virtual bool MY_LIB integralable()noexcept = 0;
 		virtual void MY_LIB undefinite_integral(function *&) noexcept = 0;
-		virtual function *MY_LIB copy()noexcept = 0;
+		virtual function *MY_LIB copy() = 0;
 		virtual value MY_LIB estimate(const constant&)const noexcept = 0;
 		virtual std::ostream &MY_LIB Print(std::ostream &) const noexcept = 0;
 		friend std::ostream &MY_LIB operator<<(std::ostream &o, const function &fun)noexcept {
@@ -41,7 +41,7 @@ inline namespace Function {
 		explicit MY_LIB constant(const std::string &str) noexcept :a(str.c_str()) { }
 		MY_LIB constant(LargeInteger::Q &&q) noexcept :a(q) { }
 		MY_LIB ~constant() noexcept { }
-		constant MY_LIB copy()noexcept {
+		constant MY_LIB copy()  {
 			return constant(a.Copy(a));
 		}
 		value MY_LIB estimate()const noexcept {
@@ -71,7 +71,7 @@ inline namespace Function {
 				}
 			}
 		}
-		sum *MY_LIB copy()noexcept {
+		sum *MY_LIB copy() override {
 			sum *res = new sum;
 			function *p1 = this->p[0], *p2 = res->p[0];
 			for (size_t i = 0; i < count; ++i) {
@@ -144,7 +144,7 @@ inline namespace Function {
 			}
 			return res;
 		}
-		product *MY_LIB copy()noexcept {
+		product *MY_LIB copy() override {
 			sum *res = new product;
 			function *p1 = this->p[0], *p2 = res->p[0];
 			for (size_t i = 0; i < count; ++i) {
@@ -187,7 +187,7 @@ inline namespace Function {
 			this->expo += 1;
 			this->coeff /= this->expo;
 		}
-		f_pow_x *MY_LIB copy()noexcept override{
+		f_pow_x *MY_LIB copy() override{
 			return new f_pow_x(coeff.Copy(coeff), expo.Copy(expo));
 		}
 		value MY_LIB estimate(const constant& con)const noexcept {
@@ -209,7 +209,7 @@ inline namespace Function {
 				delete this->pow;
 			}
 		}
-		function *MY_LIB copy() noexcept override {
+		function *MY_LIB copy() override {
 			auto &&temp = new f_pow_x_ln_x(this->pow->copy());
 			return temp;
 		}
@@ -243,7 +243,7 @@ inline namespace Function {
 	public:
 		MY_LIB ptrHolder(function *f)noexcept :func_ptr(f) { }
 		MY_LIB ptrHolder(ptrHolder &&rv)noexcept :func_ptr(rv.func_ptr) { rv.func_ptr = nullptr; }
-		MY_LIB ptrHolder(const ptrHolder &rvalue)noexcept = delete;
+		MY_LIB ptrHolder(const ptrHolder &lvalue) : func_ptr(lvalue.func_ptr->copy()) { }
 		MY_LIB ~ptrHolder() { if (func_ptr)delete func_ptr; }
 		void MY_LIB diff()noexcept {
 			if (this->func_ptr) this->func_ptr->diff(this->func_ptr);

@@ -3,18 +3,29 @@
 inline namespace Math{
 	template<typename val>
 	class NormalMatrix {
-	private:
+	public:
 		static_assert(!std::is_integral_v<val>, "Useless type.");
+		const size_t m, n;
+	private:
 		val **mat;
 	public:
-		const size_t m, n;
 		NormalMatrix(size_t m, size_t n) :m(m), n(n), mat(new val *[m]) {
 			for (size_t i = 0; i < m; ++i) {
 				mat[i] = new val[n];
 			}
 		}
-		NormalMatrix(const NormalMatrix &that) = delete;
-		NormalMatrix(NormalMatrix &&that) = delete;
+		NormalMatrix(const NormalMatrix &that):m(that.m),n(that.n),mat(new val*[m]) {
+			for (size_t i = 0; i < m; ++i) {
+				mat[i] = new val[n];
+				for (size_t j = 0; j < n; ++j) {
+					mat[i][j] = that.mat[i][j];
+				}
+			}
+		}
+		NormalMatrix(NormalMatrix &&that)noexcept
+			:mat(that.mat), m(that.m), n(that.n) {
+			that.mat = nullptr;
+		}
 		~NormalMatrix() {
 			for (size_t i = 0; i < m; i++) {
 				delete[] mat[i];
@@ -30,7 +41,7 @@ inline namespace Math{
 		}
 		//reduction
 		template<typename red>void fill(red r)noexcept {
-			static_assert(std::is_invocable_v<red, size_t, size_t>, "Failed in Reduction");
+			static_assert(std::is_invocable_r_v<val, red, size_t, size_t>, "Failed in Reduction");
 			for (size_t i = 0; i < m; i++) {
 				for (size_t j = 0; j < n; j++) {
 					mat[i][j] = r(i,j);
@@ -65,7 +76,7 @@ inline namespace Math{
 		}
 		//return the rank
 		template<bool standard = true>
-		size_t to_upper_tri()noexcept {
+		size_t to_diagon()noexcept {
 			size_t current_x = 0;
 			//0 ~ y - 1列已经上三角化
 			for (size_t y = 0; y < n; ++y) {
@@ -74,7 +85,6 @@ inline namespace Math{
 					if (mat[x][y] == 0) continue;
 					else {
 						std::swap(mat[current_x], mat[x]);
-						std::cout << *this << std::endl;
 						if constexpr (standard) {
 							for (size_t j = y + 1; j < n; j++) {
 								mat[current_x][j] /= mat[current_x][y];
@@ -88,7 +98,6 @@ inline namespace Math{
 								const val ratio = mat[i][y] / mat[current_x][y];
 								mat[i][y] = 0;
 								line_sub_from_mul_line(current_x, i, ratio, y + 1);
-								std::cout << *this << std::endl;
 							}
 						}
 						++current_x;
