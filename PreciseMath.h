@@ -58,7 +58,7 @@ namespace LargeInteger {
 						++info.len;
 					}
 				}
-				return std::move(N::MakeFromString(str, p - 1));
+				return std::move(str == p ? N(0) : N::MakeFromString(str, p - 1));
 			}
 			N operator()() noexcept { 
 				assert(!is_numerator);
@@ -468,6 +468,10 @@ namespace LargeInteger {
 		}
 		friend std::ostream &operator<<(std::ostream &o, const Q &q) {
 			return q.Print(o);
+		}
+		friend Q operator-(Q &&that)noexcept {
+			that.PosSign = !that.PosSign;
+			return that;
 		}
 	};
 }
