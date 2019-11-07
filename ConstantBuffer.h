@@ -11,5 +11,5 @@ public:
 		return (NullData = val);
 	}
 protected:
-	static inline Data NullData = 0;
+	static inline Data NullData = val;
 };
