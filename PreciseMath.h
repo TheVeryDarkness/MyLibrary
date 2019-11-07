@@ -49,7 +49,7 @@ namespace LargeInteger {
 					else if (*p == '/') {
 						is_decimal = false;
 						info.begin = p + 1;
-						while (!('0' <= *info.begin && '9' <= *info.begin)) {
+						while (!('0' <= *info.begin && *info.begin <= '9')) {
 							++info.begin;
 						}
 						break;
@@ -62,18 +62,18 @@ namespace LargeInteger {
 			}
 			N operator()() noexcept { 
 				assert(!is_numerator);
-				if (is_decimal) {
-					return std::move(N::MakeFromString(info.begin));
-				}
-				else {
-					return std::move(N::pow(10, info.len));
-				}
+				return std::move(
+					is_decimal ?
+					N::pow(10, info.len)
+					:
+					(info.begin) ? N::MakeFromString(info.begin) : N(1)
+				);
 			}
 		private:
 			bool is_numerator = true;
 			bool is_decimal = false;//ÊÇÐ¡Êý
 			union denominator_info {
-				const char *begin;
+				const char *begin = nullptr;
 				size_t len;
 			}info;
 		};
@@ -268,7 +268,8 @@ namespace LargeInteger {
 		bool PosSign;
 		using super = nQ;
 	public:
-		explicit MY_LIB Q(const char *str)noexcept : PosSign(*str != '-'), super(*str != '-' ? str : str + 1) { }
+		explicit MY_LIB Q(const char *str)noexcept 
+			: PosSign(*str != '-'), super(*str != '-' ? str : str + 1) { }
 		template<typename Val1, typename Val2>explicit MY_LIB Q(bool sign, const Val1 &&n, const Val2 &&d = 1)noexcept :
 			PosSign(sign), super(std::move(n), std::move(d)) {
 			this->checkSign();
@@ -309,6 +310,7 @@ namespace LargeInteger {
 			this->checkSign();
 		}
 		Q& MY_LIB operator=(long that) noexcept {
+			this->PosSign = that >= 0;
 			this->Denominator = 1;
 			this->Numerator = that;
 			return *this;
