@@ -321,6 +321,7 @@ namespace LargeInteger {
 			return *this;
 		}
 		Q& MY_LIB operator=(const Q& that) noexcept {
+			this->PosSign = that.PosSign;
 			this->super::operator=(static_cast<const super &>(that));
 			return *this;
 		}
@@ -468,6 +469,7 @@ namespace LargeInteger {
 		bool MY_LIB operator<=(const Q &that)const noexcept { return !(*this > that); }
 		bool MY_LIB operator>=(const Q &that)const noexcept { return !(*this < that); }
 		std::ostream &Print(std::ostream &o)const noexcept {
+			if (!PosSign) o << '-';
 			if (this->Denominator == 1)
 				return Numerator.Print();
 			return Denominator.Print((Numerator.Print(o) << '/'));

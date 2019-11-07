@@ -66,7 +66,7 @@ inline namespace Math{
 		//j is the begin index
 		void line_sub_from_mul_line(size_t i1, size_t i2, const val &times, size_t j = 0)noexcept {
 			for (; j < n; ++j) {
-				auto tmp = mat[i1][j] * times;
+				auto tmp = std::move(mat[i1][j] * times);
 				mat[i2][j] -= tmp;
 			}
 		}

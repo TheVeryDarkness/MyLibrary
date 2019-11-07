@@ -19,7 +19,7 @@ namespace Darkness {
 				:a(sign, std::move(v1), std::move(v2)) { }
 			constant &MY_LIB operator=(const constant &that) {
 				this->a.destruct();
-				this->a = std::move(that.a.Copy(that.a));
+				this->a = that.a.Copy(that.a);
 				return *this;
 			}
 			template<typename Int>constant &MY_LIB operator=(Int data) {
