@@ -110,7 +110,7 @@ namespace LL {
 			if (is_in(this, this->flag_next->data)) {
 				size_t tmp = this->flag_next->data - this->data;
 				this->flag_next = reinterpret_cast<OAL *>(this->data + (that.flag_next->data - that.data));
-				that.flag_next = reinterpret_cast<OAL *>(this->data + tmp);
+				that.flag_next = reinterpret_cast<OAL *>(that.data + tmp);
 			}
 			else {
 				std::swap(this->flag_next, that.flag_next);
