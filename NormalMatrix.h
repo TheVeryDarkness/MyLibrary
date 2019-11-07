@@ -33,8 +33,8 @@ inline namespace Math{
 			delete[] mat;
 		}
 		void fill()noexcept {
-			for (size_t i = 0; i < m; i++) {
-				for (size_t j = 0; j < n; j++) {
+			for (size_t i = 0; i < m; ++i) {
+				for (size_t j = 0; j < n; ++j) {
 					mat[i][j] = rand();
 				}
 			}
@@ -42,8 +42,8 @@ inline namespace Math{
 		//reduction
 		template<typename red>void fill(red r)noexcept {
 			static_assert(std::is_invocable_r_v<val, red, size_t, size_t>, "Failed in Reduction");
-			for (size_t i = 0; i < m; i++) {
-				for (size_t j = 0; j < n; j++) {
+			for (size_t i = 0; i < m; ++i) {
+				for (size_t j = 0; j < n; ++j) {
 					mat[i][j] = r(i,j);
 				}
 			}
@@ -66,7 +66,7 @@ inline namespace Math{
 		//j is the begin index
 		void line_sub_from_mul_line(size_t i1, size_t i2, const val &times, size_t j = 0)noexcept {
 			for (; j < n; ++j) {
-				auto &&tmp = mat[i1][j] * times;
+				auto tmp = mat[i1][j] * times;
 				mat[i2][j] -= tmp;
 			}
 		}
