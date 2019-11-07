@@ -24,16 +24,19 @@ public:
 
 
 	void* pop(size_t Block) {
+	#ifdef _DEBUG
+		return malloc(Block);
+	#else
 		return (first_null == 0) ? malloc(Block) : Cache[--first_null];
+	#endif // _DEBUG
 	}
 
 	void MY_LIB push(void *block)noexcept {
-		if (first_null == CacheSize) {
-			return free(block);
-		}
-		else {
-			Cache[first_null++] = block;
-		}
+	#ifdef _DEBUG
+		return free(block);
+	#else
+		return (first_null == CacheSize) ? free(block) : (void)(Cache[first_null++] = block);
+	#endif // _DEBUG
 	}
 
 private:

@@ -66,7 +66,8 @@ inline namespace Math{
 		//j is the begin index
 		void line_sub_from_mul_line(size_t i1, size_t i2, const val &times, size_t j = 0)noexcept {
 			for (; j < n; ++j) {
-				mat[i2][j] -= mat[i1][j] * times;
+				auto &&tmp = mat[i1][j] * times;
+				mat[i2][j] -= tmp;
 			}
 		}
 		void line_mul(size_t i, const val &times, size_t j = 0)noexcept {
