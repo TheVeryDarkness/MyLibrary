@@ -40,7 +40,7 @@ inline namespace Math{
 			}
 		}
 		//reduction
-		template<typename red>void fill(red r)noexcept {
+		template<typename red>void fill(red r)noexcept(std::is_nothrow_invocable_r_v<val, red, size_t, size_t>) {
 			static_assert(std::is_invocable_r_v<val, red, size_t, size_t>, "Failed in Reduction");
 			for (size_t i = 0; i < m; ++i) {
 				for (size_t j = 0; j < n; ++j) {

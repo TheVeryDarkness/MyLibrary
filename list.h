@@ -14,7 +14,7 @@ namespace LL {
 		static_assert(!std::is_array_v<Data>, "Array type is not available.");
 		MEMORY_CACHE(CacheSize);
 	protected:
-		Data data[num];
+		Data data[num] = {};
 		OAL *flag_next;
 		void cut_node()noexcept {
 			assert(!noMoreNode());
@@ -314,6 +314,9 @@ namespace LL {
 			}
 			iterator &MY_LIB operator++()noexcept {
 				assert(legel_iterator_ptr(super::pA, super::pD));
+				if (*(super::pD + 1) > 1000000000) {
+					std::cout << '\a';
+				}
 				if (ending(super::pA, super::pD)) {
 					const_cast<OAL *>(super::pA)->push_back(0);
 				}
@@ -321,7 +324,9 @@ namespace LL {
 					super::pA = super::pA->flag_next;
 					super::pD = super::pA->data;
 				}
-				else ++super::pD;
+				else {
+					++super::pD;
+				}
 				assert(legel_iterator_ptr(super::pA, super::pD));
 				return *this;
 			}

@@ -82,7 +82,7 @@ namespace Darkness {
 			case 37:
 				return constant(1, 3, 5);
 			case 53:
-				return constant(1, 3, 5);
+				return constant(1, 4, 5);
 			default:
 				throw std::exception("Unsupported degree.");
 				break;
