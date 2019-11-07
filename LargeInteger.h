@@ -327,9 +327,53 @@ namespace LargeInteger {
 			}
 			return;
 		}
-		explicit MY_LIB LargeUnsigned(const char *str)noexcept :LL(0){
-			std::stringstream sin(str);
-			sin >> *this;
+		//end should not points to '\0'
+		static LargeUnsigned MY_LIB MakeFromString(const char* begin, const char* end)noexcept {
+			assert(end >= begin);
+			for (; end >= begin && *end == '\0'; --end);
+			for (; end >= begin && *begin == '0'; ++begin);
+			if (begin == end)return LargeUnsigned(0);
+			else {
+				size_t i = 0;
+				radix_t sum = 0;
+				for (; end >= begin; --end) {
+					if (*end <= '9' || *end >= '0') {
+						sum += Power(base, i);
+						++i;
+						if (i == len - 1) {
+							i = 0;
+							break;
+						}
+					}
+				}
+				LargeUnsigned res(sum);
+				sum = 0;
+				auto iter = res.begin();
+				for (; end >= begin; --end) {
+					if (*end <= '9' || *end >= '0') {
+						sum += Power(base, i);
+						++i;
+						if (i == len - 1) {
+							i = 0;
+							++iter;
+							*iter = sum;
+							sum = 0;
+						}
+					}
+				}
+				return res;
+			}
+		}
+		static LargeUnsigned MY_LIB MakeFromString(const char* str)noexcept {
+			const char *end = str;
+			for (; *end != '\0'; ++end);
+			return MakeFromString(str, end);
+		}
+		explicit MY_LIB LargeUnsigned(const char *str)noexcept 
+			:LL(std::move(MakeFromString(str))){ }
+		explicit MY_LIB LargeUnsigned(const char *begin, const char* end)noexcept 
+			:LL(std::move(MakeFromString(begin, end))){
+
 		}
 		explicit MY_LIB LargeUnsigned(LL &&ll)noexcept :LL(std::move(ll)) { }
 		static constexpr LargeUnsigned MY_LIB Copy(const LargeUnsigned &that)noexcept {
@@ -839,10 +883,10 @@ namespace LargeInteger {
 			:PosSign(Pos), LargeUnsigned<LL, radix>(Val) {
 			assert(Val >= 0);
 		}
-		explicit MY_LIB LargeSigned(const char *str)noexcept :super(0){
-			std::stringstream sin(str);
-			sin >> *this;
-		}
+		explicit MY_LIB LargeSigned(const char *str)noexcept
+			:PosSign(*str != '-'), super(std::move(super::MakeFromString(str))) { }
+		explicit MY_LIB LargeSigned(const char *begin, const char *end)noexcept
+			:PosSign(*begin != '-'), super(std::move(super::MakeFromString(begin, end))) { }
 		explicit MY_LIB LargeSigned(bool sign, LargeUnsigned<LL, radix> uns)noexcept
 			:PosSign(sign), LargeUnsigned<LL, radix>(uns) { }
 

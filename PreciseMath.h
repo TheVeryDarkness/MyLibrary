@@ -28,9 +28,59 @@ namespace LargeInteger {
 			}
 			return (pDot == nullptr ? 0 : str - pDot - 1ULL);
 		}
+		class DecimalMaker {
+		public:
+			DecimalMaker() = default;
+			~DecimalMaker()noexcept = default;
+			N operator()(const char *str) noexcept {
+				assert(is_numerator);
+				is_numerator = false;//怕忘了改
+				for (; *str == '0'; ++str);
+				const char *p = str;
+				for (; *p != '\0'; ++p) {
+					if (*p == '\0') {
+						is_decimal = true;
+						info.len = 0;
+						break;
+					}
+					else if (*p == '.') {
+						is_decimal = true;
+					}
+					else if (*p == '/') {
+						is_decimal = false;
+						info.begin = p + 1;
+						while (!('0' <= *info.begin && '9' <= *info.begin)) {
+							++info.begin;
+						}
+						break;
+					}
+					else if (is_decimal) {
+						++info.len;
+					}
+				}
+				return std::move(N::MakeFromString(str, p - 1));
+			}
+			N operator()() noexcept { 
+				assert(!is_numerator);
+				if (is_decimal) {
+					return std::move(N::MakeFromString(info.begin));
+				}
+				else {
+					return std::move(N::pow(10, info.len));
+				}
+			}
+		private:
+			bool is_numerator = true;
+			bool is_decimal = false;//是小数
+			union denominator_info {
+				const char *begin;
+				size_t len;
+			}info;
+		};
+
 	public:
-		explicit MY_LIB nQ(const char *str)noexcept
-			:Numerator(str), Denominator(std::move(N::pow(10, DecimalLength(str)))) { }
+		explicit MY_LIB nQ(const char *str, DecimalMaker maker = DecimalMaker())noexcept
+			:Numerator(std::move(maker(str))), Denominator(std::move(maker())) { }
 		template<typename Val1, typename Val2>
 		explicit MY_LIB nQ(const Val1 &&n, const Val2 &&d = 1)noexcept :
 			Numerator(n),
