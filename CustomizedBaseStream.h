@@ -44,7 +44,7 @@ namespace LargeInteger {
 
 
 		template<typename iter, typename Cntnr, auto radix>
-		static void MY_LIB store(iter temp, Cntnr str)noexcept {
+		static void MY_LIB store(iter temp, const Cntnr& str)noexcept {
 			static_assert(Math::GetPowerTimes(radix, charset::getRadix()) != 0 || radix == charset::getRadix());
 			for (auto i = temp.crbegin(); i != temp.crend() && *i == charset::to_char_type(0);) {
 				++i;
