@@ -1,7 +1,7 @@
 #pragma once
 #include <iostream>
 
-inline namespace Darkness {
+namespace Darkness {
 	inline namespace Physics {
 		//长度L、质量M、时间T、电流强度I、温度t、物质的量n和光强度J
 		template<typename Data = int>
