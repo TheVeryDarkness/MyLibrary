@@ -89,9 +89,7 @@ namespace Darkness {
 			}
 		}
 		constant MY_LIB cosd(size_t degree) {
-			while (degree>180) {
-				degree -= 90;
-			}
+			degree %= 180;
 			if (degree <= 90) {
 				return sind(90 - degree);
 			}
