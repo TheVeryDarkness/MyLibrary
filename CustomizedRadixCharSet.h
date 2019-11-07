@@ -46,7 +46,7 @@ namespace LargeInteger {
 		static_assert(sizeof...(Delim) > 0, "Delim should be given");
 		while (in.good()) {
 			char tmp = static_cast<char>(in.peek());
-			if (!in)tmp = 0;
+			if (!in || tmp == -1)tmp = 0;
 			if (charset::exist(tmp)) {
 				return tmp;
 			}

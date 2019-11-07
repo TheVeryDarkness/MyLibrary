@@ -317,6 +317,11 @@ namespace LargeInteger {
 		void MY_LIB operator=(long that) noexcept {
 			this->Denominator = 1;
 			this->Numerator = that;
+			return *this;
+		}
+		Q& MY_LIB operator=(const Q& that) noexcept {
+			this->super::operator=(static_cast<const super &>(that));
+			return *this;
 		}
 		template<typename Int>
 		void MY_LIB operator+=(Int that) noexcept {
