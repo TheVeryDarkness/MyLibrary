@@ -335,8 +335,8 @@ namespace LargeInteger {
 			size_t i = 0;
 			radix_t sum = 0;
 			for (; end >= begin; --end) {
-				if (*end <= '9' || *end >= '0') {
-					sum += Power(base, i);
+				if (Set<base>::super::exist(*end)) {
+					sum += (*end - '0') * Power(base, i);
 					++i;
 					if (i == len - 1) {
 						i = 0;
