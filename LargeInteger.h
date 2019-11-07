@@ -328,41 +328,38 @@ namespace LargeInteger {
 			return;
 		}
 		//end should not points to '\0'
-		static LargeUnsigned MY_LIB MakeFromString(const char* begin, const char* end)noexcept {
+		static LargeUnsigned MY_LIB MakeFromString(const char *begin, const char *end)noexcept {
 			assert(end >= begin);
 			for (; end >= begin && *end == '\0'; --end);
 			for (; end >= begin && *begin == '0'; ++begin);
-			if (begin == end)return LargeUnsigned(0);
-			else {
-				size_t i = 0;
-				radix_t sum = 0;
-				for (; end >= begin; --end) {
-					if (*end <= '9' || *end >= '0') {
-						sum += Power(base, i);
-						++i;
-						if (i == len - 1) {
-							i = 0;
-							break;
-						}
+			size_t i = 0;
+			radix_t sum = 0;
+			for (; end >= begin; --end) {
+				if (*end <= '9' || *end >= '0') {
+					sum += Power(base, i);
+					++i;
+					if (i == len - 1) {
+						i = 0;
+						break;
 					}
 				}
-				LargeUnsigned res(sum);
-				sum = 0;
-				auto iter = res.begin();
-				for (; end >= begin; --end) {
-					if (*end <= '9' || *end >= '0') {
-						sum += Power(base, i);
-						++i;
-						if (i == len - 1) {
-							i = 0;
-							++iter;
-							*iter = sum;
-							sum = 0;
-						}
-					}
-				}
-				return res;
 			}
+			LargeUnsigned res(sum);
+			sum = 0;
+			auto iter = res.begin();
+			for (; end >= begin; --end) {
+				if (*end <= '9' || *end >= '0') {
+					sum += Power(base, i);
+					++i;
+					if (i == len - 1) {
+						i = 0;
+						++iter;
+						*iter = sum;
+						sum = 0;
+					}
+				}
+			}
+			return res;
 		}
 		static LargeUnsigned MY_LIB MakeFromString(const char* str)noexcept {
 			const char *end = str;
@@ -589,7 +586,6 @@ namespace LargeInteger {
 			}
 			assert(*this >= that);
 			iter_sub(that.cbegin());
-			LargeInteger::LongCmpt<LLCmptTraits<radix>>::SubtractFrom(that.begin(), this->begin());
 			this->LL::Simplify();
 		}
 		//ÖØÔØLinkedListÁ´±í¸ººÅ
