@@ -80,17 +80,23 @@ namespace LargeInteger {
 
 	public:
 		explicit MY_LIB nQ(const char *str, DecimalMaker maker = DecimalMaker())noexcept
-			:Numerator(std::move(maker(str))), Denominator(std::move(maker())) { }
+			:Numerator(std::move(maker(str))), Denominator(std::move(maker())) {
+			this->Simplify();
+		}
 		template<typename Val1, typename Val2>
 		explicit MY_LIB nQ(const Val1 &&n, const Val2 &&d = 1)noexcept :
 			Numerator(n),
-			Denominator(d) { }
+			Denominator(d) {
+			this->Simplify();
+		}
 		MY_LIB nQ(const nQ &that) noexcept :
 			Numerator(that.Numerator),
 			Denominator(that.Denominator) { }
 		explicit MY_LIB nQ(const N &Numerator, const N &Denominator) noexcept :
 			Numerator(Numerator),
-			Denominator(Denominator) { }
+			Denominator(Denominator) {
+			this->Simplify();
+		}
 		INLINED MY_LIB ~nQ() noexcept = default;
 		static nQ MY_LIB Copy(const nQ &that)noexcept {
 			return nQ(N::Copy(that.Numerator), N::Copy(that.Denominator));
@@ -264,11 +270,15 @@ namespace LargeInteger {
 	public:
 		explicit MY_LIB Q(const char *str)noexcept : PosSign(*str != '-'), super(*str != '-' ? str : str + 1) { }
 		template<typename Val1, typename Val2>explicit MY_LIB Q(bool sign, const Val1 &&n, const Val2 &&d = 1)noexcept :
-			PosSign(sign), super(std::move(n), std::move(d)) { }
+			PosSign(sign), super(std::move(n), std::move(d)) {
+			this->checkSign();
+		}
 		MY_LIB Q(const Q &that) noexcept :
 			PosSign(that.PosSign), super(that.Numerator,that.Denominator) { }
 		explicit MY_LIB Q(bool sign, const N &Numerator, const N &Denominator) noexcept :
-			PosSign(sign), super(Numerator,Denominator) { }
+			PosSign(sign), super(Numerator,Denominator) {
+			this->checkSign();
+		}
 		INLINED MY_LIB ~Q() noexcept = default;
 		MY_LIB Q(Q &&that)noexcept :PosSign(that.PosSign),super(static_cast<nQ&&>(that)){ }
 		static Q MY_LIB Copy(const Q &that)noexcept {
@@ -290,30 +300,13 @@ namespace LargeInteger {
 			this->Denominator.destruct();
 			this->Numerator.destruct();
 		}
+		void MY_LIB checkSign()noexcept {
+			if (this->Numerator == 0) this->PosSign = true;
+		}
 		//Ô¼·Ö
 		void MY_LIB Simplify() noexcept {
-			if (Numerator == Denominator) {
-				Numerator = 1;
-				Denominator = 1;
-			}
-			else if (Numerator == 0) {
-				Denominator = 1;
-			}
-			else if (Denominator == 0) {
-				MY_ASSERT(false, 0 / 0);
-				Numerator = 1;
-			}
-			else {
-				N a = N::Copy(Numerator), b = N::Copy(Denominator);
-				N *Larger, *Smaller;
-				(a > b) ? (Larger = &a, Smaller = &b) : (Larger = &b, Smaller = &a);
-				while (*Smaller != 0) {
-					*Larger %= *Smaller;
-					std::swap(Larger, Smaller);
-				}
-				this->Numerator /= *Larger;
-				this->Denominator /= *Larger;
-			}
+			this->nQ::Simplify();
+			this->checkSign();
 		}
 		Q& MY_LIB operator=(long that) noexcept {
 			this->Denominator = 1;
@@ -478,7 +471,9 @@ namespace LargeInteger {
 			return q.Print(o);
 		}
 		friend Q operator-(Q &&that)noexcept {
-			that.PosSign = !that.PosSign;
+			if (that.Numerator != 0) {
+				that.PosSign = !that.PosSign;
+			}
 			return that;
 		}
 	};
