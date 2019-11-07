@@ -313,7 +313,7 @@ namespace Darkness {
 		public:
 			MY_LIB ptrHolder(function *f)noexcept :func_ptr(f) { }
 			MY_LIB ptrHolder(ptrHolder &&rv)noexcept :func_ptr(rv.func_ptr) { rv.func_ptr = nullptr; }
-			MY_LIB ptrHolder(const ptrHolder &lvalue) : func_ptr(lvalue.func_ptr->copy()) { }
+			MY_LIB ptrHolder(const ptrHolder &lvalue) : func_ptr(lvalue.func_ptr ? lvalue.func_ptr->copy() : nullptr) { }
 			MY_LIB ~ptrHolder() { if (func_ptr)delete func_ptr; }
 			void MY_LIB diff()noexcept {
 				if (this->func_ptr) this->func_ptr->diff(this->func_ptr);
