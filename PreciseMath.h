@@ -270,6 +270,7 @@ namespace LargeInteger {
 		explicit MY_LIB Q(bool sign, const N &Numerator, const N &Denominator) noexcept :
 			PosSign(sign), super(Numerator,Denominator) { }
 		INLINED MY_LIB ~Q() noexcept = default;
+		MY_LIB Q(Q &&that)noexcept :PosSign(that.PosSign),super(static_cast<nQ&&>(that)){ }
 		static Q MY_LIB Copy(const Q &that)noexcept {
 			return Q(that.PosSign, N::Copy(that.Numerator), N::Copy(that.Denominator));
 		}
@@ -314,7 +315,7 @@ namespace LargeInteger {
 				this->Denominator /= *Larger;
 			}
 		}
-		void MY_LIB operator=(long that) noexcept {
+		Q& MY_LIB operator=(long that) noexcept {
 			this->Denominator = 1;
 			this->Numerator = that;
 			return *this;
