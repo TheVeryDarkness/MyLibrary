@@ -9,7 +9,7 @@
 
 inline namespace Function {
 #define PI acos(-1)
-	using value = double;
+	using rough_value = double;
 	class function;
 	class constant;
 	template<size_t count>class sum;
@@ -29,7 +29,7 @@ inline namespace Function {
 		virtual bool MY_LIB integralable()noexcept = 0;
 		virtual void MY_LIB undefinite_integral(function *&) noexcept = 0;
 		virtual function *MY_LIB copy() = 0;
-		virtual value MY_LIB estimate(const constant&)const noexcept = 0;
+		virtual rough_value MY_LIB estimate(const constant&)const noexcept = 0;
 		virtual std::ostream &MY_LIB Print(std::ostream &) const noexcept = 0;
 		friend std::ostream &MY_LIB operator<<(std::ostream &o, const function &fun)noexcept {
 			return fun.Print(o);
@@ -38,18 +38,20 @@ inline namespace Function {
 
 	class constant final{
 	public:
-		explicit MY_LIB constant(const std::string &str) noexcept :a(str.c_str()) { }
 		explicit MY_LIB constant(const char *str) noexcept :a(str) { }
+		MY_LIB constant(const constant &that) : a(std::move(that.a.Copy(that.a))) { }
+		MY_LIB constant(constant &&that) noexcept: a(std::move(that.a)) { }
+		MY_LIB constant(const LargeInteger::Q &q) noexcept :a(std::move(q.Copy(q))) { }
 		MY_LIB constant(LargeInteger::Q &&q) noexcept :a(q) { }
 		MY_LIB ~constant() noexcept { a.destruct(); }
 		constant MY_LIB copy()  {
 			return constant(a.Copy(a));
 		}
-		value MY_LIB estimate()const noexcept {
+		rough_value MY_LIB estimate()const noexcept {
 			return a.estim();
 		}
-		std::ostream &MY_LIB Print(std::ostream &o) const noexcept {
-			return o << a;
+		friend std::ostream &MY_LIB operator<<(std::ostream &o, const constant &con)noexcept {
+			return o << con.a;
 		}
 	private:
 		LargeInteger::Q a;
@@ -95,8 +97,8 @@ inline namespace Function {
 			}
 			return;
 		}
-		value MY_LIB estimate()const noexcept {
-			value res = 0;
+		rough_value MY_LIB estimate()const noexcept {
+			rough_value res = 0;
 			for (auto ptr : p) {
 				res += ptr->estimate();
 			}
@@ -138,8 +140,8 @@ inline namespace Function {
 			o << ')';
 			return o;
 		}
-		value MY_LIB estimate()const noexcept {
-			value res = 0;
+		rough_value MY_LIB estimate()const noexcept {
+			rough_value res = 0;
 			for (auto ptr : p) {
 				res *= ptr->estimate();
 			}
@@ -191,8 +193,8 @@ inline namespace Function {
 		f_pow_x *MY_LIB copy() override{
 			return new f_pow_x(coeff.Copy(coeff), expo.Copy(expo));
 		}
-		value MY_LIB estimate(const constant& con)const noexcept {
-			return coeff.estim() * std::pow(con.estimate(), expo.GetValue<value>());
+		rough_value MY_LIB estimate(const constant& con)const noexcept {
+			return coeff.estim() * std::pow(con.estimate(), expo.GetValue<rough_value>());
 		}
 		std::ostream &MY_LIB Print(std::ostream &o) const noexcept {
 			return (coeff == 0 ? o << "0" : o << coeff << " * x" << "^(" << expo << ")");
@@ -228,7 +230,7 @@ inline namespace Function {
 			assert(false);
 			return;
 		}
-		value MY_LIB estimate(const constant &con)const noexcept override {
+		rough_value MY_LIB estimate(const constant &con)const noexcept override {
 			return std::log(this->pow->estimate(con));
 		}
 		std::ostream &MY_LIB Print(std::ostream &o)const noexcept {
