@@ -4,6 +4,8 @@
 #include "PreciseMath.h"
 #include "Exception.h"
 #include "CustomizedRadixCharSet.h"
+#include <stack>
+
 
 
 namespace Darkness {
@@ -77,12 +79,14 @@ namespace Darkness {
 			switch (degree) {
 			case 0:
 				return constant(1, 0, 1);
-			case 90:
-				return constant(1, 1, 1);
+			case 30:
+				return constant(1, 1, 2);
 			case 37:
 				return constant(1, 3, 5);
 			case 53:
 				return constant(1, 4, 5);
+			case 90:
+				return constant(1, 1, 1);
 			default:
 				throw std::exception("Unsupported degree.");
 				break;
@@ -333,7 +337,7 @@ namespace Darkness {
 				}
 			}
 			constant MY_LIB getValue(const constant& c)noexcept {
-				return this->func_ptr->getValue(c);
+				return this->func_ptr ? this->func_ptr->getValue(c) : constant(true, 0, 1);
 			}
 			constexpr bool MY_LIB operator!()noexcept {
 				return this->func_ptr == nullptr;
@@ -350,18 +354,43 @@ namespace Darkness {
 			}
 		};
 
+		class Tree2 {
+		public:
+			Tree2(Tree2 &&that)noexcept :left(that.left), right(that.right) {
+				that.left = that.right = nullptr;
+			}
+
+			~Tree2() {
+				if (left) delete left;
+				if (right) delete right;
+			}
+
+		private:
+			Tree2 *left, *right;
+		};
+
+		class char_range {
+		public:
+			char_range(const char *begin, const char *end)noexcept :begin(begin), end(end) { }
+			char_range(char_range &&that)noexcept :begin(that.begin), end(that.end) { }
+			~char_range()noexcept = default;
+
+		private:
+			const char *begin, *end;
+		};
+
+
+
 		class funEngine {
 		public:
-			funEngine() { }
-			~funEngine() { }
+			funEngine() = default;
+			~funEngine()noexcept = default;
 			static ptrHolder produce(nullptr_t)noexcept { return ptrHolder(nullptr); }
 			static ptrHolder produce(const char *definition) {
-				std::istringstream sin(definition);
-				LargeInteger::ignore_if<' ', 'x', 'y', 'z', '='>(sin);
-				std::string input;
-				LargeInteger::getline<' '>(sin, input);
-				if (!input.empty()) {
-					return ptrHolder(new f_pow_x(1, 2, 2));
+				function *res = nullptr;
+				std::stack<char_range> sta;
+				for (const char* p = definition; *p != 0; ++p) {
+
 				}
 				return nullptr;
 			}
