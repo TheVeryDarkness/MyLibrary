@@ -470,33 +470,6 @@ namespace LargeInteger {
 		INLINED std::ostream &MY_LIB Print(std::ostream &o = std::cout) const noexcept {
 			return _Print<decltype(this->cbegin()), radix>(this->cbegin(), o);
 		}
-		template<typename Iter>
-		static size_t MY_LIB printWidth(const Iter&that,std::ostream &out) noexcept {
-			static_assert(base == 10 || base == 16 || base == 8 || base == 2);
-			size_t length = 0;
-			if (that + 1 != nullptr) {
-				length += printWidth(that + 1, out);
-				char *c = DBG_NEW char[len + static_cast<size_t>(1)]();
-				assert(base < decltype(base)(INT_MAX));
-				std::to_chars_result rs = std::to_chars(c, &(c[len]), (*that), base);
-				assert(rs.ec == std::errc());
-				std::string str = c;
-				delete[] c;
-				assert(str.length() <= len);
-				if (str.length() < len) {
-					std::string nStr;
-					nStr.resize(len - str.length(), '0');
-					nStr += str;
-					out << nStr;
-				}
-				else out << str;
-			}
-			else {
-				length = size_t(floor(log(*that) / log(base)));
-				out << *that;
-			}
-			return length;
-		}
 		//从控制台输入
 		INLINED friend std::istream &MY_LIB operator>>(
 			std::istream &in,

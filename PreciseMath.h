@@ -5,6 +5,7 @@
 #include "OLL.h"
 #include "DLL.h"
 #include "list.h"
+#include <iomanip>
 constexpr unsigned int Z_MAX = 1000000000U;
 
 namespace LargeInteger {
@@ -250,12 +251,12 @@ namespace LargeInteger {
 		std::ostream &Print(std::ostream &o)const noexcept {
 			if (this->Denominator == 1)
 				return Numerator.Print();
+			if (o.width() > 1) {
+				o << std::setw(o.width() - 1);
+			}
 			return Denominator.Print((Numerator.Print(o) << '/'));
 		}
 		friend std::ostream &operator<<(std::ostream &o, const nQ &q) {
-			if (o.width() > 1) {
-				return q.printWidth(o), o;
-			}
 			return q.Print(o);
 		}
 	};
@@ -467,17 +468,15 @@ namespace LargeInteger {
 		bool MY_LIB operator<=(const Q &that)const noexcept { return !(*this > that); }
 		bool MY_LIB operator>=(const Q &that)const noexcept { return !(*this < that); }
 		std::ostream &Print(std::ostream &o)const noexcept {
-			if (!PosSign) o << '-';
+			if (!PosSign) {
+				if (o.width() > 1) {
+					o << std::setw(o.width() - 1);
+				}
+				o << '-';
+			}
 			return this->nQ::Print(o);
 		}
-		size_t printWidth(std::ostream &o, size_t width)const noexcept {
-			auto tmp = !PosSign ? (o << '-', 1) : 0;
-			return (tmp + this->nQ::printWidth(o, width - tmp));
-		}
 		friend std::ostream &operator<<(std::ostream &o, const Q &q) {
-			if (o.width() > 1) {
-				return q.printWidth(o), o;
-			}
 			return q.Print(o);
 		}
 		friend Q operator-(Q &&that)noexcept {
