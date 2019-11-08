@@ -118,6 +118,7 @@ namespace Darkness {
 			virtual void MY_LIB undefinite_integral(function *&) noexcept = 0;
 			virtual function *MY_LIB copy() = 0;
 			virtual rough_value MY_LIB estimate(const constant &)const noexcept = 0;
+			virtual constant MY_LIB getValue(const constant &con)const noexcept = 0;
 			virtual std::ostream &MY_LIB Print(std::ostream &) const noexcept = 0;
 			friend std::ostream &MY_LIB operator<<(std::ostream &o, const function &fun)noexcept {
 				return fun.Print(o);
@@ -260,8 +261,11 @@ namespace Darkness {
 			f_pow_x *MY_LIB copy() override {
 				return new f_pow_x(coeff.Copy(coeff), expo.Copy(expo));
 			}
-			rough_value MY_LIB estimate(const constant &con)const noexcept {
+			rough_value MY_LIB estimate(const constant &con)const noexcept override{
 				return coeff.estim() * std::pow(con.estimate(), expo.GetValue<rough_value>());
+			}
+			constant MY_LIB getValue(const constant &con)const noexcept override{
+				return con;
 			}
 			std::ostream &MY_LIB Print(std::ostream &o) const noexcept {
 				return (coeff == 0 ? o << "0" : o << coeff << " * x" << "^(" << expo << ")");
@@ -300,6 +304,9 @@ namespace Darkness {
 			rough_value MY_LIB estimate(const constant &con)const noexcept override {
 				return std::log(this->pow->estimate(con));
 			}
+			constant MY_LIB getValue(const constant &con)const noexcept override {
+				return con;
+			}
 			std::ostream &MY_LIB Print(std::ostream &o)const noexcept {
 				return o << "ln(" << *pow << ')';
 			}
@@ -324,6 +331,9 @@ namespace Darkness {
 					assert(this->func_ptr->integralable());
 					this->func_ptr->undefinite_integral(this->func_ptr);
 				}
+			}
+			constant MY_LIB getValue(const constant& c)noexcept {
+				return this->func_ptr->getValue(c);
 			}
 			constexpr bool MY_LIB operator!()noexcept {
 				return this->func_ptr == nullptr;

@@ -1,7 +1,7 @@
 #pragma once
 #include "Shared.h"
 
-template<typename Data, Data val = 0>
+template<typename Data, auto val = 0>
 class ConstantBuffer {
 public:
 	ConstantBuffer() = delete;
