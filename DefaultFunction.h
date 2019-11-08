@@ -310,6 +310,7 @@ namespace Darkness {
 
 		class ptrHolder {
 		private:
+			function *func_ptr;
 		public:
 			MY_LIB ptrHolder(function *f)noexcept :func_ptr(f) { }
 			MY_LIB ptrHolder(ptrHolder &&rv)noexcept :func_ptr(rv.func_ptr) { rv.func_ptr = nullptr; }
@@ -324,18 +325,26 @@ namespace Darkness {
 					this->func_ptr->undefinite_integral(this->func_ptr);
 				}
 			}
+			constexpr bool MY_LIB operator!()noexcept {
+				return this->func_ptr == nullptr;
+			}
+			constexpr bool MY_LIB operator==(nullptr_t)noexcept {
+				return this->func_ptr == nullptr;
+			}
+			constexpr bool MY_LIB operator!=(nullptr_t)noexcept {
+				return this->func_ptr != nullptr;
+			}
 			friend std::ostream &MY_LIB operator<<(std::ostream &o, ptrHolder holder)noexcept {
 				if (holder.func_ptr) holder.func_ptr->Print(o); else o << '0';
 				return o;
 			}
-		private:
-			function *func_ptr;
 		};
 
 		class funEngine {
 		public:
 			funEngine() { }
 			~funEngine() { }
+			static ptrHolder produce(nullptr_t)noexcept { return ptrHolder(nullptr); }
 			static ptrHolder produce(const char *definition) {
 				std::istringstream sin(definition);
 				LargeInteger::ignore_if<' ', 'x', 'y', 'z', '='>(sin);
@@ -344,7 +353,7 @@ namespace Darkness {
 				if (!input.empty()) {
 					return ptrHolder(new f_pow_x(1, 2, 2));
 				}
-				throw UnknownFunction("This function is not supported yet.", definition);
+				return nullptr;
 			}
 		private:
 

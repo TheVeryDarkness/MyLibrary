@@ -51,7 +51,7 @@ inline namespace Math{
 		friend std::ostream &operator<<(std::ostream &o, const NormalMatrix &matrix)noexcept {
 			for (size_t i = 0; i < matrix.m; i++) {
 				for (size_t j = 0; j < matrix.n; j++) {
-					o << matrix.mat[i][j] << '\t';
+					o <<std::setw(4) << matrix.mat[i][j] << ' ';
 				}
 				o << '\b' << std::endl;
 			}
