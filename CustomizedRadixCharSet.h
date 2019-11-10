@@ -2,7 +2,7 @@
 #include "Shared.h"
 
 namespace Darkness {
-	namespace LargeInteger {
+	inline namespace LargeInteger {
 		template<typename _Elem, typename index_type, _Elem... set>
 		class BaseSet;
 
