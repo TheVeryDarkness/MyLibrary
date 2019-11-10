@@ -336,7 +336,7 @@ namespace Darkness {
 				size_t i = 0;
 				radix_t sum = 0;
 				for (; end >= begin; --end) {
-					if (Set<base>::super::exist(*end)) {
+					if (Set<base>::exist(*end)) {
 						sum += (*end - '0') * Power(base, i);
 						++i;
 						if (i == len - 1) {
@@ -495,7 +495,7 @@ namespace Darkness {
 				std::vector<char, std::allocator<char>> &arr
 			) {
 				if constexpr (is_end) {
-					if (Set<base>::super::to_int_type(static_cast<char>(in.peek())) == 0) {
+					if (Set<base>::to_int_type(static_cast<char>(in.peek())) == 0) {
 						in.ignore();
 					}
 				}
@@ -506,7 +506,7 @@ namespace Darkness {
 				}
 				else {
 					using Iter = decltype(scan<end, false>(in, arr));
-					auto intgr = Set<base>::super::to_int_type(c);
+					auto intgr = Set<base>::to_int_type(c);
 					Iter it = scan<end, false>(in, arr);
 					if (arr.size() == len) {
 						*it = iter(arr.rbegin(), arr.rend());
@@ -536,7 +536,7 @@ namespace Darkness {
 				return static_cast<char>(in.get());
 			}
 			INLINED std::istream &MY_LIB Scan(std::istream &in) noexcept {
-				auto lambda = [](char c) { return !Set<base>::super::exist(c); };
+				auto lambda = [](char c) { return !Set<base>::exist(c); };
 				std::vector<char> vec(len, 0);
 				vec.resize(0);
 				scan<decltype(lambda), true>(in, vec);

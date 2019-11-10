@@ -3,28 +3,24 @@
 
 namespace Darkness {
 	inline namespace LargeInteger {
-		template<typename _Elem, typename index_type, _Elem... set>
+		template<typename char_type, typename int_type, char_type... set>
 		class BaseSet;
 
 		//Mind that '?' is reserved for unknown input
-		template<typename _Elem, typename index_type, _Elem... set>
+		template<typename char_type, typename int_type, char_type... set>
 		class BaseSet {
 		public:
 			MY_LIB BaseSet() = delete;
 			MY_LIB ~BaseSet() = delete;
-			using CharType = _Elem;
-			using IntType = index_type;
-			using char_type = _Elem;
-			using int_type = index_type;
 			constexpr static int_type MY_LIB getRadix()noexcept {
 				return sizeof...(set);
 			}
-			constexpr static index_type MY_LIB to_int_type(char_type Char)noexcept {
+			constexpr static int_type MY_LIB to_int_type(char_type Char)noexcept {
 				size_t Index = static_cast<size_t>(-1);
-				return index_type((((Index += 1), (Char == set)) || ...) ? Index : '?');
+				return int_type((((Index += 1), (Char == set)) || ...) ? Index : '?');
 			}
 			constexpr static char_type MY_LIB to_char_type(int_type Int)noexcept {
-				constexpr _Elem arr[getRadix()] = { set... };
+				constexpr char_type arr[getRadix()] = { set... };
 				return (Int < getRadix()) ? arr[Int] : char_type('?');
 			}
 			constexpr static bool MY_LIB exist(char_type c)noexcept {
@@ -78,14 +74,49 @@ namespace Darkness {
 			}
 		}
 
-		template<size_t Radix>
+		template<char...Delim>const char *__stdcall find(const char *s)noexcept {
+			using charset = BaseSet<char, char, Delim...>;
+			const char *end = s;
+			for (; !charset::exist(*end); ++end);
+			return end > s ? end : s;
+		}
+
+		template<size_t Radix, typename char_type = char, typename int_type = unsigned char>
 		class Set {
 		public:
+			static_assert(Radix <= 36, "Unsupported radix.");
 			Set() = delete;
 			~Set() = delete;
-		}; template<>class Set<2> { public:	using super = Set2; };
-template<>class Set<8> { public:	using super = Set8; };
-template<>class Set<10> { public:	using super = Set10; };
-template<>class Set<16> { public:	using super = Set16; };
+			static constexpr bool __stdcall exist(char c) noexcept {
+				if constexpr (Radix <= 10) {
+					return ('0' <= c) && (c < '0' + Radix);
+				}
+				else {
+					return ('0' <= c && c < '0' + Radix) || ('a' <= c && c < 'a' + Radix - 10);
+				}
+			}
+			static constexpr int_type __stdcall to_int_type(char_type c) noexcept {
+				if (exist(c)) {
+					if constexpr (Radix <= 10) {
+						return ('0' <= c) && (c < '0' + Radix);
+					}
+					else {
+						return ('0' <= c && c < '0' + Radix) || ('a' <= c && c < 'a' + Radix - 10);
+					}
+				}
+				else return static_cast<int_type>(-1);
+			}
+			static constexpr char_type __stdcall to_char_type(int_type i) noexcept {
+				if (i < Radix) {
+					if constexpr (Radix <= 10) {
+						return '0' + i;
+					}
+					else {
+						return i < 10 ? ('0' + i) : ('a' + i - 10);
+					}
+				}
+				else return static_cast<char_type>(-1);
+			}
+		};
 	}
 }

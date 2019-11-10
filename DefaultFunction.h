@@ -5,6 +5,7 @@
 #include "Exception.h"
 #include "CustomizedRadixCharSet.h"
 #include <stack>
+#include <queue>
 
 
 
@@ -16,6 +17,7 @@ namespace Darkness {
 		public:
 			constant()noexcept :a(true, 0, 1) { };
 			MY_LIB constant(const char *str) noexcept :a(str) { }
+			MY_LIB constant(const char *begin, const char *end) noexcept :a(begin, end) { }
 			template<typename val1,typename val2>
 			explicit MY_LIB constant(bool sign, const val1 &&v1, const val2 &&v2) noexcept 
 				:a(sign, std::move(v1), std::move(v2)) { }
@@ -32,15 +34,7 @@ namespace Darkness {
 			bool MY_LIB operator!=(const constant &that)noexcept { return this->a != that.a; }
 			template<typename Int>bool MY_LIB operator==(const Int &that)noexcept { return this->a == that; }
 			template<typename Int>bool MY_LIB operator!=(const Int &that)noexcept { return this->a != that; }
-			constant &MY_LIB operator/=(const constant &that)noexcept {
-				this->a /= that.a;
-				return *this;
-			}
-			constant MY_LIB operator/(const constant &that)const noexcept {
-				constant res(*this);
-				res.a /= that.a;
-				return res;
-			}
+
 
 			MY_LIB constant(const constant &that) : a(std::move(that.a.Copy(that.a))) { }
 			MY_LIB constant(constant &&that) noexcept : a(std::move(that.a)) { }
@@ -60,15 +54,53 @@ namespace Darkness {
 			constant MY_LIB operator*(const constant& that)const {
 				return constant(std::move(this->a * that.a));
 			}
+			constant& MY_LIB operator*=(const constant &that) {
+				this->a *= that.a;
+				return *this;
+			}
+			constant MY_LIB operator+(const constant& that)const {
+				return constant(std::move(this->a + that.a));
+			}
+			constant& MY_LIB operator+=(const constant& that) {
+				this->a += that.a;
+				return *this;
+			}
 			constant MY_LIB operator-(const constant& that)const {
 				return constant(std::move(this->a - that.a));
 			}
-			constant MY_LIB operator-=(const constant& that) {
+			constant& MY_LIB operator-=(const constant& that) {
 				this->a -= that.a;
 				return *this;
 			}
-			constant MY_LIB operator-() {
-				return constant(-std::move(this->a));
+			friend constant MY_LIB operator-(constant&& that) {
+				return constant(-std::move(that.a));
+			}
+			constant MY_LIB operator-()const {
+				return constant(-std::move(this->a.Copy(a)));
+			}
+			constant MY_LIB operator/(const constant &that)const noexcept {
+				return constant(std::move(this->a / that.a));
+			}
+			constant &MY_LIB operator/=(const constant &that)noexcept {
+				this->a /= that.a;
+				return *this;
+			}
+			constant &MY_LIB pow(const constant &times) {
+				if (times.a == 0) {
+					this->a = 1;
+					return *this;
+				}
+				bool pos = times.a.isPositive();
+				constant base(*this);
+				if (times.a.isInteger()) {
+					for (LargeInteger::Q i(pos, 1, 1); pos ? i < times.a : i>times.a; pos ? i += 1 : i -= 1) {
+						a *= base.a;
+					}
+				}
+				if (!pos) {
+					a.toReciprocal();
+				}
+				return *this;
 			}
 		private:
 			LargeInteger::Q a;
@@ -110,7 +142,26 @@ namespace Darkness {
 		class f_pow_x;
 		class f_sin;
 
-		class function {
+		class operation {
+		public:
+			MY_LIB operation()noexcept { }
+			MY_LIB operation(const function &that)noexcept = delete;
+			virtual MY_LIB ~operation() { }
+
+			virtual operation *MY_LIB copy() const= 0;
+			virtual rough_value MY_LIB estimate(const constant &)const noexcept = 0;
+			virtual constant MY_LIB getValue(const constant &con)const noexcept = 0;
+			virtual std::ostream &MY_LIB Print(std::ostream &) const noexcept = 0;
+			friend std::ostream &MY_LIB operator<<(std::ostream &o, const operation &fun)noexcept {
+				return fun.Print(o);
+			}
+
+		private:
+
+		};
+
+
+		class function:public operation {
 		public:
 			MY_LIB function()noexcept { }
 			MY_LIB function(const function &that)noexcept = delete;
@@ -120,10 +171,10 @@ namespace Darkness {
 			virtual void MY_LIB diff(function *&) noexcept = 0;
 			virtual bool MY_LIB integralable()noexcept = 0;
 			virtual void MY_LIB undefinite_integral(function *&) noexcept = 0;
-			virtual function *MY_LIB copy() = 0;
-			virtual rough_value MY_LIB estimate(const constant &)const noexcept = 0;
-			virtual constant MY_LIB getValue(const constant &con)const noexcept = 0;
-			virtual std::ostream &MY_LIB Print(std::ostream &) const noexcept = 0;
+			virtual function *MY_LIB copy() const override = 0;
+			virtual rough_value MY_LIB estimate(const constant &)const noexcept override = 0;
+			virtual constant MY_LIB getValue(const constant &con)const noexcept override = 0;
+			virtual std::ostream &MY_LIB Print(std::ostream &) const noexcept override = 0;
 			friend std::ostream &MY_LIB operator<<(std::ostream &o, const function &fun)noexcept {
 				return fun.Print(o);
 			}
@@ -262,7 +313,7 @@ namespace Darkness {
 				this->expo += 1;
 				this->coeff /= this->expo;
 			}
-			f_pow_x *MY_LIB copy() override {
+			f_pow_x *MY_LIB copy() const override {
 				return new f_pow_x(coeff.Copy(coeff), expo.Copy(expo));
 			}
 			rough_value MY_LIB estimate(const constant &con)const noexcept override{
@@ -287,11 +338,11 @@ namespace Darkness {
 					delete this->pow;
 				}
 			}
-			function *MY_LIB copy() override {
+			function *MY_LIB copy() const override {
 				auto &&temp = new f_pow_x_ln_x(this->pow->copy());
 				return temp;
 			}
-			INLINED void MY_LIB diff(function *&f) noexcept {
+			inline void MY_LIB diff(function *&f) noexcept {
 				assert(this == f);
 				//f = new sum<2>(new f_pow_x(pow));
 				delete this;
@@ -319,7 +370,10 @@ namespace Darkness {
 		};
 
 
-		class ptrHolder {
+		template<typename foo = operation>class ptrHolder;
+
+		template<>
+		class ptrHolder<function> {
 		private:
 			function *func_ptr;
 		public:
@@ -354,45 +408,179 @@ namespace Darkness {
 			}
 		};
 
-		class Tree2 {
-		public:
-			Tree2(Tree2 &&that)noexcept :left(that.left), right(that.right) {
-				that.left = that.right = nullptr;
-			}
-
-			~Tree2() {
-				if (left) delete left;
-				if (right) delete right;
-			}
-
+		template<>
+		class ptrHolder<operation> {
 		private:
-			Tree2 *left, *right;
+			operation *func_ptr;
+		public:
+			MY_LIB ptrHolder(operation *f)noexcept :func_ptr(f) { }
+			MY_LIB ptrHolder(ptrHolder &&rv)noexcept :func_ptr(rv.func_ptr) { rv.func_ptr = nullptr; }
+			MY_LIB ptrHolder(const ptrHolder &lvalue) : func_ptr(lvalue.func_ptr ? lvalue.func_ptr->copy() : nullptr) { }
+			MY_LIB ~ptrHolder() { if (func_ptr)delete func_ptr; }
+			constant MY_LIB getValue(const constant& c)noexcept {
+				return this->func_ptr ? this->func_ptr->getValue(c) : constant(true, 0, 1);
+			}
+			constexpr bool MY_LIB operator!()noexcept {
+				return this->func_ptr == nullptr;
+			}
+			constexpr bool MY_LIB operator==(nullptr_t)noexcept {
+				return this->func_ptr == nullptr;
+			}
+			constexpr bool MY_LIB operator!=(nullptr_t)noexcept {
+				return this->func_ptr != nullptr;
+			}
+			friend std::ostream &MY_LIB operator<<(std::ostream &o, ptrHolder holder)noexcept {
+				if (holder.func_ptr) holder.func_ptr->Print(o); else o << '0';
+				return o;
+			}
 		};
 
-		class char_range {
-		public:
-			char_range(const char *begin, const char *end)noexcept :begin(begin), end(end) { }
-			char_range(char_range &&that)noexcept :begin(that.begin), end(that.end) { }
-			~char_range()noexcept = default;
-
+		class Expression {
 		private:
-			const char *begin, *end;
+			std::string subsequent;
+		public:
+			Expression(const char *Subsequent) :subsequent(Subsequent) { }
+			~Expression()noexcept = default;
+			static std::string transform(const char* s) {
+				std::string st;
+				std::stack<char> ops;    //‘ÀÀ„∑˚’ª
+				for (; *s != 0; ++s) {
+					char ch = *s;
+					if (ch == 't') {
+						st.push_back(ch);
+					}
+					else if (Set<10>::exist(ch)) {
+						if (Set<10>::exist(st.back())) {
+							st.push_back(' ');
+						}
+						do {
+							st.push_back(ch);
+						} while (++s, ch = *s, Set<10>::exist(ch));
+					}
+					else if (ch == ' ') {
+						continue;
+					}
+					else if (ch == '(') {
+						ops.push(ch);
+					}
+					else if (ch == ')') {
+						while (true) {
+							ch = ops.top();
+							ops.pop();
+							if (ch == '(') {
+								break;
+							}
+							else {
+								st.push_back(ch);
+							}
+						}
+					}
+					else {
+						while (true) {
+							if (ops.empty()) {
+								ops.push(ch);
+								break;
+							}
+							char c = ops.top();
+							if (ops.top() == '(' || ((c == '+' || c == '-') || (ch == '*' || ch == '/'))) {
+								ops.push(ch);
+								break;
+							}
+							st.push_back(ops.top());
+							ops.pop();
+						}
+					}
+				}
+				while (!ops.empty()) {
+					st.push_back(ops.top());
+					ops.pop();
+				}
+				return st;
+			}
+			static std::unique_ptr<Expression>MY_LIB MakeFromMiddleOrder(const char *MidOrder) {
+				auto &&str = transform(MidOrder);
+				auto *res = new Expression(str.c_str());
+				return std::unique_ptr<Expression>(res);
+			}
+			Expression* MY_LIB copy()const{ 
+				return new Expression(subsequent.c_str());
+			}
+			rough_value MY_LIB estimate(const constant& t)const noexcept{
+				return t.estimate();
+			}
+			constant MY_LIB getValue(const constant &con)const noexcept {
+				std::deque<constant> num;
+				for (auto p = subsequent.cbegin(); p != subsequent.cend(); ++p) {
+					if (Set<10>::exist(*p)) {
+						auto end = p;
+						while (++end, end != subsequent.cend() && Set<10>::exist(*end));
+						if (end > p)--end;
+						num.push_back(constant(&*p, &*end));
+						p = end;
+					}
+					else {
+						switch (*p) {
+						case ' ': break;
+						case 't': {
+							num.push_back(con);
+							break;
+						}
+						case '+': {
+							auto b = num.back();
+							num.pop_back();
+							num.back() += b;
+							break;
+						}
+						case '-': {
+							auto b = num.back();
+							num.pop_back();
+							num.back() -= b;
+							break;
+						}
+						case '*': {
+							auto b = num.back();
+							num.pop_back();
+							num.back() *= b;
+							break;
+						}
+						case '/': {
+							auto b = num.back();
+							num.pop_back();
+							num.back() /= b;
+							break;
+						}
+						case '^': {
+							auto b = num.back();
+							num.pop_back();
+							num.back().pow(b);
+							break;
+						}
+						default: break;
+						}
+					}
+				}
+				assert(num.size() == 1);
+				return num.back();
+			}
+			std::ostream &MY_LIB Print(std::ostream &o) const noexcept {
+				return o << subsequent;
+			}
+			friend std::ostream &MY_LIB operator<<(std::ostream &o, const Expression &fun)noexcept {
+				return fun.Print(o);
+			}
 		};
+
 
 
 
 		class funEngine {
 		public:
+			using holder = std::unique_ptr<Expression>;
 			funEngine() = default;
 			~funEngine()noexcept = default;
-			static ptrHolder produce(nullptr_t)noexcept { return ptrHolder(nullptr); }
-			static ptrHolder produce(const char *definition) {
-				function *res = nullptr;
-				std::stack<char_range> sta;
-				for (const char* p = definition; *p != 0; ++p) {
-
-				}
-				return nullptr;
+			static holder produce(nullptr_t)noexcept { return holder(nullptr); }
+			static holder produce(const char *definition) {
+				return holder(Expression::MakeFromMiddleOrder(definition));
 			}
 		private:
 
