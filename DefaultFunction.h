@@ -1,9 +1,10 @@
 #pragma once
 
-#include <sstream>
 #include "PreciseMath.h"
 #include "Exception.h"
 #include "CustomizedRadixCharSet.h"
+#include <sstream>
+#include <cmath>
 #include <stack>
 #include <queue>
 
@@ -30,10 +31,10 @@ namespace Darkness {
 				this->a = data;
 				return *this;
 			}
-			bool MY_LIB operator==(const constant &that)noexcept { return this->a == that.a; }
-			bool MY_LIB operator!=(const constant &that)noexcept { return this->a != that.a; }
-			template<typename Int>bool MY_LIB operator==(const Int &that)noexcept { return this->a == that; }
-			template<typename Int>bool MY_LIB operator!=(const Int &that)noexcept { return this->a != that; }
+			bool MY_LIB operator==(const constant &that)const noexcept { return this->a == that.a; }
+			bool MY_LIB operator!=(const constant &that)const noexcept { return this->a != that.a; }
+			template<typename Int>bool MY_LIB operator==(const Int &that)const noexcept { return this->a == that; }
+			template<typename Int>bool MY_LIB operator!=(const Int &that)const noexcept { return this->a != that; }
 
 
 			MY_LIB constant(const constant &that) : a(std::move(that.a.Copy(that.a))) { }
@@ -120,9 +121,9 @@ namespace Darkness {
 			case 90:
 				return constant(1, 1, 1);
 			default:
-				throw std::exception("Unsupported degree.");
 				break;
 			}
+			throw "Unsupported degree.";
 		}
 		constant MY_LIB cosd(size_t degree) {
 			degree %= 180;
@@ -185,10 +186,9 @@ namespace Darkness {
 			MY_LIB sum()noexcept = default;
 			friend class product<count>;
 		public:
-			sum(function *pack...)noexcept :p{ pack... } {
+			template<typename... Pack>sum(Pack &&...pack)noexcept :p{ std::move(pack)... } {
 				static_assert(sizeof...(pack) == count, "Parameter not matched");
 			}
-			MY_LIB sum(std::initializer_list<function *>p) noexcept :p(p) { }
 			MY_LIB ~sum() noexcept {
 				for (auto ptr : p) {
 					if (ptr) {
@@ -197,7 +197,7 @@ namespace Darkness {
 					}
 				}
 			}
-			sum *MY_LIB copy() override {
+			sum *MY_LIB copy() const override {
 				sum *res = new sum;
 				function *p1 = this->p[0], *p2 = res->p[0];
 				for (size_t i = 0; i < count; ++i) {
@@ -205,6 +205,12 @@ namespace Darkness {
 					++p1, ++p2;
 				}
 				return res;
+			}
+			constant MY_LIB getValue(const constant &con)const noexcept override {
+				return con;
+			}
+			bool MY_LIB integralable()noexcept override {
+				return true;
 			}
 			void MY_LIB undefinite_integral(function *&f) noexcept override {
 				assert(this == f);
@@ -220,10 +226,10 @@ namespace Darkness {
 				}
 				return;
 			}
-			rough_value MY_LIB estimate()const noexcept override {
+			rough_value MY_LIB estimate(const constant& that)const noexcept override {
 				rough_value res = 0;
 				for (auto ptr : p) {
-					res += ptr->estimate();
+					res += ptr->estimate(that);
 				}
 				return res;
 			}
@@ -245,7 +251,9 @@ namespace Darkness {
 		class [[deprecated("Unfinished work")]] product :public function{
 			MY_LIB product()noexcept = default;
 		public:
-			product(function *p...) noexcept :p{p...} { }
+			template<typename... Pack>product(Pack &&...pack)noexcept :p{ std::move(pack)... } {
+				static_assert(sizeof...(pack) == count, "Parameter not matched");
+			}
 			MY_LIB ~product() noexcept {
 				for (auto i : p) {
 					if (i) {
@@ -271,7 +279,7 @@ namespace Darkness {
 				return res;
 			}
 			product *MY_LIB copy() override {
-				sum *res = new product;
+				product *res = new product;
 				function *p1 = this->p[0], *p2 = res->p[0];
 				for (size_t i = 0; i < count; ++i) {
 					p2 = p1->copy();
@@ -295,12 +303,12 @@ namespace Darkness {
 				coeff(true, std::move(coeff1), std::move(coeff2)),
 				expo(expo) { }
 			MY_LIB f_pow_x(LargeInteger::Q &&coeff, LargeInteger::N &&expo) noexcept
-				:coeff(coeff), expo(expo) { }
+				:coeff(std::move(coeff)), expo(std::move(expo)) { }
 			MY_LIB ~f_pow_x()noexcept {
 				coeff.destruct();
 				expo.destruct();
 			}
-			void MY_LIB diff(function *&) noexcept {
+			void MY_LIB diff(function *&) noexcept override {
 				this->coeff *= this->expo;
 				if (this->expo != 0) {
 					this->expo -= 1;
@@ -322,7 +330,7 @@ namespace Darkness {
 			constant MY_LIB getValue(const constant &con)const noexcept override{
 				return con;
 			}
-			std::ostream &MY_LIB Print(std::ostream &o) const noexcept {
+			std::ostream &MY_LIB Print(std::ostream &o) const noexcept override {
 				return (coeff == 0 ? o << "0" : o << coeff << " * x" << "^(" << expo << ")");
 			}
 		private:
@@ -342,13 +350,13 @@ namespace Darkness {
 				auto &&temp = new f_pow_x_ln_x(this->pow->copy());
 				return temp;
 			}
-			inline void MY_LIB diff(function *&f) noexcept {
+			inline void MY_LIB diff(function *&f) noexcept override {
 				assert(this == f);
 				//f = new sum<2>(new f_pow_x(pow));
 				delete this;
 				return;
 			}
-			bool MY_LIB integralable()noexcept {
+			bool MY_LIB integralable() noexcept override {
 				return true;
 			}
 			void MY_LIB undefinite_integral(function *&f) noexcept override {
@@ -362,7 +370,7 @@ namespace Darkness {
 			constant MY_LIB getValue(const constant &con)const noexcept override {
 				return con;
 			}
-			std::ostream &MY_LIB Print(std::ostream &o)const noexcept {
+			std::ostream &MY_LIB Print(std::ostream &o)const noexcept override {
 				return o << "ln(" << *pow << ')';
 			}
 		private:
@@ -439,9 +447,28 @@ namespace Darkness {
 		private:
 			std::string subsequent;
 		public:
-			Expression(const char *Subsequent) :subsequent(Subsequent) { }
-			~Expression()noexcept = default;
-			static std::string transform(const char* s) {
+			MY_LIB Expression(const char *Subsequent) :subsequent(Subsequent) { }
+			MY_LIB ~Expression()noexcept = default;
+			static auto MY_LIB getPriority(char c)noexcept {
+				switch (c) {
+				case ')':
+					return 8;
+				case '^':
+					return 6;
+				case '*':
+				case '/':
+				case '%':
+					return 4;
+				case '+':
+				case '-':
+					return 3;
+				case '(':
+					return 1;
+				default:
+					return 0;
+				}
+			}
+			static std::string MY_LIB transform(const char* s) {
 				std::string st;
 				std::stack<char> ops;    //‘ÀÀ„∑˚’ª
 				for (; *s != 0; ++s) {
@@ -482,7 +509,7 @@ namespace Darkness {
 								break;
 							}
 							char c = ops.top();
-							if (ops.top() == '(' || ((c == '+' || c == '-') || (ch == '*' || ch == '/'))) {
+							if (ops.top() == '(' || (getPriority(c) < getPriority(ch))) {
 								ops.push(ch);
 								break;
 							}
@@ -497,10 +524,15 @@ namespace Darkness {
 				}
 				return st;
 			}
-			static std::unique_ptr<Expression>MY_LIB MakeFromMiddleOrder(const char *MidOrder) {
-				auto &&str = transform(MidOrder);
-				auto *res = new Expression(str.c_str());
-				return std::unique_ptr<Expression>(res);
+			static std::unique_ptr<Expression>MY_LIB MakeFromMiddleOrder(const char *MidOrder) noexcept {
+				try {
+					auto &&str = transform(MidOrder);
+					auto *res = new Expression(str.c_str());
+					return std::unique_ptr<Expression>(res);
+				}
+				catch (const std::exception &) {
+					return std::unique_ptr<Expression>(nullptr);
+				}
 			}
 			Expression* MY_LIB copy()const{ 
 				return new Expression(subsequent.c_str());
