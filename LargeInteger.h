@@ -159,21 +159,14 @@ namespace Darkness {
 			if (that + 1 != nullptr) {
 				SinglePrint(that + 1, out, ShowComma, MinLength, base);
 				out << ((ShowComma) ? "," : "");
-				char *c = DBG_NEW char[MinLength + static_cast<size_t>(1)]();
-				assert(base < BaseType(INT_MAX));
-				std::to_chars_result rs = std::to_chars(c, &(c[MinLength]), (*that), base);
-				assert(rs.ec == std::errc());
-				std::string str = c;
-				delete[] c;
-				if (str.length() < MinLength) {
-					std::string nStr;
-					for (size_t index = MinLength - str.length(); index > 0; index--) {
-						nStr.push_back('0');
-					}
-					nStr += str;
-					out << nStr;
+
+				auto tmp = *that;
+				std::string res;
+				while (tmp) {
+					res.push_back(Set<base>::to_char_type(tmp % base));
 				}
-				else out << str;
+				auto Fill = out.fill();
+				out << std::setw(MinLength) << std::setfill('0') << res << std::setfill(Fill);
 			}
 			else {
 				out << *that;
@@ -206,13 +199,15 @@ namespace Darkness {
 						out << *that;
 					}
 					else {
-						char c[MinLength + static_cast<size_t>(1)] = {};
-						std::to_chars_result rs = std::to_chars(c, &(c[MinLength]), (*that), base);
-						assert(rs.ec == std::errc());
-						if (std::strlen(c) < MinLength) {
-							out << std::setw(MinLength) << std::setfill('0');
+						auto tmp = *that;
+						std::string res;
+						while (tmp) {
+							res.push_back(Set<base>::to_char_type(tmp % base));
 						}
-						out << c;
+						res.reserve();
+
+						auto Fill = out.fill();
+						out << std::setw(MinLength) << std::setfill('0') << res << std::setfill(Fill);
 					}
 				}
 			}
@@ -374,6 +369,11 @@ namespace Darkness {
 
 			}
 			explicit MY_LIB LargeUnsigned(LL &&ll)noexcept :LL(std::move(ll)) { }
+			MY_LIB LargeUnsigned(LargeUnsigned &&ll)noexcept :LL(static_cast<LL&&>(ll)) { }
+			LargeUnsigned &MY_LIB operator=(LargeUnsigned &&ll)noexcept{ 
+				this->LL::operator=(static_cast<LL&&>(ll));
+				return *this; 
+			}
 			static constexpr LargeUnsigned MY_LIB Copy(const LargeUnsigned &that)noexcept {
 				LargeUnsigned This(0);
 				auto j = This.begin();
@@ -574,7 +574,7 @@ namespace Darkness {
 			/*INLINED*/LargeUnsigned MY_LIB operator*(const LargeUnsigned &b)const noexcept {
 				LargeUnsigned &&Res = Copy(*this);
 				Res *= b;
-				return Res;
+				return std::move(Res);
 			}
 			//жиди
 			INLINED void MY_LIB operator-=(const LargeUnsigned &that) noexcept {
@@ -762,7 +762,7 @@ namespace Darkness {
 				}
 				LargeUnsigned Res(0);
 				iter_div(Res, that.cbegin());
-				*this = Res;
+				*this = std::move(Res);
 			}
 			LargeUnsigned MY_LIB Divide(const LargeUnsigned &that)noexcept {
 				assert(that != 0);
@@ -782,7 +782,7 @@ namespace Darkness {
 				auto it = Layer(that);
 				LargeUnsigned Res(0);
 				iter_div(Res, it);
-				*this = Res;
+				*this = std::move(Res);
 			}
 			template<typename Int>
 			LargeUnsigned MY_LIB Divide(const Int &that)noexcept {
@@ -1188,7 +1188,7 @@ namespace Darkness {
 			}
 			template<char...Delim>char __stdcall get_until(std::istream &in)noexcept {
 				this->PosSign = (in.peek() == '-' ? false : true);
-				return this->LargeUnsigned<LL, radix>::get_until<Delim...>(in);
+				return this->LargeUnsigned<LL, radix>::template get_until<Delim...>(in);
 			}
 			INLINED std::istream &MY_LIB Scan(std::istream &in) {
 				this->PosSign = (in.peek() == '-' ? false : true);
