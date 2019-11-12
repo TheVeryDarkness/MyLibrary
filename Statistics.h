@@ -28,7 +28,9 @@ namespace Darkness {
 			return res;
 		}
 	}
+}
 
+namespace Darkness{
 	inline namespace Math {
 		template<typename Data>constexpr inline Data ABS(Data a) noexcept;
 		template<typename value_type>size_t getBits(const value_type &that)noexcept;
