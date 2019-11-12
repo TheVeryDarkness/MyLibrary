@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Shared.h"
+#include <cassert>
 #include <array>
 
 template<size_t CacheSize>
