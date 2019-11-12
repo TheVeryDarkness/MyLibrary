@@ -8,13 +8,13 @@
 #include <iomanip>
 #include <sstream>
 #include <string>
-constexpr unsigned int Z_MAX = 1000000000U;
 
 namespace Darkness {
 	inline namespace LargeInteger {
+		constexpr unsigned int Z_MAX = 1000000000U;
 
-		typedef LargeSigned<LL::DLL<unsigned int, 64U / sizeof(void *) - 1>, Z_MAX> Z;
-		typedef LargeUnsigned<LL::OLL<unsigned int, 64U / sizeof(void *) - 1 >, Z_MAX> N;
+		typedef LargeSigned<LL::OAL<unsigned int, 64U / sizeof(void *) - 1>, Z_MAX> Z;
+		typedef LargeUnsigned<LL::OAL<unsigned int, 64U / sizeof(void *) - 1 >, Z_MAX> N;
 
 		//非负有理数
 		//Non-negative Rational Number
