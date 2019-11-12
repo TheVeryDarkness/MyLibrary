@@ -567,6 +567,21 @@ namespace Darkness {
 			constexpr void MY_LIB Swap(LargeUnsigned &that)noexcept {
 				this->LL::swap(*static_cast<LL *>(&that));
 			}
+			constexpr auto MY_LIB Simplify()noexcept {
+				auto Flag = this->cbegin();
+				auto OprtPtr = this->cbegin();
+				while (true) {
+					if (*OprtPtr != Data(0U)) {
+						Flag = OprtPtr;
+					}
+					if (OprtPtr == nullptr) {
+						break;
+					}
+					++OprtPtr;
+				}
+				this->LL::erase_after(Flag, nullptr);
+				return Flag;
+			}
 			/*INLINED*/void MY_LIB operator*=(const LargeUnsigned &b) noexcept {
 				this->iter_mul(b.begin());
 			}
@@ -587,7 +602,7 @@ namespace Darkness {
 				}
 				assert(*this >= that);
 				iter_sub(that.cbegin());
-				this->LL::Simplify();
+				this->Simplify();
 			}
 			//÷ÿ‘ÿLinkedList¡¥±Ì∏∫∫≈
 			INLINED LargeUnsigned MY_LIB operator-(
@@ -684,10 +699,10 @@ namespace Darkness {
 
 
 			bool MY_LIB operator==(const LargeUnsigned &that)const noexcept {
-				return LL::operator==(*static_cast<const LL *>(&that));
+				return iter_equal(that.cbegin());
 			}
 			bool MY_LIB operator!=(const LargeUnsigned &that)const noexcept {
-				return LL::operator!=(that);
+				return !iter_equal(that.cbegin());
 			}
 			template<typename Int>
 			bool MY_LIB operator==(const Int &that)const noexcept {
