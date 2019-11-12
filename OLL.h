@@ -108,6 +108,7 @@ namespace Darkness {
 
 			struct const_iterator {
 				using in = const OLL;
+				friend class OLL;
 			public:
 				static constexpr auto MY_LIB getRadix()noexcept { return decltype(ptr->data)::getRadix(); }
 				static constexpr in *MY_LIB NEXT(in &i)noexcept { if (i.next == nullptr)i.insert(); return i.next; }
@@ -248,7 +249,7 @@ namespace Darkness {
 			//释放链表头后对应链节的指针
 			INLINED void MY_LIB release() noexcept {
 				while (this->next != nullptr) {
-					this->cut();
+					this->erase_after();
 				}
 				return;
 			}
@@ -363,8 +364,9 @@ namespace Darkness {
 				return;
 			}
 			//删除当前位置后的一位
-			INLINED void MY_LIB cut() noexcept(DEBUG_FLAG) {
+			INLINED void MY_LIB erase_after() noexcept(DEBUG_FLAG) {
 				assert(this->next != nullptr);
+				//if (this->next)
 				{
 					OLL *temp = this->next->next;
 					delete this->next;
@@ -372,10 +374,20 @@ namespace Darkness {
 				}
 				return;
 			}
+			//删除当前位置后的一位
+			static INLINED void MY_LIB erase_after(const_iterator begin) noexcept {
+				const_cast<OLL *>(begin.ptr)->erase_after();
+				return;
+			}
+			//删除当前位置后的一位
+			static INLINED void MY_LIB erase_after(const_iterator begin, nullptr_t) noexcept {
+				while (begin + 1 != nullptr) erase_after(begin);
+				return;
+			}
 			//弹出当前位置后的一位
 			INLINED Data MY_LIB pop() noexcept(DEBUG_FLAG) {
 				Data temp = this->next->data;
-				this->cut();
+				this->erase_after();
 				return temp;
 			}
 			INLINED OLL *MY_LIB Simplify() noexcept {

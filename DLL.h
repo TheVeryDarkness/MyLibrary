@@ -44,11 +44,10 @@ namespace Darkness {
 				constexpr bool MY_LIB operator==(const iterator &_ptr)const noexcept { return this->ptr == _ptr.ptr; }
 				constexpr bool MY_LIB operator!=(const iterator &_ptr)const noexcept { return this->ptr != _ptr.ptr; }
 
+				MY_LIB ~iterator()noexcept = default;
 				constexpr in *operator->() const noexcept {
 					return this->ptr;
 				}
-
-				MY_LIB ~iterator()noexcept = default;
 
 				constexpr iterator &MY_LIB operator++()noexcept {
 					if (this->ptr != nullptr) {
@@ -114,8 +113,8 @@ namespace Darkness {
 				constexpr void insert(iterator &it, Data d) {
 					it.ptr->insert(d);
 				}
-				constexpr void cut(iterator &it) {
-					it.ptr->cut();
+				constexpr void erase_after(iterator &it) {
+					it.ptr->erase_after();
 				}
 				constexpr void pop(iterator &it) {
 					it.ptr->_pop();
@@ -128,6 +127,7 @@ namespace Darkness {
 			};
 
 			struct const_iterator {
+				friend class DLL;
 				using in = const DLL;
 			public:
 				static constexpr auto MY_LIB getRadix()noexcept { return decltype(ptr->data)::getRadix(); }
@@ -456,7 +456,7 @@ namespace Darkness {
 			}
 			INLINED void MY_LIB release() noexcept {
 				while (this->next != nullptr) {
-					this->cut();
+					this->erase_after();
 				}
 			}
 			//在当前位置后插入新的一节
@@ -471,8 +471,9 @@ namespace Darkness {
 				return;
 			}
 			//删除当前位置后的一位
-			INLINED void MY_LIB cut() noexcept(DEBUG_FLAG) {
+			INLINED void MY_LIB erase_after() noexcept {
 				assert(this->next != nullptr);
+				//if (this->next)
 				{
 					DLL *temp = this->next->next;
 					delete this->next;
@@ -483,11 +484,22 @@ namespace Darkness {
 				}
 				return;
 			}
+			//删除当前位置后的一位
+			static INLINED void MY_LIB erase_after(const_iterator begin) noexcept {
+				const_cast<DLL*>(begin.ptr)->erase_after();
+				return;
+			}
+			//删除当前位置后的一位
+			static INLINED void MY_LIB erase_after(const_iterator begin, nullptr_t) noexcept {
+				while (begin + 1 != nullptr) 
+					erase_after(begin);
+				return;
+			}
 			//弹出当前位置后的一位
 			INLINED Data MY_LIB pop() noexcept(DEBUG_FLAG) {
 				assert(this->next != nullptr);
 				Data temp = this->next->data;
-				this->cut();
+				this->erase_after();
 				return temp;
 			}
 			//弹出当前位置
