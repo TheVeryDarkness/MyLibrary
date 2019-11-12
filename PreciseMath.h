@@ -13,8 +13,8 @@ constexpr unsigned int Z_MAX = 1000000000U;
 namespace Darkness {
 	inline namespace LargeInteger {
 
-		typedef LargeSigned<LL::OAL<unsigned int, 64U / sizeof(void *) - 1>, Z_MAX> Z;
-		typedef LargeUnsigned<LL::OAL<unsigned int, 64U / sizeof(void *) - 1 >, Z_MAX> N;
+		typedef LargeSigned<LL::DLL<unsigned int, 64U / sizeof(void *) - 1>, Z_MAX> Z;
+		typedef LargeUnsigned<LL::OLL<unsigned int, 64U / sizeof(void *) - 1 >, Z_MAX> N;
 
 		//非负有理数
 		//Non-negative Rational Number
@@ -34,7 +34,7 @@ namespace Darkness {
 			}
 			class DecimalMaker {
 			public:
-				DecimalMaker() = default;
+				DecimalMaker() noexcept { }
 				~DecimalMaker()noexcept = default;
 				N first(const char *str, const char *const end = nullptr) noexcept {
 					assert(is_numerator);
@@ -62,11 +62,11 @@ namespace Darkness {
 							++info.len;
 						}
 					}
-					return std::move(str == p ? N(0) : N::MakeFromString(str, p - 1));
+					return std::move<N>(str == p ? N(0) : N::MakeFromString(str, p - 1));
 				}
 				N second(const char *end = nullptr) noexcept {
 					assert(!is_numerator);
-					return std::move(
+					return (
 						is_decimal ?
 						N::pow(10, info.len)
 						:
@@ -93,21 +93,24 @@ namespace Darkness {
 			}
 			template<typename Val1, typename Val2>
 			explicit MY_LIB uQ(const Val1 &&n, const Val2 &&d = 1)noexcept :
-				Numerator(n),
-				Denominator(d) {
+				Numerator(std::move(n)),
+				Denominator(std::move(d)) {
+				//static_assert(std::is_integral_v<Val1> && std::is_integral_v<Val2>, "Integral type required.");
 				this->Simplify();
 			}
-			MY_LIB uQ(const uQ &that) noexcept :
-				Numerator(that.Numerator),
-				Denominator(that.Denominator) { }
-			explicit MY_LIB uQ(const N &Numerator, const N &Denominator) noexcept :
-				Numerator(Numerator),
-				Denominator(Denominator) {
+			explicit MY_LIB uQ(N &&n, N &&d)noexcept :
+				Numerator(std::move(n)),
+				Denominator(std::move(d)) {
+				//static_assert(std::is_integral_v<Val1> && std::is_integral_v<Val2>, "Integral type required.");
 				this->Simplify();
 			}
+			MY_LIB uQ(const uQ &that) = delete;
+			MY_LIB uQ(uQ &&that) noexcept :
+				Numerator(std::move(that.Numerator)),
+				Denominator(std::move(that.Denominator)) { }
 			INLINED MY_LIB ~uQ() noexcept = default;
 			static uQ MY_LIB Copy(const uQ &that)noexcept {
-				return uQ(N::Copy(that.Numerator), N::Copy(that.Denominator));
+				return uQ(std::move(N::Copy(that.Numerator)), std::move(N::Copy(that.Denominator)));
 			}
 			uQ &MY_LIB toReciprocal()noexcept {
 				this->Numerator.Swap(this->Denominator);
@@ -131,7 +134,7 @@ namespace Darkness {
 					Denominator = 1;
 				}
 				else if (Denominator == 0) {
-					MY_ASSERT(false, 0 / 0);
+					assert(Denominator != 0);
 					Numerator = 1;
 				}
 				else {
@@ -149,6 +152,11 @@ namespace Darkness {
 			void MY_LIB operator=(long that) noexcept {
 				this->Denominator = 1;
 				this->Numerator = that;
+			}
+			uQ &MY_LIB operator=(uQ &&that)noexcept { 
+				this->Numerator = std::move(that.Numerator);
+				this->Denominator = std::move(that.Denominator);
+				return *this;
 			}
 			template<typename Int>
 			void MY_LIB operator+=(Int that) noexcept {
@@ -283,18 +291,17 @@ namespace Darkness {
 				: PosSign(*str != '-'), super(*str != '-' ? str : str + 1) { }
 			explicit MY_LIB Q(const char *begin, const char *end)noexcept
 				: PosSign(*begin != '-'), super(*begin != '-' ? begin : begin + 1, end) { }
-			template<typename Val1, typename Val2>explicit MY_LIB Q(bool sign, const Val1 &&n, const Val2 &&d = 1)noexcept :
+			template<typename Val1, typename Val2>
+			explicit MY_LIB Q(bool sign, const Val1 &&n, const Val2 &&d = 1)noexcept :
 				PosSign(sign), super(std::move(n), std::move(d)) {
 				this->checkSign();
 			}
-			MY_LIB Q(const Q &that) noexcept :
-				PosSign(that.PosSign), super(that.Numerator, that.Denominator) { }
-			explicit MY_LIB Q(bool sign, const N &Numerator, const N &Denominator) noexcept :
-				PosSign(sign), super(Numerator, Denominator) {
+			explicit MY_LIB Q(bool sign, N &&n, N &&d)noexcept :
+				PosSign(sign), super(std::move(n), std::move(d)) {
 				this->checkSign();
 			}
-			INLINED MY_LIB ~Q() noexcept = default;
 			MY_LIB Q(Q &&that)noexcept :PosSign(that.PosSign), super(static_cast<uQ &&>(that)) { }
+			INLINED MY_LIB ~Q() noexcept = default;
 			static Q MY_LIB Copy(const Q &that)noexcept {
 				return Q(that.PosSign, N::Copy(that.Numerator), N::Copy(that.Denominator));
 			}
@@ -334,9 +341,9 @@ namespace Darkness {
 				this->Numerator = that;
 				return *this;
 			}
-			Q &MY_LIB operator=(const Q &that) noexcept {
+			Q &MY_LIB operator=(Q &&that) noexcept {
 				this->PosSign = that.PosSign;
-				this->super::operator=(static_cast<const super &>(that));
+				this->super::operator=(static_cast<super &&>(that));
 				return *this;
 			}
 			template<typename Int>
@@ -452,9 +459,12 @@ namespace Darkness {
 				temp.destruct();
 				return ret;
 			}
+			template<typename Int>
+			bool MY_LIB operator!=(Int that)const noexcept { return !(*this == that); }
 			bool MY_LIB operator==(const Q &that)const noexcept {
 				return ((this->Numerator == that.Numerator) && (this->Denominator == that.Denominator));
 			}
+			bool MY_LIB operator!=(const Q &that)const noexcept { return !(*this == that); }
 			bool MY_LIB operator>(const Q &that)const noexcept {
 				if (this->PosSign && !that.PosSign) {
 					return true;
@@ -504,7 +514,7 @@ namespace Darkness {
 				if (that.Numerator != 0) {
 					that.PosSign = !that.PosSign;
 				}
-				return that;
+				return std::move(that);
 			}
 		};
 	}
