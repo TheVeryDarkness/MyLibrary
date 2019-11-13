@@ -15,6 +15,7 @@ namespace Darkness {
 			//It will points to nullptr after moving out of range.
 			class const_iterator {
 				friend class iterator;
+				friend class OAL;
 				const_iterator &operator=(nullptr_t)noexcept {
 					this->pA = nullptr;
 					this->pD = nullptr;
@@ -27,7 +28,7 @@ namespace Darkness {
 
 				const Data &MY_LIB operator*()const noexcept {
 					assert(legel_iterator_ptr(pA, pD));
-					return (*this == nullptr) ? ConstantBuffer<Data, 0>::get() : *pD;
+					return (*this == nullptr || !is_in(pA, pD)) ? ConstantBuffer<Data, 0>::get() : *pD;
 				}
 				const_iterator &MY_LIB operator++()noexcept {
 					assert(legel_iterator_ptr(pA, pD));
@@ -89,7 +90,7 @@ namespace Darkness {
 
 				Data &MY_LIB operator*()noexcept {
 					assert(legel_iterator_ptr(super::pA, super::pD));
-					return (*this == nullptr) ? ConstantBuffer<Data, 0>::get() : *const_cast<Data *>(super::pD);
+					return (*this == nullptr || !is_in(super::pA, super::pD)) ? ConstantBuffer<Data, 0>::get() : *const_cast<Data *>(super::pD);
 				}
 				const Data &MY_LIB operator*()const noexcept {
 					assert(legel_iterator_ptr(super::pA, super::pD));
@@ -144,7 +145,7 @@ namespace Darkness {
 			static_assert(!std::is_array_v<Data>, "Array type is not available.");
 			MEMORY_CACHE(CacheSize);
 		protected:
-			Data data[num];
+			Data data[num] = {};
 			OAL *flag_next;
 			void cut_node()noexcept {
 				assert(!noMoreNode());
@@ -176,12 +177,13 @@ namespace Darkness {
 		#endif // _DEBUG
 			constexpr auto begin() { return iterator(this); }
 			constexpr auto end() { return nullptr; }
-		public:
-			using value_type = Data;
+		protected:
 			explicit OAL(Data head, OAL *next) :flag_next(next) {
 				data[0] = head;
 			}
-			explicit OAL(Data head = Data()) :flag_next(reinterpret_cast<OAL *>(this->data)) {
+		public:
+			using value_type = Data;
+			explicit OAL(Data head = Data()) :flag_next(this) {
 				data[0] = head;
 			}
 			explicit OAL(OAL &&that) noexcept {
@@ -280,7 +282,10 @@ namespace Darkness {
 				}
 			}
 			constexpr void erase_after(const_iterator begin, nullptr_t) {
-				begin;
+				this->release();
+				if (this->flag_next->data == this->data + num - 1) {
+					this->flag_next = reinterpret_cast<OAL *>(const_cast<Data *>(begin.pD));
+				}
 			}
 			void push_back(Data n)noexcept {
 				if (hasVacancy()) {

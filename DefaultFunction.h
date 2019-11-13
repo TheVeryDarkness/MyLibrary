@@ -111,15 +111,15 @@ namespace Darkness {
 			if (degree > 90)degree = 180 - degree;
 			switch (degree) {
 			case 0:
-				return constant(1, 0, 1);
+				return constant(true, 0, 1);
 			case 30:
-				return constant(1, 1, 2);
+				return constant(true, 1, 2);
 			case 37:
-				return constant(1, 3, 5);
+				return constant(true, 3, 5);
 			case 53:
-				return constant(1, 4, 5);
+				return constant(true, 4, 5);
 			case 90:
-				return constant(1, 1, 1);
+				return constant(true, 1, 1);
 			default:
 				break;
 			}
@@ -477,7 +477,7 @@ namespace Darkness {
 						st.push_back(ch);
 					}
 					else if (Set<10>::exist(ch)) {
-						if (Set<10>::exist(st.back())) {
+						if (!st.empty() && Set<10>::exist(st.back())) {
 							st.push_back(' ');
 						}
 						do {

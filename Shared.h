@@ -23,7 +23,15 @@
 
 
 #ifndef MY_LIB
+#ifdef _WIN32
 #define MY_LIB __stdcall
+#endif // _WIN32
+#else
+#ifdef linux
+#define MY_LIB __attribute__((__stdcall__))
+#else
+#define MY_LIB
+#endif // linux
 #endif // !MY_LIB
 
 #ifndef INLINED
