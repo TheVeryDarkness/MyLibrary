@@ -488,13 +488,15 @@ namespace Darkness {
 				}
 			}
 			static std::string MY_LIB transform(const char* s) {
+				/*
 				std::string str;
 				std::stack<char> sta;
 				sta.push('#');
-				for (char c = *s; ; ++s, c = *s) {
-					std::cout << str << std::endl;
-					if (c == ' ') std::cout << '\r' << std::endl;
-					else if (c == 0) {
+				char c;
+				while (1) {
+					c = *s;
+					s++;
+					if (c == '\0') {
 						while (1) {
 							if (sta.empty()) break;
 							if (sta.top() != '#') {
@@ -504,17 +506,28 @@ namespace Darkness {
 						}
 						return str;
 					}
-					else if (exist<Set<10>,LowerCharSet,HigherCharSet>(c)) {
-						if (!str.empty() && exist<Set<10>, LowerCharSet, HigherCharSet>(str.back())) {
-							str.push_back(' ');
-						}
-						while (str.push_back(c), c = *(++s), exist<Set<10>, LowerCharSet, HigherCharSet>(c));
-						--s;
+					else if (c == -1) {
+						continue;
+					}
+					else if (c >= '0' && c <= '9') {
+						str.push_back(c);
+						continue;
+					}
+					else if (c >= 'a' && c <= 'z') {
+						str.push_back(c);
+						continue;
+					}
+					else if (c >= 'A' && c <= 'Z') {
+						str.push_back(c);
+						continue;
+					}
+					else if (c == ' ') {
+						continue;
 					}
 					else {
 					g:;
 						if (getPriorityInside(sta.top()) > getPriorityOutside(c)) {
-							str.push_back(sta.top());
+							str.push_back(c);
 							sta.pop();
 							goto g;
 						}
@@ -524,29 +537,60 @@ namespace Darkness {
 						else {
 							sta.pop();
 						}
+						continue;
 					}
-				}
-
+				}*/
 
 
 				/*
+				std::string str;
+				std::stack<char> sta;
+				for (char c = *s; ; ++s, c = *s) {
+					if (c == ' ') ;
+					else if (c == 0) {
+						while (!sta.empty()) {
+							str.push_back(sta.top());
+							sta.pop();
+						}
+						return str;
+					}
+					else if (exist<Set<10>, LowerCharSet, HigherCharSet>(c)) {
+						if (!str.empty() && exist<Set<10>, LowerCharSet, HigherCharSet>(str.back())) {
+							str.push_back(' ');
+						}
+						while (str.push_back(c), c = *(++s), exist<Set<10>, LowerCharSet, HigherCharSet>(c));
+						--s;
+					}
+					else {
+					g:;
+						std::cout << str << std::endl;
+						auto top = sta.empty() ? '#' : sta.top();
+						if (getPriorityInside(top) > getPriorityOutside(c)) {
+							str.push_back(top);
+							sta.pop();
+							goto g;
+						}
+						else if (getPriorityInside(top) < getPriorityOutside(c)) {
+							sta.push(c);
+						}
+						else {
+							sta.pop();
+						}
+					}
+				}*/
 				std::string st;
 				std::stack<char> ops;//‘ÀÀ„∑˚’ª
 				for (; *s != 0; ++s) {
 					char ch = *s;
-					if (ch == 't') {
-						st.push_back(ch);
-					}
-					else if (Set<10>::exist(ch)) {
-						if (!st.empty() && Set<10>::exist(st.back())) {
+					if (ch == ' ')continue;
+					else if (exist<Set<10>, HigherCharSet,LowerCharSet>(ch)) {
+						if (!st.empty() && exist<Set<10>, HigherCharSet, LowerCharSet>(st.back())) {
 							st.push_back(' ');
 						}
 						do {
 							st.push_back(ch);
-						} while (++s, ch = *s, *s != 0 && Set<10>::exist(ch));
-					}
-					else if (ch == ' ') {
-						continue;
+						} while ((ch = *++s) != 0 && exist<Set<10>, HigherCharSet, LowerCharSet>(ch));
+						--s;
 					}
 					else if (ch == '(') {
 						ops.push(ch);
@@ -581,7 +625,7 @@ namespace Darkness {
 					st.push_back(ops.top());
 					ops.pop();
 				}
-				return st;*/
+				return st;
 			}
 			static std::unique_ptr<Expression>MY_LIB MakeFromMiddleOrder(const char *MidOrder) {
 				try {
