@@ -17,6 +17,9 @@ namespace Darkness {
 		class constant final {
 		public:
 			constant()noexcept :a(true, 0, 1) { };
+			template<typename Int>constant(Int i)noexcept :a(i >= 0, ABS(i), 1) {
+				static_assert(std::is_integral_v<Int>, "Integral type required.");
+			};
 			MY_LIB constant(const char *str) noexcept :a(str) { }
 			MY_LIB constant(const char *begin, const char *end) noexcept :a(begin, end) { }
 			template<typename val1,typename val2>
@@ -86,22 +89,13 @@ namespace Darkness {
 				this->a /= that.a;
 				return *this;
 			}
-			constant &MY_LIB pow(const constant &times) {
-				if (times.a == 0) {
-					this->a = 1;
-					return *this;
-				}
-				bool pos = times.a.isPositive();
-				constant base(*this);
-				if (times.a.isInteger()) {
-					for (LargeInteger::Q i(pos, 1, 1); pos ? i < times.a : i>times.a; pos ? i += 1 : i -= 1) {
-						a *= base.a;
-					}
-				}
-				if (!pos) {
-					a.toReciprocal();
-				}
-				return *this;
+			constant& MY_LIB operator^=(const constant &times) {
+				return this->a.pow(times.a), *this;
+			}
+			constant MY_LIB operator^(const constant &times) {
+				constant tmp(*this); 
+				tmp.a.pow(times.a);
+				return std::move(tmp);
 			}
 		private:
 			LargeInteger::Q a;
@@ -449,7 +443,7 @@ namespace Darkness {
 		public:
 			MY_LIB Expression(const char *Subsequent) :subsequent(Subsequent) { }
 			MY_LIB ~Expression()noexcept = default;
-			static auto MY_LIB getPriority(char c)noexcept {
+			static auto MY_LIB getPriorityOutside(char c)noexcept {
 				switch (c) {
 				case ')':
 					return 8;
@@ -458,19 +452,86 @@ namespace Darkness {
 				case '*':
 				case '/':
 				case '%':
-					return 4;
+					return 5;
 				case '+':
 				case '-':
 					return 3;
 				case '(':
 					return 1;
+				case '#':
+					return 0;
 				default:
+					assert(false);
+					return 0;
+				}
+			}
+			static auto MY_LIB getPriorityInside(char c)noexcept {
+				switch (c) {
+				case '(':
+					return 8;
+				case '^':
+					return 7;
+				case '*':
+				case '/':
+				case '%':
+					return 4;
+				case '+':
+				case '-':
+					return 2;
+				case ')':
+					return 1;
+				case '#':
+					return 0;
+				default:
+					assert(false);
 					return 0;
 				}
 			}
 			static std::string MY_LIB transform(const char* s) {
+				std::string str;
+				std::stack<char> sta;
+				sta.push('#');
+				for (char c = *s; ; ++s, c = *s) {
+					std::cout << str << std::endl;
+					if (c == ' ') std::cout << '\r' << std::endl;
+					else if (c == 0) {
+						while (1) {
+							if (sta.empty()) break;
+							if (sta.top() != '#') {
+								str.push_back(sta.top());
+							}
+							sta.pop();
+						}
+						return str;
+					}
+					else if (exist<Set<10>,LowerCharSet,HigherCharSet>(c)) {
+						if (!str.empty() && exist<Set<10>, LowerCharSet, HigherCharSet>(str.back())) {
+							str.push_back(' ');
+						}
+						while (str.push_back(c), c = *(++s), exist<Set<10>, LowerCharSet, HigherCharSet>(c));
+						--s;
+					}
+					else {
+					g:;
+						if (getPriorityInside(sta.top()) > getPriorityOutside(c)) {
+							str.push_back(sta.top());
+							sta.pop();
+							goto g;
+						}
+						else if (getPriorityInside(sta.top()) < getPriorityOutside(c)) {
+							sta.push(c);
+						}
+						else {
+							sta.pop();
+						}
+					}
+				}
+
+
+
+				/*
 				std::string st;
-				std::stack<char> ops;    //‘ÀÀ„∑˚’ª
+				std::stack<char> ops;//‘ÀÀ„∑˚’ª
 				for (; *s != 0; ++s) {
 					char ch = *s;
 					if (ch == 't') {
@@ -482,7 +543,7 @@ namespace Darkness {
 						}
 						do {
 							st.push_back(ch);
-						} while (++s, ch = *s, Set<10>::exist(ch));
+						} while (++s, ch = *s, *s != 0 && Set<10>::exist(ch));
 					}
 					else if (ch == ' ') {
 						continue;
@@ -492,6 +553,9 @@ namespace Darkness {
 					}
 					else if (ch == ')') {
 						while (true) {
+							if (ops.empty()) {
+								throw "No matched brackets.";
+							}
 							ch = ops.top();
 							ops.pop();
 							if (ch == '(') {
@@ -504,12 +568,7 @@ namespace Darkness {
 					}
 					else {
 						while (true) {
-							if (ops.empty()) {
-								ops.push(ch);
-								break;
-							}
-							char c = ops.top();
-							if (ops.top() == '(' || (getPriority(c) < getPriority(ch))) {
+							if (ops.empty() || ops.top() == '('|| (getPriorityInside(ops.top()) < getPriorityOutside(ch))) {
 								ops.push(ch);
 								break;
 							}
@@ -522,16 +581,16 @@ namespace Darkness {
 					st.push_back(ops.top());
 					ops.pop();
 				}
-				return st;
+				return st;*/
 			}
-			static std::unique_ptr<Expression>MY_LIB MakeFromMiddleOrder(const char *MidOrder) noexcept {
+			static std::unique_ptr<Expression>MY_LIB MakeFromMiddleOrder(const char *MidOrder) {
 				try {
 					auto &&str = transform(MidOrder);
 					auto *res = new Expression(str.c_str());
 					return std::unique_ptr<Expression>(res);
 				}
-				catch (const std::exception &) {
-					return std::unique_ptr<Expression>(nullptr);
+				catch (const char* e) {
+					throw e;
 				}
 			}
 			Expression* MY_LIB copy()const{ 
@@ -584,7 +643,7 @@ namespace Darkness {
 						case '^': {
 							auto b = num.back();
 							num.pop_back();
-							num.back().pow(b);
+							num.back() ^= b;
 							break;
 						}
 						default: break;
@@ -612,7 +671,12 @@ namespace Darkness {
 			~funEngine()noexcept = default;
 			static holder produce(nullptr_t)noexcept { return holder(nullptr); }
 			static holder produce(const char *definition) {
-				return holder(Expression::MakeFromMiddleOrder(definition));
+				try {
+					return holder(Expression::MakeFromMiddleOrder(definition));
+				}
+				catch (const char* e) {
+					throw e;
+				}
 			}
 		private:
 

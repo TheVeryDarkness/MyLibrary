@@ -118,5 +118,31 @@ namespace Darkness {
 				else return static_cast<char_type>(-1);
 			}
 		};
+
+		class LowerCharSet {
+		public:
+			using char_type = char;
+			using int_type = unsigned char;
+			LowerCharSet() = delete;
+			~LowerCharSet() = delete;
+			static constexpr bool __stdcall exist(char c) noexcept {
+				return 'a' <= c && c <= 'z';
+			}
+		};
+
+		class HigherCharSet {
+		public:
+			using char_type = char;
+			using int_type = unsigned char;
+			HigherCharSet() = delete;
+			~HigherCharSet() = delete;
+			static constexpr bool __stdcall exist(char c) noexcept {
+				return 'A' <= c && c <= 'Z';
+			}
+		};
+
+		template<typename ...CharSet>constexpr bool exist(char c)noexcept {
+			return (CharSet::exist(c) || ...);
+		}
 	}
 }

@@ -376,10 +376,13 @@ namespace Darkness {
 			}
 			static constexpr LargeUnsigned MY_LIB Copy(const LargeUnsigned &that)noexcept {
 				LargeUnsigned This(0);
+				if (*that.cbegin()>100000000) {
+					std::cout << std::endl;
+				}
 				auto j = This.begin();
-				for (auto index = that.begin(); index != that.end(); ++index) {
+				for (auto index = that.cbegin(); index != that.cend(); ++index) {
 					*j = *index;
-					if (index + 1 != that.end()) {
+					if (index + 1 != that.cend()) {
 						++j;
 					}
 				}
@@ -901,7 +904,9 @@ namespace Darkness {
 				:PosSign(*begin != '-'), super(std::move(super::MakeFromString(begin, end))) { }
 			explicit MY_LIB LargeSigned(bool sign, LargeUnsigned<LL, radix> uns)noexcept
 				:PosSign(sign), LargeUnsigned<LL, radix>(uns) { }
-
+			const super &operator()()const noexcept {
+				return static_cast<const LargeUnsigned &>(*this);
+			}
 			static constexpr LargeSigned MY_LIB Copy(const LargeSigned &that)noexcept {
 				LargeSigned This(that.PosSign, LargeUnsigned<LL, radix>::Copy(that));
 				return This;

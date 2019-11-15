@@ -39,16 +39,15 @@ namespace Darkness {
 						else {
 							pA = pA->flag_next;
 							pD = pA->data;
-							assert(legel_iterator_ptr(pA, pD));
 						}
 					}
 					else if (*this != nullptr) {
-						if (ending(pA, pD)) {
+						if (at_last_place_of_this_list(pA, pD)) {
 							*this = nullptr;
 						}
 						else ++pD;
-						assert(legel_iterator_ptr(pA, pD));
 					}
+					assert(legel_iterator_ptr(pA, pD));
 					return *this;
 				}
 				const_iterator MY_LIB operator+(size_t sz)const noexcept {
@@ -98,13 +97,11 @@ namespace Darkness {
 				}
 				iterator &MY_LIB operator++()noexcept {
 					assert(legel_iterator_ptr(super::pA, super::pD));
-					if (*(super::pD + 1) > 1000000000) {
-						std::cout << '\a';
-					}
-					if (ending(super::pA, super::pD)) {
+					if (at_last_place_of_this_list(super::pA, super::pD)) {
 						const_cast<OAL *>(super::pA)->push_back(0);
+						++super::pD;
 					}
-					if (at_last_place_of_this_node(super::pA, super::pD)) {
+					else if (at_last_place_of_this_node(super::pA, super::pD)) {
 						super::pA = super::pA->flag_next;
 						super::pD = super::pA->data;
 					}
@@ -211,7 +208,7 @@ namespace Darkness {
 				}
 				return *this;
 			}
-			~OAL() { }
+			~OAL()noexcept = default;
 			constexpr auto begin()const { return const_iterator(this); }
 			constexpr auto cbegin()const { return const_iterator(this); }
 			constexpr auto end()const { return nullptr; }
@@ -350,7 +347,7 @@ namespace Darkness {
 						&&
 						(!is_in(pA, pA->flag_next->data) || pD <= pA->flag_next->data));
 			}
-			constexpr static bool ending(const OAL *pA, const Data *pD)noexcept {
+			constexpr static bool at_last_place_of_this_list(const OAL *pA, const Data *pD)noexcept {
 				return pA->flag_next->data == pD;
 			}
 			constexpr static bool at_last_place_of_this_node(const OAL *pA, const Data *pD)noexcept {

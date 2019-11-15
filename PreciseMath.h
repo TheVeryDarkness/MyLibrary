@@ -112,6 +112,9 @@ namespace Darkness {
 			static uQ MY_LIB Copy(const uQ &that)noexcept {
 				return uQ(std::move(N::Copy(that.Numerator)), std::move(N::Copy(that.Denominator)));
 			}
+			bool MY_LIB isInteger()const noexcept {
+				return this->Denominator == 1;
+			}
 			uQ &MY_LIB toReciprocal()noexcept {
 				this->Numerator.Swap(this->Denominator);
 				return *this;
@@ -237,6 +240,19 @@ namespace Darkness {
 				Res /= that;
 				return Res;
 			}
+			uQ &MY_LIB pow(const uQ &times) {
+				if (times == 0) {
+					*this = 1;
+					return *this;
+				}
+				uQ base = Copy(*this);
+				if (times.isInteger()) {
+					for (N i(1); times > i; i += 1) {
+						*this *= base;
+					}
+				}
+				return *this;
+			}
 			template<typename Int>
 			bool MY_LIB operator==(Int that)const noexcept {
 				N temp = this->Denominator * that;
@@ -263,6 +279,20 @@ namespace Darkness {
 			}
 			bool MY_LIB operator<=(const uQ &that)const noexcept { return !(*this > that); }
 			bool MY_LIB operator>=(const uQ &that)const noexcept { return !(*this < that); }
+			bool MY_LIB operator>(const N &that)const noexcept {
+				N &&temp2 = this->Denominator * that;
+				bool &&res = (this->Numerator > temp2);
+				temp2.destruct();
+				return res;
+			}
+			bool MY_LIB operator<(const N &that)const noexcept {
+				N &&temp2 = this->Denominator * that;
+				bool &&res = (this->Numerator < temp2);
+				temp2.destruct();
+				return res;
+			}
+			bool MY_LIB operator<=(const N &that)const noexcept { return !(*this > that); }
+			bool MY_LIB operator>=(const N &that)const noexcept { return !(*this < that); }
 			std::ostream &Print(std::ostream &o)const noexcept {
 				if (this->Denominator == 1) return Numerator.Print(o);
 				return Denominator.Print(Numerator.Print(o) << '/');
@@ -302,6 +332,9 @@ namespace Darkness {
 			}
 			MY_LIB Q(Q &&that)noexcept :PosSign(that.PosSign), super(static_cast<uQ &&>(that)) { }
 			INLINED MY_LIB ~Q() noexcept = default;
+			const uQ &MY_LIB operator()()const noexcept {
+				return static_cast<const uQ &>(*this);
+			}
 			static Q MY_LIB Copy(const Q &that)noexcept {
 				return Q(that.PosSign, N::Copy(that.Numerator), N::Copy(that.Denominator));
 			}
@@ -330,7 +363,7 @@ namespace Darkness {
 				this->checkSign();
 			}
 			bool MY_LIB isInteger()const noexcept { 
-				return this->Denominator == 1;
+				return this->uQ::isInteger();
 			}
 			bool MY_LIB	isPositive()const noexcept {
 				return this->PosSign;
@@ -451,6 +484,13 @@ namespace Darkness {
 				Q Res = Q::Copy(*this);
 				Res /= that;
 				return Res;
+			}
+			Q &MY_LIB pow(const Q &times) {
+				this->uQ::pow(times);
+				if (!times.PosSign) {
+					this->toReciprocal();
+				}
+				return *this;
 			}
 			template<typename Int>
 			bool MY_LIB operator==(Int that)const noexcept {
