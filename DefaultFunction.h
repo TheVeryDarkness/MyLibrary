@@ -100,7 +100,7 @@ namespace Darkness {
 		private:
 			LargeInteger::Q a;
 		};
-		constant MY_LIB sind(size_t degree) {
+		constant INLINED MY_LIB sind(size_t degree) {
 			degree %= 180;
 			if (degree > 90)degree = 180 - degree;
 			switch (degree) {
@@ -119,7 +119,7 @@ namespace Darkness {
 			}
 			throw "Unsupported degree.";
 		}
-		constant MY_LIB cosd(size_t degree) {
+		constant INLINED MY_LIB cosd(size_t degree) {
 			degree %= 180;
 			if (degree <= 90) {
 				return sind(90 - degree);

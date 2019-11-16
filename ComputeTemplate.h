@@ -23,7 +23,7 @@ namespace Darkness {
 		enum class Compare :signed char {
 			Larger = 0x1, Equal = 0x0, Smaller = -0x1
 		};
-		std::ostream &operator<<(std::ostream &o, Compare c)noexcept {
+		inline std::ostream &operator<<(std::ostream &o, Compare c)noexcept {
 			switch (c) {
 			case LargeInteger::Compare::Larger:
 				o << "Larger";

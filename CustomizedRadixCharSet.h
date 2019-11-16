@@ -38,7 +38,7 @@ namespace Darkness {
 		typedef BaseSet<char, unsigned char, '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'> Set10;
 
 
-		template<char...Delim>char __stdcall getline(std::istream &in, std::string &str)noexcept {
+		template<char...Delim>char MY_LIB getline(std::istream &in, std::string &str)noexcept {
 			using charset = BaseSet<char, char, Delim...>;
 			static_assert(sizeof...(Delim) > 0, "Delim should be given");
 			while (in.good()) {
@@ -54,7 +54,7 @@ namespace Darkness {
 			}
 			return char('\0');
 		}
-		template<char...Delim>char __stdcall ignore_if(std::istream &in)noexcept {
+		template<char...Delim>char MY_LIB ignore_if(std::istream &in)noexcept {
 			using charset = BaseSet<char, char, Delim...>;
 			static_assert(sizeof...(Delim) > 0, "Delim should be given");
 			while (true) {
@@ -64,7 +64,7 @@ namespace Darkness {
 			}
 		}
 
-		template<char...Delim>char __stdcall ignore_if_not(std::istream &in)noexcept {
+		template<char...Delim>char MY_LIB ignore_if_not(std::istream &in)noexcept {
 			using charset = BaseSet<char, char, Delim...>;
 			static_assert(sizeof...(Delim) > 0, "Delim should be given");
 			while (true) {
@@ -74,7 +74,7 @@ namespace Darkness {
 			}
 		}
 
-		template<char...Delim>const char *__stdcall find(const char *s)noexcept {
+		template<char...Delim>const char *MY_LIB find(const char *s)noexcept {
 			using charset = BaseSet<char, char, Delim...>;
 			const char *end = s;
 			for (; !charset::exist(*end); ++end);
@@ -141,7 +141,7 @@ namespace Darkness {
 			}
 		};
 
-		template<typename ...CharSet>constexpr bool exist(char c)noexcept {
+		template<typename ...CharSet>inline constexpr bool exist(char c)noexcept {
 			return (CharSet::exist(c) || ...);
 		}
 	}
