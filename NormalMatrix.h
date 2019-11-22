@@ -53,7 +53,7 @@ namespace Darkness {
 				auto width = o.width();
 				for (size_t i = 0; i < matrix.m; i++) {
 					for (size_t j = 0; j < matrix.n; j++) {
-						o << std::setw(width) << matrix.mat[i][j];
+						o << std::setw(width - 1) << matrix.mat[i][j] << ' ';
 					}
 					o << '\b' << std::endl;
 				}
@@ -62,7 +62,7 @@ namespace Darkness {
 			template<std::streamsize width> std::ostream &alignedPrint(std::ostream &o)noexcept {
 				for (size_t i = 0; i < m; i++) {
 					for (size_t j = 0; j < n; j++) {
-						o << std::setw(width) << this->mat[i][j];
+						o << std::setw(width - 1) << this->mat[i][j] << ' ';
 					}
 					o << '\b' << std::endl;
 				}

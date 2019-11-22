@@ -1,5 +1,6 @@
 #pragma once
 #include "Shared.h"
+#include <istream>
 
 namespace Darkness {
 	inline namespace LargeInteger {

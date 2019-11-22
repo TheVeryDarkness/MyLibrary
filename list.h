@@ -81,7 +81,11 @@ namespace Darkness {
 			//It will points to nullptr after moving out of range.
 			class iterator :protected const_iterator {
 				friend class const_iterator;
+				friend class OAL;
 				using super = const_iterator;
+			protected:
+				auto operator ()()noexcept { return static_cast<super &>(*this); }
+				auto operator ()()const noexcept { return static_cast<const super &>(*this); }
 			public:
 				explicit MY_LIB iterator(OAL *_ptr) :super(_ptr) { }
 				MY_LIB iterator(OAL *_pA, Data *_pD) : super(_pA, _pD) { }
@@ -238,7 +242,7 @@ namespace Darkness {
 					std::swap(*i, *j);
 				}
 			}
-			constexpr bool isNull()const noexcept {
+			constexpr bool empty()const noexcept {
 				for (auto i : *this) {
 					if (i != 0) {
 						return false;
@@ -283,6 +287,9 @@ namespace Darkness {
 				if (this->flag_next->data == this->data + num - 1) {
 					this->flag_next = reinterpret_cast<OAL *>(const_cast<Data *>(begin.pD));
 				}
+			}
+			constexpr void erase_after(iterator begin, nullptr_t) {
+				erase_after(begin(), nullptr);
 			}
 			void push_back(Data n)noexcept {
 				if (hasVacancy()) {

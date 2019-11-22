@@ -29,6 +29,8 @@ namespace Darkness {
 			friend outNode MY_LIB Transform(inNode &in)noexcept;
 
 			MEMORY_CACHE(CacheSize);
+			struct iterator;
+			struct const_iterator;
 
 
 			struct iterator {
@@ -38,6 +40,7 @@ namespace Darkness {
 				static constexpr in *MY_LIB NEXT(in &i)noexcept { if (i.next == nullptr)i.insert(); return i.next; }
 
 				constexpr MY_LIB iterator(in *_ptr)noexcept :ptr(_ptr) { }
+				operator const_iterator()noexcept { return const_iterator(this->ptr); }
 
 				constexpr bool MY_LIB operator==(const in *_ptr)const noexcept { return this->ptr == _ptr; }
 				constexpr bool MY_LIB operator!=(const in *_ptr)const noexcept { return this->ptr != _ptr; }
@@ -382,6 +385,11 @@ namespace Darkness {
 			//删除当前位置后的一位
 			static INLINED void MY_LIB erase_after(const_iterator begin, nullptr_t) noexcept {
 				while (begin + 1 != nullptr) erase_after(begin);
+				return;
+			}
+			//删除当前位置后的一位
+			static INLINED void MY_LIB erase_after(iterator begin, nullptr_t) noexcept {
+				while (begin + 1 != nullptr) erase_after(static_cast<const_iterator>(begin));
 				return;
 			}
 			//弹出当前位置后的一位

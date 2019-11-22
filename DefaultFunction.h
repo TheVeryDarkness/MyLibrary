@@ -26,7 +26,7 @@ namespace Darkness {
 			explicit MY_LIB constant(bool sign, const val1 &&v1, const val2 &&v2) noexcept 
 				:a(sign, std::move(v1), std::move(v2)) { }
 			constant &MY_LIB operator=(const constant &that) {
-				this->a.destruct();
+				//this->a.destruct();
 				this->a = that.a.Copy(that.a);
 				return *this;
 			}
@@ -44,7 +44,7 @@ namespace Darkness {
 			MY_LIB constant(constant &&that) noexcept : a(std::move(that.a)) { }
 			MY_LIB constant(const LargeInteger::Q &q) noexcept :a(std::move(q.Copy(q))) { }
 			MY_LIB constant(LargeInteger::Q &&q) noexcept :a(std::move(q)) { }
-			MY_LIB ~constant() noexcept { a.destruct(); }
+			MY_LIB ~constant() noexcept { /*a.destruct();*/ }
 			constant MY_LIB copy() {
 				return constant(a.Copy(a));
 			}
@@ -298,10 +298,7 @@ namespace Darkness {
 				expo(expo) { }
 			MY_LIB f_pow_x(LargeInteger::Q &&coeff, LargeInteger::N &&expo) noexcept
 				:coeff(std::move(coeff)), expo(std::move(expo)) { }
-			MY_LIB ~f_pow_x()noexcept {
-				coeff.destruct();
-				expo.destruct();
-			}
+			MY_LIB ~f_pow_x()noexcept = default;
 			void MY_LIB diff(function *&) noexcept override {
 				this->coeff *= this->expo;
 				if (this->expo != 0) {

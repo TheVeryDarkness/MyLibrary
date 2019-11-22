@@ -31,6 +31,8 @@ namespace Darkness {
 
 			MEMORY_CACHE(CacheSize);
 
+			struct iterator;
+			struct const_iterator;
 
 			struct iterator {
 				using in = DLL;
@@ -45,6 +47,7 @@ namespace Darkness {
 				constexpr bool MY_LIB operator!=(const iterator &_ptr)const noexcept { return this->ptr != _ptr.ptr; }
 
 				MY_LIB ~iterator()noexcept = default;
+				operator const_iterator()noexcept { return const_iterator(this->ptr); }
 				constexpr in *operator->() const noexcept {
 					return this->ptr;
 				}
