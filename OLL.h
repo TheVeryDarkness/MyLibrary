@@ -2,6 +2,7 @@
 
 #include "LinkedList.h"
 #include "ConstantBuffer.h"
+#include "end_ptr.h"
 
 namespace Darkness {
 	inline namespace LL {

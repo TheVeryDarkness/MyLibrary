@@ -1,5 +1,7 @@
 #pragma once
+
 #include "Shared.h"
+#include <cassert>
 
 template<typename Data, auto val = 0>
 class ConstantBuffer {

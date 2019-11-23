@@ -6,6 +6,7 @@
 #include "CustomizedRadixCharSet.h"
 #include "_Bytes.h"
 #include <iostream>
+#include <iomanip>
 #include <cassert>
 #include <vector>
 
@@ -139,9 +140,6 @@ namespace Darkness {
 						}
 					}
 				}
-
-			private:
-
 			};
 		};
 
@@ -286,15 +284,15 @@ namespace Darkness {
 			}
 			//*this < b
 			template<typename Range> INLINED bool MY_LIB range_smaller(const Range &b) const noexcept {
-				return (LargeInteger::LongCmpt<LLCmptTraits<radix>>::CompareTo(*this, b) == Compare::Smaller);
+				return (LargeInteger::LongCmpt<LLCmptTraits<radix>>::CompareTo(this->crange(), b) == Compare::Smaller);
 			}
 			//*this > b
 			template<typename Range> INLINED bool MY_LIB range_larger(const Range &b) const noexcept {
-				return (LargeInteger::LongCmpt<LLCmptTraits<radix>>::CompareTo(*this, b) == Compare::Larger);
+				return (LargeInteger::LongCmpt<LLCmptTraits<radix>>::CompareTo(this->crange(), b) == Compare::Larger);
 			}
 			//*this == b
 			template<typename Range> INLINED bool MY_LIB range_equal(const Range &b) const noexcept {
-				return (LargeInteger::LongCmpt<LLCmptTraits<radix>>::CompareTo(*this, b) == Compare::Equal);
+				return (LargeInteger::LongCmpt<LLCmptTraits<radix>>::CompareTo(this->crange(), b) == Compare::Equal);
 			}
 		public:
 			using super = LL;
@@ -303,7 +301,7 @@ namespace Darkness {
 				return iter_range<decltype(this->begin()), decltype(this->end())>{ this->begin(), this->end() };
 			}
 			constexpr INLINED auto arange() noexcept {
-				return cntnr_range<decltype(this->begin()), decltype(this->end()), LL>{ this->begin(), this->end(), *this };
+				return receive_range<decltype(this->begin()), decltype(this->end()), LL>{ this->begin(), this->end(), *this };
 			}
 			constexpr INLINED auto range() const noexcept {
 				return iter_range<decltype(this->cbegin()), decltype(this->cend())>{ this->cbegin(), this->cend() };
@@ -616,6 +614,13 @@ namespace Darkness {
 					}
 					p->erase_after(Flag, end);
 				}
+			#ifndef NDEBUG
+				bool flag = true;
+				for (const auto &i : p->crange()) {
+					flag = (i != 0);
+				}
+				assert(flag);
+			#endif // !NDEBUG
 				return Flag;
 			}
 			constexpr auto MY_LIB Simplify()noexcept {
@@ -742,10 +747,10 @@ namespace Darkness {
 
 
 			bool MY_LIB operator==(const LargeUnsigned &that)const noexcept {
-				return range_equal(that);
+				return range_equal(that.crange());
 			}
 			bool MY_LIB operator!=(const LargeUnsigned &that)const noexcept {
-				return !range_equal(that);
+				return !range_equal(that.crange());
 			}
 			template<typename Int>
 			bool MY_LIB operator==(const Int &that)const noexcept {
@@ -767,10 +772,10 @@ namespace Darkness {
 				return !(*this == that);
 			}
 			bool MY_LIB operator<(const LargeUnsigned &that)const noexcept {
-				return range_smaller(that);
+				return range_smaller(that.crange());
 			}
 			bool MY_LIB operator>(const LargeUnsigned &that)const noexcept {
-				return range_larger(that);
+				return range_larger(that.crange());
 			}
 			bool MY_LIB operator<=(const LargeUnsigned &that)const noexcept {
 				return !(*this > that);
