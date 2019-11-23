@@ -87,7 +87,9 @@ constexpr inline const T &RV_PAIR_DISPLAY(const T &t)noexcept {
 }
 
 #ifndef NSHOW
-#define SHOW(x) std::wcout << #x << " = " << x << std::endl;
+#define wSHOW(x) std::wcout << #x << " = " << (x) << std::endl;
+#define SHOW(x) std::cout << #x << " = " << (x) << std::endl;
+#define DO(x) {x; std::cout << #x << std::endl << (x) << std::endl;}
 #endif // !NSHOW
 
 

@@ -30,7 +30,14 @@ namespace Darkness {
 			constexpr Iter2 &end()noexcept { return this->_end; }
 			constexpr const Iter1 &begin()const noexcept { return this->_begin; }
 			constexpr const Iter2 &end()const noexcept { return this->_end; }
-			auto operator*()noexcept {
+			constexpr bool operator==(nullptr_t)const noexcept { return this->_begin == this->_end; }
+			constexpr auto &operator++()noexcept {
+				if (_begin != _end) {
+					++_begin;
+				}
+				return *this;
+			}
+			auto &operator*()noexcept {
 				return *_begin;
 			}
 		private:
@@ -45,11 +52,57 @@ namespace Darkness {
 			constexpr nullptr_t end()noexcept { return nullptr; }
 			constexpr const Iter1 &begin()const noexcept { return this->_begin; }
 			constexpr nullptr_t end()const noexcept { return nullptr; }
+			constexpr bool operator==(nullptr_t)const noexcept { return this->_begin == nullptr; }
+			constexpr auto &operator++()noexcept {
+				if (_begin != nullptr) {
+					++_begin;
+				}
+				return *this;
+			}
 			auto operator*()noexcept {
 				return *_begin;
 			}
 		private:
 			Iter1 _begin;
+		};
+		template<typename Iter1, typename Iter2, typename Cntnr>
+		struct cntnr_range {
+		public:
+			constexpr cntnr_range(Iter1 begin, Iter2 end, Cntnr &p)noexcept
+				:_begin(begin), _end(end), c(p) { }
+			constexpr Iter1 &begin() noexcept { return this->_begin; }
+			constexpr Iter2 &end() noexcept { return this->_end; }
+			constexpr const Iter1 &begin()const noexcept { return this->_begin; }
+			constexpr const Iter2 &end()const noexcept { return this->_end; }
+			auto &operator*()noexcept { return *_begin; }
+			constexpr bool operator==(nullptr_t)const noexcept { return this->_begin == this->_end; }
+			constexpr auto &operator++()noexcept {
+				if (_begin != _end) {
+					++_begin;
+				}
+				return *this;
+			}
+			static constexpr bool ending(const Iter1 &p, const Iter2 &end)noexcept {
+				Iter1 tmp = p;
+				++tmp;
+				return tmp == end;
+			}
+			constexpr Iter1 operator()(size_t len = 1)noexcept {
+				bool is_end = false;
+				Iter1 p = _begin;
+				for (; len > 0; --len) {
+					if (is_end || (ending(p, _end) && (is_end = true, true))) {
+						p = c.emplace_after(p, 0);
+						_end = c.end();
+					}
+					else ++p;
+				}
+				return p;
+			}
+		private:
+			Iter1 _begin;
+			Iter2 _end;
+			Cntnr &c;
 		};
 
 		enum class Compare :signed char {
@@ -88,49 +141,6 @@ namespace Darkness {
 		template<typename _Traits>
 		class LongCmpt {
 		public:
-			template<class ComputeFunction, typename subRange, typename Range, typename Data, typename PreLen>
-			class [[deprecated]] SubPrincIterator {
-			private:
-				ComputeFunction c;
-				//result;overflow
-				std::pair<Data, Data> Result;
-				subRange a;
-			public:
-				Range b;
-				MY_LIB SubPrincIterator(subRange a, Range b)noexcept
-					:c(), a(a), b(b), Result(c(Data(0), *(a.begin()), *(b.begin()))) {
-					static_assert(std::is_same_v<Data, std::decay_t<decltype(*a.begin())>>, "It should be the same type");
-					static_assert(std::is_same_v<Data, std::decay_t<decltype(*b.begin())>>, "It should be the same type");
-				}
-				MY_LIB ~SubPrincIterator()noexcept { }
-				//Notice:
-				//	this function move the iterator to its next place
-				void MY_LIB operator++() noexcept {
-					auto tmp(a.begin());
-					if (++tmp == a.end()) {
-						a.begin() = emplace_back(a.begin());
-					}
-					else a.begin() = tmp;
-					++b.begin();
-					Result = c(Result.second, *(a), *(b));
-				}
-				const Data &operator*()const noexcept {
-					return Result.first;
-				}
-				bool MY_LIB operator==(end_ptr_t)const noexcept {
-					return (Result.second == 0) && (a.begin() == a.end());
-				}
-				bool MY_LIB operator!=(end_ptr_t)const noexcept {
-					return !(*this == end_ptr);
-				}
-				bool MY_LIB operator==(nullptr_t)const noexcept {
-					return (Result.first == 0) && (Result.second == 0) && a.begin() == a.end();
-				}
-				bool MY_LIB operator!=(nullptr_t)const noexcept {
-					return !(*this == nullptr);
-				}
-			};
-
 			template<class ComputeFunction, typename Range, typename Data>
 			class LineIterator {
 			private:
@@ -143,23 +153,18 @@ namespace Darkness {
 				static_assert(std::is_same_v<Data, std::decay_t<decltype(*b.begin())>>, "It should be the same type");
 				MY_LIB LineIterator(Data a, Range b)noexcept :a(a), b(b), c(), Result(c(Data(0), a, *b.begin())) { }
 				MY_LIB LineIterator(Data a, Range b, Data Carry)noexcept :a(a), b(b), c(), Result(c(Carry, a, *b)) { }
-				MY_LIB ~LineIterator()noexcept { }
+				MY_LIB ~LineIterator()noexcept = default;
 				//Notice:
 				//	this function move the iterator b to its next place
 				void MY_LIB operator++() noexcept {
-					++b.begin();
-					Result = c(Result.second, a, *b);
+					if (b.begin() != b.end()) {
+						++b.begin();
+					}
+					Result = c(Result.second, a, (b.begin() != b.end() ? *b : 0));
 				}
-				constexpr LineIterator MY_LIB operator+(size_t sz) const noexcept {
-					LineIterator it(this->a, this->b + sz, Result.second);
-					return it;
-				}
-				const Data &operator*()const noexcept {
+				const Data &MY_LIB operator*()const noexcept {
 					return Result.first;
-				}
-				constexpr bool MY_LIB operator==(end_ptr_t)const noexcept {
-					return a == 0 || ((Result.second == 0) && (this->b == nullptr || this->b + 1 == nullptr));
-				}
+				};
 				constexpr bool MY_LIB operator==(nullptr_t)const noexcept {
 					return a == 0 || ((this->b.begin() == this->b.end()) && (Result.first == 0) && (Result.second == 0));
 				}
@@ -170,7 +175,7 @@ namespace Darkness {
 			class LayerIterator {
 			public:
 				LayerIterator(Value val) noexcept :c(), Result(c(val)) { }
-				~LayerIterator()noexcept { }
+				~LayerIterator()noexcept = default;
 				const Data &operator*()const noexcept {
 					return Result.first;
 				}
@@ -201,48 +206,51 @@ namespace Darkness {
 			};
 
 
-			template<typename Compute, typename subRange, typename Range, typename PreLen, typename... CallBack>
-			static constexpr INLINED void MY_LIB SubPrinComputeTo(subRange &a, Range &b, PreLen pre, CallBack &... c)noexcept {
+			template<typename Compute, typename subRange, typename Range, typename... CallBack>
+			static constexpr INLINED void MY_LIB SubPrinComputeTo(const subRange &_a, const Range &_b, CallBack &... cb)noexcept {
 				static_assert(std::is_same_v<
-					std::decay_t<decltype(*a.begin())>,
-					std::decay_t<decltype(*b.begin())>>,
+					std::decay_t<decltype(*_a.begin())>,
+					std::decay_t<decltype(*_b.begin())>>,
 					"They should have the same type.");
-				using Data = std::decay_t<decltype(*a.begin())>;
+				using Data = std::decay_t<decltype(*_a.begin())>;
+				if (_a.begin() == _a.end()) return;
+				assert(_b.begin() != _b.end());
+				Compute c;
+				subRange a(_a);
+				Range b(_b);
+				b(1);
+				//result;overflow
+				std::pair<Data, Data> Result = c(0, *a, *b);
+				size_t zeros = -1;
 				//This element
-
-
-				for (
-					SubPrincIterator<Compute, subRange, Range, Data, PreLen> compute(a, b);
-					(c(), ...), *(compute.b.begin()) = *compute, compute != end_ptr;
-					++compute);
-			}
-
-			template<typename subRange, typename Range, typename PreLen, typename... CallBack>
-			static constexpr INLINED void MY_LIB AddTo(subRange a, Range b, PreLen pre, CallBack &... c)noexcept {
-				return SubPrinComputeTo<typename _Traits::Add, subRange, Range, PreLen, CallBack...>(a, b, pre, c...);
-			}
-
-			template<typename subRange, typename Range, typename PreLen, typename... CallBack>
-			static constexpr INLINED void MY_LIB SubtractFrom(subRange a, Range b, PreLen pre, CallBack &... c)noexcept {
-				assert(CompareTo(a, b) != Compare::Larger);
-				return SubPrinComputeTo<typename _Traits::SubtractFrom, subRange, Range, PreLen, CallBack...>(a, b, pre, c...);
-			}
-
-			template<typename Range, typename Data>
-			[[deprecated]] static INLINED void MY_LIB MultiplyTo(Data a, Range b) noexcept {
-				Data Carry = Data(0);
-				LineIterator<typename _Traits::Multiply, Range, Data> mul(a, b);
-				while (true) {
-					//This element
-					*(mul.b) = mul.Result.first;
-					if (mul.b == end_ptr) {
-						if (mul.Result.second != Data(0)) {
-							mul.b.insert(mul.b, mul.Result.second);
-						}
-						break;
+				for (;;) {
+					(cb(), ...);
+					if (Result.first) {
+						b.begin() = b(zeros + 1), zeros = 0, *b.begin() = Result.first;
 					}
-					++mul;
+					++zeros;
+					if (a == nullptr) {
+						if (Result.second == 0) {
+							break;
+						}
+						Result = c(Result.second, 0, (zeros ? 0 : *b));
+					}
+					else {
+						++a;
+						Result = c(Result.second, *a, zeros ? 0 : *b);
+					}
 				}
+			}
+
+			template<typename subRange, typename Range, typename... CallBack>
+			static constexpr INLINED void MY_LIB AddTo(subRange a, Range b, CallBack &... c)noexcept {
+				return SubPrinComputeTo<typename _Traits::Add, subRange, Range, CallBack...>(a, b, c...);
+			}
+
+			template<typename subRange, typename Range, typename... CallBack>
+			static constexpr INLINED void MY_LIB SubtractFrom(subRange a, Range b, CallBack &... c)noexcept {
+				assert(CompareTo(a, b) != Compare::Larger);
+				return SubPrinComputeTo<typename _Traits::SubtractFrom, subRange, Range, CallBack...>(a, b, c...);
 			}
 
 
@@ -296,7 +304,7 @@ namespace Darkness {
 				}
 				std::cout << std::endl;
 			#endif // RV_DISPLAY_ON
-				using Data = typename std::decay_t<decltype(*a.begin())> ;
+				using Data = typename std::decay_t<decltype(*a.begin())>;
 				static_assert(std::is_same_v<std::decay_t<decltype(*a.begin())>, std::decay_t<decltype(*b.begin())>>);
 				constexpr auto PracticedRadix = ((_Traits::getRadix() == 0) ? std::numeric_limits<Data>::max() : _Traits::getRadix());
 				{
@@ -306,7 +314,7 @@ namespace Darkness {
 					Range _b = b;
 					for (;
 						;
-						++_a.begin(), ++_b.begin(), HasChanged = true
+						++_a, ++_b, HasChanged = true
 						) {
 						if (*_a.begin() > *_b.begin()) {
 							temp = Compare::Larger;
@@ -316,7 +324,7 @@ namespace Darkness {
 						}
 						subRange aNext(_a);
 						Range bNext(_b);
-						++aNext.begin(), ++bNext.begin();
+						++aNext, ++bNext;
 						//I wonder whether I should use if-else or ?:
 						if ((aNext.begin() == aNext.end()) && (bNext.begin() == bNext.end())) {
 							if (temp == Compare::Larger) {
@@ -358,8 +366,8 @@ namespace Darkness {
 					}
 				}
 			}
-			template<typename Accumulation, typename Recursion, typename subRange, typename Range, typename PreLen, typename Data>
-			static INLINED void MY_LIB __DivideInto(const subRange &_a, const Range &_b, PreLen pre, Recursion Move, Accumulation Accum)noexcept {
+			template<typename Accumulation, typename Recursion, typename subRange, typename Range, typename Data>
+			static INLINED void MY_LIB __DivideInto(const subRange &_a, const Range &_b, Recursion Move, Accumulation Accum)noexcept {
 				{
 					switch (CompareTo(_a, _b)) {
 					case Compare::Larger:
@@ -370,14 +378,13 @@ namespace Darkness {
 					case Compare::Smaller:
 					{
 						Range next(_b);
-						++next.begin();
-						__DivideInto<Accumulation, Recursion, subRange, Range, PreLen, Data>(_a, next, pre, Move, Accum);
+						++next;
+						__DivideInto<Accumulation, Recursion, subRange, Range, Data>(_a, next, Move, Accum);
 						Move();
 					}
-						break;
+					break;
 					default:
 						assert(false);
-						break;
 					}
 				}
 				while (true) {
@@ -394,32 +401,32 @@ namespace Darkness {
 					}
 				}
 			}
-			template<typename Linear, typename subRange, typename Range, typename Simplify, typename PreLen>
-			static INLINED void MY_LIB DivideInto(Linear &Res, subRange a, Range b, Simplify s, PreLen pre) noexcept {
+			template<typename Linear, typename subRange, typename Range, typename Simplify>
+			static INLINED void MY_LIB DivideInto(Linear &Res, subRange a, Range b, Simplify s) noexcept {
 				static_assert(std::is_same_v<std::decay_t<decltype(*a.begin())>, std::decay_t<decltype(*b.begin())>>, "Same type required");
 				using Data = typename std::decay_t<decltype(*a.begin())>;
 				//Regarding of the compatibility, we didn't use any majorization.
-				auto func1 = [&Res, &pre, &s](const subRange &a, const Range &b, Data times)->void {
+				auto func1 = [&Res, &s](const subRange &a, const Range &b, Data times)->void {
 					LineIterator<typename _Traits::Multiply, subRange, decltype(times)> temp(times, a);
-					SubtractFrom(iter_range<decltype(temp), nullptr_t>(temp, nullptr), b, pre);
+					SubtractFrom(iter_range<decltype(temp), nullptr_t>(temp, nullptr), b);
 					s(b);
 					Res += times;
 				};
 				auto func2 = [&Res]()->void {Res <<= 1; };
-				__DivideInto<decltype(func1), decltype(func2), subRange, Range, PreLen, Data>(a, b, pre, func2, func1);
+				__DivideInto<decltype(func1), decltype(func2), subRange, Range, Data>(a, b, func2, func1);
 			}
-			template<typename subRange, typename Range, typename Simplify, typename PreLen>
-			static INLINED void MY_LIB DivideInto(subRange a, Range b, Simplify s, PreLen pre) {
+			template<typename subRange, typename Range, typename Simplify>
+			static INLINED void MY_LIB DivideInto(subRange a, Range b, Simplify s) {
 				static_assert(std::is_same_v<std::decay_t<decltype(*a.begin())>, std::decay_t<decltype(*b.begin())>>, "Same type required.");
 				using Data = typename std::decay_t<decltype(*a.begin())>;
 				//Regarding of the compatibility, we didn't use any majorization.
-				auto func = [&pre, &s](const subRange &a, const Range &b, Data times)->void {
+				auto func = [&s](const subRange &a, const Range &b, Data times)->void {
 					LineIterator<typename _Traits::Multiply, subRange, decltype(times)> temp(times, a);
-					SubtractFrom(iter_range<decltype(temp), nullptr_t>(temp, nullptr), b, pre);
+					SubtractFrom(iter_range<decltype(temp), nullptr_t>(temp, nullptr), b);
 					s(b);
 				};
 				Empty null;
-				__DivideInto<decltype(func), Empty, subRange, Range, PreLen, Data>(a, b, pre, null, func);
+				__DivideInto<decltype(func), Empty, subRange, Range, Data>(a, b, null, func);
 			}
 		};
 

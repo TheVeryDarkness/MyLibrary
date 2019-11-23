@@ -98,7 +98,7 @@ namespace Darkness {
 				return std::move(tmp);
 			}
 		private:
-			LargeInteger::Q a;
+			Q a;
 		};
 		constant INLINED MY_LIB sind(size_t degree) {
 			degree %= 180;
@@ -296,7 +296,7 @@ namespace Darkness {
 			MY_LIB f_pow_x(Val1 &&coeff1, Val2 &&coeff2, size_t expo) noexcept :
 				coeff(true, std::move(coeff1), std::move(coeff2)),
 				expo(expo) { }
-			MY_LIB f_pow_x(LargeInteger::Q &&coeff, LargeInteger::N &&expo) noexcept
+			MY_LIB f_pow_x(Q &&coeff, N &&expo) noexcept
 				:coeff(std::move(coeff)), expo(std::move(expo)) { }
 			MY_LIB ~f_pow_x()noexcept = default;
 			void MY_LIB diff(function *&) noexcept override {
@@ -325,8 +325,8 @@ namespace Darkness {
 				return (coeff == 0 ? o << "0" : o << coeff << " * x" << "^(" << expo << ")");
 			}
 		private:
-			LargeInteger::Q coeff;
-			LargeInteger::N expo;
+			Q coeff;
+			N expo;
 		};
 
 		class f_pow_x_ln_x :public function {

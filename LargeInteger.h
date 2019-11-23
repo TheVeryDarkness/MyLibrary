@@ -190,7 +190,7 @@ namespace Darkness {
 			) noexcept {
 			static_assert(base < BaseType(INT_MAX), "Base not supprted");
 			if (begin != end) {
-				if (SinglePrint<Iter1, Iter2, BaseType, ShowComma, MinLength, base>(++Iter1(begin), end, out)) 					{
+				if (SinglePrint<Iter1, Iter2, BaseType, ShowComma, MinLength, base>(++Iter1(begin), end, out)) {
 					out << *begin;
 				}
 				else {
@@ -231,28 +231,33 @@ namespace Darkness {
 			static_assert(radix >= 0, "Positive radix required.");
 			static_assert(std::is_same_v<radix_t, typename LL::value_type>, "Value type should be the same");
 
-			template<typename Range> INLINED void MY_LIB iter_mul(const Range &b) noexcept {
+			template<typename Range> INLINED void MY_LIB range_mul(const Range &b) noexcept {
 				LargeUnsigned This(std::move(*static_cast<LL *>(this)));
+				this->emplace_front(0);
 				//this->destruct();
-				auto Ptr = this->range();
+				auto Ptr = this->arange();
 				auto OprtPtr = b.begin();
 				for (; ; ) {
-					typename LargeInteger::LongCmpt<typename LargeInteger::LLCmptTraits<radix>>::template LineIterator<typename LargeInteger::LLCmptTraits<radix>::Multiply, decltype(This.crange()), Data> temp(*OprtPtr, This.crange());
-					LargeInteger::LongCmpt<typename LargeInteger::LLCmptTraits<radix>>::template AddTo(iter_range<decltype(temp), nullptr_t>(temp, nullptr), Ptr, pre1());
+					typename LargeInteger::template LongCmpt<typename LargeInteger::LLCmptTraits<radix>>::template LineIterator<typename LargeInteger::LLCmptTraits<radix>::Multiply, decltype(This.crange()), Data> temp(*OprtPtr, This.crange());
+					LargeInteger::LongCmpt<typename LargeInteger::LLCmptTraits<radix>>::template AddTo(iter_range<decltype(temp), nullptr_t>(temp, nullptr), Ptr);
 					++OprtPtr;
 					if (OprtPtr == b.end())break;
-					++Ptr.begin();
+					++Ptr;
 				}
 				//This.release();
 			}
-			template<typename iter>
+			template<typename range>
 			class pre {
 			public:
 				pre(LargeUnsigned *ptr)noexcept :p(ptr) { }
-				auto operator()(iter it, size_t l = 1) noexcept {
+				auto operator()(range it, size_t l = 1) noexcept {
 					for (; l != 0; --l) {
-						p->LL::emplace_after(it, 0);
-						++it;
+						auto tmp(it.begin());
+						++tmp;
+						if (tmp == it.end()) {
+							it.begin() = p->LL::emplace_after(it.begin(), 0);
+							it.end() = p->end();
+						}
 					}
 					return it;
 				}
@@ -262,22 +267,22 @@ namespace Darkness {
 			};
 
 			constexpr auto pre1() noexcept {
-				return pre<decltype(this->begin())>(this);
+				return pre<decltype(this->range())>(this);
 			}
 			constexpr auto pre2() const noexcept {
-				return pre<decltype(this->cbegin())>(this);
+				return pre<decltype(this->crange())>(this);
 			}
 			template<typename Range> INLINED void MY_LIB range_add(const Range &b) noexcept {
-				LargeInteger::LongCmpt<LLCmptTraits<radix>>::AddTo(b, this->range(), pre1());
+				LargeInteger::LongCmpt<LLCmptTraits<radix>>::AddTo(b, this->arange());
 			}
 			template<typename Range> INLINED void MY_LIB range_sub(const Range &b) noexcept {
-				LargeInteger::LongCmpt<LLCmptTraits<radix>>::SubtractFrom(b, this->range(), pre1());
+				LargeInteger::LongCmpt<LLCmptTraits<radix>>::SubtractFrom(b, this->arange());
 			}
 			template<typename Range> INLINED void MY_LIB range_div(LargeUnsigned &Res, const Range &b) noexcept {
-				LargeInteger::LongCmpt<LLCmptTraits<radix>>::template DivideInto(Res, b, this->range(), Sim(this), pre1());
+				LargeInteger::LongCmpt<LLCmptTraits<radix>>::template DivideInto(Res, b, this->arange(), Sim(this));
 			}
 			template<typename Range> INLINED void MY_LIB range_div(const Range &b) noexcept {
-				LargeInteger::LongCmpt<LLCmptTraits<radix>>::template DivideInto(b, this->range(), Sim(this), pre1());
+				LargeInteger::LongCmpt<LLCmptTraits<radix>>::template DivideInto(b, this->arange(), Sim(this));
 			}
 			//*this < b
 			template<typename Range> INLINED bool MY_LIB range_smaller(const Range &b) const noexcept {
@@ -297,11 +302,14 @@ namespace Darkness {
 			constexpr INLINED auto range() noexcept {
 				return iter_range<decltype(this->begin()), decltype(this->end())>{ this->begin(), this->end() };
 			}
+			constexpr INLINED auto arange() noexcept {
+				return cntnr_range<decltype(this->begin()), decltype(this->end()), LL>{ this->begin(), this->end(), *this };
+			}
 			constexpr INLINED auto range() const noexcept {
 				return iter_range<decltype(this->cbegin()), decltype(this->cend())>{ this->cbegin(), this->cend() };
 			}
-			constexpr INLINED auto crange() const noexcept { 
-				return iter_range<decltype(this->cbegin()),decltype(this->cend())>{ this->cbegin(),this->cend() };
+			constexpr INLINED auto crange() const noexcept {
+				return iter_range<decltype(this->cbegin()), decltype(this->cend())>{ this->cbegin(), this->cend() };
 			}
 			constexpr INLINED auto begin() noexcept {
 				return this->LL::begin();
@@ -349,6 +357,10 @@ namespace Darkness {
 			explicit MY_LIB LargeUnsigned(val Val)noexcept :LL(0) {
 				static_assert(std::is_integral_v<val>, "Integral type required.");
 				static_assert(!std::is_same_v<val, bool>, "Never use bool type");
+				if (Val == 0) {
+					this->emplace_front(0);
+					return;
+				}
 				auto it = Layer(Val);
 				for (auto index = this->before_begin(); it != nullptr; ) {
 					index = this->LL::emplace_after(index, *it);
@@ -403,24 +415,13 @@ namespace Darkness {
 
 			}
 			explicit MY_LIB LargeUnsigned(LL &&ll)noexcept :LL(std::move(ll)) { }
-			MY_LIB LargeUnsigned(LargeUnsigned &&ll)noexcept :LL(static_cast<LL&&>(ll)) { }
-			LargeUnsigned &MY_LIB operator=(LargeUnsigned &&ll)noexcept{ 
-				this->LL::operator=(static_cast<LL&&>(ll));
-				return *this; 
+			MY_LIB LargeUnsigned(LargeUnsigned &&ll)noexcept :LL(static_cast<LL &&>(ll)) { }
+			LargeUnsigned &MY_LIB operator=(LargeUnsigned &&ll)noexcept {
+				this->LL::operator=(static_cast<LL &&>(ll));
+				return *this;
 			}
 			static constexpr LargeUnsigned MY_LIB Copy(const LargeUnsigned &that)noexcept {
-				LargeUnsigned This(0);
-				auto j = This.begin();
-				if (that.cbegin() != that.cend()) {
-					for (auto index = that.cbegin(); ; ) {
-						*j = *index;
-						++index;
-						if (index != that.cend()) {
-							++j;
-						}
-					}
-				}
-				return This;
+				return LargeUnsigned(std::move(LL(that)));
 			}
 			template<auto Radix>
 			class RadixSelector {
@@ -459,18 +460,18 @@ namespace Darkness {
 					return Radix_t(1);
 				}
 			};
-			template<typename Iter1,typename Iter2,auto Radix>
+			template<typename Iter1, typename Iter2, auto Radix>
 			//二进制输出到控制台窗口
 			//不再自动换行
 			static /*INLINED*/std::ostream &MY_LIB _Print(
-				const Iter1& begin,
-				const Iter2& end,
+				const Iter1 &begin,
+				const Iter2 &end,
 				std::ostream &out
 			) noexcept {
 				if constexpr (Radix == static_cast<decltype(Radix)>(0)) {
 					out << "0x"
 						<< std::setbase(16);
-					LargeInteger::SinglePrint(this->cbegin(), out, false, 2 * sizeof(Radix), 16);
+					LargeInteger::SinglePrint(begin, end, out, false, 2 * sizeof(Radix), 16);
 				}
 				else {
 					constexpr auto a = RadixSelector<Radix>::Base();
@@ -496,7 +497,7 @@ namespace Darkness {
 						out << "(Base:"
 							<< Radix
 							<< ")";
-						LargeInteger::SinglePrint<Iter1, Iter2, int, true, b, a>(this->cbegin(), this->cend(), out);
+						LargeInteger::SinglePrint<Iter1, Iter2, int, true, b, a>(begin, end, out);
 					}
 				}
 				out << std::setbase(10);
@@ -585,10 +586,11 @@ namespace Darkness {
 			}
 
 			template<typename Int>
-			/*INLINED*/ void MY_LIB operator*=(const Int &that) noexcept {
+			/*INLINED*/ auto &MY_LIB operator*=(const Int &that) noexcept {
 				static_assert(std::is_integral_v<Int>);
 				auto it = LayerRange(that);
-				this->iter_mul(it);
+				this->range_mul(it);
+				return *this;
 			}
 			template<typename Int>
 			/*INLINED*/LargeUnsigned MY_LIB operator*(const Int &that) const noexcept {
@@ -601,10 +603,10 @@ namespace Darkness {
 			constexpr void MY_LIB Swap(LargeUnsigned &that)noexcept {
 				this->LL::swap(*static_cast<LL *>(&that));
 			}
-			template<typename Begin,typename End>
-			static constexpr auto MY_LIB Simplify(LargeUnsigned* p, Begin begin, End end)noexcept {
+			template<typename Begin, typename End>
+			static constexpr auto MY_LIB Simplify(LargeUnsigned *p, Begin begin, End end)noexcept {
 				auto Flag = begin;
-				if (begin!=end) {
+				if (begin != end) {
 					auto OprtPtr = begin;
 					while (OprtPtr != end) {
 						if (*OprtPtr != Data(0U)) {
@@ -617,22 +619,10 @@ namespace Darkness {
 				return Flag;
 			}
 			constexpr auto MY_LIB Simplify()noexcept {
-				auto Flag = this->cbegin();
-				auto OprtPtr = this->cbegin();
-				while (true) {
-					if (*OprtPtr != Data(0U)) {
-						Flag = OprtPtr;
-					}
-					if (OprtPtr == this->cend()) {
-						break;
-					}
-					++OprtPtr;
-				}
-				this->LL::erase_after(Flag, this->cend());
-				return Flag;
+				return Simplify(this, this->cbegin(), this->cend());
 			}
 			/*INLINED*/void MY_LIB operator*=(const LargeUnsigned &b) noexcept {
-				this->iter_mul(b.range());
+				this->range_mul(b.range());
 			}
 			//重载
 			/*INLINED*/LargeUnsigned MY_LIB operator*(const LargeUnsigned &b)const noexcept {
@@ -693,22 +683,24 @@ namespace Darkness {
 
 
 			template<typename Int>
-			INLINED void MY_LIB operator+=(const Int &that)noexcept {
+			INLINED auto &MY_LIB operator+=(const Int &that)noexcept {
 				static_assert(std::is_integral_v<Int>, "integral type required.");
-				if (that == 0) return;
+				if (that == 0) return *this;
 				if (*this == 0) {
 					*this = that;
-					return;
+					return *this;
 				}
 				auto it = LayerRange(that);
 				range_add(it);
+				return *this;
 			}
 			template<typename Int>
-			INLINED void MY_LIB operator-=(const Int &that)noexcept {
+			INLINED auto &MY_LIB operator-=(const Int &that)noexcept {
 				static_assert(std::is_integral_v<Int>, "integral type required.");
-				if (that == 0) 	return;
+				if (that == 0) 	return *this;
 				auto it = LayerRange(that);
 				range_sub(it);
+				return *this;
 			}
 			template<typename Int>
 			INLINED LargeUnsigned MY_LIB operator+(const Int &that)const noexcept {
@@ -734,7 +726,7 @@ namespace Darkness {
 				unsigned int bits) noexcept {
 				if (*this != 0) {
 					for (unsigned int i = 0; i < bits; i++) {
-						this->LL::insert_after(this->begin(), 0);
+						this->LL::insert_after(this->before_begin(), 0);
 					}
 				}
 				return *this;
@@ -759,7 +751,12 @@ namespace Darkness {
 			bool MY_LIB operator==(const Int &that)const noexcept {
 				static_assert(std::is_integral_v<Int>, "integral type required.");
 				if (that == Int(0)) {
-					return (this->LL::empty());
+					for (auto i : *this) {
+						if (i != 0) {
+							return false;
+						}
+					}
+					return true;
 				}
 				auto it = LayerRange(that);
 				return range_equal(it);
@@ -844,18 +841,20 @@ namespace Darkness {
 				return Res;
 			}
 			template<typename Int>
-			void MY_LIB operator%=(const Int &that)noexcept {
+			auto &MY_LIB operator%=(const Int &that)noexcept {
 				static_assert(std::is_integral_v<Int>, "integral type required.");
 				auto it = LayerRange(that);
 				range_div(it);
+				return *this;
 			}
 			template<typename Int>
-			void MY_LIB operator/=(const Int &that)noexcept {
+			auto &MY_LIB operator/=(const Int &that)noexcept {
 				static_assert(std::is_integral_v<Int>, "integral type required.");
 				auto it = LayerRange(that);
 				LargeUnsigned Res(0);
 				range_div(Res, it);
 				*this = std::move(Res);
+				return *this;
 			}
 			template<typename Int>
 			LargeUnsigned MY_LIB Divide(const Int &that)noexcept {
