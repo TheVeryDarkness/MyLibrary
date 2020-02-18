@@ -12,11 +12,13 @@ int main(int argc, char *argv[]) noexcept{
 			cerr << "Error in opening the file at \"" << argv[i] << "\"." << endl;
 			continue;
 		}
-		cout << "/*Below is " << argv[i] << " */" << endl;
+		cout << "/*Below is " << argv[i] << " */";
 		cout << setfill('0') << setbase(16);
-		while (fin.peek(), !fin.eof()){
-			cout << setw(2) << static_cast<unsigned int>(fin.get()) << ' ';
-		}
+		size_t bytes = 0;
+		while (fin.peek(), !fin.eof())
+			if (bytes % 16 == 0)
+				cout << endl << bytes << 'H' << ' ';
+			else cout << setw(2) << static_cast<unsigned int>(fin.get()) << ' ';
 		cout << endl;
 		fin.close();
 	}
