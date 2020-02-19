@@ -11,7 +11,7 @@ int main(int argc, char* argv[]) noexcept{
 			cerr << "Error in opening the file at \"" << argv[i] <<"\"." << endl;
 			continue;
 		}
-		cout << "/*Below is " << argv[i] << " */" << endl;
+		cout << "/*Below is " << argv[i] << " */" << endl << setfill('0');
 		while (fin.peek(), fin){
 			char c = fin.get();
 			switch(c){
