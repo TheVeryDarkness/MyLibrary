@@ -2,15 +2,6 @@
 #include <fstream>
 #include <iomanip>
 
-template<bool _signed> class helper;
-
-template<>class helper<true>{
-	public: using int_type = int;
-};
-template<>class helper<false>{
-	public: using int_type = unsigned int;
-};
-using target_int = helper<static_cast<char>(-1) < 0>::int_type;
 int main(int argc, char* argv[]) noexcept{
 	using namespace std;
 	if (argc <= 1) return cerr << "No file is provided in argument." << endl, -1;
@@ -24,7 +15,7 @@ int main(int argc, char* argv[]) noexcept{
 		while (fin.peek(), fin){
 			char c = fin.get();
 			if (c < 32 || c >= 127)
-				cout << "\\x" << setw(2) << static_cast<target_int>(static_cast<unsigned char>(c));
+				cout << "\\x" << setw(2) << static_cast<int>(static_cast<unsigned char>(c));
 			else cout << c;
 		}
 		cout << endl;
