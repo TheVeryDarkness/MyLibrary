@@ -11,22 +11,12 @@ int main(int argc, char* argv[]) noexcept{
 			cerr << "Error in opening the file at \"" << argv[i] <<"\"." << endl;
 			continue;
 		}
-		cout << "/*Below is " << argv[i] << " */" << endl << setfill('0');
+		cout << "/*Below is " << argv[i] << " */" << endl << setfill('0') <<setbase(16);
 		while (fin.peek(), fin){
 			char c = fin.get();
-			switch(c){
-				case 7: cout << "\\a"; break;
-				case 8: cout << "\\b"; break;
-				case 9: cout << "\\t"; break;
-				case 10: cout << "\\n"; break;
-				case 11: cout << "\\v"; break;
-				case 12: cout << "\\f"; break;
-				case 13: cout << "\\r"; break;
-				default:
-					if ((0 <= c && c < 32) || c == 127)
-						cout << "\\x" << setw(3) << static_cast<unsigned>(c);
-					else cout << c;
-			}
+			if ((0 <= c && c < 32) || c == 127)
+				cout << "\\x" << setw(3) << static_cast<unsigned>(c);
+			else cout << c;
 		}
 		cout << endl;
 		fin.close();
