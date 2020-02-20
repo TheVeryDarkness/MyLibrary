@@ -16,7 +16,7 @@ int main(int argc, char* argv[]) noexcept{
 			char c = fin.get();
 			if (c >= 32 && c < 127)
 				cout << c;
-			else cout << '.';
+			else cout << '\x00c';
 		}
 		cout << endl;
 		fin.close();
