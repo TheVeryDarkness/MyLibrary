@@ -11,12 +11,15 @@ int main(int argc, char* argv[]) noexcept{
 			cerr << "Error in opening the file at \"" << argv[i] <<"\"." << endl;
 			continue;
 		}
-		cout << "/*Below is " << argv[i] << " */" << endl << setfill('0') <<setbase(16);
+		cout << "/*Below is " << argv[i] << " */" << setfill('0') <<setbase(16);
+		size_t bytes = 0;
 		while (fin.peek(), fin){
+			if (bytes % 16 == 0) cout << endl;
 			char c = fin.get();
 			if (c >= 32 && c < 127)
 				cout << c;
 			else cout << '\x00c';
+			++bytes;
 		}
 		cout << endl;
 		fin.close();
