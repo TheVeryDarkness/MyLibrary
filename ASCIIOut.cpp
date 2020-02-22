@@ -6,7 +6,7 @@ int main(int argc, char* argv[]) noexcept{
 	using namespace std;
 	if (argc <= 1) return cerr << "No file is provided in argument." << endl, -1;
 	for(int i = 1; i < argc; ++i){
-		ifstream fin(argv[i]);
+		ifstream fin(argv[i], ios_base::binary);
 		if(!fin) {
 			cerr << "Error in opening the file at \"" << argv[i] <<"\"." << endl;
 			continue;
