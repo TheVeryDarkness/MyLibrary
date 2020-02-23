@@ -18,7 +18,7 @@ int main(int argc, char *argv[]) noexcept{
 		while (fin.peek(), !fin.eof()){
 			if (bytes % 16 == 15)
 				cout << "\b: " << bytes - 15 << "H - " << bytes << 'H' << endl ;
-			else cout << setw(2) << static_cast<unsigned int>(fin.get()) << ' ';
+			cout << setw(2) << static_cast<unsigned int>(fin.get()) << ' ';
 			++bytes;
 			}
 		cout << endl;
