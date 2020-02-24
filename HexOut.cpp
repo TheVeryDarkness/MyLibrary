@@ -16,10 +16,7 @@ int main(int argc, char *argv[]) noexcept{
 		cout << setfill('0') << setbase(16);
 		size_t bytes = 0;
 		while (fin.peek(), !fin.eof()){
-			unsigned char temp = fin.get();
-			for (signed char bits = 7; bits >= 0; --bits)
-				cout << ((temp >> bits) & 1);
-			cout << ' ';
+			cout << setw(2) << static_cast<unsigned int>(fin.get()) << ' ';
 			if (bytes % 16 == 15)
 				cout << "\b: " << bytes - 15 << "H - " << bytes << 'H' << endl;
 			++bytes;
