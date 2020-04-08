@@ -22,12 +22,11 @@
 #endif // _DEBUG
 
 
-#ifndef MY_LIB
-#ifdef _WIN32
+#if !defined(MY_LIB)
+#if defined(_WIN32)
 #define MY_LIB __stdcall
-#endif // _WIN32
-#else
-#ifdef linux
+//#endif // _WIN32
+#elif defined(linux)
 #define MY_LIB __attribute__((__stdcall__))
 #else
 #define MY_LIB
